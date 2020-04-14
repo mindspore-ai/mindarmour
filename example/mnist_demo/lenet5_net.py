@@ -11,8 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import mindspore.nn as nn
-import mindspore.ops.operations as P
+from mindspore import nn
 from mindspore.common.initializer import TruncatedNormal
 
 
@@ -30,7 +29,7 @@ def fc_with_initialize(input_channels, out_channels):
 
 
 def weight_variable():
-    return TruncatedNormal(0.2)
+    return TruncatedNormal(0.02)
 
 
 class LeNet5(nn.Cell):
@@ -46,7 +45,7 @@ class LeNet5(nn.Cell):
         self.fc3 = fc_with_initialize(84, 10)
         self.relu = nn.ReLU()
         self.max_pool2d = nn.MaxPool2d(kernel_size=2, stride=2)
-        self.reshape = P.Reshape()
+        self.flatten = nn.Flatten()
 
     def construct(self, x):
         x = self.conv1(x)
@@ -55,7 +54,7 @@ class LeNet5(nn.Cell):
         x = self.conv2(x)
         x = self.relu(x)
         x = self.max_pool2d(x)
-        x = self.reshape(x, (-1, 16*5*5))
+        x = self.flatten(x)
         x = self.fc1(x)
         x = self.relu(x)
         x = self.fc2(x)

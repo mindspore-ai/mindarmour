@@ -37,10 +37,10 @@ def generate_mnist_dataset(data_path, batch_size=32, repeat_size=1,
     rescale_op = CV.Rescale(rescale, shift)
     hwc2chw_op = CV.HWC2CHW()
     type_cast_op = C.TypeCast(mstype.int32)
-    one_hot_enco = C.OneHot(10)
 
     # apply map operations on images
     if not sparse:
+        one_hot_enco = C.OneHot(10)
         ds1 = ds1.map(input_columns="label", operations=one_hot_enco,
                       num_parallel_workers=num_parallel_workers)
         type_cast_op = C.TypeCast(mstype.float32)
