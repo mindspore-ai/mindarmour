@@ -29,12 +29,6 @@ LOGGER = LogUtil.get_instance()
 TAG = 'NES'
 
 
-def _one_hot(index, total):
-    arr = np.zeros((total))
-    arr[index] = 1.0
-    return arr
-
-
 def _bound(image, epislon):
     lower = np.clip(image - epislon, 0, 1)
     upper = np.clip(image + epislon, 0, 1)

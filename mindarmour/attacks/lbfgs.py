@@ -127,12 +127,13 @@ class LBFGS(Attack):
 
     def _loss(self, cur_input, start_input, cur_eps, shape, labels):
         """
-        The l-bfgs-b loss used is Mean Square Error distance from original
-        input plus crossentropy loss.
+        The l-bfgs-b loss is the sum of l2 distances to the original input plus
+        the cross-entropy loss.
         """
         cur_input = cur_input.astype(self._dtype)
-        mse_distance = np.mean(np.square(start_input - cur_input)) / \
-                       ((self._box_max - self._box_min)**2)
+        l2_distance = np.linalg.norm(cur_input.reshape(
+            (cur_input.shape[0], -1)) - start_input.reshape(
+            (start_input.shape[0], -1)))
         logits = self._forward_one(cur_input.reshape(shape)).flatten()
         logits = logits - np.max(logits)
         if self._sparse:
@@ -146,7 +147,7 @@ class LBFGS(Attack):
             crossentropy = logits[target_class] - np.log(np.sum(np.exp(logits)))
             gradient = -self._gradient(cur_input, labels, shape).flatten()
 
-        return (mse_distance + cur_eps*crossentropy).astype(self._dtype), \
+        return (l2_distance + cur_eps*crossentropy).astype(self._dtype), \
                gradient.astype(np.float64)
 
     def _lbfgsb(self, start_input, cur_eps, shape, labels, bounds):

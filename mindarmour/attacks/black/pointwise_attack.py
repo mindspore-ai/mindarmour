@@ -167,10 +167,9 @@ class PointWiseAttack(Attack):
                   'is: {}'.format(unperturbed_img.dtype, perturbed_img.dtype)
             LOGGER.error(TAG, msg)
             raise ValueError(msg)
-
-        LOGGER.debug(TAG, 'Before optimize, the mse distance between original '
-                          'sample and adversarial sample is: {}'
-                     .format(self._distance(perturbed_img, unperturbed_img)))
+        l2_dis = np.linalg.norm(perturbed_img - unperturbed_img)
+        LOGGER.debug(TAG, 'Before optimize, the l2 distance between original '
+                          'sample and adversarial sample is: {}'.format(l2_dis))
         # recover pixel if image is adversarial
         for _ in range(self._max_iter):
             is_improve = False
@@ -190,8 +189,9 @@ class PointWiseAttack(Attack):
                         break
                     else:
                         recover[ite_ind] = perturbed_img[ite_ind]
-            if not is_improve or (self._distance(
-                    perturbed_img, unperturbed_img) <= self._get_threthod()):
+            l2_dis = np.linalg.norm(perturbed_img - unperturbed_img)
+            if not is_improve or (np.square(l2_dis) / np.sqrt(len(pixels_ind))
+                                  <= self._get_threthod()):
                 break
         LOGGER.debug(TAG, 'first round: Query count {}'.format(query_count))
         LOGGER.debug(TAG, 'Starting binary searches.')
@@ -213,12 +213,10 @@ class PointWiseAttack(Attack):
                     is_improve = True
                     mask[ite_ind] = True
                     perturbed_img[ite_ind] = recover[ite_ind]
+                    l2_dis = np.linalg.norm(perturbed_img - unperturbed_img)
                     LOGGER.debug(TAG,
                                  'Reset {}th pixel value to original, '
-                                 'mse distance: {}.'.format(
-                                     ite_ind,
-                                     self._distance(perturbed_img,
-                                                    unperturbed_img)))
+                                 'l2 distance: {}.'.format(ite_ind, l2_dis))
                     break
                 else:
                     # use binary searches
@@ -232,15 +230,15 @@ class PointWiseAttack(Attack):
                         is_improve = True
                         mask[ite_ind] = True
                         perturbed_img[ite_ind] = optimized_value
+                        l2_dis = np.linalg.norm(perturbed_img - unperturbed_img)
                         LOGGER.debug(TAG,
                                      'Reset {}th pixel value to original, '
-                                     'mse distance: {}.'.format(
-                                         ite_ind,
-                                         self._distance(perturbed_img,
-                                                        unperturbed_img)))
+                                     'l2 distance: {}.'.format(ite_ind,
+                                                               l2_dis))
                         break
-            if not is_improve or (self._distance(
-                    perturbed_img, unperturbed_img) <= self._get_threthod()):
+            l2_dis = np.linalg.norm(perturbed_img - unperturbed_img)
+            if not is_improve or (np.square(l2_dis) / np.sqrt(len(pixels_ind))
+                                  <= self._get_threthod()):
                 LOGGER.debug(TAG, 'second optimized finish.')
                 break
         LOGGER.info(TAG, 'Optimized finished, query count is {}'.format(query_count))
@@ -295,32 +293,14 @@ class PointWiseAttack(Attack):
         is_adv, start_adv, query_c = self._init_attack.generate(inputs, labels)
         return is_adv, start_adv, query_c
 
-    def _distance(self, perturbed_img, unperturbed_img):
-        """
-        Calculate Mean Squared Error (MSE) to evaluate the optimized process.
-
-        Args:
-            perturbed_img (numpy.ndarray): Adversarial sample to be optimized.
-            unperturbed_img (numpy.ndarray): As a reference benigh sample.
-
-        Returns:
-            float, Calculation of Mean Squared Error (MSE).
-        """
-        return np.square(np.subtract(perturbed_img, unperturbed_img)).mean()
-
-    def _get_threthod(self, method='MSE'):
+    def _get_threthod(self):
         """
         Return a float number, when distance small than this number,
         optimize will abort early.
-
-        Args:
-            method: distance method. Default: MSE.
 
         Returns:
             float, the optimized level, the smaller of number, the better
             of adversarial sample.
         """
         predefined_threshold = 0.01
-        if method == 'MSE':
-            return predefined_threshold
         return predefined_threshold
