@@ -95,8 +95,7 @@ setup(
     install_requires=[
         'scipy >= 1.3.3',
         'numpy >= 1.17.0',
-        'matplotlib >= 3.1.3',
-        'mindspore'
+        'matplotlib >= 3.1.3'
     ],
 )
 print(find_packages())
