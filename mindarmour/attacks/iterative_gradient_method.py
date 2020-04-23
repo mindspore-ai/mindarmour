@@ -15,6 +15,7 @@
 from abc import abstractmethod
 
 import numpy as np
+from PIL import Image, ImageOps
 
 from mindspore.nn import SoftmaxCrossEntropyWithLogits
 from mindspore import Tensor
@@ -115,7 +116,7 @@ class IterativeGradientMethod(Attack):
         bounds (tuple): Upper and lower bounds of data, indicating the data range.
             In form of (clip_min, clip_max). Default: (0.0, 1.0).
         nb_iter (int): Number of iteration. Default: 5.
-        loss_fn (Loss): Loss function for optimization.
+        loss_fn (Loss): Loss function for optimization. Default: None.
     """
     def __init__(self, network, eps=0.3, eps_iter=0.1, bounds=(0.0, 1.0), nb_iter=5,
                  loss_fn=None):
@@ -178,14 +179,13 @@ class BasicIterativeMethod(IterativeGradientMethod):
         is_targeted (bool): If True, targeted attack. If False, untargeted
             attack. Default: False.
         nb_iter (int): Number of iteration. Default: 5.
-        loss_fn (Loss): Loss function for optimization.
+        loss_fn (Loss): Loss function for optimization. Default: None.
         attack (class): The single step gradient method of each iteration. In
             this class, FGSM is used.
 
     Examples:
         >>> attack = BasicIterativeMethod(network)
     """
-
     def __init__(self, network, eps=0.3, eps_iter=0.1, bounds=(0.0, 1.0),
                  is_targeted=False, nb_iter=5, loss_fn=None):
         super(BasicIterativeMethod, self).__init__(network,
@@ -227,14 +227,22 @@ class BasicIterativeMethod(IterativeGradientMethod):
             clip_min, clip_max = self._bounds
             clip_diff = clip_max - clip_min
             for _ in range(self._nb_iter):
-                adv_x = self._attack.generate(inputs, labels)
+                if 'self.prob' in globals():
+                    d_inputs = _transform_inputs(inputs, self.prob)
+                else:
+                    d_inputs = inputs
+                adv_x = self._attack.generate(d_inputs, labels)
                 perturs = np.clip(adv_x - arr_x, (0 - self._eps)*clip_diff,
                                   self._eps*clip_diff)
                 adv_x = arr_x + perturs
                 inputs = adv_x
         else:
             for _ in range(self._nb_iter):
-                adv_x = self._attack.generate(inputs, labels)
+                if 'self.prob' in globals():
+                    d_inputs = _transform_inputs(inputs, self.prob)
+                else:
+                    d_inputs = inputs
+                adv_x = self._attack.generate(d_inputs, labels)
                 adv_x = np.clip(adv_x, arr_x - self._eps, arr_x + self._eps)
                 inputs = adv_x
         return adv_x
@@ -261,7 +269,7 @@ class MomentumIterativeMethod(IterativeGradientMethod):
         decay_factor (float): Decay factor in iterations. Default: 1.0.
         norm_level (Union[int, numpy.inf]): Order of the norm. Possible values:
             np.inf, 1 or 2. Default: 'inf'.
-        loss_fn (Loss): Loss function for optimization.
+        loss_fn (Loss): Loss function for optimization. Default: None.
     """
 
     def __init__(self, network, eps=0.3, eps_iter=0.1, bounds=(0.0, 1.0),
@@ -303,9 +311,13 @@ class MomentumIterativeMethod(IterativeGradientMethod):
             clip_min, clip_max = self._bounds
             clip_diff = clip_max - clip_min
             for _ in range(self._nb_iter):
-                gradient = self._gradient(inputs, labels)
+                if 'self.prob' in globals():
+                    d_inputs = _transform_inputs(inputs, self.prob)
+                else:
+                    d_inputs = inputs
+                gradient = self._gradient(d_inputs, labels)
                 momentum = self._decay_factor*momentum + gradient
-                adv_x = inputs + self._eps_iter*np.sign(momentum)
+                adv_x = d_inputs + self._eps_iter*np.sign(momentum)
                 perturs = np.clip(adv_x - arr_x, (0 - self._eps)*clip_diff,
                                   self._eps*clip_diff)
                 adv_x = arr_x + perturs
@@ -313,12 +325,15 @@ class MomentumIterativeMethod(IterativeGradientMethod):
                 inputs = adv_x
         else:
             for _ in range(self._nb_iter):
-                gradient = self._gradient(inputs, labels)
+                if 'self.prob' in globals():
+                    d_inputs = _transform_inputs(inputs, self.prob)
+                else:
+                    d_inputs = inputs
+                gradient = self._gradient(d_inputs, labels)
                 momentum = self._decay_factor*momentum + gradient
-                adv_x = inputs + self._eps_iter*np.sign(momentum)
+                adv_x = d_inputs + self._eps_iter*np.sign(momentum)
                 adv_x = np.clip(adv_x, arr_x - self._eps, arr_x + self._eps)
                 inputs = adv_x
-
         return adv_x
 
     def _gradient(self, inputs, labels):
@@ -372,7 +387,7 @@ class ProjectedGradientDescent(BasicIterativeMethod):
         nb_iter (int): Number of iteration. Default: 5.
         norm_level (Union[int, numpy.inf]): Order of the norm. Possible values:
             np.inf, 1 or 2. Default: 'inf'.
-        loss_fn (Loss): Loss function for optimization.
+        loss_fn (Loss): Loss function for optimization. Default: None.
     """
 
     def __init__(self, network, eps=0.3, eps_iter=0.1, bounds=(0.0, 1.0),
@@ -430,3 +445,114 @@ class ProjectedGradientDescent(BasicIterativeMethod):
                 adv_x = np.clip(adv_x, arr_x - self._eps, arr_x + self._eps)
                 inputs = adv_x
         return adv_x
+
+
+class DiverseInputIterativeMethod(BasicIterativeMethod):
+    """
+    The Diverse Input Iterative Method attack.
+
+    References: `Xie, Cihang and Zhang, et al., "Improving Transferability of
+    Adversarial Examples With Input Diversity," in CVPR, 2019 <https://arxiv.org/abs/1803.06978>`_
+
+    Args:
+        network (Cell): Target model.
+        eps (float): Proportion of adversarial perturbation generated by the
+            attack to data range. Default: 0.3.
+        bounds (tuple): Upper and lower bounds of data, indicating the data range.
+            In form of (clip_min, clip_max). Default: (0.0, 1.0).
+        is_targeted (bool): If True, targeted attack. If False, untargeted
+            attack. Default: False.
+        prob (float): Transformation probability. Default: 0.5.
+        loss_fn (Loss): Loss function for optimization. Default: None.
+    """
+    def __init__(self, network, eps=0.3, bounds=(0.0, 1.0),
+                 is_targeted=False, prob=0.5, loss_fn=None):
+        # reference to paper hyper parameters setting.
+        eps_iter = 16*2/255
+        nb_iter = int(min(eps*255 + 4, 1.25*255*eps))
+        super(DiverseInputIterativeMethod, self).__init__(network,
+                                                          eps=eps,
+                                                          eps_iter=eps_iter,
+                                                          bounds=bounds,
+                                                          is_targeted=is_targeted,
+                                                          nb_iter=nb_iter,
+                                                          loss_fn=loss_fn)
+        # FGSM default alpha is None equal alpha=1
+        self.prob = check_param_type('prob', prob, float)
+
+
+class MomentumDiverseInputIterativeMethod(MomentumIterativeMethod):
+    """
+    The Momentum Diverse Input Iterative Method attack.
+
+    References: `Xie, Cihang and Zhang, et al., "Improving Transferability of
+    Adversarial Examples With Input Diversity," in CVPR, 2019 <https://arxiv.org/abs/1803.06978>`_
+
+    Args:
+        network (Cell): Target model.
+        eps (float): Proportion of adversarial perturbation generated by the
+            attack to data range. Default: 0.3.
+        bounds (tuple): Upper and lower bounds of data, indicating the data range.
+            In form of (clip_min, clip_max). Default: (0.0, 1.0).
+        is_targeted (bool): If True, targeted attack. If False, untargeted
+            attack. Default: False.
+        norm_level (Union[int, numpy.inf]): Order of the norm. Possible values:
+            np.inf, 1 or 2. Default: 'l1'.
+        prob (float): Transformation probability. Default: 0.5.
+        loss_fn (Loss): Loss function for optimization. Default: None.
+       """
+    def __init__(self, network, eps=0.3, bounds=(0.0, 1.0),
+                 is_targeted=False, norm_level='l1', prob=0.5, loss_fn=None):
+        eps_iter = 16*2 / 255
+        nb_iter = int(min(eps*255 + 4, 1.25*255*eps))
+        super(MomentumDiverseInputIterativeMethod, self).__init__(network=network,
+                                                                  eps=eps,
+                                                                  eps_iter=eps_iter,
+                                                                  bounds=bounds,
+                                                                  nb_iter=nb_iter,
+                                                                  is_targeted=is_targeted,
+                                                                  norm_level=norm_level,
+                                                                  loss_fn=loss_fn)
+        self.prob = check_param_type('prob', prob, float)
+
+
+def _transform_inputs(inputs, prob, low=29, high=33, full_aug=False):
+    """
+    Inputs data augmentation.
+
+    Args:
+        inputs (Union[np.int8, np.float]): Inputs.
+        prob (float): The probability of augmentation.
+        low (int): Lower bound of resize image width. Default: 29.
+        high (int): Upper bound of resize image height. Default: 33.
+        full_aug (bool): type of augmentation method, use interpolation and padding
+            as default. Default: False.
+
+    Returns:
+        numpy.ndarray, the augmentation data.
+    """
+    raw_shape = inputs[0].shape
+    tran_mask = np.random.uniform(0, 1, size=inputs.shape[0]) < prob
+    tran_inputs = inputs[tran_mask]
+    raw_inputs = inputs[tran_mask == 0]
+    tran_outputs = []
+    for sample in tran_inputs:
+        width = np.random.choice(np.arange(low, high))
+        # resize
+        sample = (sample*255).astype(np.uint8)
+        d_image = Image.fromarray(sample, mode='L').resize((width, width), Image.NEAREST)
+        # pad
+        left_pad = (raw_shape[0] - width) // 2
+        right_pad = raw_shape[0] - width - left_pad
+        top_pad = (raw_shape[1] - width) // 2
+        bottom_pad = raw_shape[1] - width - top_pad
+        p_sample = ImageOps.expand(d_image,
+                                   border=(left_pad, top_pad, right_pad, bottom_pad))
+        tran_outputs.append(np.array(p_sample).astype(np.float) / 255)
+    if full_aug:
+        # gaussian noise
+        tran_outputs = np.random.normal(tran_outputs.shape) + tran_outputs
+    tran_outputs.extend(raw_inputs)
+    if not np.any(tran_outputs-raw_inputs):
+        LOGGER.error(TAG, 'the transform function does not take effect.')
+    return tran_outputs

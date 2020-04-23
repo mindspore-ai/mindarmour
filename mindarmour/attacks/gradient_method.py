@@ -46,7 +46,7 @@ class GradientMethod(Attack):
             Default: None.
         bounds (tuple): Upper and lower bounds of data, indicating the data range.
             In form of (clip_min, clip_max). Default: None.
-        loss_fn (Loss): Loss function for optimization.
+        loss_fn (Loss): Loss function for optimization. Default: None.
     """
 
     def __init__(self, network, eps=0.07, alpha=None, bounds=None,
@@ -151,7 +151,7 @@ class FastGradientMethod(GradientMethod):
             Possible values: np.inf, 1 or 2. Default: 2.
         is_targeted (bool): If True, targeted attack. If False, untargeted
             attack. Default: False.
-        loss_fn (Loss): Loss function for optimization.
+        loss_fn (Loss): Loss function for optimization. Default: None.
 
     Examples:
         >>> attack = FastGradientMethod(network)
@@ -214,7 +214,7 @@ class RandomFastGradientMethod(FastGradientMethod):
         Possible values: np.inf, 1 or 2. Default: 2.
         is_targeted (bool): If True, targeted attack. If False, untargeted
             attack. Default: False.
-        loss_fn (Loss): Loss function for optimization.
+        loss_fn (Loss): Loss function for optimization. Default: None.
 
     Raises:
         ValueError: eps is smaller than alpha!
@@ -255,7 +255,7 @@ class FastGradientSignMethod(GradientMethod):
             In form of (clip_min, clip_max). Default: (0.0, 1.0).
         is_targeted (bool): If True, targeted attack. If False, untargeted
             attack. Default: False.
-        loss_fn (Loss): Loss function for optimization.
+        loss_fn (Loss): Loss function for optimization. Default: None.
 
     Examples:
         >>> attack = FastGradientSignMethod(network)
@@ -314,7 +314,7 @@ class RandomFastGradientSignMethod(FastGradientSignMethod):
             In form of (clip_min, clip_max). Default: (0.0, 1.0).
         is_targeted (bool): True: targeted attack. False: untargeted attack.
             Default: False.
-        loss_fn (Loss): Loss function for optimization.
+        loss_fn (Loss): Loss function for optimization. Default: None.
 
     Raises:
         ValueError: eps is smaller than alpha!
@@ -350,7 +350,7 @@ class LeastLikelyClassMethod(FastGradientSignMethod):
             Default: None.
         bounds (tuple): Upper and lower bounds of data, indicating the data range.
             In form of (clip_min, clip_max). Default: (0.0, 1.0).
-        loss_fn (Loss): Loss function for optimization.
+        loss_fn (Loss): Loss function for optimization. Default: None.
 
     Examples:
         >>> attack = LeastLikelyClassMethod(network)

@@ -25,6 +25,8 @@ from mindarmour.attacks import BasicIterativeMethod
 from mindarmour.attacks import MomentumIterativeMethod
 from mindarmour.attacks import ProjectedGradientDescent
 from mindarmour.attacks import IterativeGradientMethod
+from mindarmour.attacks import DiverseInputIterativeMethod
+from mindarmour.attacks import MomentumDiverseInputIterativeMethod
 
 context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
 
@@ -91,7 +93,7 @@ def test_momentum_iterative_method():
     for i in range(5):
         attack = MomentumIterativeMethod(Net(), nb_iter=i + 1)
         ms_adv_x = attack.generate(input_np, label)
-        assert np.any(ms_adv_x != input_np), 'Basic iterative method: generate' \
+        assert np.any(ms_adv_x != input_np), 'Momentum iterative method: generate' \
                                              ' value must not be equal to' \
                                              ' original value.'
 
@@ -117,6 +119,48 @@ def test_projected_gradient_descent_method():
             ms_adv_x != input_np), 'Projected gradient descent method: ' \
                                    'generate value must not be equal to' \
                                    ' original value.'
+
+
+@pytest.mark.level0
+@pytest.mark.platform_arm_ascend_training
+@pytest.mark.platform_x86_ascend_training
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_diverse_input_iterative_method():
+    """
+    Diverse input iterative method unit test.
+    """
+    input_np = np.asarray([[0.1, 0.2, 0.7]], np.float32)
+    label = np.asarray([2], np.int32)
+    label = np.eye(3)[label].astype(np.float32)
+
+    for i in range(5):
+        attack = DiverseInputIterativeMethod(Net())
+        ms_adv_x = attack.generate(input_np, label)
+        assert np.any(ms_adv_x != input_np), 'Diverse input iterative method: generate' \
+                                             ' value must not be equal to' \
+                                             ' original value.'
+
+
+@pytest.mark.level0
+@pytest.mark.platform_arm_ascend_training
+@pytest.mark.platform_x86_ascend_training
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_momentum_diverse_input_iterative_method():
+    """
+    Momentum diverse input iterative method unit test.
+    """
+    input_np = np.asarray([[0.1, 0.2, 0.7]], np.float32)
+    label = np.asarray([2], np.int32)
+    label = np.eye(3)[label].astype(np.float32)
+
+    for i in range(5):
+        attack = MomentumDiverseInputIterativeMethod(Net())
+        ms_adv_x = attack.generate(input_np, label)
+        assert np.any(ms_adv_x != input_np), 'Momentum diverse input iterative method: ' \
+                                             'generate value must not be equal to' \
+                                             ' original value.'
 
 
 @pytest.mark.level0

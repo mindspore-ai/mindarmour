@@ -242,7 +242,7 @@ def normalize_value(value, norm_level):
 
     Raises:
         NotImplementedError: If norm_level is not in [1, 2 , np.inf, '1', '2',
-            'inf]
+            'inf', 'l1', 'l2']
     """
     norm_level = check_norm_level(norm_level)
     ori_shape = value.shape
