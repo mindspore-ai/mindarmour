@@ -18,7 +18,7 @@ from setuptools import setup
 from setuptools.command.egg_info import egg_info
 from setuptools.command.build_py import build_py
 
-version = '0.1.0'
+version = '0.2.0'
 cur_dir = os.path.dirname(os.path.realpath(__file__))
 pkg_dir = os.path.join(cur_dir, 'build')
 
@@ -82,8 +82,17 @@ class BuildPy(build_py):
 
 setup(
     name='mindarmour',
-    version='0.1.0',
+    version=version,
+    author='The MindSpore Authors',
+    author_email='contact@mindspore.cn',
+    url='https://www.mindspore.cn/',
+    download_url='https://gitee.com/mindspore/mindarmour/tags',
+    project_urls={
+        'Sources': 'https://gitee.com/mindspore/mindarmour',
+        'Issue Tracker': 'https://gitee.com/mindspore/mindarmour/issues',
+    },
     description="A smart AI security and trustworthy tool box.",
+    license='Apache 2.0',
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
@@ -98,5 +107,8 @@ setup(
         'matplotlib >= 3.1.3',
         'Pillow >= 2.0.0'
     ],
+    classifiers=[
+        'License :: OSI Approved :: Apache Software License'
+    ]
 )
 print(find_packages())

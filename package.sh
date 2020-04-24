@@ -29,10 +29,22 @@ mk_new_dir() {
     mkdir -pv "${create_dir}"
 }
 
+write_checksum() {
+    cd "$OUTPUT_PATH" || exit
+    PACKAGE_LIST=$(ls mindarmour-*.whl) || exit
+    for PACKAGE_NAME in $PACKAGE_LIST; do
+        echo $PACKAGE_NAME
+        sha256sum -b "$PACKAGE_NAME" >"$PACKAGE_NAME.sha256"
+    done
+}
+
 mk_new_dir "${OUTPUT_PATH}"
 
 ${PYTHON} ${BASEPATH}/setup.py bdist_wheel
 
 mv ${BASEPATH}/dist/*whl ${OUTPUT_PATH}
+
+write_checksum
+
 
 echo "------Successfully created mindarmour package------"
