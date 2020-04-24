@@ -76,6 +76,11 @@ class ModelCoverageMetrics:
             upper_compare_array = np.concatenate(
                 [output, np.array([self._upper_bounds])], axis=0)
             self._upper_bounds = np.max(upper_compare_array, axis=0)
+        if batches == 0:
+            output = self._model.predict(Tensor(train_dataset)).asnumpy()
+            self._lower_bounds = np.min(output, axis=0)
+            self._upper_bounds = np.max(output, axis=0)
+            output_mat.append(output)
         self._var = np.std(np.concatenate(np.array(output_mat), axis=0),
                            axis=0)
 
