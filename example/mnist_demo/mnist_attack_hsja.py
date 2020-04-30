@@ -12,18 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import sys
+
 import numpy as np
 import pytest
-
 from mindspore import Tensor
 from mindspore import context
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 
-from mindarmour.attacks.black.hop_skip_jump_attack import HopSkipJumpAttack
-from mindarmour.attacks.black.black_model import BlackModel
-
-from mindarmour.utils.logger import LogUtil
 from lenet5_net import LeNet5
+from mindarmour.attacks.black.black_model import BlackModel
+from mindarmour.attacks.black.hop_skip_jump_attack import HopSkipJumpAttack
+from mindarmour.utils.logger import LogUtil
 
 sys.path.append("..")
 from data_processing import generate_mnist_dataset
@@ -64,9 +63,9 @@ def random_target_labels(true_labels):
 def create_target_images(dataset, data_labels, target_labels):
     res = []
     for label in target_labels:
-        for i in range(len(data_labels)):
-            if data_labels[i] == label:
-                res.append(dataset[i])
+        for data_label, data in zip(data_labels, dataset):
+            if data_label == label:
+                res.append(data)
                 break
     return np.array(res)
 
@@ -126,9 +125,9 @@ def test_hsja_mnist_attack():
         target_images = create_target_images(test_images, predict_labels,
                                              target_labels)
         attack.set_target_images(target_images)
-        success_list, adv_data, query_list = attack.generate(test_images, target_labels)
+        success_list, adv_data, _ = attack.generate(test_images, target_labels)
     else:
-        success_list, adv_data, query_list = attack.generate(test_images, None)
+        success_list, adv_data, _ = attack.generate(test_images, None)
 
     adv_datas = []
     gts = []
@@ -136,7 +135,7 @@ def test_hsja_mnist_attack():
         if success:
             adv_datas.append(adv)
             gts.append(gt)
-    if len(gts) > 0:
+    if gts:
         adv_datas = np.concatenate(np.asarray(adv_datas), axis=0)
         gts = np.asarray(gts)
         pred_logits_adv = model.predict(adv_datas)

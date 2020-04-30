@@ -111,6 +111,3 @@ def test_spatial_smoothing_diff():
                                0.38254014, 0.543059, 0.06452079, 0.36902517,
                                1.1845329, 0.3870097])
     assert np.allclose(diffs, expected_value, 0.0001, 0.0001)
-
-
-

@@ -13,20 +13,19 @@
 # limitations under the License.
 import sys
 import time
+
 import numpy as np
 import pytest
-from scipy.special import softmax
-
 from mindspore import Tensor
 from mindspore import context
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
-
-from mindarmour.attacks.black.genetic_attack import GeneticAttack
-from mindarmour.attacks.black.black_model import BlackModel
-from mindarmour.utils.logger import LogUtil
-from mindarmour.evaluations.attack_evaluation import AttackEvaluate
+from scipy.special import softmax
 
 from lenet5_net import LeNet5
+from mindarmour.attacks.black.black_model import BlackModel
+from mindarmour.attacks.black.genetic_attack import GeneticAttack
+from mindarmour.evaluations.attack_evaluation import AttackEvaluate
+from mindarmour.utils.logger import LogUtil
 
 context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
 
@@ -97,8 +96,8 @@ def test_genetic_attack_on_mnist():
                            per_bounds=0.1, step_size=0.25, temp=0.1,
                            sparse=True)
     targeted_labels = np.random.randint(0, 10, size=len(true_labels))
-    for i in range(len(true_labels)):
-        if targeted_labels[i] == true_labels[i]:
+    for i, true_l in enumerate(true_labels):
+        if targeted_labels[i] == true_l:
             targeted_labels[i] = (targeted_labels[i] + 1) % 10
     start_time = time.clock()
     success_list, adv_data, query_list = attack.generate(

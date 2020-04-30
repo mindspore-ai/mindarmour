@@ -115,12 +115,11 @@ class LBFGS(Attack):
     def _gradient(self, cur_input, labels, shape):
         """ Return model gradient to minimize loss in l-bfgs-b."""
         label_dtype = labels.dtype
-        sens = Tensor(np.array([1], self._dtype))
         labels = np.expand_dims(labels, axis=0).astype(label_dtype)
         # input shape should like original shape
         reshape_input = np.expand_dims(cur_input.reshape(shape),
                                        axis=0)
-        out_grad = self._grad_all(Tensor(reshape_input), Tensor(labels), sens)
+        out_grad = self._grad_all(Tensor(reshape_input), Tensor(labels))
         if isinstance(out_grad, tuple):
             out_grad = out_grad[0]
         return out_grad.asnumpy()
@@ -131,9 +130,9 @@ class LBFGS(Attack):
         the cross-entropy loss.
         """
         cur_input = cur_input.astype(self._dtype)
-        l2_distance = np.linalg.norm(cur_input.reshape(
-            (cur_input.shape[0], -1)) - start_input.reshape(
-            (start_input.shape[0], -1)))
+        l2_distance = np.linalg.norm(
+            cur_input.reshape((cur_input.shape[0], -1)) - start_input.reshape(
+                (start_input.shape[0], -1)))
         logits = self._forward_one(cur_input.reshape(shape)).flatten()
         logits = logits - np.max(logits)
         if self._sparse:

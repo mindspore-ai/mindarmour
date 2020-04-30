@@ -12,23 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import sys
+
 import numpy as np
 import pytest
-from scipy.special import softmax
-
 from mindspore import Model
-from mindspore import context
 from mindspore import Tensor
+from mindspore import context
 from mindspore.nn import Cell
 from mindspore.ops.operations import TensorAdd
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
-
-from mindarmour.utils.logger import LogUtil
-from mindarmour.attacks.black.pso_attack import PSOAttack
-from mindarmour.attacks.black.black_model import BlackModel
-from mindarmour.detectors.black.similarity_detector import SimilarityDetector
+from scipy.special import softmax
 
 from lenet5_net import LeNet5
+from mindarmour.attacks.black.black_model import BlackModel
+from mindarmour.attacks.black.pso_attack import PSOAttack
+from mindarmour.detectors.black.similarity_detector import SimilarityDetector
+from mindarmour.utils.logger import LogUtil
 
 context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
 

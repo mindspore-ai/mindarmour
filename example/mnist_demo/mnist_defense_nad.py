@@ -12,24 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """defense example using nad"""
-import sys
-
 import logging
+import sys
 
 import numpy as np
 import pytest
-
 from mindspore import Tensor
 from mindspore import context
 from mindspore import nn
 from mindspore.nn import SoftmaxCrossEntropyWithLogits
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 
+from lenet5_net import LeNet5
 from mindarmour.attacks import FastGradientSignMethod
 from mindarmour.defenses import NaturalAdversarialDefense
 from mindarmour.utils.logger import LogUtil
-
-from lenet5_net import LeNet5
 
 sys.path.append("..")
 from data_processing import generate_mnist_dataset

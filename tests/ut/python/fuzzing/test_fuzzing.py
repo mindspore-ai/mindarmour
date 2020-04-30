@@ -16,18 +16,15 @@ Model-fuzz coverage test.
 """
 import numpy as np
 import pytest
-import sys
-
-from mindspore.train import Model
-from mindspore import nn
-from mindspore.ops import operations as P
 from mindspore import context
+from mindspore import nn
 from mindspore.common.initializer import TruncatedNormal
+from mindspore.ops import operations as P
+from mindspore.train import Model
 
-from mindarmour.utils.logger import LogUtil
-from mindarmour.fuzzing.model_coverage_metrics import ModelCoverageMetrics
 from mindarmour.fuzzing.fuzzing import Fuzzing
-
+from mindarmour.fuzzing.model_coverage_metrics import ModelCoverageMetrics
+from mindarmour.utils.logger import LogUtil
 
 LOGGER = LogUtil.get_instance()
 TAG = 'Fuzzing test'
@@ -116,17 +113,18 @@ def test_fuzzing_ascend():
     model_fuzz_test = Fuzzing(initial_seeds, model, training_data, 5,
                               max_seed_num=10)
     failed_tests = model_fuzz_test.fuzzing()
-    model_coverage_test.test_adequacy_coverage_calculate(
-        np.array(failed_tests).astype(np.float32))
-    LOGGER.info(TAG, 'KMNC of this test is : %s',
-                model_coverage_test.get_kmnc())
+    if failed_tests:
+        model_coverage_test.test_adequacy_coverage_calculate(np.array(failed_tests).astype(np.float32))
+        LOGGER.info(TAG, 'KMNC of this test is : %s', model_coverage_test.get_kmnc())
+    else:
+        LOGGER.info(TAG, 'Fuzzing test identifies none failed test')
 
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
 @pytest.mark.env_onecard
 @pytest.mark.component_mindarmour
-def test_fuzzing_ascend():
+def test_fuzzing_CPU():
     context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
     # load network
     net = Net()
@@ -155,7 +153,8 @@ def test_fuzzing_ascend():
     model_fuzz_test = Fuzzing(initial_seeds, model, training_data, 5,
                               max_seed_num=10)
     failed_tests = model_fuzz_test.fuzzing()
-    model_coverage_test.test_adequacy_coverage_calculate(
-        np.array(failed_tests).astype(np.float32))
-    LOGGER.info(TAG, 'KMNC of this test is : %s',
-                model_coverage_test.get_kmnc())
+    if failed_tests:
+        model_coverage_test.test_adequacy_coverage_calculate(np.array(failed_tests).astype(np.float32))
+        LOGGER.info(TAG, 'KMNC of this test is : %s', model_coverage_test.get_kmnc())
+    else:
+        LOGGER.info(TAG, 'Fuzzing test identifies none failed test')

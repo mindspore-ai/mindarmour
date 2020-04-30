@@ -11,20 +11,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# ============================================================================
 import os
 import sys
 
 import mindspore.nn as nn
-from mindspore import context, Tensor
+from mindspore import context
+from mindspore.nn.metrics import Accuracy
+from mindspore.train import Model
 from mindspore.train.callback import ModelCheckpoint, CheckpointConfig, LossMonitor
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
-from mindspore.train import Model
-from mindspore.nn.metrics import Accuracy
-
-from mindarmour.utils.logger import LogUtil
 
 from lenet5_net import LeNet5
+from mindarmour.utils.logger import LogUtil
 
 sys.path.append("..")
 from data_processing import generate_mnist_dataset

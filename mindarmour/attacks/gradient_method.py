@@ -183,8 +183,7 @@ class FastGradientMethod(GradientMethod):
             >>> grad = self._gradient([[0.2, 0.3, 0.4]],
             >>> [[0, 1, 0, 0, 0, 0, 0, 0, 0, 0])
         """
-        sens = Tensor(np.array([1.0], self._dtype))
-        out_grad = self._grad_all(Tensor(inputs), Tensor(labels), sens)
+        out_grad = self._grad_all(Tensor(inputs), Tensor(labels))
         if isinstance(out_grad, tuple):
             out_grad = out_grad[0]
         gradient = out_grad.asnumpy()
@@ -286,8 +285,7 @@ class FastGradientSignMethod(GradientMethod):
             >>> grad = self._gradient([[0.2, 0.3, 0.4]],
             >>> [[0, 1, 0, 0, 0, 0, 0, 0, 0, 0])
         """
-        sens = Tensor(np.array([1.0], self._dtype))
-        out_grad = self._grad_all(Tensor(inputs), Tensor(labels), sens)
+        out_grad = self._grad_all(Tensor(inputs), Tensor(labels))
         if isinstance(out_grad, tuple):
             out_grad = out_grad[0]
         gradient = out_grad.asnumpy()

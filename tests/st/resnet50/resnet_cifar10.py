@@ -12,12 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import numpy as np
-import math
-
 from mindspore import nn
-from mindspore.ops import operations as P
 from mindspore.common.tensor import Tensor
-from mindspore import context
+from mindspore.ops import operations as P
 
 
 def variance_scaling_raw(shape):
@@ -110,8 +107,7 @@ class ResidualBlock(nn.Cell):
     def __init__(self,
                  in_channels,
                  out_channels,
-                 stride=1,
-                 down_sample=False):
+                 stride=1):
         super(ResidualBlock, self).__init__()
 
         out_chls = out_channels // self.expansion
@@ -168,7 +164,7 @@ class ResidualBlockWithDown(nn.Cell):
         self.bn3 = bn_with_initialize_last(out_channels)
 
         self.relu = P.ReLU()
-        self.downSample = down_sample
+        self.downsample = down_sample
 
         self.conv_down_sample = conv1x1(in_channels, out_channels, stride=stride, padding=0)
         self.bn_down_sample = bn_with_initialize(out_channels)

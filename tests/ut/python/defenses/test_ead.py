@@ -14,21 +14,20 @@
 """
 ensemble adversarial defense test.
 """
-import numpy as np
-import pytest
 import logging
 
-from mindspore import nn
+import numpy as np
+import pytest
 from mindspore import context
+from mindspore import nn
 from mindspore.nn.optim.momentum import Momentum
 
+from mock_net import Net
 from mindarmour.attacks.gradient_method import FastGradientSignMethod
 from mindarmour.attacks.iterative_gradient_method import \
     ProjectedGradientDescent
 from mindarmour.defenses.adversarial_defense import EnsembleAdversarialDefense
 from mindarmour.utils.logger import LogUtil
-
-from mock_net import Net
 
 LOGGER = LogUtil.get_instance()
 TAG = 'Ead_Test'
@@ -54,7 +53,7 @@ def test_ead():
     if not sparse:
         labels = np.eye(num_classes)[labels].astype(np.float32)
 
-    net = Net()
+    net = SimpleNet()
     loss_fn = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=sparse)
     optimizer = Momentum(net.trainable_params(), 0.001, 0.9)
 

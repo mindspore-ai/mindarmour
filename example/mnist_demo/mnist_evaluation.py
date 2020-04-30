@@ -12,30 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """evaluate example"""
-import sys
 import os
+import sys
 import time
-import numpy as np
-from scipy.special import softmax
 
-from lenet5_net import LeNet5
+import numpy as np
 from mindspore import Model
 from mindspore import Tensor
 from mindspore import context
 from mindspore import nn
 from mindspore.nn import Cell
-from mindspore.ops.operations import TensorAdd
 from mindspore.nn import SoftmaxCrossEntropyWithLogits
+from mindspore.ops.operations import TensorAdd
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
+from scipy.special import softmax
 
+from lenet5_net import LeNet5
 from mindarmour.attacks import FastGradientSignMethod
 from mindarmour.attacks import GeneticAttack
 from mindarmour.attacks.black.black_model import BlackModel
 from mindarmour.defenses import NaturalAdversarialDefense
+from mindarmour.detectors.black.similarity_detector import SimilarityDetector
 from mindarmour.evaluations import BlackDefenseEvaluate
 from mindarmour.evaluations import DefenseEvaluate
 from mindarmour.utils.logger import LogUtil
-from mindarmour.detectors.black.similarity_detector import SimilarityDetector
 
 sys.path.append("..")
 from data_processing import generate_mnist_dataset
@@ -237,7 +237,7 @@ def test_black_defense():
     # gen black-box adversarial examples of test data
     for idx in range(attacked_size):
         raw_st = time.time()
-        raw_sl, raw_a, raw_qc = attack_rm.generate(
+        _, raw_a, raw_qc = attack_rm.generate(
             np.expand_dims(attacked_sample[idx], axis=0),
             np.expand_dims(attack_target_label[idx], axis=0))
         raw_t = time.time() - raw_st
@@ -271,7 +271,7 @@ def test_black_defense():
                               sparse=False)
     for idx in range(attacked_size):
         def_st = time.time()
-        def_sl, def_a, def_qc = attack_dm.generate(
+        _, def_a, def_qc = attack_dm.generate(
             np.expand_dims(attacked_sample[idx], axis=0),
             np.expand_dims(attack_target_label[idx], axis=0))
         def_t = time.time() - def_st

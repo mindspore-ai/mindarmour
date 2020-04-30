@@ -12,18 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import sys
-import numpy as np
 
+import numpy as np
 from mindspore import Model
 from mindspore import context
-from mindspore.train.serialization import load_checkpoint, load_param_into_net
 from mindspore.nn import SoftmaxCrossEntropyWithLogits
-
-from mindarmour.attacks.gradient_method import FastGradientSignMethod
-from mindarmour.utils.logger import LogUtil
-from mindarmour.fuzzing.model_coverage_metrics import ModelCoverageMetrics
+from mindspore.train.serialization import load_checkpoint, load_param_into_net
 
 from lenet5_net import LeNet5
+from mindarmour.attacks.gradient_method import FastGradientSignMethod
+from mindarmour.fuzzing.model_coverage_metrics import ModelCoverageMetrics
+from mindarmour.utils.logger import LogUtil
 
 sys.path.append("..")
 from data_processing import generate_mnist_dataset

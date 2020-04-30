@@ -11,19 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import sys
-import numpy as np
 import os
-import pytest
+import sys
 
+import numpy as np
+import pytest
 from mindspore import Tensor
 from mindspore import context
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 
-from mindarmour.attacks.black.natural_evolutionary_strategy import NES
 from mindarmour.attacks.black.black_model import BlackModel
-
+from mindarmour.attacks.black.natural_evolutionary_strategy import NES
 from mindarmour.utils.logger import LogUtil
+
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                              "../../../../../"))
 from example.mnist_demo.lenet5_net import LeNet5
@@ -156,7 +156,7 @@ def nes_mnist_attack(scene, top_k):
     assert (advs != test_images[:batch_num]).any()
 
     adv_pred = np.argmax(model.predict(advs), axis=1)
-    adv_accuracy = np.mean(np.equal(adv_pred, true_labels[:test_length]))
+    _ = np.mean(np.equal(adv_pred, true_labels[:test_length]))
 
 
 @pytest.mark.level0

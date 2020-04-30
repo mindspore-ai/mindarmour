@@ -11,19 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import sys
 import os
+import sys
+
 import numpy as np
 import pytest
-
 from mindspore import Tensor
 from mindspore import context
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 
-from mindarmour.attacks.black.hop_skip_jump_attack import HopSkipJumpAttack
 from mindarmour.attacks.black.black_model import BlackModel
-
+from mindarmour.attacks.black.hop_skip_jump_attack import HopSkipJumpAttack
 from mindarmour.utils.logger import LogUtil
+
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                              "../../../../../"))
 from example.mnist_demo.lenet5_net import LeNet5
@@ -135,7 +135,7 @@ def test_hsja_mnist_attack():
         attack.set_target_images(target_images)
         success_list, adv_data, _ = attack.generate(test_images, target_labels)
     else:
-        success_list, adv_data, query_list = attack.generate(test_images, None)
+        success_list, adv_data, _ = attack.generate(test_images, None)
     assert (adv_data != test_images).any()
 
     adv_datas = []
@@ -144,7 +144,7 @@ def test_hsja_mnist_attack():
         if success:
             adv_datas.append(adv)
             gts.append(gt)
-    if len(gts) > 0:
+    if gts:
         adv_datas = np.concatenate(np.asarray(adv_datas), axis=0)
         gts = np.asarray(gts)
         pred_logits_adv = model.predict(adv_datas)
@@ -162,5 +162,5 @@ def test_hsja_mnist_attack():
 def test_value_error():
     model = get_model()
     norm = 'l2'
-    with pytest.raises(ValueError) as e:
+    with pytest.raises(ValueError):
         assert HopSkipJumpAttack(model, constraint=norm, stepsize_search='bad-search')

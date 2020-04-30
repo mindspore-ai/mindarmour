@@ -13,21 +13,19 @@
 # limitations under the License.
 import sys
 import time
+
 import numpy as np
 import pytest
-from scipy.special import softmax
-
 from mindspore import Model
 from mindspore import Tensor
 from mindspore import context
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
-
-from mindarmour.attacks.iterative_gradient_method import ProjectedGradientDescent
-
-from mindarmour.utils.logger import LogUtil
-from mindarmour.evaluations.attack_evaluation import AttackEvaluate
+from scipy.special import softmax
 
 from lenet5_net import LeNet5
+from mindarmour.attacks.iterative_gradient_method import ProjectedGradientDescent
+from mindarmour.evaluations.attack_evaluation import AttackEvaluate
+from mindarmour.utils.logger import LogUtil
 
 context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
 

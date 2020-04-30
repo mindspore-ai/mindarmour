@@ -18,10 +18,8 @@ import numpy as np
 
 from mindspore import nn
 from mindspore import Tensor
-from mindspore.nn import Cell
 from mindspore.nn import WithLossCell, TrainOneStepCell
 from mindspore.nn.optim.momentum import Momentum
-from mindspore.ops import operations as P
 from mindspore import context
 from mindspore.common.initializer import TruncatedNormal
 
@@ -58,7 +56,7 @@ class Net(nn.Cell):
         self.fc3 = fc_with_initialize(84, 10)
         self.relu = nn.ReLU()
         self.max_pool2d = nn.MaxPool2d(kernel_size=2, stride=2)
-        self.reshape = P.Reshape()
+        self.flatten = nn.Flatten()
 
     def construct(self, x):
         x = self.conv1(x)
@@ -67,13 +65,14 @@ class Net(nn.Cell):
         x = self.conv2(x)
         x = self.relu(x)
         x = self.max_pool2d(x)
-        x = self.reshape(x, (-1, 16*5*5))
+        x = self.flatten(x)
         x = self.fc1(x)
         x = self.relu(x)
         x = self.fc2(x)
         x = self.relu(x)
         x = self.fc3(x)
         return x
+
 
 if __name__ == '__main__':
     num_classes = 10
@@ -104,4 +103,3 @@ if __name__ == '__main__':
     train_net.set_train()
 
     train_net(Tensor(inputs_np), Tensor(labels_np))
-
