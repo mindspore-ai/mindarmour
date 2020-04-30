@@ -60,10 +60,6 @@ class Mechanisms(Cell):
     """
     Basic class of noise generated mechanism.
     """
-
-    def __init__(self):
-        pass
-
     def construct(self, shape):
         """
         Construct function.
