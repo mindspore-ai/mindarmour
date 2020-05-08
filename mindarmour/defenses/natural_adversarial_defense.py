@@ -46,7 +46,8 @@ class NaturalAdversarialDefense(AdversarialDefenseWithAttacks):
         attack = FastGradientSignMethod(network,
                                         eps=eps,
                                         alpha=None,
-                                        bounds=bounds)
+                                        bounds=bounds,
+                                        loss_fn=loss_fn)
         super(NaturalAdversarialDefense, self).__init__(
             network,
             [attack],

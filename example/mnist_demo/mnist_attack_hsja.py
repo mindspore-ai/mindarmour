@@ -27,10 +27,8 @@ from mindarmour.utils.logger import LogUtil
 sys.path.append("..")
 from data_processing import generate_mnist_dataset
 
-context.set_context(mode=context.GRAPH_MODE)
-context.set_context(device_target="Ascend")
-
 LOGGER = LogUtil.get_instance()
+LOGGER.set_level('INFO')
 TAG = 'HopSkipJumpAttack'
 
 
@@ -79,6 +77,8 @@ def test_hsja_mnist_attack():
     """
     hsja-Attack test
     """
+    context.set_context(mode=context.GRAPH_MODE)
+    context.set_context(device_target="Ascend")
     # upload trained network
     ckpt_name = './trained_ckpt_file/checkpoint_lenet-10_1875.ckpt'
     net = LeNet5()
@@ -141,9 +141,83 @@ def test_hsja_mnist_attack():
         pred_logits_adv = model.predict(adv_datas)
         pred_lables_adv = np.argmax(pred_logits_adv, axis=1)
         accuracy_adv = np.mean(np.equal(pred_lables_adv, gts))
+        mis_rate = (1 - accuracy_adv)*(len(adv_datas) / len(success_list))
         LOGGER.info(TAG, 'mis-classification rate of adversaries is : %s',
-                    accuracy_adv)
+                    mis_rate)
+
+
+def test_hsja_mnist_attack_cpu():
+    """
+    hsja-Attack test
+    """
+    context.set_context(mode=context.GRAPH_MODE)
+    context.set_context(device_target="CPU")
+    # upload trained network
+    ckpt_name = './trained_ckpt_file/checkpoint_lenet-10_1875.ckpt'
+    net = LeNet5()
+    load_dict = load_checkpoint(ckpt_name)
+    load_param_into_net(net, load_dict)
+    net.set_train(False)
+
+    # get test data
+    data_list = "./MNIST_unzip/test"
+    batch_size = 32
+    ds = generate_mnist_dataset(data_list, batch_size=batch_size)
+
+    # prediction accuracy before attack
+    model = ModelToBeAttacked(net)
+    batch_num = 5  # the number of batches of attacking samples
+    test_images = []
+    test_labels = []
+    predict_labels = []
+    i = 0
+    for data in ds.create_tuple_iterator():
+        i += 1
+        images = data[0].astype(np.float32)
+        labels = data[1]
+        test_images.append(images)
+        test_labels.append(labels)
+        pred_labels = np.argmax(model.predict(images), axis=1)
+        predict_labels.append(pred_labels)
+        if i >= batch_num:
+            break
+    predict_labels = np.concatenate(predict_labels)
+    true_labels = np.concatenate(test_labels)
+    accuracy = np.mean(np.equal(predict_labels, true_labels))
+    LOGGER.info(TAG, "prediction accuracy before attacking is : %s",
+                accuracy)
+    test_images = np.concatenate(test_images)
+
+    # attacking
+    norm = 'l2'
+    search = 'grid_search'
+    target = False
+    attack = HopSkipJumpAttack(model, constraint=norm, stepsize_search=search)
+    if target:
+        target_labels = random_target_labels(true_labels)
+        target_images = create_target_images(test_images, predict_labels,
+                                             target_labels)
+        attack.set_target_images(target_images)
+        success_list, adv_data, _ = attack.generate(test_images, target_labels)
+    else:
+        success_list, adv_data, _ = attack.generate(test_images, None)
+
+    adv_datas = []
+    gts = []
+    for success, adv, gt in zip(success_list, adv_data, true_labels):
+        if success:
+            adv_datas.append(adv)
+            gts.append(gt)
+    if gts:
+        adv_datas = np.concatenate(np.asarray(adv_datas), axis=0)
+        gts = np.asarray(gts)
+        pred_logits_adv = model.predict(adv_datas)
+        pred_lables_adv = np.argmax(pred_logits_adv, axis=1)
+        accuracy_adv = np.mean(np.equal(pred_lables_adv, gts))
+        mis_rate = (1 - accuracy_adv)*(len(adv_datas) / len(success_list))
+        LOGGER.info(TAG, 'mis-classification rate of adversaries is : %s',
+                    mis_rate)
 
 
 if __name__ == '__main__':
-    test_hsja_mnist_attack()
+    test_hsja_mnist_attack_cpu()
