@@ -27,10 +27,9 @@ from mindarmour.utils.logger import LogUtil
 sys.path.append("..")
 from data_processing import generate_mnist_dataset
 
-context.set_context(mode=context.GRAPH_MODE)
-context.set_context(device_target="Ascend")
 
 LOGGER = LogUtil.get_instance()
+LOGGER.set_level('INFO')
 TAG = 'HopSkipJumpAttack'
 
 
@@ -88,6 +87,89 @@ def test_nes_mnist_attack():
     """
     hsja-Attack test
     """
+    context.set_context(mode=context.GRAPH_MODE)
+    context.set_context(device_target="Ascend")
+    # upload trained network
+    ckpt_name = './trained_ckpt_file/checkpoint_lenet-10_1875.ckpt'
+    net = LeNet5()
+    load_dict = load_checkpoint(ckpt_name)
+    load_param_into_net(net, load_dict)
+    net.set_train(False)
+
+    # get test data
+    data_list = "./MNIST_unzip/test"
+    batch_size = 32
+    ds = generate_mnist_dataset(data_list, batch_size=batch_size)
+
+    # prediction accuracy before attack
+    model = ModelToBeAttacked(net)
+    # the number of batches of attacking samples
+    batch_num = 5
+    test_images = []
+    test_labels = []
+    predict_labels = []
+    i = 0
+    for data in ds.create_tuple_iterator():
+        i += 1
+        images = data[0].astype(np.float32)
+        labels = data[1]
+        test_images.append(images)
+        test_labels.append(labels)
+        pred_labels = np.argmax(model.predict(images), axis=1)
+        predict_labels.append(pred_labels)
+        if i >= batch_num:
+            break
+    predict_labels = np.concatenate(predict_labels)
+    true_labels = np.concatenate(test_labels)
+
+    accuracy = np.mean(np.equal(predict_labels, true_labels))
+    LOGGER.info(TAG, "prediction accuracy before attacking is : %s",
+                accuracy)
+    test_images = np.concatenate(test_images)
+
+    # attacking
+    scene = 'Query_Limit'
+    if scene == 'Query_Limit':
+        top_k = -1
+    elif scene == 'Partial_Info':
+        top_k = 5
+    elif scene == 'Label_Only':
+        top_k = 5
+
+    success = 0
+    queries_num = 0
+
+    nes_instance = NES(model, scene, top_k=top_k)
+    test_length = 32
+    advs = []
+    for img_index in range(test_length):
+        # Initial image and class selection
+        initial_img = test_images[img_index]
+        orig_class = true_labels[img_index]
+        initial_img = [initial_img]
+        target_class = random_target_labels([orig_class], true_labels)
+        target_image = create_target_images(test_images, true_labels,
+                                            target_class)
+        nes_instance.set_target_images(target_image)
+        tag, adv, queries = nes_instance.generate(initial_img, target_class)
+        if tag[0]:
+            success += 1
+        queries_num += queries[0]
+        advs.append(adv)
+
+    advs = np.reshape(advs, (len(advs), 1, 32, 32))
+    adv_pred = np.argmax(model.predict(advs), axis=1)
+    adv_accuracy = np.mean(np.equal(adv_pred, true_labels[:test_length]))
+    LOGGER.info(TAG, "prediction accuracy after attacking is : %s",
+                adv_accuracy)
+
+
+def test_nes_mnist_attack_cpu():
+    """
+    hsja-Attack test for CPU device.
+    """
+    context.set_context(mode=context.GRAPH_MODE)
+    context.set_context(device_target="CPU")
     # upload trained network
     ckpt_name = './trained_ckpt_file/checkpoint_lenet-10_1875.ckpt'
     net = LeNet5()
@@ -164,4 +246,4 @@ def test_nes_mnist_attack():
 
 
 if __name__ == '__main__':
-    test_nes_mnist_attack()
+    test_nes_mnist_attack_cpu()
