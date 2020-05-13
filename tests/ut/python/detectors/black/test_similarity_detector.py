@@ -98,4 +98,3 @@ def test_similarity_detector():
                       1561, 1612, 1663, 1714, 1765,
                       1816, 1867, 1918, 1969]
     assert np.all(detector.get_detected_queries() == expected_value)
-

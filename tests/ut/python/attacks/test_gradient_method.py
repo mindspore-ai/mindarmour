@@ -233,10 +233,6 @@ def test_assert_error():
     """
     Random least likely class method unit test.
     """
-    input_np = np.asarray([[0.1, 0.2, 0.7]], np.float32)
-    label = np.asarray([2], np.int32)
-    label = np.eye(3)[label].astype(np.float32)
-
     with pytest.raises(ValueError) as e:
         assert RandomLeastLikelyClassMethod(Net(), eps=0.05, alpha=0.21)
     assert str(e.value) == 'eps must be larger than alpha!'

@@ -14,19 +14,18 @@
 """
 Adversarial defense test.
 """
-import numpy as np
-import pytest
 import logging
 
-from mindspore import nn
+import numpy as np
+import pytest
 from mindspore import Tensor
 from mindspore import context
+from mindspore import nn
 from mindspore.nn.optim.momentum import Momentum
 
+from mock_net import Net
 from mindarmour.defenses.adversarial_defense import AdversarialDefense
 from mindarmour.utils.logger import LogUtil
-
-from mock_net import Net
 
 LOGGER = LogUtil.get_instance()
 TAG = 'Ad_Test'

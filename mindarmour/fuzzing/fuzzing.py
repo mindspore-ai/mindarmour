@@ -14,17 +14,17 @@
 """
 Fuzzing.
 """
-import numpy as np
 from random import choice
 
-from mindspore import Tensor
+import numpy as np
 from mindspore import Model
+from mindspore import Tensor
 
 from mindarmour.fuzzing.model_coverage_metrics import ModelCoverageMetrics
-from mindarmour.utils.image_transform import Contrast, Brightness, Blur, Noise, \
-    Translate, Scale, Shear, Rotate
 from mindarmour.utils._check_param import check_model, check_numpy_param, \
     check_int_positive
+from mindarmour.utils.image_transform import Contrast, Brightness, Blur, Noise, \
+    Translate, Scale, Shear, Rotate
 
 
 class Fuzzing:
@@ -40,9 +40,10 @@ class Fuzzing:
         target_model (Model): Target fuzz model.
         train_dataset (numpy.ndarray): Training dataset used for determine
             the neurons' output boundaries.
-        const_K (int): The number of mutate tests for a seed.
+        const_k (int): The number of mutate tests for a seed.
         mode (str): Image mode used in image transform, 'L' means grey graph.
             Default: 'L'.
+        max_seed_num (int): The initial seeds max value. Default: 1000
     """
 
     def __init__(self, initial_seeds, target_model, train_dataset, const_K,
@@ -50,7 +51,7 @@ class Fuzzing:
         self.initial_seeds = initial_seeds
         self.target_model = check_model('model', target_model, Model)
         self.train_dataset = check_numpy_param('train_dataset', train_dataset)
-        self.K = check_int_positive('const_k', const_K)
+        self.const_k = check_int_positive('const_k', const_K)
         self.mode = mode
         self.max_seed_num = check_int_positive('max_seed_num', max_seed_num)
         self.coverage_metrics = ModelCoverageMetrics(target_model, 1000, 10,
@@ -73,7 +74,7 @@ class Fuzzing:
                    'Noise': Noise,
                    'Translate': Translate, 'Scale': Scale, 'Shear': Shear,
                    'Rotate': Rotate}
-        for _ in range(self.K):
+        for _ in range(self.const_k):
             for _ in range(try_num):
                 if (info[0] == info[1]).all():
                     trans_strage = self._random_pick_mutate(affine_trans,
@@ -91,7 +92,7 @@ class Fuzzing:
                     if trans_strage in affine_trans:
                         info[1] = mutate_test
                     mutate_tests.append(mutate_test)
-            if len(mutate_tests) == 0:
+            if not mutate_tests:
                 mutate_tests.append(seed)
             return np.array(mutate_tests)
 
@@ -109,7 +110,7 @@ class Fuzzing:
         seed = self._select_next()
         failed_tests = []
         seed_num = 0
-        while len(seed) > 0 and seed_num < self.max_seed_num:
+        while seed and seed_num < self.max_seed_num:
             mutate_tests = self._metamorphic_mutate(seed[0])
             coverages, results = self._run(mutate_tests, coverage_metric)
             coverage_gains = self._coverage_gains(coverages)
@@ -157,13 +158,13 @@ class Fuzzing:
         beta = 0.2
         diff = np.array(seed - mutate_test).flatten()
         size = np.shape(diff)[0]
-        L0 = np.linalg.norm(diff, ord=0)
-        Linf = np.linalg.norm(diff, ord=np.inf)
-        if L0 > alpha*size:
-            if Linf < 256:
+        l0 = np.linalg.norm(diff, ord=0)
+        linf = np.linalg.norm(diff, ord=np.inf)
+        if l0 > alpha*size:
+            if linf < 256:
                 is_valid = True
         else:
-            if Linf < beta*255:
+            if linf < beta*255:
                 is_valid = True
 
         return is_valid

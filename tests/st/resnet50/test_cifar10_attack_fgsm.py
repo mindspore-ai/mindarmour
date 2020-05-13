@@ -18,7 +18,6 @@ Fuction:
 Usage:
     py.test test_cifar10_attack_fgsm.py
 """
-import os
 import numpy as np
 
 import pytest

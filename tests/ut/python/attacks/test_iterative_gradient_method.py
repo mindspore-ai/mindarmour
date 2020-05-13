@@ -134,10 +134,9 @@ def test_diverse_input_iterative_method():
     label = np.asarray([2], np.int32)
     label = np.eye(3)[label].astype(np.float32)
 
-    for i in range(5):
-        attack = DiverseInputIterativeMethod(Net())
-        ms_adv_x = attack.generate(input_np, label)
-        assert np.any(ms_adv_x != input_np), 'Diverse input iterative method: generate' \
+    attack = DiverseInputIterativeMethod(Net())
+    ms_adv_x = attack.generate(input_np, label)
+    assert np.any(ms_adv_x != input_np), 'Diverse input iterative method: generate' \
                                              ' value must not be equal to' \
                                              ' original value.'
 
@@ -155,10 +154,9 @@ def test_momentum_diverse_input_iterative_method():
     label = np.asarray([2], np.int32)
     label = np.eye(3)[label].astype(np.float32)
 
-    for i in range(5):
-        attack = MomentumDiverseInputIterativeMethod(Net())
-        ms_adv_x = attack.generate(input_np, label)
-        assert np.any(ms_adv_x != input_np), 'Momentum diverse input iterative method: ' \
+    attack = MomentumDiverseInputIterativeMethod(Net())
+    ms_adv_x = attack.generate(input_np, label)
+    assert np.any(ms_adv_x != input_np), 'Momentum diverse input iterative method: ' \
                                              'generate value must not be equal to' \
                                              ' original value.'
 

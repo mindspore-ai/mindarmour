@@ -12,20 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import sys
+
 import numpy as np
 import pytest
-from scipy.special import softmax
-
 from mindspore import Tensor
 from mindspore import context
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
-
-from mindarmour.attacks.black.salt_and_pepper_attack import SaltAndPepperNoiseAttack
-from mindarmour.attacks.black.black_model import BlackModel
-from mindarmour.utils.logger import LogUtil
-from mindarmour.evaluations.attack_evaluation import AttackEvaluate
+from scipy.special import softmax
 
 from lenet5_net import LeNet5
+from mindarmour.attacks.black.black_model import BlackModel
+from mindarmour.attacks.black.salt_and_pepper_attack import SaltAndPepperNoiseAttack
+from mindarmour.evaluations.attack_evaluation import AttackEvaluate
+from mindarmour.utils.logger import LogUtil
 
 context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
 
@@ -102,8 +101,8 @@ def test_salt_and_pepper_attack_on_mnist():
                                       sparse=True)
     if is_target:
         targeted_labels = np.random.randint(0, 10, size=len(true_labels))
-        for i in range(len(true_labels)):
-            if targeted_labels[i] == true_labels[i]:
+        for i, true_l in enumerate(true_labels):
+            if targeted_labels[i] == true_l:
                 targeted_labels[i] = (targeted_labels[i] + 1) % 10
     else:
         targeted_labels = true_labels

@@ -35,7 +35,7 @@ def test_contrast():
     mode = 'L'
     trans = Contrast(image, mode)
     trans.random_param()
-    trans_image = trans.transform()
+    _ = trans.transform()
 
 
 @pytest.mark.level0
@@ -47,7 +47,7 @@ def test_brightness():
     mode = 'L'
     trans = Brightness(image, mode)
     trans.random_param()
-    trans_image = trans.transform()
+    _ = trans.transform()
 
 
 @pytest.mark.level0
@@ -61,7 +61,7 @@ def test_blur():
     mode = 'L'
     trans = Blur(image, mode)
     trans.random_param()
-    trans_image = trans.transform()
+    _ = trans.transform()
 
 
 @pytest.mark.level0
@@ -75,7 +75,7 @@ def test_noise():
     mode = 'L'
     trans = Noise(image, mode)
     trans.random_param()
-    trans_image = trans.transform()
+    _ = trans.transform()
 
 
 @pytest.mark.level0
@@ -89,7 +89,7 @@ def test_translate():
     mode = 'L'
     trans = Translate(image, mode)
     trans.random_param()
-    trans_image = trans.transform()
+    _ = trans.transform()
 
 
 @pytest.mark.level0
@@ -103,7 +103,7 @@ def test_shear():
     mode = 'L'
     trans = Shear(image, mode)
     trans.random_param()
-    trans_image = trans.transform()
+    _ = trans.transform()
 
 
 @pytest.mark.level0
@@ -117,7 +117,7 @@ def test_scale():
     mode = 'L'
     trans = Scale(image, mode)
     trans.random_param()
-    trans_image = trans.transform()
+    _ = trans.transform()
 
 
 @pytest.mark.level0
@@ -131,6 +131,4 @@ def test_rotate():
     mode = 'L'
     trans = Rotate(image, mode)
     trans.random_param()
-    trans_image = trans.transform()
-
-
+    _ = trans.transform()

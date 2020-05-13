@@ -30,8 +30,8 @@ def test_attack_eval():
     np.random.seed(1024)
     inputs = np.random.normal(size=(3, 512, 512, 3))
     labels = np.array([[0.1, 0.1, 0.2, 0.6],
-                  [0.1, 0.7, 0.0, 0.2],
-                  [0.8, 0.1, 0.0, 0.1]])
+                       [0.1, 0.7, 0.0, 0.2],
+                       [0.8, 0.1, 0.0, 0.1]])
     adv_x = inputs + np.ones((3, 512, 512, 3))*0.001
     adv_y = np.array([[0.1, 0.1, 0.2, 0.6],
                       [0.1, 0.0, 0.8, 0.1],
@@ -63,8 +63,8 @@ def test_value_error():
     np.random.seed(1024)
     inputs = np.random.normal(size=(3, 512, 512, 3))
     labels = np.array([[0.1, 0.1, 0.2, 0.6],
-                  [0.1, 0.7, 0.0, 0.2],
-                  [0.8, 0.1, 0.0, 0.1]])
+                       [0.1, 0.7, 0.0, 0.2],
+                       [0.8, 0.1, 0.0, 0.1]])
     adv_x = inputs + np.ones((3, 512, 512, 3))*0.001
     adv_y = np.array([[0.1, 0.1, 0.2, 0.6],
                       [0.1, 0.0, 0.8, 0.1],
@@ -81,7 +81,7 @@ def test_value_error():
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_value_error():
+def test_empty_input_error():
     # prepare test data
     np.random.seed(1024)
     inputs = np.array([])

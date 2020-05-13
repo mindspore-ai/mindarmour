@@ -351,9 +351,8 @@ class MomentumIterativeMethod(IterativeGradientMethod):
             >>> grad = self._gradient([[0.5, 0.3, 0.4]],
             >>>                       [[0, 0, 0, 1, 0, 0, 0, 0, 0, 0])
         """
-        sens = Tensor(np.array([1.0], inputs.dtype))
         # get grad of loss over x
-        out_grad = self._loss_grad(Tensor(inputs), Tensor(labels), sens)
+        out_grad = self._loss_grad(Tensor(inputs), Tensor(labels))
         if isinstance(out_grad, tuple):
             out_grad = out_grad[0]
         gradient = out_grad.asnumpy()

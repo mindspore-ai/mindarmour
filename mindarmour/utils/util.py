@@ -13,7 +13,6 @@
 # limitations under the License.
 """ Util for MindArmour. """
 import numpy as np
-
 from mindspore import Tensor
 from mindspore.nn import Cell
 from mindspore.ops.composite import GradOperation
@@ -99,23 +98,21 @@ class GradWrapWithLoss(Cell):
         super(GradWrapWithLoss, self).__init__()
         self._grad_all = GradOperation(name="get_all",
                                        get_all=True,
-                                       sens_param=True)
+                                       sens_param=False)
         self._network = network
 
-    def construct(self, inputs, labels, weight):
+    def construct(self, inputs, labels):
         """
         Compute gradient of `inputs` with labels and weight.
 
         Args:
             inputs (Tensor): Inputs of network.
             labels (Tensor): Labels of inputs.
-            weight (Tensor): Weight of each gradient, `weight` has the same
-                shape with labels.
 
         Returns:
             Tensor, gradient matrix.
         """
-        gout = self._grad_all(self._network)(inputs, labels, weight)
+        gout = self._grad_all(self._network)(inputs, labels)
         return gout[0]
 
 

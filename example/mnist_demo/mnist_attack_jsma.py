@@ -13,20 +13,19 @@
 # limitations under the License.
 import sys
 import time
+
 import numpy as np
 import pytest
-from scipy.special import softmax
-
 from mindspore import Model
 from mindspore import Tensor
 from mindspore import context
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
-
-from mindarmour.attacks.jsma import JSMAAttack
-from mindarmour.utils.logger import LogUtil
-from mindarmour.evaluations.attack_evaluation import AttackEvaluate
+from scipy.special import softmax
 
 from lenet5_net import LeNet5
+from mindarmour.attacks.jsma import JSMAAttack
+from mindarmour.evaluations.attack_evaluation import AttackEvaluate
+from mindarmour.utils.logger import LogUtil
 
 context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
 
@@ -79,8 +78,8 @@ def test_jsma_attack():
     predict_labels = np.concatenate(predict_labels)
     true_labels = np.concatenate(test_labels)
     targeted_labels = np.random.randint(0, 10, size=len(true_labels))
-    for i in range(len(true_labels)):
-        if targeted_labels[i] == true_labels[i]:
+    for i, true_l in enumerate(true_labels):
+        if targeted_labels[i] == true_l:
             targeted_labels[i] = (targeted_labels[i] + 1) % 10
     accuracy = np.mean(np.equal(predict_labels, true_labels))
     LOGGER.info(TAG, "prediction accuracy before attacking is : %g", accuracy)

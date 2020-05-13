@@ -14,11 +14,11 @@
 """
 LBFGS-Attack test.
 """
+import os
 import sys
+
 import numpy as np
 import pytest
-import os
-
 from mindspore import context
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 
@@ -69,4 +69,4 @@ def test_lbfgs_attack():
 
     attack = LBFGS(net, is_targeted=True)
     LOGGER.debug(TAG, 'target_np is :{}'.format(target_np[0]))
-    adv_data = attack.generate(input_np, target_np)
+    _ = attack.generate(input_np, target_np)

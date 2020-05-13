@@ -53,14 +53,14 @@ def test_def_eval():
 
     # create obj
     def_eval = BlackDefenseEvaluate(raw_preds,
-                               def_preds,
-                               raw_query_counts,
-                               def_query_counts,
-                               raw_query_time,
-                               def_query_time,
-                               def_detection_counts,
-                               true_labels,
-                               max_queries=100)
+                                    def_preds,
+                                    raw_query_counts,
+                                    def_query_counts,
+                                    raw_query_time,
+                                    def_query_time,
+                                    def_detection_counts,
+                                    true_labels,
+                                    max_queries=100)
     # run eval
     qcv = def_eval.qcv()
     asv = def_eval.asv()

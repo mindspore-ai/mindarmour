@@ -30,7 +30,7 @@ def test_radar_metric():
     metrics_labels = ['before', 'after']
 
     # create obj
-    rm = RadarMetric(metrics_name, metrics_data, metrics_labels, title='',
+    _ = RadarMetric(metrics_name, metrics_data, metrics_labels, title='',
                      scale='sparse')
 
 
@@ -54,4 +54,3 @@ def test_value_error():
     with pytest.raises(ValueError):
         assert RadarMetric(['MR', 'ACAC', 'ASS'], metrics_data, metrics_labels,
                            title='', scale='bad_s')
-

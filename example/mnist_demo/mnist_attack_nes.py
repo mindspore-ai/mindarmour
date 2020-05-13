@@ -12,18 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import sys
+
 import numpy as np
 import pytest
-
 from mindspore import Tensor
 from mindspore import context
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 
-from mindarmour.attacks.black.natural_evolutionary_strategy import NES
-from mindarmour.attacks.black.black_model import BlackModel
-
-from mindarmour.utils.logger import LogUtil
 from lenet5_net import LeNet5
+from mindarmour.attacks.black.black_model import BlackModel
+from mindarmour.attacks.black.natural_evolutionary_strategy import NES
+from mindarmour.utils.logger import LogUtil
 
 sys.path.append("..")
 from data_processing import generate_mnist_dataset
@@ -73,9 +72,9 @@ def _pseudorandom_target(index, total_indices, true_class):
 def create_target_images(dataset, data_labels, target_labels):
     res = []
     for label in target_labels:
-        for i in range(len(data_labels)):
-            if data_labels[i] == label:
-                res.append(dataset[i])
+        for data_label, data in zip(data_labels, dataset):
+            if data_label == label:
+                res.append(data)
                 break
     return np.array(res)
 

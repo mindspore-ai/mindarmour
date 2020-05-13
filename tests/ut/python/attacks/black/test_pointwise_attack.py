@@ -14,19 +14,18 @@
 """
 PointWise Attack test
 """
-import sys
 import os
+import sys
+
 import numpy as np
 import pytest
-
-
 from mindspore import Tensor
 from mindspore import context
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 
+from mindarmour.attacks.black.black_model import BlackModel
 from mindarmour.attacks.black.pointwise_attack import PointWiseAttack
 from mindarmour.utils.logger import LogUtil
-from mindarmour.attacks.black.black_model import BlackModel
 
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                              "../../../../../"))
@@ -75,13 +74,13 @@ def test_pointwise_attack_method():
     input_np = np.load(os.path.join(current_dir,
                                     '../../test_data/test_images.npy'))[:3]
     labels = np.load(os.path.join(current_dir,
-                                    '../../test_data/test_labels.npy'))[:3]
+                                  '../../test_data/test_labels.npy'))[:3]
     model = ModelToBeAttacked(net)
     pre_label = np.argmax(model.predict(input_np), axis=1)
     LOGGER.info(TAG, 'original sample predict labels are :{}'.format(pre_label))
     LOGGER.info(TAG, 'true labels are: {}'.format(labels))
     attack = PointWiseAttack(model, sparse=True, is_targeted=False)
-    is_adv, adv_data, query_times = attack.generate(input_np, pre_label)
+    is_adv, adv_data, _ = attack.generate(input_np, pre_label)
     LOGGER.info(TAG, 'adv sample predict labels are: {}'
                 .format(np.argmax(model.predict(adv_data), axis=1)))
 

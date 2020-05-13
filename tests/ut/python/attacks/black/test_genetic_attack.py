@@ -16,15 +16,13 @@ Genetic-Attack test.
 """
 import numpy as np
 import pytest
-
 import mindspore.ops.operations as M
 from mindspore import Tensor
-from mindspore.nn import Cell
 from mindspore import context
+from mindspore.nn import Cell
 
-from mindarmour.attacks.black.genetic_attack import GeneticAttack
 from mindarmour.attacks.black.black_model import BlackModel
-
+from mindarmour.attacks.black.genetic_attack import GeneticAttack
 
 context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
 
@@ -115,7 +113,7 @@ def test_supplement():
                            adaptive=True,
                            sparse=False)
     # raise error
-    _, adv_data, _ = attack.generate(inputs, labels)
+    _, _, _ = attack.generate(inputs, labels)
 
 
 @pytest.mark.level0
@@ -140,5 +138,5 @@ def test_value_error():
                            adaptive=True,
                            sparse=False)
     # raise error
-    with pytest.raises(ValueError) as e:
+    with pytest.raises(ValueError):
         assert attack.generate(inputs, labels)
