@@ -39,7 +39,7 @@ TAG = 'Nad_Test'
 def test_nad():
     """UT for natural adversarial defense."""
     num_classes = 10
-    batch_size = 16
+    batch_size = 32
 
     sparse = False
     context.set_context(mode=context.GRAPH_MODE)

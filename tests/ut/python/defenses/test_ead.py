@@ -41,7 +41,7 @@ TAG = 'Ead_Test'
 def test_ead():
     """UT for ensemble adversarial defense."""
     num_classes = 10
-    batch_size = 16
+    batch_size = 64
 
     sparse = False
     context.set_context(mode=context.GRAPH_MODE)
@@ -53,7 +53,7 @@ def test_ead():
     if not sparse:
         labels = np.eye(num_classes)[labels].astype(np.float32)
 
-    net = SimpleNet()
+    net = Net()
     loss_fn = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=sparse)
     optimizer = Momentum(net.trainable_params(), 0.001, 0.9)
 

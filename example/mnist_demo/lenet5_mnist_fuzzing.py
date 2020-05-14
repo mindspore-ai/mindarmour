@@ -41,7 +41,7 @@ def test_lenet_mnist_fuzzing():
     model = Model(net)
 
     # get training data
-    data_list = "./MNIST_datasets/train"
+    data_list = "./MNIST_unzip/train"
     batch_size = 32
     ds = generate_mnist_dataset(data_list, batch_size, sparse=True)
     train_images = []
@@ -55,7 +55,7 @@ def test_lenet_mnist_fuzzing():
 
     # fuzz test with original test data
     # get test data
-    data_list = "./MNIST_datasets/test"
+    data_list = "./MNIST_unzip/test"
     batch_size = 32
     ds = generate_mnist_dataset(data_list, batch_size, sparse=True)
     test_images = []
