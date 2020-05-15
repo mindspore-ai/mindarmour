@@ -31,12 +31,6 @@ TAG = "Lenet5_train"
 
 
 def mnist_train(epoch_size, batch_size, lr, momentum):
-    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend",
-                        enable_mem_reuse=False)
-
-    lr = lr
-    momentum = momentum
-    epoch_size = epoch_size
     mnist_path = "./MNIST_unzip/"
     ds = generate_mnist_dataset(os.path.join(mnist_path, "train"),
                                 batch_size=batch_size, repeat_size=1)
@@ -67,4 +61,6 @@ def mnist_train(epoch_size, batch_size, lr, momentum):
 
 
 if __name__ == '__main__':
+    context.set_context(mode=context.GRAPH_MODE, device_target="CPU",
+                        enable_mem_reuse=False)
     mnist_train(10, 32, 0.01, 0.9)
