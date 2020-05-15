@@ -39,7 +39,7 @@ TAG = 'Pad_Test'
 def test_pad():
     """UT for projected adversarial defense."""
     num_classes = 10
-    batch_size = 16
+    batch_size = 32
 
     sparse = False
     context.set_context(mode=context.GRAPH_MODE)
