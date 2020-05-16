@@ -14,7 +14,6 @@
 import sys
 
 import numpy as np
-import pytest
 from mindspore import Model
 from mindspore import Tensor
 from mindspore import context
@@ -29,7 +28,6 @@ from mindarmour.attacks.black.pso_attack import PSOAttack
 from mindarmour.detectors.black.similarity_detector import SimilarityDetector
 from mindarmour.utils.logger import LogUtil
 
-context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
 
 sys.path.append("..")
 from data_processing import generate_mnist_dataset
@@ -92,11 +90,6 @@ class EncoderNet(Cell):
         return self._encode_dim
 
 
-@pytest.mark.level1
-@pytest.mark.platform_arm_ascend_training
-@pytest.mark.platform_x86_ascend_training
-@pytest.mark.env_card
-@pytest.mark.component_mindarmour
 def test_similarity_detector():
     """
     Similarity Detector test.
@@ -178,4 +171,8 @@ def test_similarity_detector():
 
 
 if __name__ == '__main__':
-    test_similarity_detector()
+    # device_target can be "CPU", "GPU" or "Ascend"
+    context.set_context(mode=context.GRAPH_MODE, device_target="GPU")
+    DEVICE = context.get_context("device_target")
+    if DEVICE in ("Ascend", "GPU"):
+        test_similarity_detector()

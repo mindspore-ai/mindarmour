@@ -32,7 +32,6 @@ LOGGER.set_level('INFO')
 
 
 def test_lenet_mnist_fuzzing():
-    context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
     # upload trained network
     ckpt_name = './trained_ckpt_file/checkpoint_lenet-10_1875.ckpt'
     net = LeNet5()
@@ -87,4 +86,6 @@ def test_lenet_mnist_fuzzing():
 
 
 if __name__ == '__main__':
+    # device_target can be "CPU", "GPU" or "Ascend"
+    context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
     test_lenet_mnist_fuzzing()

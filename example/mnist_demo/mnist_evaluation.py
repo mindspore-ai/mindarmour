@@ -40,7 +40,6 @@ from mindarmour.utils.logger import LogUtil
 sys.path.append("..")
 from data_processing import generate_mnist_dataset
 
-context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
 
 LOGGER = LogUtil.get_instance()
 TAG = 'Defense_Evaluate_Example'
@@ -140,20 +139,18 @@ def test_black_defense():
     # get test data
     data_list = "./MNIST_unzip/test"
     batch_size = 32
-    ds_test = generate_mnist_dataset(data_list, batch_size=batch_size,
-                                     sparse=False)
+    ds_test = generate_mnist_dataset(data_list, batch_size=batch_size)
     inputs = []
     labels = []
     for data in ds_test.create_tuple_iterator():
         inputs.append(data[0].astype(np.float32))
         labels.append(data[1])
     inputs = np.concatenate(inputs).astype(np.float32)
-    labels = np.concatenate(labels).astype(np.float32)
-    labels_sparse = np.argmax(labels, axis=1)
+    labels = np.concatenate(labels).astype(np.int32)
 
-    target_label = np.random.randint(0, 10, size=labels_sparse.shape[0])
-    for idx in range(labels_sparse.shape[0]):
-        while target_label[idx] == labels_sparse[idx]:
+    target_label = np.random.randint(0, 10, size=labels.shape[0])
+    for idx in range(labels.shape[0]):
+        while target_label[idx] == labels[idx]:
             target_label[idx] = np.random.randint(0, 10)
     target_label = np.eye(10)[target_label].astype(np.float32)
 
@@ -167,23 +164,23 @@ def test_black_defense():
     wb_model = ModelToBeAttacked(wb_net)
 
     # gen white-box adversarial examples of test data
-    wb_attack = FastGradientSignMethod(wb_net, eps=0.3)
+    loss = SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
+    wb_attack = FastGradientSignMethod(wb_net, eps=0.3, loss_fn=loss)
     wb_adv_sample = wb_attack.generate(attacked_sample,
                                        attacked_true_label)
 
     wb_raw_preds = softmax(wb_model.predict(wb_adv_sample), axis=1)
     accuracy_test = np.mean(
         np.equal(np.argmax(wb_model.predict(attacked_sample), axis=1),
-                 np.argmax(attacked_true_label, axis=1)))
+                 attacked_true_label))
     LOGGER.info(TAG, "prediction accuracy before white-box attack is : %s",
                 accuracy_test)
     accuracy_adv = np.mean(np.equal(np.argmax(wb_raw_preds, axis=1),
-                                    np.argmax(attacked_true_label, axis=1)))
+                                    attacked_true_label))
     LOGGER.info(TAG, "prediction accuracy after white-box attack is : %s",
                 accuracy_adv)
 
     # improve the robustness of model with white-box adversarial examples
-    loss = SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=False)
     opt = nn.Momentum(wb_net.trainable_params(), 0.01, 0.09)
 
     nad = NaturalAdversarialDefense(wb_net, loss_fn=loss, optimizer=opt,
@@ -194,12 +191,12 @@ def test_black_defense():
     wb_def_preds = wb_net(Tensor(wb_adv_sample)).asnumpy()
     wb_def_preds = softmax(wb_def_preds, axis=1)
     accuracy_def = np.mean(np.equal(np.argmax(wb_def_preds, axis=1),
-                                    np.argmax(attacked_true_label, axis=1)))
+                                    attacked_true_label))
     LOGGER.info(TAG, "prediction accuracy after defense is : %s", accuracy_def)
 
     # calculate defense evaluation metrics for defense against white-box attack
     wb_def_evaluate = DefenseEvaluate(wb_raw_preds, wb_def_preds,
-                                      np.argmax(attacked_true_label, axis=1))
+                                      attacked_true_label)
     LOGGER.info(TAG, 'defense evaluation for white-box adversarial attack')
     LOGGER.info(TAG,
                 'classification accuracy variance (CAV) is : {:.2f}'.format(
@@ -232,7 +229,7 @@ def test_black_defense():
                               per_bounds=0.1, step_size=0.25, temp=0.1,
                               sparse=False)
     attack_target_label = target_label[:attacked_size]
-    true_label = labels_sparse[:attacked_size + benign_size]
+    true_label = labels[:attacked_size + benign_size]
     # evaluate robustness of original model
     # gen black-box adversarial examples of test data
     for idx in range(attacked_size):
@@ -323,4 +320,8 @@ def test_black_defense():
 
 
 if __name__ == '__main__':
-    test_black_defense()
+    # device_target can be "CPU", "GPU" or "Ascend"
+    context.set_context(mode=context.GRAPH_MODE, device_target="GPU")
+    DEVICE = context.get_context("device_target")
+    if DEVICE in ("Ascend", "GPU"):
+        test_black_defense()
