@@ -47,6 +47,16 @@ class ErrorBasedDetector(Detector):
             Default: 0.01.
         bounds (tuple): (clip_min, clip_max). Default: (0.0, 1.0).
 
+    Examples:
+        >>> np.random.seed(5)
+        >>> ori = np.random.rand(4, 4, 4).astype(np.float32)
+        >>> np.random.seed(6)
+        >>> adv = np.random.rand(4, 4, 4).astype(np.float32)
+        >>> model = Model(Net())
+        >>> detector = ErrorBasedDetector(model)
+        >>> detector.fit(ori)
+        >>> detected_res = detector.detect(adv)
+        >>> adv_trans = detector.transform(adv)
     """
 
     def __init__(self, auto_encoder, false_positive_rate=0.01,
@@ -159,6 +169,19 @@ class DivergenceBasedDetector(ErrorBasedDetector):
         t (int): Temperature used to overcome numerical problem. Default: 1.
         bounds (tuple): Upper and lower bounds of data.
             In form of (clip_min, clip_max). Default: (0.0, 1.0).
+
+    Examples:
+        >>> np.random.seed(5)
+        >>> ori = np.random.rand(4, 4, 4).astype(np.float32)
+        >>> np.random.seed(6)
+        >>> adv = np.random.rand(4, 4, 4).astype(np.float32)
+        >>> encoder = Model(Net())
+        >>> model = Model(PredNet())
+        >>> detector = DivergenceBasedDetector(encoder, model)
+        >>> threshold = detector.fit(ori)
+        >>> detector.set_threshold(threshold)
+        >>> detected_res = detector.detect(adv)
+        >>> adv_trans = detector.transform(adv)
     """
 
     def __init__(self, auto_encoder, model, option="jsd",

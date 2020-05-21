@@ -92,6 +92,18 @@ class GradWrapWithLoss(Cell):
     """
     Construct a network to compute the gradient of loss function in input space
     and weighted by `weight`.
+
+    Args:
+        network (Cell): The target network to wrap.
+
+    Examples:
+        >>> data = Tensor(np.ones([1, 1, 32, 32]).astype(np.float32)*0.01)
+        >>> label = Tensor(np.ones([1, 10]).astype(np.float32))
+        >>> net = NET()
+        >>> loss_fn = nn.SoftmaxCrossEntropyWithLogits()
+        >>> loss_net = WithLossCell(net, loss_fn)
+        >>> grad_all = GradWrapWithLoss(loss_net)
+        >>> out_grad = grad_all(data, labels)
     """
 
     def __init__(self, network):
@@ -120,6 +132,19 @@ class GradWrap(Cell):
     """
     Construct a network to compute the gradient of network outputs in input
     space and weighted by `weight`, expressed as a jacobian matrix.
+
+    Args:
+        network (Cell): The target network to wrap.
+
+    Examples:
+        >>> data = Tensor(np.ones([1, 1, 32, 32]).astype(np.float32)*0.01)
+        >>> label = Tensor(np.ones([1, 10]).astype(np.float32))
+        >>> num_classes = 10
+        >>> sens = np.zeros((data.shape[0], num_classes)).astype(np.float32)
+        >>> sens[:, 1] = 1.0
+        >>> net = NET()
+        >>> wrap_net = GradWrap(net)
+        >>> wrap_net(data, Tensor(sens))
     """
 
     def __init__(self, network):

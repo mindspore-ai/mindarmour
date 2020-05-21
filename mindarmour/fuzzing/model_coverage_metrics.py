@@ -37,6 +37,16 @@ class ModelCoverageMetrics:
         n (int): The number of testing neurons.
         train_dataset (numpy.ndarray): Training dataset used for determine
             the neurons' output boundaries.
+
+    Examples:
+        >>> train_images = np.random.random((10000, 128)).astype(np.float32)
+        >>> test_images = np.random.random((5000, 128)).astype(np.float32)
+        >>> model = Model(net)
+        >>> model_fuzz_test = ModelCoverageMetrics(model, 10000, 10, train_images)
+        >>> model_fuzz_test.test_adequacy_coverage_calculate(test_images)
+        >>> print('KMNC of this test is : %s', model_fuzz_test.get_kmnc())
+        >>> print('NBC of this test is : %s', model_fuzz_test.get_nbc())
+        >>> print('SNAC of this test is : %s', model_fuzz_test.get_snac())
     """
 
     def __init__(self, model, k, n, train_dataset):
@@ -163,7 +173,7 @@ class ModelCoverageMetrics:
         Get the metric of 'strong neuron activation coverage'.
 
         Returns:
-            float: the metric of 'strong neuron activation coverage'.
+            float, the metric of 'strong neuron activation coverage'.
 
         Examples:
             >>> model_fuzz_test.get_snac()

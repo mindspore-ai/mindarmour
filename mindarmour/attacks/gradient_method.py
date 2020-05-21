@@ -47,6 +47,12 @@ class GradientMethod(Attack):
         bounds (tuple): Upper and lower bounds of data, indicating the data range.
             In form of (clip_min, clip_max). Default: None.
         loss_fn (Loss): Loss function for optimization. Default: None.
+
+    Examples:
+        >>> inputs = np.array([[0.1, 0.2, 0.6], [0.3, 0, 0.4]])
+        >>> labels = np.array([[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]])
+        >>> attack = FastGradientMethod(network)
+        >>> adv_x = attack.generate(inputs, labels)
     """
 
     def __init__(self, network, eps=0.07, alpha=None, bounds=None,
@@ -84,11 +90,6 @@ class GradientMethod(Attack):
 
         Returns:
             numpy.ndarray, generated adversarial examples.
-
-        Examples:
-            >>> adv_x = attack.generate([[0.1, 0.2, 0.6], [0.3, 0, 0.4]],
-            >>> [[0, 1, 0, 0, 0, 0, 0, 0, 0, 0],[0, , 0, 1, 0, 0, 0, 0, 0, 0,
-            >>> 0]])
         """
         inputs, labels = check_pair_numpy_param('inputs', inputs,
                                                 'labels', labels)
@@ -154,7 +155,10 @@ class FastGradientMethod(GradientMethod):
         loss_fn (Loss): Loss function for optimization. Default: None.
 
     Examples:
+        >>> inputs = np.array([[0.1, 0.2, 0.6], [0.3, 0, 0.4]])
+        >>> labels = np.array([[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]])
         >>> attack = FastGradientMethod(network)
+        >>> adv_x = attack.generate(inputs, labels)
     """
 
     def __init__(self, network, eps=0.07, alpha=None, bounds=(0.0, 1.0),
@@ -178,10 +182,6 @@ class FastGradientMethod(GradientMethod):
 
         Returns:
             numpy.ndarray, gradient of inputs.
-
-        Examples:
-            >>> grad = self._gradient([[0.2, 0.3, 0.4]],
-            >>> [[0, 1, 0, 0, 0, 0, 0, 0, 0, 0])
         """
         out_grad = self._grad_all(Tensor(inputs), Tensor(labels))
         if isinstance(out_grad, tuple):
@@ -219,7 +219,10 @@ class RandomFastGradientMethod(FastGradientMethod):
         ValueError: eps is smaller than alpha!
 
     Examples:
+        >>> inputs = np.array([[0.1, 0.2, 0.6], [0.3, 0, 0.4]])
+        >>> labels = np.array([[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]])
         >>> attack = RandomFastGradientMethod(network)
+        >>> adv_x = attack.generate(inputs, labels)
     """
 
     def __init__(self, network, eps=0.07, alpha=0.035, bounds=(0.0, 1.0),
@@ -257,7 +260,10 @@ class FastGradientSignMethod(GradientMethod):
         loss_fn (Loss): Loss function for optimization. Default: None.
 
     Examples:
+        >>> inputs = np.array([[0.1, 0.2, 0.6], [0.3, 0, 0.4]])
+        >>> labels = np.array([[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]])
         >>> attack = FastGradientSignMethod(network)
+        >>> adv_x = attack.generate(inputs, labels)
     """
 
     def __init__(self, network, eps=0.07, alpha=None, bounds=(0.0, 1.0),
@@ -280,10 +286,6 @@ class FastGradientSignMethod(GradientMethod):
 
         Returns:
             numpy.ndarray, gradient of inputs.
-
-        Examples:
-            >>> grad = self._gradient([[0.2, 0.3, 0.4]],
-            >>> [[0, 1, 0, 0, 0, 0, 0, 0, 0, 0])
         """
         out_grad = self._grad_all(Tensor(inputs), Tensor(labels))
         if isinstance(out_grad, tuple):
@@ -318,7 +320,10 @@ class RandomFastGradientSignMethod(FastGradientSignMethod):
         ValueError: eps is smaller than alpha!
 
     Examples:
+        >>> inputs = np.array([[0.1, 0.2, 0.6], [0.3, 0, 0.4]])
+        >>> labels = np.array([[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]])
         >>> attack = RandomFastGradientSignMethod(network)
+        >>> adv_x = attack.generate(inputs, labels)
     """
 
     def __init__(self, network, eps=0.07, alpha=0.035, bounds=(0.0, 1.0),
@@ -351,7 +356,10 @@ class LeastLikelyClassMethod(FastGradientSignMethod):
         loss_fn (Loss): Loss function for optimization. Default: None.
 
     Examples:
+        >>> inputs = np.array([[0.1, 0.2, 0.6], [0.3, 0, 0.4]])
+        >>> labels = np.array([[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]])
         >>> attack = LeastLikelyClassMethod(network)
+        >>> adv_x = attack.generate(inputs, labels)
     """
 
     def __init__(self, network, eps=0.07, alpha=None, bounds=(0.0, 1.0),
@@ -385,7 +393,10 @@ class RandomLeastLikelyClassMethod(FastGradientSignMethod):
         ValueError: eps is smaller than alpha!
 
     Examples:
+        >>> inputs = np.array([[0.1, 0.2, 0.6], [0.3, 0, 0.4]])
+        >>> labels = np.array([[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]])
         >>> attack = RandomLeastLikelyClassMethod(network)
+        >>> adv_x = attack.generate(inputs, labels)
     """
 
     def __init__(self, network, eps=0.07, alpha=0.035, bounds=(0.0, 1.0),
