@@ -47,7 +47,7 @@ class PrivacyMonitorFactory:
                 parameters used for creating a privacy monitor.
 
         Returns:
-            PrivacyMonitor, a privacy monitor.
+            Callback, a privacy monitor.
 
         Examples:
             >>> rdp = PrivacyMonitorFactory.create(policy='rdp',

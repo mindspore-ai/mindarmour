@@ -23,7 +23,7 @@ from mindspore.train import Model
 import mindspore.context as context
 from mindspore.model_zoo.lenet import LeNet5
 
-from mindarmour.diff_privacy.monitor.monitor import PrivacyMonitorFactory
+from mindarmour.diff_privacy import PrivacyMonitorFactory
 from mindarmour.utils.logger import LogUtil
 
 LOGGER = LogUtil.get_instance()
