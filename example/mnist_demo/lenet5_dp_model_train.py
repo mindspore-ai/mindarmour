@@ -37,7 +37,6 @@ from mindarmour.utils.logger import LogUtil
 from lenet5_net import LeNet5
 from lenet5_config import mnist_cfg as cfg
 
-
 LOGGER = LogUtil.get_instance()
 TAG = 'Lenet5_train'
 
@@ -121,9 +120,9 @@ if __name__ == "__main__":
     gaussian_mech.set_mechanisms('Gaussian',
                                  norm_bound=args.l2_norm_bound,
                                  initial_noise_multiplier=args.initial_noise_multiplier)
-    net_opt = gaussian_mech.create('Momentum')(params=network.trainable_params(),
-                                               learning_rate=cfg.lr,
-                                               momentum=cfg.momentum)
+    net_opt = gaussian_mech.create('SGD')(params=network.trainable_params(),
+                                          learning_rate=cfg.lr,
+                                          momentum=cfg.momentum)
     micro_size = int(cfg.batch_size // args.micro_batches)
     rdp_monitor = PrivacyMonitorFactory.create('rdp',
                                                num_samples=60000,
