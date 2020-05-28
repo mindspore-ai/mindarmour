@@ -18,7 +18,6 @@ import pytest
 import numpy as np
 
 from mindspore import nn
-from mindspore.nn import SGD
 from mindspore.model_zoo.lenet import LeNet5
 from mindspore import context
 import mindspore.dataset as ds
@@ -43,22 +42,24 @@ def test_dp_model():
     context.set_context(mode=context.PYNATIVE_MODE, device_target="Ascend")
     l2_norm_bound = 1.0
     initial_noise_multiplier = 0.01
-    net = LeNet5()
+    network = LeNet5()
     batch_size = 32
     batches = 128
     epochs = 1
     loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
-    optim = SGD(params=net.trainable_params(), learning_rate=0.1, momentum=0.9)
-    gaussian_mech = DPOptimizerClassFactory()
+    gaussian_mech = DPOptimizerClassFactory(micro_batches=2)
     gaussian_mech.set_mechanisms('Gaussian',
                                  norm_bound=l2_norm_bound,
                                  initial_noise_multiplier=initial_noise_multiplier)
+    net_opt = gaussian_mech.create('SGD')(params=network.trainable_params(),
+                                          learning_rate=0.1,
+                                          momentum=0.9)
     model = DPModel(micro_batches=2,
                     norm_clip=l2_norm_bound,
                     dp_mech=gaussian_mech.mech,
-                    network=net,
+                    network=network,
                     loss_fn=loss,
-                    optimizer=optim,
+                    optimizer=net_opt,
                     metrics=None)
     ms_ds = ds.GeneratorDataset(dataset_generator(batch_size, batches), ['data', 'label'])
     ms_ds.set_dataset_size(batch_size * batches)

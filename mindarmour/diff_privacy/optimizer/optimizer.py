@@ -19,6 +19,7 @@ from mindspore import nn
 from mindspore import Tensor
 
 from mindarmour.diff_privacy.mechanisms.mechanisms import MechanismsFactory
+from mindarmour.utils._check_param import check_int_positive
 
 
 class DPOptimizerClassFactory:
@@ -41,7 +42,7 @@ class DPOptimizerClassFactory:
     def __init__(self, micro_batches=None):
         self._mech_factory = MechanismsFactory()
         self.mech = None
-        self._micro_batches = micro_batches
+        self._micro_batches = check_int_positive('micro_batches', micro_batches)
 
     def set_mechanisms(self, policy, *args, **kwargs):
         """
