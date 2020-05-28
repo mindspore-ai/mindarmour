@@ -106,7 +106,7 @@ class GaussianRandom(Mechanisms):
             shape(tuple): The shape of gradients.
 
         Returns:
-            numpy.ndarray, generated noise.
+            Tensor, generated noise.
         """
         shape = check_param_type('shape', shape, tuple)
         noise = np.random.normal(self._mean, self._stddev, shape)
@@ -136,7 +136,7 @@ class AdaGaussianRandom(Mechanisms):
         >>> norm_bound = 1.0
         >>> initial_noise_multiplier = 0.1
         >>> alpha = 0.5
-        >>> decay_policy = "Step"
+        >>> decay_policy = "Time"
         >>> net = AdaGaussianRandom(norm_bound, initial_noise_multiplier,
         >>>                         alpha, decay_policy)
         >>> res = net(shape)
@@ -144,7 +144,7 @@ class AdaGaussianRandom(Mechanisms):
     """
 
     def __init__(self, norm_bound=1.5, initial_noise_multiplier=5.0,
-                 alpha=6e-4, decay_policy='Step'):
+                 alpha=6e-4, decay_policy='Time'):
         super(AdaGaussianRandom, self).__init__()
         initial_noise_multiplier = check_value_positive('initial_noise_multiplier',
                                                         initial_noise_multiplier)
@@ -194,7 +194,7 @@ class AdaGaussianRandom(Mechanisms):
             shape(tuple): The shape of gradients.
 
         Returns:
-            numpy.ndarray, generated noise.
+            Tensor, generated noise.
         """
         shape = check_param_type('shape', shape, tuple)
         noise = np.random.normal(self._mean, self._stddev.asnumpy(),
