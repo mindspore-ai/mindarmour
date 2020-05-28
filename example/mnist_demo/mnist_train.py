@@ -61,6 +61,5 @@ def mnist_train(epoch_size, batch_size, lr, momentum):
 
 
 if __name__ == '__main__':
-    context.set_context(mode=context.GRAPH_MODE, device_target="CPU",
-                        enable_mem_reuse=False)
+    context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
     mnist_train(10, 32, 0.01, 0.9)
