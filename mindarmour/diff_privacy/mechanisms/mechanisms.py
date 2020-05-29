@@ -72,24 +72,24 @@ class GaussianRandom(Mechanisms):
 
     Args:
         norm_bound(float): Clipping bound for the l2 norm of the gradients.
-            Default: 1.5.
+            Default: 1.0.
         initial_noise_multiplier(float): Ratio of the standard deviation of
             Gaussian noise divided by the norm_bound, which will be used to
-            calculate privacy spent. Default: 5.0.
+            calculate privacy spent. Default: 1.5.
 
     Returns:
         Tensor, generated noise.
 
     Examples:
         >>> shape = (3, 2, 4)
-        >>> norm_bound = 1.5
-        >>> initial_noise_multiplier = 0.1
+        >>> norm_bound = 1.0
+        >>> initial_noise_multiplier = 1.5
         >>> net = GaussianRandom(shape, norm_bound, initial_noise_multiplier)
         >>> res = net(shape)
         >>> print(res)
     """
 
-    def __init__(self, norm_bound=1.5, initial_noise_multiplier=5.0):
+    def __init__(self, norm_bound=1.0, initial_noise_multiplier=1.5):
         super(GaussianRandom, self).__init__()
         self._norm_bound = check_value_positive('norm_bound', norm_bound)
         self._initial_noise_multiplier = check_value_positive('initial_noise_multiplier',

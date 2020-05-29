@@ -29,7 +29,7 @@ def fc_with_initialize(input_channels, out_channels):
 
 
 def weight_variable():
-    return TruncatedNormal(0.02)
+    return TruncatedNormal(0.05)
 
 
 class LeNet5(nn.Cell):
