@@ -167,7 +167,7 @@ def test_momentum_diverse_input_iterative_method():
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
 def test_error():
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         # check_param_multi_types
         assert IterativeGradientMethod(Net(), bounds=None)
     attack = IterativeGradientMethod(Net(), bounds=(0.0, 1.0))

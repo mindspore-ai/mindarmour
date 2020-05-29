@@ -159,7 +159,10 @@ class AdaGaussianRandom(Mechanisms):
         alpha = check_param_type('alpha', alpha, float)
         self._alpha = Tensor(np.array(alpha, np.float32))
 
-        self._decay_policy = check_param_type('decay_policy', decay_policy, str)
+        if decay_policy not in ['Time', 'Step']:
+            raise NameError("The decay_policy must be in ['Time', 'Step'], but "
+                            "get {}".format(decay_policy))
+        self._decay_policy = decay_policy
         self._mean = 0.0
         self._sub = P.Sub()
         self._mul = P.Mul()
