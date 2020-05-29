@@ -34,8 +34,8 @@ class DPOptimizerClassFactory:
 
     Examples:
         >>> GaussianSGD = DPOptimizerClassFactory(micro_batches=2)
-        >>> GaussianSGD.set_mechanisms('Gaussian', norm_bound=1.5, initial_noise_multiplier=5.0)
-        >>> net_opt = GaussianSGD.create('SGD')(params=network.trainable_params(),
+        >>> GaussianSGD.set_mechanisms('Gaussian', norm_bound=1.0, initial_noise_multiplier=1.5)
+        >>> net_opt = GaussianSGD.create('Momentum')(params=network.trainable_params(),
         >>>                                     learning_rate=cfg.lr,
         >>>                                     momentum=cfg.momentum)
     """

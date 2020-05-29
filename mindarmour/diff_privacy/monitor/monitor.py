@@ -70,11 +70,11 @@ class RDPMonitor(Callback):
         num_samples (int): The total number of samples in training data sets.
         batch_size (int): The number of samples in a batch while training.
         initial_noise_multiplier (Union[float, int]): The initial
-            multiplier of added noise. Default: 0.4.
+            multiplier of added noise. Default: 1.5.
         max_eps (Union[float, int, None]): The maximum acceptable epsilon
-            budget for DP training. Default: 3.0.
+            budget for DP training. Default: 10.0.
         target_delta (Union[float, int, None]): Target delta budget for DP
-            training. Default: 1e-5.
+            training. Default: 1e-3.
         max_delta (Union[float, int, None]): The maximum acceptable delta
             budget for DP training. Max_delta must be less than 1 and
             suggested to be less than 1e-3, otherwise overflow would be
@@ -84,7 +84,7 @@ class RDPMonitor(Callback):
         orders (Union[None, list[int, float]]): Finite orders used for
             computing rdp, which must be greater than 1.
         noise_decay_mode (str): Decay mode of adding noise while training,
-            which can be 'no_decay', 'time' or 'step'. Default: 'step'.
+            which can be 'no_decay', 'Time' or 'Step'. Default: 'Time'.
         noise_decay_rate (Union[float, None]): Decay rate of noise while
             training. Default: 6e-4.
         per_print_times　(int): The interval steps of computing and printing
@@ -92,7 +92,7 @@ class RDPMonitor(Callback):
 
     Examples:
         >>> rdp = PrivacyMonitorFactory.create(policy='rdp',
-        >>> num_samples=60000, batch_size=32)
+        >>> num_samples=60000, batch_size=256)
         >>> network = Net()
         >>> net_loss = nn.SoftmaxCrossEntropyWithLogits()
         >>> net_opt = nn.Momentum(network.trainable_params(), 0.01, 0.9)
@@ -100,9 +100,9 @@ class RDPMonitor(Callback):
         >>> model.train(epochs, ds, callbacks=[rdp], dataset_sink_mode=False)
     """
 
-    def __init__(self, num_samples, batch_size, initial_noise_multiplier=0.4,
-                 max_eps=3.0, target_delta=1e-5, max_delta=None,
-                 target_eps=None, orders=None, noise_decay_mode='step',
+    def __init__(self, num_samples, batch_size, initial_noise_multiplier=1.5,
+                 max_eps=10.0, target_delta=1e-3, max_delta=None,
+                 target_eps=None, orders=None, noise_decay_mode='Time',
                  noise_decay_rate=6e-4, per_print_times=50):
         super(RDPMonitor, self).__init__()
         check_int_positive('num_samples', num_samples)
@@ -132,8 +132,8 @@ class RDPMonitor(Callback):
                     msg = 'orders must be greater than 1'
                     LOGGER.error(TAG, msg)
                     raise ValueError(msg)
-        if noise_decay_mode not in ('no_decay', 'step', 'time'):
-            msg = 'Noise decay mode must be in (no_decay, step, time)'
+        if noise_decay_mode not in ('no_decay', 'Step', 'Time'):
+            msg = "Noise decay mode must be in ('no_decay', 'Step', 'Time')"
             LOGGER.error(TAG, msg)
             raise ValueError(msg)
         if noise_decay_rate is not None:
@@ -256,11 +256,11 @@ class RDPMonitor(Callback):
                 LOGGER.error(TAG, msg)
                 raise ValueError(msg)
 
-            if self._noise_decay_mode == 'time':
+            if self._noise_decay_mode == 'Time':
                 noise_step = [self._initial_noise_multiplier / (
                     1 + self._noise_decay_rate * step) for step in steps]
 
-            elif self._noise_decay_mode == 'step':
+            elif self._noise_decay_mode == 'Step':
                 noise_step = [self._initial_noise_multiplier * (
                     1 - self._noise_decay_rate) ** step for step in steps]
             self._rdp += sum(

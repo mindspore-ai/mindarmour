@@ -38,6 +38,7 @@ from lenet5_net import LeNet5
 from lenet5_config import mnist_cfg as cfg
 
 LOGGER = LogUtil.get_instance()
+LOGGER.set_level('INFO')
 TAG = 'Lenet5_train'
 
 
@@ -92,11 +93,11 @@ if __name__ == "__main__":
     parser.add_argument('--data_path', type=str, default="./MNIST_unzip",
                         help='path where the dataset is saved')
     parser.add_argument('--dataset_sink_mode', type=bool, default=False, help='dataset_sink_mode is False or True')
-    parser.add_argument('--micro_batches', type=int, default=None,
+    parser.add_argument('--micro_batches', type=int, default=32,
                         help='optional, if use differential privacy, need to set micro_batches')
-    parser.add_argument('--l2_norm_bound', type=float, default=0.1,
+    parser.add_argument('--l2_norm_bound', type=float, default=1.0,
                         help='optional, if use differential privacy, need to set l2_norm_bound')
-    parser.add_argument('--initial_noise_multiplier', type=float, default=0.001,
+    parser.add_argument('--initial_noise_multiplier', type=float, default=1.5,
                         help='optional, if use differential privacy, need to set initial_noise_multiplier')
     args = parser.parse_args()
 
@@ -120,13 +121,14 @@ if __name__ == "__main__":
     gaussian_mech.set_mechanisms('Gaussian',
                                  norm_bound=args.l2_norm_bound,
                                  initial_noise_multiplier=args.initial_noise_multiplier)
-    net_opt = gaussian_mech.create('SGD')(params=network.trainable_params(),
-                                          learning_rate=cfg.lr,
-                                          momentum=cfg.momentum)
+    net_opt = gaussian_mech.create('Momentum')(params=network.trainable_params(),
+                                               learning_rate=cfg.lr,
+                                               momentum=cfg.momentum)
     rdp_monitor = PrivacyMonitorFactory.create('rdp',
                                                num_samples=60000,
                                                batch_size=cfg.batch_size,
-                                               initial_noise_multiplier=args.initial_noise_multiplier,
+                                               initial_noise_multiplier=args.initial_noise_multiplier*
+                                               args.l2_norm_bound,
                                                per_print_times=10)
     model = DPModel(micro_batches=args.micro_batches,
                     norm_clip=args.l2_norm_bound,
@@ -141,7 +143,7 @@ if __name__ == "__main__":
                 dataset_sink_mode=args.dataset_sink_mode)
 
     LOGGER.info(TAG, "============== Starting Testing ==============")
-    ckpt_file_name = 'trained_ckpt_file/checkpoint_lenet-10_1875.ckpt'
+    ckpt_file_name = 'trained_ckpt_file/checkpoint_lenet-10_234.ckpt'
     param_dict = load_checkpoint(ckpt_file_name)
     load_param_into_net(network, param_dict)
     ds_eval = generate_mnist_dataset(os.path.join(args.data_path, 'test'), batch_size=cfg.batch_size)

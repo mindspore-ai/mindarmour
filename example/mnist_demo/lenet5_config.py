@@ -23,10 +23,10 @@ mnist_cfg = edict({
     'lr': 0.01,
     'momentum': 0.9,
     'epoch_size': 10,
-    'batch_size': 32,
+    'batch_size': 256,
     'buffer_size': 1000,
     'image_height': 32,
     'image_width': 32,
-    'save_checkpoint_steps': 1875,
+    'save_checkpoint_steps': 234,
     'keep_checkpoint_max': 10,
 })

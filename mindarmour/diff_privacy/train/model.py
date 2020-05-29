@@ -91,7 +91,7 @@ class DPModel(Model):
         >>>
         >>> net = Net()
         >>> loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
-        >>> optim = Momentum(params=net.trainable_params(), learning_rate=0.1, momentum=0.9)
+        >>> optim = Momentum(params=net.trainable_params(), learning_rate=0.01, momentum=0.9)
         >>> gaussian_mech = DPOptimizerClassFactory()
         >>> gaussian_mech.set_mechanisms('Gaussian',
         >>>                             norm_bound=args.l2_norm_bound,
