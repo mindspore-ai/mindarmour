@@ -27,7 +27,7 @@ class DPOptimizerClassFactory:
     Factory class of Optimizer.
 
     Args:
-        micro_batches (int): The number of small batches split from an origianl batch. Default: None.
+        micro_batches (int): The number of small batches split from an origianl batch. Default: 2.
 
     Returns:
         Optimizer, Optimizer class
@@ -39,7 +39,7 @@ class DPOptimizerClassFactory:
         >>>                                     learning_rate=cfg.lr,
         >>>                                     momentum=cfg.momentum)
     """
-    def __init__(self, micro_batches=None):
+    def __init__(self, micro_batches=2):
         self._mech_factory = MechanismsFactory()
         self.mech = None
         self._micro_batches = check_int_positive('micro_batches', micro_batches)
@@ -72,17 +72,7 @@ class DPOptimizerClassFactory:
         if policy == 'Adam':
             cls = self._get_dp_optimizer_class(nn.Adam, self.mech, self._micro_batches, *args, **kwargs)
             return cls
-        if policy == 'AdamWeightDecay':
-            cls = self._get_dp_optimizer_class(nn.AdamWeightDecay, self.mech, self._micro_batches, *args, **kwargs)
-            return cls
-        if policy == 'AdamWeightDecayDynamicLR':
-            cls = self._get_dp_optimizer_class(nn.AdamWeightDecayDynamicLR,
-                                               self.mech,
-                                               self._micro_batches,
-                                               *args, **kwargs)
-            return cls
-        raise NameError("The {} is not implement, please choose ['SGD', 'Momentum', 'AdamWeightDecay', "
-                        "'Adam', 'AdamWeightDecayDynamicLR']".format(policy))
+        raise NameError("The {} is not implement, please choose ['SGD', 'Momentum', 'Adam']".format(policy))
 
     def _get_dp_optimizer_class(self, cls, mech, micro_batches):
         """
