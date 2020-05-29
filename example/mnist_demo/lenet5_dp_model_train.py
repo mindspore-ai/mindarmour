@@ -123,10 +123,9 @@ if __name__ == "__main__":
     net_opt = gaussian_mech.create('SGD')(params=network.trainable_params(),
                                           learning_rate=cfg.lr,
                                           momentum=cfg.momentum)
-    micro_size = int(cfg.batch_size // args.micro_batches)
     rdp_monitor = PrivacyMonitorFactory.create('rdp',
                                                num_samples=60000,
-                                               batch_size=micro_size,
+                                               batch_size=cfg.batch_size,
                                                initial_noise_multiplier=args.initial_noise_multiplier,
                                                per_print_times=10)
     model = DPModel(micro_batches=args.micro_batches,
