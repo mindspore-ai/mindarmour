@@ -43,7 +43,7 @@ def check_param_type(arg_name, arg_value, valid_type):
                                                  valid_type,
                                                  type(arg_value).__name__)
         LOGGER.error(TAG, msg)
-        raise ValueError(msg)
+        raise TypeError(msg)
 
     return arg_value
 
@@ -54,7 +54,7 @@ def check_param_multi_types(arg_name, arg_value, valid_types):
         msg = 'type of {} must be in {}, but got {}' \
             .format(arg_name, valid_types, type(arg_value).__name__)
         LOGGER.error(TAG, msg)
-        raise ValueError(msg)
+        raise TypeError(msg)
 
     return arg_value
 
@@ -157,7 +157,7 @@ def check_numpy_param(arg_name, arg_value):
         msg = 'type of {} must be in (list, tuple, numpy.ndarray)'.format(
             arg_name)
         LOGGER.error(TAG, msg)
-        raise ValueError(msg)
+        raise TypeError(msg)
     return arg_value
 
 

@@ -100,16 +100,16 @@ def test_value_error():
     with pytest.raises(ValueError):
         assert RegionBasedDetector(model, search_step=0)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         assert RegionBasedDetector(model, sparse='False')
 
     detector = RegionBasedDetector(model)
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         # radius must not empty
         assert detector.detect(adv)
 
     radius = detector.fit(ori, labels)
     detector.set_radius(radius)
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         # adv type should be in (list, tuple, numpy.ndarray)
         assert detector.detect(adv.tostring())
