@@ -24,6 +24,7 @@ from mindspore.common import dtype as mstype
 
 from mindarmour.utils._check_param import check_param_type
 from mindarmour.utils._check_param import check_value_positive
+from mindarmour.utils._check_param import check_param_in_range
 
 
 class MechanismsFactory:
@@ -37,7 +38,8 @@ class MechanismsFactory:
         """
         Args:
             policy(str): Noise generated strategy, could be 'Gaussian' or
-                'AdaGaussian'. Default: 'AdaGaussian'.
+                'AdaGaussian'. Noise would be decayed with 'AdaGaussian' mechanism while
+                be constant with 'Gaussian' mechanism. Default: 'AdaGaussian'.
             args(Union[float, str]): Parameters used for creating noise
                 mechanisms.
             kwargs(Union[float, str]): Parameters used for creating noise
@@ -115,7 +117,8 @@ class GaussianRandom(Mechanisms):
 
 class AdaGaussianRandom(Mechanisms):
     """
-    Adaptive Gaussian noise generated mechanism.
+    Adaptive Gaussian noise generated mechanism. Noise would be decayed with training. Decay mode could be 'Time'
+    mode or 'Step' mode.
 
     Args:
         norm_bound(float): Clipping bound for the l2 norm of the gradients.
@@ -123,7 +126,7 @@ class AdaGaussianRandom(Mechanisms):
         initial_noise_multiplier(float): Ratio of the standard deviation of
             Gaussian noise divided by the norm_bound, which will be used to
             calculate privacy spent. Default: 5.0.
-        alpha(float): Hyperparameter for controlling the noise decay.
+        noise_decay_rate(float): Hyperparameter for controlling the noise decay.
             Default: 6e-4.
         decay_policy(str): Noise decay strategy include 'Step' and 'Time'.
             Default: 'Time'.
@@ -135,16 +138,16 @@ class AdaGaussianRandom(Mechanisms):
         >>> shape = (3, 2, 4)
         >>> norm_bound = 1.0
         >>> initial_noise_multiplier = 0.1
-        >>> alpha = 0.5
+        >>> noise_decay_rate = 0.5
         >>> decay_policy = "Time"
         >>> net = AdaGaussianRandom(norm_bound, initial_noise_multiplier,
-        >>>                         alpha, decay_policy)
+        >>>                         noise_decay_rate, decay_policy)
         >>> res = net(shape)
         >>> print(res)
     """
 
     def __init__(self, norm_bound=1.5, initial_noise_multiplier=5.0,
-                 alpha=6e-4, decay_policy='Time'):
+                 noise_decay_rate=6e-4, decay_policy='Time'):
         super(AdaGaussianRandom, self).__init__()
         initial_noise_multiplier = check_value_positive('initial_noise_multiplier',
                                                         initial_noise_multiplier)
@@ -156,8 +159,9 @@ class AdaGaussianRandom(Mechanisms):
         norm_bound = check_value_positive('norm_bound', norm_bound)
         self._norm_bound = Tensor(np.array(norm_bound, np.float32))
 
-        alpha = check_param_type('alpha', alpha, float)
-        self._alpha = Tensor(np.array(alpha, np.float32))
+        noise_decay_rate = check_param_type('noise_decay_rate', noise_decay_rate, float)
+        check_param_in_range('noise_decay_rate', noise_decay_rate, 0.0, 1.0)
+        self._noise_decay_rate = Tensor(np.array(noise_decay_rate, np.float32))
 
         if decay_policy not in ['Time', 'Step']:
             raise NameError("The decay_policy must be in ['Time', 'Step'], but "
@@ -176,12 +180,12 @@ class AdaGaussianRandom(Mechanisms):
         if self._decay_policy == 'Time':
             temp = self._div(self._initial_noise_multiplier,
                              self._noise_multiplier)
-            temp = self._add(temp, self._alpha)
+            temp = self._add(temp, self._noise_decay_rate)
             temp = self._div(self._initial_noise_multiplier, temp)
             self._noise_multiplier = Parameter(temp, name='noise_multiplier')
         else:
             one = Tensor(1, self._dtype)
-            temp = self._sub(one, self._alpha)
+            temp = self._sub(one, self._noise_decay_rate)
             temp = self._mul(temp, self._noise_multiplier)
             self._noise_multiplier = Parameter(temp, name='noise_multiplier')
 

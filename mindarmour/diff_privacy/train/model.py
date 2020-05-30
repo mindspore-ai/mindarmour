@@ -70,7 +70,7 @@ class DPModel(Model):
     This class is overload mindspore.train.model.Model.
 
     Args:
-        micro_batches (int): The number of small batches split from an origianl batch. Default: 2.
+        micro_batches (int): The number of small batches split from an original batch. Default: 2.
         norm_clip (float): Use to clip the bound, if set 1, will retun the original data. Default: 1.0.
         dp_mech (Mechanisms): The object can generate the different type of noise. Default: None.
 

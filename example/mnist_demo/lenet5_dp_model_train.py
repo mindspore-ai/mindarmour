@@ -15,7 +15,6 @@
 python lenet5_dp_model_train.py --data_path /YourDataPath --micro_batches=2
 """
 import os
-import argparse
 
 import mindspore.nn as nn
 from mindspore import context
@@ -87,21 +86,7 @@ def generate_mnist_dataset(data_path, batch_size=32, repeat_size=1,
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='MindSpore MNIST Example')
-    parser.add_argument('--device_target', type=str, default="Ascend", choices=['Ascend', 'GPU', 'CPU'],
-                        help='device where the code will be implemented (default: Ascend)')
-    parser.add_argument('--data_path', type=str, default="./MNIST_unzip",
-                        help='path where the dataset is saved')
-    parser.add_argument('--dataset_sink_mode', type=bool, default=False, help='dataset_sink_mode is False or True')
-    parser.add_argument('--micro_batches', type=int, default=32,
-                        help='optional, if use differential privacy, need to set micro_batches')
-    parser.add_argument('--l2_norm_bound', type=float, default=1.0,
-                        help='optional, if use differential privacy, need to set l2_norm_bound')
-    parser.add_argument('--initial_noise_multiplier', type=float, default=1.5,
-                        help='optional, if use differential privacy, need to set initial_noise_multiplier')
-    args = parser.parse_args()
-
-    context.set_context(mode=context.PYNATIVE_MODE, device_target=args.device_target)
+    context.set_context(mode=context.PYNATIVE_MODE, device_target=cfg.device_target)
 
     network = LeNet5()
     net_loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True, reduction="mean")
@@ -111,27 +96,41 @@ if __name__ == "__main__":
                                  directory='./trained_ckpt_file/',
                                  config=config_ck)
 
-    ds_train = generate_mnist_dataset(os.path.join(args.data_path, "train"),
+    # get training dataset
+    ds_train = generate_mnist_dataset(os.path.join(cfg.data_path, "train"),
                                       cfg.batch_size,
                                       cfg.epoch_size)
 
-    if args.micro_batches and cfg.batch_size % args.micro_batches != 0:
+    if cfg.micro_batches and cfg.batch_size % cfg.micro_batches != 0:
         raise ValueError("Number of micro_batches should divide evenly batch_size")
-    gaussian_mech = DPOptimizerClassFactory(args.micro_batches)
-    gaussian_mech.set_mechanisms('Gaussian',
-                                 norm_bound=args.l2_norm_bound,
-                                 initial_noise_multiplier=args.initial_noise_multiplier)
-    net_opt = gaussian_mech.create('Momentum')(params=network.trainable_params(),
-                                               learning_rate=cfg.lr,
-                                               momentum=cfg.momentum)
+    # Create a factory class of DP optimizer
+    gaussian_mech = DPOptimizerClassFactory(cfg.micro_batches)
+
+    # Set the method of adding noise in gradients while training. Initial_noise_multiplier is suggested to be greater
+    # than 1.0, otherwise the privacy budget would be huge, which means that the privacy protection effect is weak.
+    # mechanisms can be 'Gaussian' or 'AdaGaussian', in which noise would be decayed with 'AdaGaussian' mechanism while
+    # be constant with 'Gaussian' mechanism.
+    gaussian_mech.set_mechanisms(cfg.mechanisms,
+                                 norm_bound=cfg.l2_norm_bound,
+                                 initial_noise_multiplier=cfg.initial_noise_multiplier)
+
+    # Wrap the base optimizer for DP training. Momentum optimizer is suggested for LenNet5.
+    net_opt = gaussian_mech.create(cfg.optimizer)(params=network.trainable_params(),
+                                                  learning_rate=cfg.lr,
+                                                  momentum=cfg.momentum)
+
+    # Create a monitor for DP training. The function of the monitor is to compute and print the privacy budget(eps
+    # and delta) while training.
     rdp_monitor = PrivacyMonitorFactory.create('rdp',
                                                num_samples=60000,
                                                batch_size=cfg.batch_size,
-                                               initial_noise_multiplier=args.initial_noise_multiplier*
-                                               args.l2_norm_bound,
-                                               per_print_times=10)
-    model = DPModel(micro_batches=args.micro_batches,
-                    norm_clip=args.l2_norm_bound,
+                                               initial_noise_multiplier=cfg.initial_noise_multiplier*
+                                               cfg.l2_norm_bound,
+                                               per_print_times=50)
+
+    # Create the DP model for training.
+    model = DPModel(micro_batches=cfg.micro_batches,
+                    norm_clip=cfg.l2_norm_bound,
                     dp_mech=gaussian_mech.mech,
                     network=network,
                     loss_fn=net_loss,
@@ -140,12 +139,12 @@ if __name__ == "__main__":
 
     LOGGER.info(TAG, "============== Starting Training ==============")
     model.train(cfg['epoch_size'], ds_train, callbacks=[ckpoint_cb, LossMonitor(), rdp_monitor],
-                dataset_sink_mode=args.dataset_sink_mode)
+                dataset_sink_mode=cfg.dataset_sink_mode)
 
     LOGGER.info(TAG, "============== Starting Testing ==============")
     ckpt_file_name = 'trained_ckpt_file/checkpoint_lenet-10_234.ckpt'
     param_dict = load_checkpoint(ckpt_file_name)
     load_param_into_net(network, param_dict)
-    ds_eval = generate_mnist_dataset(os.path.join(args.data_path, 'test'), batch_size=cfg.batch_size)
+    ds_eval = generate_mnist_dataset(os.path.join(cfg.data_path, 'test'), batch_size=cfg.batch_size)
     acc = model.eval(ds_eval, dataset_sink_mode=False)
     LOGGER.info(TAG, "============== Accuracy: %s  ==============", acc)
