@@ -20,7 +20,7 @@ from mindspore.train.callback import Callback
 
 from mindarmour.utils.logger import LogUtil
 from mindarmour.utils._check_param import check_int_positive, \
-    check_value_positive
+    check_value_positive, check_param_in_range, check_param_type
 
 LOGGER = LogUtil.get_instance()
 TAG = 'DP monitor'
@@ -40,7 +40,8 @@ class PrivacyMonitorFactory:
         Create a privacy monitor class.
 
         Args:
-            policy (str): Monitor policy, 'rdp' is supported by now.
+            policy (str): Monitor policy, 'rdp' is supported by now. RDP means R'enyi differential privacy,
+                which computed based on R'enyi divergence.
             args (Union[int, float, numpy.ndarray, list, str]): Parameters
                 used for creating a privacy monitor.
             kwargs (Union[int, float, numpy.ndarray, list, str]): Keyword
@@ -70,7 +71,7 @@ class RDPMonitor(Callback):
         num_samples (int): The total number of samples in training data sets.
         batch_size (int): The number of samples in a batch while training.
         initial_noise_multiplier (Union[float, int]): The initial
-            multiplier of added noise. Default: 1.5.
+            multiplier of the noise added to training parameters' gradients. Default: 1.5.
         max_eps (Union[float, int, None]): The maximum acceptable epsilon
             budget for DP training. Default: 10.0.
         target_delta (Union[float, int, None]): Target delta budget for DP
@@ -137,11 +138,8 @@ class RDPMonitor(Callback):
             LOGGER.error(TAG, msg)
             raise ValueError(msg)
         if noise_decay_rate is not None:
-            check_value_positive('noise_decay_rate', noise_decay_rate)
-            if noise_decay_rate >= 1:
-                msg = 'Noise decay rate must be less than 1'
-                LOGGER.error(TAG, msg)
-                raise ValueError(msg)
+            noise_decay_rate = check_param_type('noise_decay_rate', noise_decay_rate, float)
+            check_param_in_range('noise_decay_rate', noise_decay_rate, 0.0, 1.0)
         check_int_positive('per_print_times', per_print_times)
 
         self._total_echo_privacy = None

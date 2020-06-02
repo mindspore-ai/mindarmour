@@ -45,10 +45,10 @@ def test_ada_gaussian():
     shape = (3, 2, 4)
     norm_bound = 1.0
     initial_noise_multiplier = 0.1
-    alpha = 0.5
+    noise_decay_rate = 0.5
     decay_policy = "Step"
     net = AdaGaussianRandom(norm_bound, initial_noise_multiplier,
-                            alpha, decay_policy)
+                            noise_decay_rate, decay_policy)
     res = net(shape)
     print(res)
 
@@ -58,7 +58,7 @@ def test_factory():
     shape = (3, 2, 4)
     norm_bound = 1.0
     initial_noise_multiplier = 0.1
-    alpha = 0.5
+    noise_decay_rate = 0.5
     decay_policy = "Step"
     noise_mechanism = MechanismsFactory()
     noise_construct = noise_mechanism.create('Gaussian',
@@ -70,7 +70,7 @@ def test_factory():
     ada_noise_construct = ada_mechanism.create('AdaGaussian',
                                                norm_bound,
                                                initial_noise_multiplier,
-                                               alpha,
+                                               noise_decay_rate,
                                                decay_policy)
     ada_noise = ada_noise_construct(shape)
     print('ada noise: ', ada_noise)
