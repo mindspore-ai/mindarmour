@@ -86,7 +86,7 @@ class GaussianRandom(Mechanisms):
         >>> shape = (3, 2, 4)
         >>> norm_bound = 1.0
         >>> initial_noise_multiplier = 1.5
-        >>> net = GaussianRandom(shape, norm_bound, initial_noise_multiplier)
+        >>> net = GaussianRandom(norm_bound, initial_noise_multiplier)
         >>> res = net(shape)
         >>> print(res)
     """
