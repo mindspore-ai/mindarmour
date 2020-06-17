@@ -14,12 +14,36 @@
 """
 Differential privacy optimizer.
 """
-import mindspore as ms
 from mindspore import nn
 from mindspore import Tensor
+from mindspore.ops import composite as C
+from mindspore.ops import operations as P
+from mindspore.ops import functional as F
+from mindspore.common import dtype as mstype
 
 from mindarmour.diff_privacy.mechanisms.mechanisms import MechanismsFactory
 from mindarmour.utils._check_param import check_int_positive
+
+_grad_scale = C.MultitypeFuncGraph("grad_scale")
+_reciprocal = P.Reciprocal()
+
+
+@_grad_scale.register("Tensor", "Tensor")
+def tensor_grad_scale(scale, grad):
+    """ grad scaling """
+    return grad * _reciprocal(scale)
+
+
+class _TupleAdd(nn.Cell):
+    def __init__(self):
+        super(_TupleAdd, self).__init__()
+        self.add = P.TensorAdd()
+        self.hyper_map = C.HyperMap()
+
+    def construct(self, input1, input2):
+        """Add two tuple of data."""
+        out = self.hyper_map(self.add, input1, input2)
+        return out
 
 
 class DPOptimizerClassFactory:
@@ -36,9 +60,10 @@ class DPOptimizerClassFactory:
         >>> GaussianSGD = DPOptimizerClassFactory(micro_batches=2)
         >>> GaussianSGD.set_mechanisms('Gaussian', norm_bound=1.0, initial_noise_multiplier=1.5)
         >>> net_opt = GaussianSGD.create('Momentum')(params=network.trainable_params(),
-        >>>                                     learning_rate=cfg.lr,
-        >>>                                     momentum=cfg.momentum)
+        >>>                                          learning_rate=cfg.lr,
+        >>>                                          momentum=cfg.momentum)
     """
+
     def __init__(self, micro_batches=2):
         self._mech_factory = MechanismsFactory()
         self.mech = None
@@ -78,6 +103,7 @@ class DPOptimizerClassFactory:
         """
         Wrap original mindspore optimizer with `self._mech`.
         """
+
         class DPOptimizer(cls):
             """
             Initialize the DPOptimizerClass.
@@ -85,23 +111,22 @@ class DPOptimizerClassFactory:
             Returns:
                 Optimizer, Optimizer class.
             """
+
             def __init__(self, *args, **kwargs):
                 super(DPOptimizer, self).__init__(*args, **kwargs)
                 self._mech = mech
+                self._tuple_add = _TupleAdd()
+                self._hyper_map = C.HyperMap()
+                self._micro_float = Tensor(micro_batches, mstype.float32)
 
             def construct(self, gradients):
                 """
                 construct a compute flow.
                 """
-                g_len = len(gradients)
-                gradient_noise = list(gradients)
-                for i in range(g_len):
-                    gradient_noise[i] = gradient_noise[i].asnumpy()
-                    gradient_noise[i] = self._mech(gradient_noise[i].shape).asnumpy() + gradient_noise[i]
-                    gradient_noise[i] = gradient_noise[i] / micro_batches
-                    gradient_noise[i] = Tensor(gradient_noise[i], ms.float32)
-                gradients = tuple(gradient_noise)
-
-                gradients = super(DPOptimizer, self).construct(gradients)
+                grad_noise = self._hyper_map(self._mech, gradients)
+                grads = self._tuple_add(gradients, grad_noise)
+                grads = self._hyper_map(F.partial(_grad_scale, self._micro_float), grads)
+                gradients = super(DPOptimizer, self).construct(grads)
                 return gradients
+
         return DPOptimizer
