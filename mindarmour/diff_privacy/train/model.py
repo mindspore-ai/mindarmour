@@ -114,8 +114,8 @@ class DPModel(Model):
             self._micro_batches = check_int_positive('micro_batches', micro_batches)
         else:
             self._micro_batches = None
-        float_norm_clip = check_param_type('l2_norm_clip', norm_clip, float)
-        self._norm_clip = check_value_positive('l2_norm_clip', float_norm_clip)
+        norm_clip = check_param_type('norm_clip', norm_clip, float)
+        self._norm_clip = check_value_positive('norm_clip', norm_clip)
         if isinstance(dp_mech, mechanisms.Mechanisms):
             self._dp_mech = dp_mech
         else:
