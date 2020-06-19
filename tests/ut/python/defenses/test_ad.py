@@ -54,7 +54,7 @@ def test_ad():
     net = Net()
     loss_fn = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=sparse)
     optimizer = Momentum(learning_rate=Tensor(np.array([0.001], np.float32)),
-                         momentum=Tensor(np.array([0.9], np.float32)),
+                         momentum=0.9,
                          params=net.trainable_params())
 
     ad_defense = AdversarialDefense(net, loss_fn=loss_fn, optimizer=optimizer)

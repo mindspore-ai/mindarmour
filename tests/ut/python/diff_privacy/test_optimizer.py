@@ -15,11 +15,11 @@ import pytest
 
 from mindspore import nn
 from mindspore import context
-from mindspore.model_zoo.lenet import LeNet5
 from mindspore.train.model import Model
 
 from mindarmour.diff_privacy import DPOptimizerClassFactory
 
+from test_network import LeNet5
 
 @pytest.mark.level0
 @pytest.mark.platform_arm_ascend_training

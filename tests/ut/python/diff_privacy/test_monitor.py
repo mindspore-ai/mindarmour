@@ -21,10 +21,11 @@ import mindspore.nn as nn
 import mindspore.dataset as ds
 from mindspore.train import Model
 import mindspore.context as context
-from mindspore.model_zoo.lenet import LeNet5
 
 from mindarmour.diff_privacy import PrivacyMonitorFactory
 from mindarmour.utils.logger import LogUtil
+
+from test_network import LeNet5
 
 LOGGER = LogUtil.get_instance()
 TAG = 'DP-Monitor Test'
