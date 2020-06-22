@@ -16,7 +16,6 @@ Differential privacy model.
 """
 from easydict import EasyDict as edict
 
-import mindspore as ms
 from mindspore.train.model import Model
 from mindspore._checkparam import Validator as validator
 from mindspore._checkparam import Rel
@@ -48,21 +47,19 @@ from mindspore.nn.wrap.loss_scale import _grad_overflow
 from mindspore.nn import Cell
 from mindspore import ParameterTuple
 
-from mindarmour.diff_privacy.mechanisms import mechanisms
 from mindarmour.utils._check_param import check_param_type
 from mindarmour.utils._check_param import check_value_positive
 from mindarmour.utils._check_param import check_int_positive
 
-
 GRADIENT_CLIP_TYPE = 1
-grad_scale = C.MultitypeFuncGraph("grad_scale")
-reciprocal = P.Reciprocal()
+_grad_scale = C.MultitypeFuncGraph("grad_scale")
+_reciprocal = P.Reciprocal()
 
 
-@grad_scale.register("Tensor", "Tensor")
+@_grad_scale.register("Tensor", "Tensor")
 def tensor_grad_scale(scale, grad):
     """ grad scaling """
-    return grad*reciprocal(scale)
+    return grad * F.cast(_reciprocal(scale), F.dtype(grad))
 
 
 class DPModel(Model):
@@ -72,7 +69,7 @@ class DPModel(Model):
     Args:
         micro_batches (int): The number of small batches split from an original batch. Default: 2.
         norm_clip (float): Use to clip the bound, if set 1, will retun the original data. Default: 1.0.
-        dp_mech (Mechanisms): The object can generate the different type of noise. Default: None.
+        mech (Mechanisms): The object can generate the different type of noise. Default: None.
 
     Examples:
         >>> class Net(nn.Cell):
@@ -94,32 +91,37 @@ class DPModel(Model):
         >>>
         >>> net = Net()
         >>> loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
-        >>> optim = Momentum(params=net.trainable_params(), learning_rate=0.01, momentum=0.9)
-        >>> gaussian_mech = DPOptimizerClassFactory()
-        >>> gaussian_mech.set_mechanisms('Gaussian',
-        >>>                             norm_bound=args.l2_norm_bound,
-        >>>                             initial_noise_multiplier=args.initial_noise_multiplier)
+        >>> net_opt = Momentum(params=net.trainable_params(), learning_rate=0.01, momentum=0.9)
+        >>> mech = MechanismsFactory().create('Gaussian',
+        >>>                                   norm_bound=args.l2_norm_bound,
+        >>>                                   initial_noise_multiplier=args.initial_noise_multiplier)
         >>> model = DPModel(micro_batches=2,
         >>>                 norm_clip=1.0,
-        >>>                 dp_mech=gaussian_mech.mech,
+        >>>                 mech=mech,
         >>>                 network=net,
         >>>                 loss_fn=loss,
-        >>>                 optimizer=optim,
+        >>>                 optimizer=net_opt,
         >>>                 metrics=None)
         >>> dataset = get_dataset()
         >>> model.train(2, dataset)
     """
-    def __init__(self, micro_batches=2, norm_clip=1.0, dp_mech=None, **kwargs):
+
+    def __init__(self, micro_batches=2, norm_clip=1.0, mech=None, **kwargs):
         if micro_batches:
             self._micro_batches = check_int_positive('micro_batches', micro_batches)
         else:
             self._micro_batches = None
-        norm_clip = check_param_type('norm_clip', norm_clip, float)
-        self._norm_clip = check_value_positive('norm_clip', norm_clip)
-        if isinstance(dp_mech, mechanisms.Mechanisms):
-            self._dp_mech = dp_mech
-        else:
-            raise TypeError('dp mechanisms should be instance of class Mechansms, but got {}'.format(type(dp_mech)))
+        float_norm_clip = check_param_type('l2_norm_clip', norm_clip, float)
+        self._norm_clip = check_value_positive('l2_norm_clip', float_norm_clip)
+        if mech is not None and "DPOptimizer" in kwargs['optimizer'].__class__.__name__:
+            raise ValueError('DPOptimizer is not supported while mech is not None')
+        if mech is None:
+            if "DPOptimizer" in kwargs['optimizer'].__class__.__name__:
+                if context.get_context('mode') != context.PYNATIVE_MODE:
+                    raise ValueError('DPOptimizer just support pynative mode currently.')
+            else:
+                raise ValueError('DPModel should set mech or DPOptimizer configure, please refer to example.')
+        self._mech = mech
         super(DPModel, self).__init__(**kwargs)
 
     def _amp_build_train_network(self, network, optimizer, loss_fn=None, level='O0', **kwargs):
@@ -179,14 +181,14 @@ class DPModel(Model):
                                                          scale_update_cell=update_cell,
                                                          micro_batches=self._micro_batches,
                                                          l2_norm_clip=self._norm_clip,
-                                                         mech=self._dp_mech).set_train()
+                                                         mech=self._mech).set_train()
                 return network
         network = _TrainOneStepCell(network,
                                     optimizer,
                                     loss_scale,
                                     micro_batches=self._micro_batches,
                                     l2_norm_clip=self._norm_clip,
-                                    mech=self._dp_mech).set_train()
+                                    mech=self._mech).set_train()
         return network
 
     def _build_train_network(self):
@@ -244,6 +246,7 @@ class _ClipGradients(nn.Cell):
     Outputs:
         tuple[Tensor], clipped gradients.
     """
+
     def __init__(self):
         super(_ClipGradients, self).__init__()
         self.clip_by_norm = nn.ClipByNorm()
@@ -253,7 +256,8 @@ class _ClipGradients(nn.Cell):
         """
         construct a compute flow.
         """
-        if clip_type not in (0, 1):
+        # pylint: disable=consider-using-in
+        if clip_type != 0 and clip_type != 1:
             return grads
 
         new_grads = ()
@@ -266,6 +270,18 @@ class _ClipGradients(nn.Cell):
             new_grads = new_grads + (t,)
 
         return new_grads
+
+
+class _TupleAdd(nn.Cell):
+    def __init__(self):
+        super(_TupleAdd, self).__init__()
+        self.add = P.TensorAdd()
+        self.hyper_map = C.HyperMap()
+
+    def construct(self, input1, input2):
+        """Add two tuple of data."""
+        out = self.hyper_map(self.add, input1, input2)
+        return out
 
 
 class _TrainOneStepWithLossScaleCell(Cell):
@@ -347,6 +363,9 @@ class _TrainOneStepWithLossScaleCell(Cell):
         self._split = P.Split(0, self._micro_batches)
         self._clip_by_global_norm = _ClipGradients()
         self._mech = mech
+        self._tuple_add = _TupleAdd()
+        self._hyper_map = C.HyperMap()
+        self._micro_float = Tensor(micro_batches, mstype.float32)
 
     def construct(self, data, label, sens=None):
         """
@@ -368,32 +387,28 @@ class _TrainOneStepWithLossScaleCell(Cell):
         weights = self.weights
         record_datas = self._split(data)
         record_labels = self._split(label)
-        grads = ()
         # first index
         loss = self.network(record_datas[0], record_labels[0])
         scaling_sens_filled = C.ones_like(loss)*F.cast(scaling_sens, F.dtype(loss))
         record_grad = self.grad(self.network, weights)(record_datas[0], record_labels[0], scaling_sens_filled)
         record_grad = self._clip_by_global_norm(record_grad, GRADIENT_CLIP_TYPE, self._l2_norm)
-
-        grad_sum = list(record_grad)
-        grad_len = len(record_grad)
-        for i in range(grad_len):
-            grad_sum[i] = grad_sum[i].asnumpy()
-
+        grads = record_grad
+        total_loss = loss
         for i in range(1, self._micro_batches):
             loss = self.network(record_datas[i], record_labels[i])
             scaling_sens_filled = C.ones_like(loss)*F.cast(scaling_sens, F.dtype(loss))
             record_grad = self.grad(self.network, weights)(record_datas[i], record_labels[i], scaling_sens_filled)
             record_grad = self._clip_by_global_norm(record_grad, GRADIENT_CLIP_TYPE, self._l2_norm)
-            for j in range(grad_len):
-                grad_sum[j] = grad_sum[j] + record_grad[j].asnumpy()
+            grads = self._tuple_add(grads, record_grad)
+            total_loss = P.TensorAdd()(total_loss, loss)
+        loss = P.Div()(total_loss, self._micro_float)
 
-        for i in range(grad_len):
-            grad_sum[i] = Tensor(grad_sum[i], ms.float32)
-        grads = tuple(grad_sum)
-        loss = self.network(data, label)
+        if self._mech is not None:
+            grad_noise = self._hyper_map(self._mech, grads)
+            grads = self._tuple_add(grads, grad_noise)
+            grads = self._hyper_map(F.partial(_grad_scale, self._micro_float), grads)
 
-        grads = self.hyper_map(F.partial(grad_scale, scaling_sens), grads)
+        grads = self.hyper_map(F.partial(_grad_scale, scaling_sens), grads)
         # apply grad reducer on grads
         grads = self.grad_reducer(grads)
         # get the overflow buffer
@@ -474,6 +489,9 @@ class _TrainOneStepCell(Cell):
         self._split = P.Split(0, self._micro_batches)
         self._clip_by_global_norm = _ClipGradients()
         self._mech = mech
+        self._tuple_add = _TupleAdd()
+        self._hyper_map = C.HyperMap()
+        self._micro_float = Tensor(micro_batches, mstype.float32)
 
     def construct(self, data, label):
         """
@@ -486,23 +504,21 @@ class _TrainOneStepCell(Cell):
         sens = P.Fill()(P.DType()(loss), P.Shape()(loss), self.sens)
         record_grad = self.grad(self.network, weights)(record_datas[0], record_labels[0], sens)
         record_grad = self._clip_by_global_norm(record_grad, GRADIENT_CLIP_TYPE, self._l2_norm)
-        grad_sum = list(record_grad)
-        grad_len = len(record_grad)
-        for i in range(grad_len):
-            grad_sum[i] = grad_sum[i].asnumpy()
-
+        grads = record_grad
+        total_loss = loss
         for i in range(1, self._micro_batches):
             loss = self.network(record_datas[i], record_labels[i])
             sens = P.Fill()(P.DType()(loss), P.Shape()(loss), self.sens)
             record_grad = self.grad(self.network, weights)(record_datas[i], record_labels[i], sens)
             record_grad = self._clip_by_global_norm(record_grad, GRADIENT_CLIP_TYPE, self._l2_norm)
-            for j in range(grad_len):
-                grad_sum[j] = grad_sum[j] + record_grad[j].asnumpy()
+            grads = self._tuple_add(grads, record_grad)
+            total_loss = P.TensorAdd()(total_loss, loss)
+        loss = P.Div()(total_loss, self._micro_float)
 
-        for i in range(grad_len):
-            grad_sum[i] = Tensor(grad_sum[i], ms.float32)
-        grads = tuple(grad_sum)
-        loss = self.network(data, label)
+        if self._mech is not None:
+            grad_noise = self._hyper_map(self._mech, grads)
+            grads = self._tuple_add(grads, grad_noise)
+            grads = self._hyper_map(F.partial(_grad_scale, self._micro_float), grads)
 
         if self.reducer_flag:
             # apply grad reducer on grads

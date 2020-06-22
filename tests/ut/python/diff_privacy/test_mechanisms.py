@@ -17,6 +17,8 @@ different Privacy test.
 import pytest
 
 from mindspore import context
+from mindspore import Tensor
+from mindspore.common import dtype as mstype
 from mindarmour.diff_privacy import GaussianRandom
 from mindarmour.diff_privacy import AdaGaussianRandom
 from mindarmour.diff_privacy import MechanismsFactory
@@ -26,13 +28,13 @@ from mindarmour.diff_privacy import MechanismsFactory
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_onecard
 @pytest.mark.component_mindarmour
-def test_gaussian():
-    context.set_context(mode=context.PYNATIVE_MODE, device_target="Ascend")
-    shape = (3, 2, 4)
+def test_graph_gaussian():
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+    grad = Tensor([3, 2, 4], mstype.float32)
     norm_bound = 1.0
     initial_noise_multiplier = 0.1
     net = GaussianRandom(norm_bound, initial_noise_multiplier)
-    res = net(shape)
+    res = net(grad)
     print(res)
 
 
@@ -40,42 +42,99 @@ def test_gaussian():
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_onecard
 @pytest.mark.component_mindarmour
-def test_ada_gaussian():
+def test_pynative_gaussian():
     context.set_context(mode=context.PYNATIVE_MODE, device_target="Ascend")
-    shape = (3, 2, 4)
+    grad = Tensor([3, 2, 4], mstype.float32)
     norm_bound = 1.0
     initial_noise_multiplier = 0.1
-    noise_decay_rate = 0.5
-    decay_policy = "Step"
-    net = AdaGaussianRandom(norm_bound, initial_noise_multiplier,
-                            noise_decay_rate, decay_policy)
-    res = net(shape)
+    net = GaussianRandom(norm_bound, initial_noise_multiplier)
+    res = net(grad)
     print(res)
 
 
-def test_factory():
-    context.set_context(mode=context.PYNATIVE_MODE, device_target="Ascend")
-    shape = (3, 2, 4)
+@pytest.mark.level0
+@pytest.mark.platform_x86_ascend_training
+@pytest.mark.env_onecard
+@pytest.mark.component_mindarmour
+def test_graph_ada_gaussian():
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+    grad = Tensor([3, 2, 4], mstype.float32)
     norm_bound = 1.0
     initial_noise_multiplier = 0.1
-    noise_decay_rate = 0.5
-    decay_policy = "Step"
+    alpha = 0.5
+    decay_policy = 'Step'
+    net = AdaGaussianRandom(norm_bound, initial_noise_multiplier,
+                            noise_decay_rate=alpha, decay_policy=decay_policy)
+    res = net(grad)
+    print(res)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_ascend_training
+@pytest.mark.env_onecard
+@pytest.mark.component_mindarmour
+def test_graph_factory():
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+    grad = Tensor([3, 2, 4], mstype.float32)
+    norm_bound = 1.0
+    initial_noise_multiplier = 0.1
+    alpha = 0.5
+    decay_policy = 'Step'
     noise_mechanism = MechanismsFactory()
     noise_construct = noise_mechanism.create('Gaussian',
                                              norm_bound,
                                              initial_noise_multiplier)
-    noise = noise_construct(shape)
+    noise = noise_construct(grad)
     print('Gaussian noise: ', noise)
     ada_mechanism = MechanismsFactory()
     ada_noise_construct = ada_mechanism.create('AdaGaussian',
                                                norm_bound,
                                                initial_noise_multiplier,
-                                               noise_decay_rate,
-                                               decay_policy)
-    ada_noise = ada_noise_construct(shape)
+                                               noise_decay_rate=alpha,
+                                               decay_policy=decay_policy)
+    ada_noise = ada_noise_construct(grad)
     print('ada noise: ', ada_noise)
 
 
-if __name__ == '__main__':
-    # device_target can be "CPU", "GPU" or "Ascend"
+@pytest.mark.level0
+@pytest.mark.platform_x86_ascend_training
+@pytest.mark.env_onecard
+@pytest.mark.component_mindarmour
+def test_pynative_ada_gaussian():
     context.set_context(mode=context.PYNATIVE_MODE, device_target="Ascend")
+    grad = Tensor([3, 2, 4], mstype.float32)
+    norm_bound = 1.0
+    initial_noise_multiplier = 0.1
+    alpha = 0.5
+    decay_policy = 'Step'
+    net = AdaGaussianRandom(norm_bound, initial_noise_multiplier,
+                            noise_decay_rate=alpha, decay_policy=decay_policy)
+    res = net(grad)
+    print(res)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_ascend_training
+@pytest.mark.env_onecard
+@pytest.mark.component_mindarmour
+def test_pynative_factory():
+    context.set_context(mode=context.PYNATIVE_MODE, device_target="Ascend")
+    grad = Tensor([3, 2, 4], mstype.float32)
+    norm_bound = 1.0
+    initial_noise_multiplier = 0.1
+    alpha = 0.5
+    decay_policy = 'Step'
+    noise_mechanism = MechanismsFactory()
+    noise_construct = noise_mechanism.create('Gaussian',
+                                             norm_bound,
+                                             initial_noise_multiplier)
+    noise = noise_construct(grad)
+    print('Gaussian noise: ', noise)
+    ada_mechanism = MechanismsFactory()
+    ada_noise_construct = ada_mechanism.create('AdaGaussian',
+                                               norm_bound,
+                                               initial_noise_multiplier,
+                                               noise_decay_rate=alpha,
+                                               decay_policy=decay_policy)
+    ada_noise = ada_noise_construct(grad)
+    print('ada noise: ', ada_noise)

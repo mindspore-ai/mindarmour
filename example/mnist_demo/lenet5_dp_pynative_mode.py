@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-python lenet5_dp_model_train.py --data_path /YourDataPath --micro_batches=2
+python lenet5_dp_pynative_mode.py --data_path /YourDataPath --micro_batches=2
 """
 import os
 
@@ -30,8 +30,8 @@ from mindspore.dataset.transforms.vision import Inter
 import mindspore.common.dtype as mstype
 
 from mindarmour.diff_privacy import DPModel
-from mindarmour.diff_privacy import DPOptimizerClassFactory
 from mindarmour.diff_privacy import PrivacyMonitorFactory
+from mindarmour.diff_privacy import DPOptimizerClassFactory
 from mindarmour.utils.logger import LogUtil
 from lenet5_net import LeNet5
 from lenet5_config import mnist_cfg as cfg
@@ -86,8 +86,8 @@ def generate_mnist_dataset(data_path, batch_size=32, repeat_size=1,
 
 
 if __name__ == "__main__":
+    # This configure just can run in pynative mode.
     context.set_context(mode=context.PYNATIVE_MODE, device_target=cfg.device_target)
-
     network = LeNet5()
     net_loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True, reduction="mean")
     config_ck = CheckpointConfig(save_checkpoint_steps=cfg.save_checkpoint_steps,
@@ -103,34 +103,26 @@ if __name__ == "__main__":
 
     if cfg.micro_batches and cfg.batch_size % cfg.micro_batches != 0:
         raise ValueError("Number of micro_batches should divide evenly batch_size")
-    # Create a factory class of DP optimizer
-    gaussian_mech = DPOptimizerClassFactory(cfg.micro_batches)
-
-    # Set the method of adding noise in gradients while training. Initial_noise_multiplier is suggested to be greater
-    # than 1.0, otherwise the privacy budget would be huge, which means that the privacy protection effect is weak.
-    # mechanisms can be 'Gaussian' or 'AdaGaussian', in which noise would be decayed with 'AdaGaussian' mechanism while
-    # be constant with 'Gaussian' mechanism.
-    gaussian_mech.set_mechanisms(cfg.mechanisms,
-                                 norm_bound=cfg.l2_norm_bound,
-                                 initial_noise_multiplier=cfg.initial_noise_multiplier)
-
-    # Wrap the base optimizer for DP training. Momentum optimizer is suggested for LenNet5.
-    net_opt = gaussian_mech.create(cfg.optimizer)(params=network.trainable_params(),
-                                                  learning_rate=cfg.lr,
-                                                  momentum=cfg.momentum)
-
+    # Create a factory class of DP mechanisms, this method is adding noise in gradients while training.
+    # Initial_noise_multiplier is suggested to be greater than 1.0, otherwise the privacy budget would be huge, which
+    # means that the privacy protection effect is weak. Mechanisms can be 'Gaussian' or 'AdaGaussian', in which noise
+    # would be decayed with 'AdaGaussian' mechanism while be constant with 'Gaussian' mechanism.
+    dp_opt = DPOptimizerClassFactory(micro_batches=cfg.micro_batches)
+    dp_opt.set_mechanisms(cfg.mechanisms,
+                          norm_bound=cfg.l2_norm_bound,
+                          initial_noise_multiplier=cfg.initial_noise_multiplier)
+    net_opt = dp_opt.create('Momentum')(params=network.trainable_params(), learning_rate=cfg.lr, momentum=cfg.momentum)
     # Create a monitor for DP training. The function of the monitor is to compute and print the privacy budget(eps
     # and delta) while training.
     rdp_monitor = PrivacyMonitorFactory.create('rdp',
                                                num_samples=60000,
                                                batch_size=cfg.batch_size,
-                                               initial_noise_multiplier=cfg.initial_noise_multiplier,
-                                               per_print_times=50)
-
+                                               initial_noise_multiplier=cfg.initial_noise_multiplier*cfg.l2_norm_bound,
+                                               per_print_times=10)
     # Create the DP model for training.
     model = DPModel(micro_batches=cfg.micro_batches,
                     norm_clip=cfg.l2_norm_bound,
-                    dp_mech=gaussian_mech.mech,
+                    mech=None,
                     network=network,
                     loss_fn=net_loss,
                     optimizer=net_opt,
