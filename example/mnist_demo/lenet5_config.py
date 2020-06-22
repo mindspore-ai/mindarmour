@@ -31,7 +31,7 @@ mnist_cfg = edict({
     'device_target': 'Ascend',  # device used
     'data_path': './MNIST_unzip',  # the path of training and testing data set
     'dataset_sink_mode': False,  # whether deliver all training data to device one time　
-    'micro_batches': 32,  # the number of small batches split from an original batch
+    'micro_batches': 16,  # the number of small batches split from an original batch
     'l2_norm_bound': 1.0,  # the clip bound of the gradients of model's training parameters
     'initial_noise_multiplier': 1.5,  # the initial multiplication coefficient of the noise added to training
     # parameters' gradients

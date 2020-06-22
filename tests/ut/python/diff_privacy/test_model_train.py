@@ -18,12 +18,13 @@ import pytest
 import numpy as np
 
 from mindspore import nn
-from mindspore.model_zoo.lenet import LeNet5
 from mindspore import context
 import mindspore.dataset as ds
 
 from mindarmour.diff_privacy import DPOptimizerClassFactory
 from mindarmour.diff_privacy import DPModel
+
+from test_network import LeNet5
 
 
 def dataset_generator(batch_size, batches):

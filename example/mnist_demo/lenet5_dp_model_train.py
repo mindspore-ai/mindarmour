@@ -124,8 +124,7 @@ if __name__ == "__main__":
     rdp_monitor = PrivacyMonitorFactory.create('rdp',
                                                num_samples=60000,
                                                batch_size=cfg.batch_size,
-                                               initial_noise_multiplier=cfg.initial_noise_multiplier*
-                                               cfg.l2_norm_bound,
+                                               initial_noise_multiplier=cfg.initial_noise_multiplier,
                                                per_print_times=50)
 
     # Create the DP model for training.
