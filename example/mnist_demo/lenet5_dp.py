@@ -87,7 +87,7 @@ def generate_mnist_dataset(data_path, batch_size=32, repeat_size=1,
 
 if __name__ == "__main__":
     # This configure can run both in pynative mode and graph mode
-    context.set_context(mode=context.PYNATIVE_MODE, device_target=cfg.device_target)
+    context.set_context(mode=context.GRAPH_MODE, device_target=cfg.device_target)
     network = LeNet5()
     net_loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True, reduction="mean")
     config_ck = CheckpointConfig(save_checkpoint_steps=cfg.save_checkpoint_steps,
