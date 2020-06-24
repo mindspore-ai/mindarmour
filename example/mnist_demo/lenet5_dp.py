@@ -108,7 +108,7 @@ if __name__ == "__main__":
     # means that the privacy protection effect is weak. Mechanisms can be 'Gaussian' or 'AdaGaussian', in which noise
     # would be decayed with 'AdaGaussian' mechanism while be constant with 'Gaussian' mechanism.
     mech = MechanismsFactory().create(cfg.mechanisms,
-                                      norm_bound=cfg.l2_norm_bound,
+                                      norm_bound=cfg.norm_clip,
                                       initial_noise_multiplier=cfg.initial_noise_multiplier)
     net_opt = nn.Momentum(params=network.trainable_params(), learning_rate=cfg.lr, momentum=cfg.momentum)
     # Create a monitor for DP training. The function of the monitor is to compute and print the privacy budget(eps
@@ -116,11 +116,11 @@ if __name__ == "__main__":
     rdp_monitor = PrivacyMonitorFactory.create('rdp',
                                                num_samples=60000,
                                                batch_size=cfg.batch_size,
-                                               initial_noise_multiplier=cfg.initial_noise_multiplier*cfg.l2_norm_bound,
+                                               initial_noise_multiplier=cfg.initial_noise_multiplier*cfg.norm_clip,
                                                per_print_times=10)
     # Create the DP model for training.
     model = DPModel(micro_batches=cfg.micro_batches,
-                    norm_clip=cfg.l2_norm_bound,
+                    norm_clip=cfg.norm_clip,
                     mech=mech,
                     network=network,
                     loss_fn=net_loss,
