@@ -93,7 +93,7 @@ class DPModel(Model):
         >>> loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
         >>> net_opt = Momentum(params=net.trainable_params(), learning_rate=0.01, momentum=0.9)
         >>> mech = MechanismsFactory().create('Gaussian',
-        >>>                                   norm_bound=args.l2_norm_bound,
+        >>>                                   norm_bound=args.norm_clip,
         >>>                                   initial_noise_multiplier=args.initial_noise_multiplier)
         >>> model = DPModel(micro_batches=2,
         >>>                 norm_clip=1.0,
@@ -111,8 +111,8 @@ class DPModel(Model):
             self._micro_batches = check_int_positive('micro_batches', micro_batches)
         else:
             self._micro_batches = None
-        float_norm_clip = check_param_type('l2_norm_clip', norm_clip, float)
-        self._norm_clip = check_value_positive('l2_norm_clip', float_norm_clip)
+        norm_clip = check_param_type('norm_clip', norm_clip, float)
+        self._norm_clip = check_value_positive('norm_clip', norm_clip)
         if mech is not None and "DPOptimizer" in kwargs['optimizer'].__class__.__name__:
             raise ValueError('DPOptimizer is not supported while mech is not None')
         if mech is None:
@@ -180,14 +180,14 @@ class DPModel(Model):
                                                          optimizer,
                                                          scale_update_cell=update_cell,
                                                          micro_batches=self._micro_batches,
-                                                         l2_norm_clip=self._norm_clip,
+                                                         norm_clip=self._norm_clip,
                                                          mech=self._mech).set_train()
                 return network
         network = _TrainOneStepCell(network,
                                     optimizer,
                                     loss_scale,
                                     micro_batches=self._micro_batches,
-                                    l2_norm_clip=self._norm_clip,
+                                    norm_clip=self._norm_clip,
                                     mech=self._mech).set_train()
         return network
 
@@ -300,7 +300,7 @@ class _TrainOneStepWithLossScaleCell(Cell):
         optimizer (Cell): Optimizer for updating the weights.
         scale_update_cell(Cell): The loss scaling update logic cell. Default: None.
         micro_batches (int): The number of small batches split from an original batch. Default: None.
-        l2_norm_clip (float): Use to clip the bound, if set 1, will return the original data. Default: 1.0.
+        norm_clip (float): Use to clip the bound, if set 1, will return the original data. Default: 1.0.
         mech (Mechanisms): The object can generate the different type of noise. Default: None.
 
     Inputs:
@@ -316,7 +316,7 @@ class _TrainOneStepWithLossScaleCell(Cell):
         - **loss_scale** (Tensor) -  Tensor with shape :math:`()`.
     """
 
-    def __init__(self, network, optimizer, scale_update_cell=None, micro_batches=None, l2_norm_clip=1.0, mech=None):
+    def __init__(self, network, optimizer, scale_update_cell=None, micro_batches=None, norm_clip=1.0, mech=None):
         super(_TrainOneStepWithLossScaleCell, self).__init__(auto_prefix=False)
         self.network = network
         self.network.set_grad()
@@ -358,8 +358,8 @@ class _TrainOneStepWithLossScaleCell(Cell):
 
         # dp params
         self._micro_batches = micro_batches
-        float_norm_clip = check_param_type('l2_norm_clip', l2_norm_clip, float)
-        self._l2_norm = check_value_positive('l2_norm_clip', float_norm_clip)
+        norm_clip = check_param_type('norm_clip', norm_clip, float)
+        self._l2_norm = check_value_positive('norm_clip', norm_clip)
         self._split = P.Split(0, self._micro_batches)
         self._clip_by_global_norm = _ClipGradients()
         self._mech = mech
@@ -452,7 +452,7 @@ class _TrainOneStepCell(Cell):
         optimizer (Cell): Optimizer for updating the weights.
         sens (Number): The scaling number to be filled as the input of back propagation. Default value is 1.0.
         micro_batches (int): The number of small batches split from an original batch. Default: None.
-        l2_norm_clip (float): Use to clip the bound, if set 1, will return the original data. Default: 1.0.
+        norm_clip (float): Use to clip the bound, if set 1, will return the original data. Default: 1.0.
         mech (Mechanisms): The object can generate the different type of noise. Default: None.
 
     Inputs:
@@ -463,7 +463,7 @@ class _TrainOneStepCell(Cell):
         Tensor, a scalar Tensor with shape :math:`()`.
     """
 
-    def __init__(self, network, optimizer, sens=1.0, micro_batches=None, l2_norm_clip=1.0, mech=None):
+    def __init__(self, network, optimizer, sens=1.0, micro_batches=None, norm_clip=1.0, mech=None):
         super(_TrainOneStepCell, self).__init__(auto_prefix=False)
         self.network = network
         self.network.set_grad()
@@ -484,8 +484,8 @@ class _TrainOneStepCell(Cell):
 
         # dp params
         self._micro_batches = micro_batches
-        float_norm_clip = check_param_type('l2_norm_clip', l2_norm_clip, float)
-        self._l2_norm = check_value_positive('l2_norm_clip', float_norm_clip)
+        norm_clip = check_param_type('norm_clip', norm_clip, float)
+        self._l2_norm = check_value_positive('norm_clip', norm_clip)
         self._split = P.Split(0, self._micro_batches)
         self._clip_by_global_norm = _ClipGradients()
         self._mech = mech

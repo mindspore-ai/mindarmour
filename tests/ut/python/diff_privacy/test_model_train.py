@@ -43,7 +43,7 @@ def dataset_generator(batch_size, batches):
 @pytest.mark.component_mindarmour
 def test_dp_model_pynative_mode():
     context.set_context(mode=context.PYNATIVE_MODE, device_target="Ascend")
-    l2_norm_bound = 1.0
+    norm_clip = 1.0
     initial_noise_multiplier = 0.01
     network = LeNet5()
     batch_size = 32
@@ -53,11 +53,11 @@ def test_dp_model_pynative_mode():
     loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
     factory_opt = DPOptimizerClassFactory(micro_batches=micro_batches)
     factory_opt.set_mechanisms('Gaussian',
-                               norm_bound=l2_norm_bound,
+                               norm_bound=norm_clip,
                                initial_noise_multiplier=initial_noise_multiplier)
     net_opt = factory_opt.create('Momentum')(network.trainable_params(), learning_rate=0.1, momentum=0.9)
     model = DPModel(micro_batches=micro_batches,
-                    norm_clip=l2_norm_bound,
+                    norm_clip=norm_clip,
                     mech=None,
                     network=network,
                     loss_fn=loss,
@@ -75,7 +75,7 @@ def test_dp_model_pynative_mode():
 @pytest.mark.component_mindarmour
 def test_dp_model_with_graph_mode():
     context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
-    l2_norm_bound = 1.0
+    norm_clip = 1.0
     initial_noise_multiplier = 0.01
     network = LeNet5()
     batch_size = 32
@@ -83,11 +83,11 @@ def test_dp_model_with_graph_mode():
     epochs = 1
     loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
     mech = MechanismsFactory().create('Gaussian',
-                                      norm_bound=l2_norm_bound,
+                                      norm_bound=norm_clip,
                                       initial_noise_multiplier=initial_noise_multiplier)
     net_opt = nn.Momentum(network.trainable_params(), learning_rate=0.1, momentum=0.9)
     model = DPModel(micro_batches=2,
-                    norm_clip=l2_norm_bound,
+                    norm_clip=norm_clip,
                     mech=mech,
                     network=network,
                     loss_fn=loss,
