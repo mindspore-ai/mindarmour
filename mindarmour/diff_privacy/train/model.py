@@ -72,38 +72,29 @@ class DPModel(Model):
         mech (Mechanisms): The object can generate the different type of noise. Default: None.
 
     Examples:
-        >>> class Net(nn.Cell):
-        >>>     def __init__(self):
-        >>>         super(Net, self).__init__()
-        >>>         self.conv = nn.Conv2d(3, 64, 3, has_bias=False, weight_init='normal')
-        >>>         self.bn = nn.BatchNorm2d(64)
-        >>>         self.relu = nn.ReLU()
-        >>>         self.flatten = nn.Flatten()
-        >>>         self.fc = nn.Dense(64*224*224, 12) # padding=0
-        >>>
-        >>>     def construct(self, x):
-        >>>         x = self.conv(x)
-        >>>         x = self.bn(x)
-        >>>         x = self.relu(x)
-        >>>         x = self.flatten(x)
-        >>>         out = self.fc(x)
-        >>>         return out
-        >>>
-        >>> net = Net()
+        >>> norm_clip = 1.0
+        >>> initial_noise_multiplier = 0.01
+        >>> network = LeNet5()
+        >>> batch_size = 32
+        >>> batches = 128
+        >>> epochs = 1
+        >>> micro_batches = 2
         >>> loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
-        >>> net_opt = Momentum(params=net.trainable_params(), learning_rate=0.01, momentum=0.9)
-        >>> mech = MechanismsFactory().create('Gaussian',
-        >>>                                   norm_bound=args.norm_clip,
-        >>>                                   initial_noise_multiplier=args.initial_noise_multiplier)
-        >>> model = DPModel(micro_batches=2,
-        >>>                 norm_clip=1.0,
-        >>>                 mech=mech,
-        >>>                 network=net,
+        >>> factory_opt = DPOptimizerClassFactory(micro_batches=micro_batches)
+        >>> factory_opt.set_mechanisms('Gaussian',
+        >>>                            norm_bound=norm_clip,
+        >>>                            initial_noise_multiplier=initial_noise_multiplier)
+        >>> net_opt = factory_opt.create('Momentum')(network.trainable_params(), learning_rate=0.1, momentum=0.9)
+        >>> model = DPModel(micro_batches=micro_batches,
+        >>>                 norm_clip=norm_clip,
+        >>>                 mech=None,
+        >>>                 network=network,
         >>>                 loss_fn=loss,
         >>>                 optimizer=net_opt,
         >>>                 metrics=None)
-        >>> dataset = get_dataset()
-        >>> model.train(2, dataset)
+        >>> ms_ds = ds.GeneratorDataset(dataset_generator(batch_size, batches), ['data', 'label'])
+        >>> ms_ds.set_dataset_size(batch_size * batches)
+        >>> model.train(epochs, ms_ds, dataset_sink_mode=False)
     """
 
     def __init__(self, micro_batches=2, norm_clip=1.0, mech=None, **kwargs):
