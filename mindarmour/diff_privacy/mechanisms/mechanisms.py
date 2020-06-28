@@ -37,8 +37,8 @@ class MechanismsFactory:
         """
         Args:
             policy(str): Noise generated strategy, could be 'Gaussian' or
-                'AdaGaussian'. Noise would be decayed with 'AdaGaussian' mechanism while
-                be constant with 'Gaussian' mechanism. Default: 'AdaGaussian'.
+                'AdaGaussian'. Noise would be decayed with 'AdaGaussian' mechanism
+                while be constant with 'Gaussian' mechanism.
             args(Union[float, str]): Parameters used for creating noise
                 mechanisms.
             kwargs(Union[float, str]): Parameters used for creating noise
@@ -74,7 +74,7 @@ class GaussianRandom(Mechanisms):
 
     Args:
         norm_bound(float): Clipping bound for the l2 norm of the gradients.
-            Default: 1.0.
+            Default: 0.5.
         initial_noise_multiplier(float): Ratio of the standard deviation of
             Gaussian noise divided by the norm_bound, which will be used to
             calculate privacy spent. Default: 1.5.
@@ -86,14 +86,14 @@ class GaussianRandom(Mechanisms):
 
     Examples:
         >>> gradients = Tensor([0.2, 0.9], mstype.float32)
-        >>> norm_bound = 1.0
-        >>> initial_noise_multiplier = 0.1
+        >>> norm_bound = 0.5
+        >>> initial_noise_multiplier = 1.5
         >>> net = GaussianRandom(norm_bound, initial_noise_multiplier)
         >>> res = net(gradients)
         >>> print(res)
     """
 
-    def __init__(self, norm_bound=1.0, initial_noise_multiplier=1.5, mean=0.0, seed=0):
+    def __init__(self, norm_bound=0.5, initial_noise_multiplier=1.5, mean=0.0, seed=0):
         super(GaussianRandom, self).__init__()
         self._norm_bound = check_value_positive('norm_bound', norm_bound)
         self._norm_bound = Tensor(norm_bound, mstype.float32)
@@ -128,10 +128,10 @@ class AdaGaussianRandom(Mechanisms):
 
     Args:
         norm_bound(float): Clipping bound for the l2 norm of the gradients.
-            Default: 1.5.
+            Default: 1.0.
         initial_noise_multiplier(float): Ratio of the standard deviation of
             Gaussian noise divided by the norm_bound, which will be used to
-            calculate privacy spent. Default: 5.0.
+            calculate privacy spent. Default: 1.5.
         mean(float): Average value of random noise. Default: 0.0
         noise_decay_rate(float): Hyper parameter for controlling the noise decay.
             Default: 6e-4.
@@ -145,7 +145,7 @@ class AdaGaussianRandom(Mechanisms):
     Examples:
         >>> gradients = Tensor([0.2, 0.9], mstype.float32)
         >>> norm_bound = 1.0
-        >>> initial_noise_multiplier = 5.0
+        >>> initial_noise_multiplier = 1.5
         >>> mean = 0.0
         >>> noise_decay_rate = 6e-4
         >>> decay_policy = "Time"
@@ -155,7 +155,7 @@ class AdaGaussianRandom(Mechanisms):
         >>> print(res)
     """
 
-    def __init__(self, norm_bound=1.5, initial_noise_multiplier=5.0, mean=0.0,
+    def __init__(self, norm_bound=1.0, initial_noise_multiplier=1.5, mean=0.0,
                  noise_decay_rate=6e-4, decay_policy='Time', seed=0):
         super(AdaGaussianRandom, self).__init__()
         norm_bound = check_value_positive('norm_bound', norm_bound)
