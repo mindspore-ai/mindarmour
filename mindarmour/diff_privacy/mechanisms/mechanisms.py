@@ -46,8 +46,44 @@ class MechanismsFactory:
 
         Raises:
             NameError: `policy` must be in ['Gaussian', 'AdaGaussian'].
+
         Returns:
             Mechanisms, class of noise generated Mechanism.
+
+        Examples:
+            >>> class Net(nn.Cell):
+            >>>     def __init__(self):
+            >>>         super(Net, self).__init__()
+            >>>         self.conv = nn.Conv2d(3, 64, 3, has_bias=False, weight_init='normal')
+            >>>         self.bn = nn.BatchNorm2d(64)
+            >>>         self.relu = nn.ReLU()
+            >>>         self.flatten = nn.Flatten()
+            >>>         self.fc = nn.Dense(64*224*224, 12) # padding=0
+            >>>
+            >>>     def construct(self, x):
+            >>>         x = self.conv(x)
+            >>>         x = self.bn(x)
+            >>>         x = self.relu(x)
+            >>>         x = self.flatten(x)
+            >>>         out = self.fc(x)
+            >>>         return out
+            >>> norm_clip = 1.0
+            >>> initial_noise_multiplier = 1.5
+            >>> net = Net()
+            >>> loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
+            >>> net_opt = Momentum(params=net.trainable_params(), learning_rate=0.01, momentum=0.9)
+            >>> mech = MechanismsFactory().create('Gaussian',
+            >>>                                   norm_bound=norm_clip,
+            >>>                                   initial_noise_multiplier=initial_noise_multiplier)
+            >>> model = DPModel(micro_batches=2,
+            >>>                 norm_clip=1.0,
+            >>>                 mech=mech,
+            >>>                 network=net,
+            >>>                 loss_fn=loss,
+            >>>                 optimizer=net_opt,
+            >>>                 metrics=None)
+            >>> dataset = get_dataset()
+            >>> model.train(2, dataset)
         """
         if policy == 'Gaussian':
             return GaussianRandom(*args, **kwargs)
