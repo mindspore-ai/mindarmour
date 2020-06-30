@@ -476,7 +476,6 @@ class DiverseInputIterativeMethod(BasicIterativeMethod):
                                                           is_targeted=is_targeted,
                                                           nb_iter=nb_iter,
                                                           loss_fn=loss_fn)
-        # FGSM default alpha is None equal alpha=1
         self.prob = check_param_type('prob', prob, float)
 
 

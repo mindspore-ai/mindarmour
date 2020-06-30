@@ -19,7 +19,6 @@ from abc import abstractmethod
 from mindspore import Tensor
 from mindspore.nn import Cell
 from mindspore.ops import operations as P
-from mindspore.ops import functional as F
 from mindspore.common.parameter import Parameter
 from mindspore.common import dtype as mstype
 
@@ -124,6 +123,8 @@ class GaussianRandom(Mechanisms):
         seed(int): Original random seed, if seed=0 random normal will use secure
             random number. IF seed!=0 random normal will generate values using
             given seed. Default: 0.
+        policy(str): Mechanisms parameters update policy. Default: None, no
+            parameters need update.
 
     Returns:
         Tensor, generated noise with shape like given gradients.
@@ -137,7 +138,7 @@ class GaussianRandom(Mechanisms):
         >>> print(res)
     """
 
-    def __init__(self, norm_bound=0.5, initial_noise_multiplier=1.5, seed=0):
+    def __init__(self, norm_bound=0.5, initial_noise_multiplier=1.5, seed=0, policy=None):
         super(GaussianRandom, self).__init__()
         self._norm_bound = check_value_positive('norm_bound', norm_bound)
         self._norm_bound = Tensor(norm_bound, mstype.float32)
@@ -146,6 +147,7 @@ class GaussianRandom(Mechanisms):
         self._initial_noise_multiplier = Tensor(initial_noise_multiplier, mstype.float32)
         self._mean = Tensor(0, mstype.float32)
         self._normal = P.Normal(seed=seed)
+        self._decay_policy = policy
 
     def construct(self, gradients):
         """
@@ -218,14 +220,8 @@ class AdaGaussianRandom(Mechanisms):
             raise NameError("The decay_policy must be in ['Time', 'Step'], but "
                             "get {}".format(decay_policy))
         self._decay_policy = decay_policy
-        self._sub = P.Sub()
         self._mul = P.Mul()
-        self._add = P.TensorAdd()
-        self._div = P.Div()
-        self._dtype = mstype.float32
         self._normal = P.Normal(seed=seed)
-        self._assign = P.Assign()
-        self._one = Tensor(1, self._dtype)
 
     def construct(self, gradients):
         """
@@ -239,14 +235,48 @@ class AdaGaussianRandom(Mechanisms):
         """
         shape = P.Shape()(gradients)
         noise = self._normal(shape, self._mean, self._mul(self._noise_multiplier, self._norm_bound))
+        return noise
 
-        if self._decay_policy == 'Time':
-            temp = self._div(self._initial_noise_multiplier,
-                             self._noise_multiplier)
-            temp = self._add(temp, self._noise_decay_rate)
-            multiplier = self._assign(self._noise_multiplier, self._div(self._initial_noise_multiplier, temp))
+
+class _MechanismsParamsUpdater(Cell):
+    """
+    Update mechanisms parameters, the parameters will refresh in train period.
+
+    Args:
+        policy(str): Pass in by the mechanisms class, mechanisms parameters update policy.
+        decay_rate(Tensor): Pass in by the mechanisms class, hyper parameter for controlling the decay size.
+        cur_params(Parameter): Pass in by the mechanisms class, current params value in this time.
+        init_params(Parameter):Pass in by the mechanisms class, initial params value to be updated.
+
+    Returns:
+        Tuple, next params value.
+    """
+    def __init__(self, policy, decay_rate, cur_params, init_params):
+        super(_MechanismsParamsUpdater, self).__init__()
+        self._policy = policy
+        self._decay_rate = decay_rate
+        self._cur_params = cur_params
+        self._init_params = init_params
+
+        self._div = P.Sub()
+        self._add = P.TensorAdd()
+        self._assign = P.Assign()
+        self._sub = P.Sub()
+        self._one = Tensor(1, mstype.float32)
+        self._mul = P.Mul()
+
+    def construct(self):
+        """
+        update parameters to `self._cur_params`.
+
+        Returns:
+            Tuple, next step parameters value.
+        """
+        if self._policy == 'Time':
+            temp = self._div(self._init_params, self._cur_params)
+            temp = self._add(temp, self._decay_rate)
+            next_params = self._assign(self._cur_params, self._div(self._init_params, temp))
         else:
-            temp = self._sub(self._one, self._noise_decay_rate)
-            multiplier = self._assign(self._noise_multiplier, self._mul(temp, self._noise_multiplier))
-
-        return F.depend(noise, multiplier)
+            temp = self._sub(self._one, self._decay_rate)
+            next_params = self._assign(self._cur_params, self._mul(temp, self._cur_params))
+        return next_params

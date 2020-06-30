@@ -21,8 +21,13 @@ from mindspore.ops import operations as P
 from mindspore.ops import functional as F
 from mindspore.common import dtype as mstype
 
-from mindarmour.diff_privacy.mechanisms.mechanisms import MechanismsFactory
+from mindarmour.utils.logger import LogUtil
+from mindarmour.diff_privacy import MechanismsFactory
+from mindarmour.diff_privacy.mechanisms.mechanisms import _MechanismsParamsUpdater
 from mindarmour.utils._check_param import check_int_positive
+
+LOGGER = LogUtil.get_instance()
+TAG = 'DP optimizer'
 
 _grad_scale = C.MultitypeFuncGraph("grad_scale")
 _reciprocal = P.Reciprocal()
@@ -97,7 +102,9 @@ class DPOptimizerClassFactory:
         if policy == 'Adam':
             cls = self._get_dp_optimizer_class(nn.Adam, self.mech, self._micro_batches, *args, **kwargs)
             return cls
-        raise NameError("The {} is not implement, please choose ['SGD', 'Momentum', 'Adam']".format(policy))
+        msg = "The {} is not implement, please choose ['SGD', 'Momentum', 'Adam']".format(policy)
+        LOGGER.error(TAG, msg)
+        raise NameError(msg)
 
     def _get_dp_optimizer_class(self, cls, mech, micro_batches):
         """
@@ -119,6 +126,14 @@ class DPOptimizerClassFactory:
                 self._hyper_map = C.HyperMap()
                 self._micro_float = Tensor(micro_batches, mstype.float32)
 
+                self._mech_param_updater = None
+                if self._mech is not None and self._mech._decay_policy is not None:
+                    self._mech_param_updater = _MechanismsParamsUpdater(policy=self._mech._decay_policy,
+                                                                        decay_rate=self._mech._noise_decay_rate,
+                                                                        cur_params=self._mech._noise_multiplier,
+                                                                        init_params=
+                                                                        self._mech._initial_noise_multiplier)
+
             def construct(self, gradients):
                 """
                 construct a compute flow.
@@ -126,6 +141,10 @@ class DPOptimizerClassFactory:
                 grad_noise = self._hyper_map(self._mech, gradients)
                 grads = self._tuple_add(gradients, grad_noise)
                 grads = self._hyper_map(F.partial(_grad_scale, self._micro_float), grads)
+                # update mech parameters
+                if self._mech_param_updater is not None:
+                    multiplier = self._mech_param_updater()
+                    grads = F.depend(grads, multiplier)
                 gradients = super(DPOptimizer, self).construct(grads)
                 return gradients
 
