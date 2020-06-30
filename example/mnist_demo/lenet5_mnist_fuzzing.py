@@ -70,7 +70,7 @@ def test_lenet_mnist_fuzzing():
 
     # make initial seeds
     for img, label in zip(test_images, test_labels):
-        initial_seeds.append([img, label, 0])
+        initial_seeds.append([img, label])
 
     initial_seeds = initial_seeds[:100]
     model_coverage_test.test_adequacy_coverage_calculate(np.array(test_images[:100]).astype(np.float32))

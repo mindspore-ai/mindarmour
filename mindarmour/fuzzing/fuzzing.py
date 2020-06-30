@@ -35,10 +35,10 @@ class Fuzzing:
     Neural Networks <https://dl.acm.org/doi/10.1145/3293882.3330579>`_
 
     Args:
-        initial_seeds (list): Initial fuzzing seed, format: [[image, label, 0],
-            [image, label, 0], ...].
+        initial_seeds (list): Initial fuzzing seed, format: [[image, label],
+            [image, label], ...].
         target_model (Model): Target fuzz model.
-        train_dataset (numpy.ndarray): Training dataset used for determine
+        train_dataset (numpy.ndarray): Training dataset used for determining
             the neurons' output boundaries.
         const_k (int): The number of mutate tests for a seed.
         mode (str): Image mode used in image transform, 'L' means grey graph.
@@ -68,8 +68,8 @@ class Fuzzing:
             seed = seed[0]
         info = [seed, seed]
         mutate_tests = []
-        affine_trans = ['Contrast', 'Brightness', 'Blur', 'Noise']
-        pixel_value_trans = ['Translate', 'Scale', 'Shear', 'Rotate']
+        pixel_value_trans = ['Contrast', 'Brightness', 'Blur', 'Noise']
+        affine_trans = ['Translate', 'Scale', 'Shear', 'Rotate']
         strages = {'Contrast': Contrast, 'Brightness': Brightness, 'Blur': Blur,
                    'Noise': Noise,
                    'Translate': Translate, 'Scale': Scale, 'Shear': Shear,
@@ -80,7 +80,8 @@ class Fuzzing:
                     trans_strage = self._random_pick_mutate(affine_trans,
                                                             pixel_value_trans)
                 else:
-                    trans_strage = self._random_pick_mutate(affine_trans, [])
+                    trans_strage = self._random_pick_mutate(pixel_value_trans,
+                                                            [])
                 transform = strages[trans_strage](
                     self._image_value_expand(seed), self.mode)
                 transform.random_param()
@@ -105,21 +106,21 @@ class Fuzzing:
                 Default: 'KMNC'.
 
         Returns:
-            list, mutated tests mis-predicted by target dnn model.
+            list, mutated tests mis-predicted by target DNN model.
         """
         seed = self._select_next()
         failed_tests = []
         seed_num = 0
         while seed and seed_num < self.max_seed_num:
             mutate_tests = self._metamorphic_mutate(seed[0])
-            coverages, results = self._run(mutate_tests, coverage_metric)
+            coverages, predicts = self._run(mutate_tests, coverage_metric)
             coverage_gains = self._coverage_gains(coverages)
-            for mutate, cov, res in zip(mutate_tests, coverage_gains, results):
+            for mutate, cov, res in zip(mutate_tests, coverage_gains, predicts):
                 if np.argmax(seed[1]) != np.argmax(res):
                     failed_tests.append(mutate)
                     continue
                 if cov > 0:
-                    self.initial_seeds.append([mutate, seed[1], 0])
+                    self.initial_seeds.append([mutate, seed[1]])
             seed = self._select_next()
             seed_num += 1
 
@@ -154,17 +155,17 @@ class Fuzzing:
 
     def _is_trans_valid(self, seed, mutate_test):
         is_valid = False
-        alpha = 0.02
-        beta = 0.2
+        pixels_change_rate = 0.02
+        pixel_value_change_rate = 0.2
         diff = np.array(seed - mutate_test).flatten()
         size = np.shape(diff)[0]
         l0 = np.linalg.norm(diff, ord=0)
         linf = np.linalg.norm(diff, ord=np.inf)
-        if l0 > alpha*size:
+        if l0 > pixels_change_rate*size:
             if linf < 256:
                 is_valid = True
         else:
-            if linf < beta*255:
+            if linf < pixel_value_change_rate*255:
                 is_valid = True
 
         return is_valid
