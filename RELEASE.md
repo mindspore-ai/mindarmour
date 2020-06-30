@@ -1,3 +1,26 @@
+# Release 0.5.0-beta
+
+## Major Features and Improvements
+
+### Differential privacy model training
+
+* Optimizers with differential privacy
+
+    * Differential privacy model training now supports both Pynative mode and graph mode.
+
+    * Graph mode is recommended for its performance.
+
+## Bugfixes
+
+## Contributors
+
+Thanks goes to these wonderful people:
+
+Liu Liu, Huanhuan Zheng, Xiulang Jin, Zhidan Liu.
+
+Contributions of any kind are welcome!
+
+
 # Release 0.3.0-alpha
 
 ## Major Features and Improvements
