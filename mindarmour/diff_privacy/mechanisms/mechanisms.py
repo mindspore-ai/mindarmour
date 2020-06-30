@@ -17,6 +17,7 @@ Noise Mechanisms.
 from mindspore import Tensor
 from mindspore.nn import Cell
 from mindspore.ops import operations as P
+from mindspore.ops import functional as F
 from mindspore.common.parameter import Parameter
 from mindspore.common import dtype as mstype
 
@@ -166,7 +167,6 @@ class AdaGaussianRandom(Mechanisms):
         initial_noise_multiplier = Tensor(initial_noise_multiplier, mstype.float32)
         self._initial_noise_multiplier = Parameter(initial_noise_multiplier,
                                                    name='initial_noise_multiplier')
-        self._stddev = P.Mul()(self._norm_bound, self._initial_noise_multiplier)
         self._noise_multiplier = Parameter(initial_noise_multiplier,
                                            name='noise_multiplier')
         mean = check_param_type('mean', mean, float)
@@ -186,24 +186,7 @@ class AdaGaussianRandom(Mechanisms):
         self._dtype = mstype.float32
         self._normal = P.Normal(seed=seed)
         self._assign = P.Assign()
-
-    def _update_multiplier(self):
-        """ Update multiplier. """
-        if self._decay_policy == 'Time':
-            temp = self._div(self._initial_noise_multiplier,
-                             self._noise_multiplier)
-            temp = self._add(temp, self._noise_decay_rate)
-            self._noise_multiplier = self._assign(self._noise_multiplier,
-                                                  self._div(self._initial_noise_multiplier, temp))
-        else:
-            one = Tensor(1, self._dtype)
-            temp = self._sub(one, self._noise_decay_rate)
-            self._noise_multiplier = self._assign(self._noise_multiplier, self._mul(temp, self._noise_multiplier))
-        return self._noise_multiplier
-
-    def _update_stddev(self):
-        self._stddev = self._assign(self._stddev, self._mul(self._noise_multiplier, self._norm_bound))
-        return self._stddev
+        self._one = Tensor(1, self._dtype)
 
     def construct(self, gradients):
         """
@@ -216,9 +199,15 @@ class AdaGaussianRandom(Mechanisms):
             Tensor, generated noise with shape like given gradients.
         """
         shape = P.Shape()(gradients)
-        noise = self._normal(shape, self._mean, self._stddev)
-        # pylint: disable=unused-variable
-        mt = self._update_multiplier()
-        # pylint: disable=unused-variable
-        std = self._update_stddev()
-        return noise
+        noise = self._normal(shape, self._mean, self._mul(self._noise_multiplier, self._norm_bound))
+
+        if self._decay_policy == 'Time':
+            temp = self._div(self._initial_noise_multiplier,
+                             self._noise_multiplier)
+            temp = self._add(temp, self._noise_decay_rate)
+            multiplier = self._assign(self._noise_multiplier, self._div(self._initial_noise_multiplier, temp))
+        else:
+            temp = self._sub(self._one, self._noise_decay_rate)
+            multiplier = self._assign(self._noise_multiplier, self._mul(temp, self._noise_multiplier))
+
+        return F.depend(noise, multiplier)
