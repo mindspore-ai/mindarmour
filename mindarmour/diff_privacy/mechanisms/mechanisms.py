@@ -14,6 +14,8 @@
 """
 Noise Mechanisms.
 """
+from abc import abstractmethod
+
 from mindspore import Tensor
 from mindspore.nn import Cell
 from mindspore.ops import operations as P
@@ -23,8 +25,11 @@ from mindspore.common import dtype as mstype
 
 from mindarmour.utils._check_param import check_param_type
 from mindarmour.utils._check_param import check_value_positive
-from mindarmour.utils._check_param import check_value_non_negative
 from mindarmour.utils._check_param import check_param_in_range
+from mindarmour.utils.logger import LogUtil
+
+LOGGER = LogUtil.get_instance()
+TAG = 'Defense'
 
 
 class MechanismsFactory:
@@ -99,6 +104,7 @@ class Mechanisms(Cell):
     Basic class of noise generated mechanism.
     """
 
+    @abstractmethod
     def construct(self, gradients):
         """
         Construct function.
@@ -115,8 +121,9 @@ class GaussianRandom(Mechanisms):
         initial_noise_multiplier(float): Ratio of the standard deviation of
             Gaussian noise divided by the norm_bound, which will be used to
             calculate privacy spent. Default: 1.5.
-        mean(float): Average value of random noise. Default: 0.0.
-        seed(int): Original random seed. Default: 0.
+        seed(int): Original random seed, if seed=0 random normal will use secure
+            random number. IF seed!=0 random normal will generate values using
+            given seed. Default: 0.
 
     Returns:
         Tensor, generated noise with shape like given gradients.
@@ -130,16 +137,14 @@ class GaussianRandom(Mechanisms):
         >>> print(res)
     """
 
-    def __init__(self, norm_bound=0.5, initial_noise_multiplier=1.5, mean=0.0, seed=0):
+    def __init__(self, norm_bound=0.5, initial_noise_multiplier=1.5, seed=0):
         super(GaussianRandom, self).__init__()
         self._norm_bound = check_value_positive('norm_bound', norm_bound)
         self._norm_bound = Tensor(norm_bound, mstype.float32)
         self._initial_noise_multiplier = check_value_positive('initial_noise_multiplier',
                                                               initial_noise_multiplier)
         self._initial_noise_multiplier = Tensor(initial_noise_multiplier, mstype.float32)
-        mean = check_param_type('mean', mean, float)
-        mean = check_value_non_negative('mean', mean)
-        self._mean = Tensor(mean, mstype.float32)
+        self._mean = Tensor(0, mstype.float32)
         self._normal = P.Normal(seed=seed)
 
     def construct(self, gradients):
@@ -160,8 +165,8 @@ class GaussianRandom(Mechanisms):
 
 class AdaGaussianRandom(Mechanisms):
     """
-    Adaptive Gaussian noise generated mechanism. Noise would be decayed with training. Decay mode could be 'Time'
-    mode or 'Step' mode.
+    Adaptive Gaussian noise generated mechanism. Noise would be decayed with
+    training. Decay mode could be 'Time' mode or 'Step' mode.
 
     Args:
         norm_bound(float): Clipping bound for the l2 norm of the gradients.
@@ -192,7 +197,7 @@ class AdaGaussianRandom(Mechanisms):
         >>> print(res)
     """
 
-    def __init__(self, norm_bound=1.0, initial_noise_multiplier=1.5, mean=0.0,
+    def __init__(self, norm_bound=1.0, initial_noise_multiplier=1.5,
                  noise_decay_rate=6e-4, decay_policy='Time', seed=0):
         super(AdaGaussianRandom, self).__init__()
         norm_bound = check_value_positive('norm_bound', norm_bound)
@@ -205,9 +210,7 @@ class AdaGaussianRandom(Mechanisms):
                                                    name='initial_noise_multiplier')
         self._noise_multiplier = Parameter(initial_noise_multiplier,
                                            name='noise_multiplier')
-        mean = check_param_type('mean', mean, float)
-        mean = check_value_non_negative('mean', mean)
-        self._mean = Tensor(mean, mstype.float32)
+        self._mean = Tensor(0, mstype.float32)
         noise_decay_rate = check_param_type('noise_decay_rate', noise_decay_rate, float)
         check_param_in_range('noise_decay_rate', noise_decay_rate, 0.0, 1.0)
         self._noise_decay_rate = Tensor(noise_decay_rate, mstype.float32)
