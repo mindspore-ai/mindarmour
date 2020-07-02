@@ -41,7 +41,7 @@ def dataset_generator(batch_size, batches):
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_dp_model_pynative_mode():
+def test_dp_model_with_pynative_mode():
     context.set_context(mode=context.PYNATIVE_MODE, device_target="Ascend")
     norm_clip = 1.0
     initial_noise_multiplier = 0.01
@@ -83,6 +83,36 @@ def test_dp_model_with_graph_mode():
     epochs = 1
     loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
     mech = MechanismsFactory().create('Gaussian',
+                                      norm_bound=norm_clip,
+                                      initial_noise_multiplier=initial_noise_multiplier)
+    net_opt = nn.Momentum(network.trainable_params(), learning_rate=0.1, momentum=0.9)
+    model = DPModel(micro_batches=2,
+                    norm_clip=norm_clip,
+                    mech=mech,
+                    network=network,
+                    loss_fn=loss,
+                    optimizer=net_opt,
+                    metrics=None)
+    ms_ds = ds.GeneratorDataset(dataset_generator(batch_size, batches), ['data', 'label'])
+    ms_ds.set_dataset_size(batch_size * batches)
+    model.train(epochs, ms_ds, dataset_sink_mode=False)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_arm_ascend_training
+@pytest.mark.platform_x86_ascend_training
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_dp_model_with_graph_mode_ada_gaussian():
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+    norm_clip = 1.0
+    initial_noise_multiplier = 0.01
+    network = LeNet5()
+    batch_size = 32
+    batches = 128
+    epochs = 1
+    loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
+    mech = MechanismsFactory().create('AdaGaussian',
                                       norm_bound=norm_clip,
                                       initial_noise_multiplier=initial_noise_multiplier)
     net_opt = nn.Momentum(network.trainable_params(), learning_rate=0.1, momentum=0.9)
