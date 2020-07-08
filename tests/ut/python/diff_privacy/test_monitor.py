@@ -53,7 +53,7 @@ def test_dp_monitor():
     rdp = PrivacyMonitorFactory.create(policy='rdp', num_samples=60000,
                                        batch_size=batch_size,
                                        initial_noise_multiplier=0.4,
-                                       noise_decay_rate=6e-5)
+                                       noise_decay_rate=6e-3)
     suggest_epoch = rdp.max_epoch_suggest()
     LOGGER.info(TAG, 'The recommended maximum training epochs is: %s',
                 suggest_epoch)
@@ -83,7 +83,7 @@ def test_dp_monitor_gpu():
     rdp = PrivacyMonitorFactory.create(policy='rdp', num_samples=60000,
                                        batch_size=batch_size,
                                        initial_noise_multiplier=0.4,
-                                       noise_decay_rate=6e-5)
+                                       noise_decay_rate=6e-3)
     suggest_epoch = rdp.max_epoch_suggest()
     LOGGER.info(TAG, 'The recommended maximum training epochs is: %s',
                 suggest_epoch)
@@ -113,7 +113,7 @@ def test_dp_monitor_cpu():
     rdp = PrivacyMonitorFactory.create(policy='rdp', num_samples=60000,
                                        batch_size=batch_size,
                                        initial_noise_multiplier=0.4,
-                                       noise_decay_rate=6e-5)
+                                       noise_decay_rate=6e-3)
     suggest_epoch = rdp.max_epoch_suggest()
     LOGGER.info(TAG, 'The recommended maximum training epochs is: %s',
                 suggest_epoch)
@@ -129,3 +129,94 @@ def test_dp_monitor_cpu():
                               ["data", "label"])
     ds1.set_dataset_size(batch_size * batches)
     model.train(epochs, ds1, callbacks=[rdp], dataset_sink_mode=False)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_arm_ascend_training
+@pytest.mark.platform_x86_ascend_training
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_dp_monitor_zcdp():
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+    batch_size = 16
+    batches = 128
+    epochs = 1
+    zcdp = PrivacyMonitorFactory.create(policy='zcdp', num_samples=60000,
+                                        batch_size=batch_size,
+                                        initial_noise_multiplier=0.4,
+                                        noise_decay_rate=6e-3)
+    suggest_epoch = zcdp.max_epoch_suggest()
+    LOGGER.info(TAG, 'The recommended maximum training epochs is: %s',
+                suggest_epoch)
+    network = LeNet5()
+    net_loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True,
+                                                reduction="mean")
+    net_opt = nn.Momentum(network.trainable_params(), 0.01, 0.9)
+
+    model = Model(network, net_loss, net_opt)
+
+    LOGGER.info(TAG, "============== Starting Training ==============")
+    ds1 = ds.GeneratorDataset(dataset_generator(batch_size, batches),
+                              ["data", "label"])
+    ds1.set_dataset_size(batch_size * batches)
+    model.train(epochs, ds1, callbacks=[zcdp], dataset_sink_mode=False)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_gpu_inference
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_dp_monitor_zcdp_gpu():
+    context.set_context(mode=context.GRAPH_MODE, device_target="GPU")
+    batch_size = 16
+    batches = 128
+    epochs = 1
+    zcdp = PrivacyMonitorFactory.create(policy='zcdp', num_samples=60000,
+                                        batch_size=batch_size,
+                                        initial_noise_multiplier=0.4,
+                                        noise_decay_rate=6e-3)
+    suggest_epoch = zcdp.max_epoch_suggest()
+    LOGGER.info(TAG, 'The recommended maximum training epochs is: %s',
+                suggest_epoch)
+    network = LeNet5()
+    net_loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True,
+                                                reduction="mean")
+    net_opt = nn.Momentum(network.trainable_params(), 0.01, 0.9)
+
+    model = Model(network, net_loss, net_opt)
+
+    LOGGER.info(TAG, "============== Starting Training ==============")
+    ds1 = ds.GeneratorDataset(dataset_generator(batch_size, batches),
+                              ["data", "label"])
+    ds1.set_dataset_size(batch_size * batches)
+    model.train(epochs, ds1, callbacks=[zcdp], dataset_sink_mode=False)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_cpu
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_dp_monitor_zcdp_cpu():
+    context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
+    batch_size = 16
+    batches = 128
+    epochs = 1
+    zcdp = PrivacyMonitorFactory.create(policy='zcdp', num_samples=60000,
+                                        batch_size=batch_size,
+                                        initial_noise_multiplier=0.4,
+                                        noise_decay_rate=6e-3)
+    suggest_epoch = zcdp.max_epoch_suggest()
+    LOGGER.info(TAG, 'The recommended maximum training epochs is: %s',
+                suggest_epoch)
+    network = LeNet5()
+    net_loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True,
+                                                reduction="mean")
+    net_opt = nn.Momentum(network.trainable_params(), 0.01, 0.9)
+
+    model = Model(network, net_loss, net_opt)
+
+    LOGGER.info(TAG, "============== Starting Training ==============")
+    ds1 = ds.GeneratorDataset(dataset_generator(batch_size, batches),
+                              ["data", "label"])
+    ds1.set_dataset_size(batch_size * batches)
+    model.train(epochs, ds1, callbacks=[zcdp], dataset_sink_mode=False)
