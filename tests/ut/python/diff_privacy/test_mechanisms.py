@@ -30,7 +30,7 @@ from mindarmour.diff_privacy import MechanismsFactory
 @pytest.mark.component_mindarmour
 def test_graph_gaussian():
     context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
-    grad = Tensor([3, 2, 4], mstype.float32)
+    grad = Tensor([0.3, 0.2, 0.4], mstype.float32)
     norm_bound = 1.0
     initial_noise_multiplier = 0.1
     net = GaussianRandom(norm_bound, initial_noise_multiplier)
@@ -44,7 +44,7 @@ def test_graph_gaussian():
 @pytest.mark.component_mindarmour
 def test_pynative_gaussian():
     context.set_context(mode=context.PYNATIVE_MODE, device_target="Ascend")
-    grad = Tensor([3, 2, 4], mstype.float32)
+    grad = Tensor([0.3, 0.2, 0.4], mstype.float32)
     norm_bound = 1.0
     initial_noise_multiplier = 0.1
     net = GaussianRandom(norm_bound, initial_noise_multiplier)
@@ -58,7 +58,7 @@ def test_pynative_gaussian():
 @pytest.mark.component_mindarmour
 def test_graph_ada_gaussian():
     context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
-    grad = Tensor([3, 2, 4], mstype.float32)
+    grad = Tensor([0.3, 0.2, 0.4], mstype.float32)
     norm_bound = 1.0
     initial_noise_multiplier = 0.1
     alpha = 0.5
@@ -75,7 +75,7 @@ def test_graph_ada_gaussian():
 @pytest.mark.component_mindarmour
 def test_graph_factory():
     context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
-    grad = Tensor([3, 2, 4], mstype.float32)
+    grad = Tensor([0.3, 0.2, 0.4], mstype.float32)
     norm_bound = 1.0
     initial_noise_multiplier = 0.1
     alpha = 0.5
@@ -102,7 +102,7 @@ def test_graph_factory():
 @pytest.mark.component_mindarmour
 def test_pynative_ada_gaussian():
     context.set_context(mode=context.PYNATIVE_MODE, device_target="Ascend")
-    grad = Tensor([3, 2, 4], mstype.float32)
+    grad = Tensor([0.3, 0.2, 0.4], mstype.float32)
     norm_bound = 1.0
     initial_noise_multiplier = 0.1
     alpha = 0.5
@@ -119,7 +119,7 @@ def test_pynative_ada_gaussian():
 @pytest.mark.component_mindarmour
 def test_pynative_factory():
     context.set_context(mode=context.PYNATIVE_MODE, device_target="Ascend")
-    grad = Tensor([3, 2, 4], mstype.float32)
+    grad = Tensor([0.3, 0.2, 0.4], mstype.float32)
     norm_bound = 1.0
     initial_noise_multiplier = 0.1
     alpha = 0.5
@@ -130,6 +130,48 @@ def test_pynative_factory():
                                              initial_noise_multiplier)
     noise = noise_construct(grad)
     print('Gaussian noise: ', noise)
+    ada_mechanism = MechanismsFactory()
+    ada_noise_construct = ada_mechanism.create('AdaGaussian',
+                                               norm_bound,
+                                               initial_noise_multiplier,
+                                               noise_decay_rate=alpha,
+                                               decay_policy=decay_policy)
+    ada_noise = ada_noise_construct(grad)
+    print('ada noise: ', ada_noise)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_ascend_training
+@pytest.mark.env_onecard
+@pytest.mark.component_mindarmour
+def test_pynative_exponential():
+    context.set_context(mode=context.PYNATIVE_MODE, device_target="Ascend")
+    grad = Tensor([0.3, 0.2, 0.4], mstype.float32)
+    norm_bound = 1.0
+    initial_noise_multiplier = 0.1
+    alpha = 0.5
+    decay_policy = 'Exp'
+    ada_mechanism = MechanismsFactory()
+    ada_noise_construct = ada_mechanism.create('AdaGaussian',
+                                               norm_bound,
+                                               initial_noise_multiplier,
+                                               noise_decay_rate=alpha,
+                                               decay_policy=decay_policy)
+    ada_noise = ada_noise_construct(grad)
+    print('ada noise: ', ada_noise)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_ascend_training
+@pytest.mark.env_onecard
+@pytest.mark.component_mindarmour
+def test_graph_exponential():
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+    grad = Tensor([0.3, 0.2, 0.4], mstype.float32)
+    norm_bound = 1.0
+    initial_noise_multiplier = 0.1
+    alpha = 0.5
+    decay_policy = 'Exp'
     ada_mechanism = MechanismsFactory()
     ada_noise_construct = ada_mechanism.create('AdaGaussian',
                                                norm_bound,

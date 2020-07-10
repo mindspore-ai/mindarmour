@@ -195,48 +195,47 @@ class DPModel(Model):
                                     mech=self._mech).set_train()
         return network
 
+    def _build_train_network(self):
+        """Build train network"""
+        network = self._network
+        if self._micro_batches:
+            if self._optimizer:
+                if self._loss_scale_manager_set:
+                    network = self._amp_build_train_network(network,
+                                                            self._optimizer,
+                                                            self._loss_fn,
+                                                            level=self._amp_level,
+                                                            loss_scale_manager=self._loss_scale_manager,
+                                                            keep_batchnorm_fp32=self._keep_bn_fp32)
+                else:
+                    network = self._amp_build_train_network(network,
+                                                            self._optimizer,
+                                                            self._loss_fn,
+                                                            level=self._amp_level,
+                                                            keep_batchnorm_fp32=self._keep_bn_fp32)
+            elif self._loss_fn:
+                network = nn.WithLossCell(network, self._loss_fn)
+        else:
+            if self._optimizer:
+                if self._loss_scale_manager_set:
+                    network = amp.build_train_network(network,
+                                                      self._optimizer,
+                                                      self._loss_fn,
+                                                      level=self._amp_level,
+                                                      loss_scale_manager=self._loss_scale_manager,
+                                                      keep_batchnorm_fp32=self._keep_bn_fp32)
+                else:
+                    network = amp.build_train_network(network,
+                                                      self._optimizer,
+                                                      self._loss_fn,
+                                                      level=self._amp_level,
+                                                      keep_batchnorm_fp32=self._keep_bn_fp32)
+            elif self._loss_fn:
+                network = nn.WithLossCell(network, self._loss_fn)
 
-def _build_train_network(self):
-    """Build train network"""
-    network = self._network
-    if self._micro_batches:
-        if self._optimizer:
-            if self._loss_scale_manager_set:
-                network = self._amp_build_train_network(network,
-                                                        self._optimizer,
-                                                        self._loss_fn,
-                                                        level=self._amp_level,
-                                                        loss_scale_manager=self._loss_scale_manager,
-                                                        keep_batchnorm_fp32=self._keep_bn_fp32)
-            else:
-                network = self._amp_build_train_network(network,
-                                                        self._optimizer,
-                                                        self._loss_fn,
-                                                        level=self._amp_level,
-                                                        keep_batchnorm_fp32=self._keep_bn_fp32)
-        elif self._loss_fn:
-            network = nn.WithLossCell(network, self._loss_fn)
-    else:
-        if self._optimizer:
-            if self._loss_scale_manager_set:
-                network = amp.build_train_network(network,
-                                                  self._optimizer,
-                                                  self._loss_fn,
-                                                  level=self._amp_level,
-                                                  loss_scale_manager=self._loss_scale_manager,
-                                                  keep_batchnorm_fp32=self._keep_bn_fp32)
-            else:
-                network = amp.build_train_network(network,
-                                                  self._optimizer,
-                                                  self._loss_fn,
-                                                  level=self._amp_level,
-                                                  keep_batchnorm_fp32=self._keep_bn_fp32)
-        elif self._loss_fn:
-            network = nn.WithLossCell(network, self._loss_fn)
-
-    if self._parallel_mode in (ParallelMode.SEMI_AUTO_PARALLEL, ParallelMode.AUTO_PARALLEL):
-        network.set_auto_parallel()
-    return network
+        if self._parallel_mode in (ParallelMode.SEMI_AUTO_PARALLEL, ParallelMode.AUTO_PARALLEL):
+            network.set_auto_parallel()
+        return network
 
 
 class _ClipGradients(nn.Cell):
@@ -376,8 +375,10 @@ class _TrainOneStepWithLossScaleCell(Cell):
         if self._mech is not None and self._mech._decay_policy is not None:
             self._mech_param_updater = _MechanismsParamsUpdater(policy=self._mech._decay_policy,
                                                                 decay_rate=self._mech._noise_decay_rate,
-                                                                cur_params=self._mech._noise_multiplier,
-                                                                init_params=self._mech._initial_noise_multiplier)
+                                                                cur_noise_multiplier=
+                                                                self._mech._noise_multiplier,
+                                                                init_noise_multiplier=
+                                                                self._mech._initial_noise_multiplier)
 
     def construct(self, data, label, sens=None):
         """
@@ -416,8 +417,11 @@ class _TrainOneStepWithLossScaleCell(Cell):
         loss = P.Div()(total_loss, self._micro_float)
 
         if self._mech is not None:
-            grad_noise = self._hyper_map(self._mech, grads)
-            grads = self._tuple_add(grads, grad_noise)
+            grad_noise_tuple = ()
+            for grad_item in grads:
+                grad_noise = self._mech(grad_item)
+                grad_noise_tuple = grad_noise_tuple + (grad_noise,)
+            grads = self._tuple_add(grads, grad_noise_tuple)
             grads = self._hyper_map(F.partial(_grad_scale, self._micro_float), grads)
             # update mech parameters
             if self._mech_param_updater is not None:
@@ -517,8 +521,10 @@ class _TrainOneStepCell(Cell):
         if self._mech is not None and self._mech._decay_policy is not None:
             self._mech_param_updater = _MechanismsParamsUpdater(policy=self._mech._decay_policy,
                                                                 decay_rate=self._mech._noise_decay_rate,
-                                                                cur_params=self._mech._noise_multiplier,
-                                                                init_params=self._mech._initial_noise_multiplier)
+                                                                cur_noise_multiplier=
+                                                                self._mech._noise_multiplier,
+                                                                init_noise_multiplier=
+                                                                self._mech._initial_noise_multiplier)
 
     def construct(self, data, label):
         """
@@ -543,8 +549,11 @@ class _TrainOneStepCell(Cell):
         loss = P.Div()(total_loss, self._micro_float)
 
         if self._mech is not None:
-            grad_noise = self._hyper_map(self._mech, grads)
-            grads = self._tuple_add(grads, grad_noise)
+            grad_noise_tuple = ()
+            for grad_item in grads:
+                grad_noise = self._mech(grad_item)
+                grad_noise_tuple = grad_noise_tuple + (grad_noise,)
+            grads = self._tuple_add(grads, grad_noise_tuple)
             grads = self._hyper_map(F.partial(_grad_scale, self._micro_float), grads)
             # update mech parameters
             if self._mech_param_updater is not None:
