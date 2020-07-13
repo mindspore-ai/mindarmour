@@ -130,8 +130,9 @@ class DPOptimizerClassFactory:
                 if self._mech is not None and self._mech._decay_policy is not None:
                     self._mech_param_updater = _MechanismsParamsUpdater(policy=self._mech._decay_policy,
                                                                         decay_rate=self._mech._noise_decay_rate,
-                                                                        cur_params=self._mech._noise_multiplier,
-                                                                        init_params=
+                                                                        cur_noise_multiplier=
+                                                                        self._mech._noise_multiplier,
+                                                                        init_noise_multiplier=
                                                                         self._mech._initial_noise_multiplier)
 
             def construct(self, gradients):

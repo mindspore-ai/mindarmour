@@ -214,8 +214,8 @@ class AdaGaussianRandom(Mechanisms):
         noise_decay_rate = check_param_type('noise_decay_rate', noise_decay_rate, float)
         check_param_in_range('noise_decay_rate', noise_decay_rate, 0.0, 1.0)
         self._noise_decay_rate = Tensor(noise_decay_rate, mstype.float32)
-        if decay_policy not in ['Time', 'Step']:
-            raise NameError("The decay_policy must be in ['Time', 'Step'], but "
+        if decay_policy not in ['Time', 'Step', 'Exp']:
+            raise NameError("The decay_policy must be in ['Time', 'Step', 'Exp'], but "
                             "get {}".format(decay_policy))
         self._decay_policy = decay_policy
         self._mul = P.Mul()
@@ -243,18 +243,18 @@ class _MechanismsParamsUpdater(Cell):
     Args:
         policy(str): Pass in by the mechanisms class, mechanisms parameters update policy.
         decay_rate(Tensor): Pass in by the mechanisms class, hyper parameter for controlling the decay size.
-        cur_params(Parameter): Pass in by the mechanisms class, current params value in this time.
-        init_params(Parameter):Pass in by the mechanisms class, initial params value to be updated.
+        cur_noise_multiplier(Parameter): Pass in by the mechanisms class, current params value in this time.
+        init_noise_multiplier(Parameter):Pass in by the mechanisms class, initial params value to be updated.
 
     Returns:
         Tuple, next params value.
     """
-    def __init__(self, policy, decay_rate, cur_params, init_params):
+    def __init__(self, policy, decay_rate, cur_noise_multiplier, init_noise_multiplier):
         super(_MechanismsParamsUpdater, self).__init__()
         self._policy = policy
         self._decay_rate = decay_rate
-        self._cur_params = cur_params
-        self._init_params = init_params
+        self._cur_noise_multiplier = cur_noise_multiplier
+        self._init_noise_multiplier = init_noise_multiplier
 
         self._div = P.Sub()
         self._add = P.TensorAdd()
@@ -262,6 +262,7 @@ class _MechanismsParamsUpdater(Cell):
         self._sub = P.Sub()
         self._one = Tensor(1, mstype.float32)
         self._mul = P.Mul()
+        self._exp = P.Exp()
 
     def construct(self):
         """
@@ -271,10 +272,14 @@ class _MechanismsParamsUpdater(Cell):
             Tuple, next step parameters value.
         """
         if self._policy == 'Time':
-            temp = self._div(self._init_params, self._cur_params)
+            temp = self._div(self._init_noise_multiplier, self._cur_noise_multiplier)
             temp = self._add(temp, self._decay_rate)
-            next_params = self._assign(self._cur_params, self._div(self._init_params, temp))
-        else:
+            next_noise_multiplier = self._assign(self._cur_noise_multiplier,
+                                                 self._div(self._init_noise_multiplier, temp))
+        elif self._policy == 'Step':
             temp = self._sub(self._one, self._decay_rate)
-            next_params = self._assign(self._cur_params, self._mul(temp, self._cur_params))
-        return next_params
+            next_noise_multiplier = self._assign(self._cur_noise_multiplier,
+                                                 self._mul(temp, self._cur_noise_multiplier))
+        else:
+            next_noise_multiplier = self._assign(self._cur_noise_multiplier, self._div(self._one, self._exp(self._one)))
+        return next_noise_multiplier
