@@ -115,8 +115,9 @@ if __name__ == "__main__":
     # or 'AdaGaussian', in which noise would be decayed with 'AdaGaussian'
     # mechanism while be constant with 'Gaussian' mechanism.
     noise_mech = NoiseMechanismsFactory().create(cfg.noise_mechanisms,
-                                                 norm_bound=cfg.norm_clip,
-                                                 initial_noise_multiplier=cfg.initial_noise_multiplier)
+                                                 norm_bound=cfg.norm_bound,
+                                                 initial_noise_multiplier=cfg.initial_noise_multiplier,
+                                                 noise_update='Exp')
     # Create a factory class of clip mechanisms, this method is to adaptive clip
     # gradients while training, decay_policy support 'Linear' and 'Geometric',
     # learning_rate is the learning rate to update clip_norm,
@@ -136,11 +137,11 @@ if __name__ == "__main__":
     rdp_monitor = PrivacyMonitorFactory.create('rdp',
                                                num_samples=60000,
                                                batch_size=cfg.batch_size,
-                                               initial_noise_multiplier=cfg.initial_noise_multiplier*cfg.norm_clip,
+                                               initial_noise_multiplier=cfg.initial_noise_multiplier*cfg.norm_bound,
                                                per_print_times=10)
     # Create the DP model for training.
     model = DPModel(micro_batches=cfg.micro_batches,
-                    norm_clip=cfg.norm_clip,
+                    norm_bound=cfg.norm_bound,
                     noise_mech=noise_mech,
                     clip_mech=clip_mech,
                     network=network,

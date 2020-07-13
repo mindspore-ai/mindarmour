@@ -46,7 +46,7 @@ def dataset_generator(batch_size, batches):
 @pytest.mark.component_mindarmour
 def test_dp_model_with_pynative_mode():
     context.set_context(mode=context.PYNATIVE_MODE, device_target="Ascend")
-    norm_clip = 1.0
+    norm_bound = 1.0
     initial_noise_multiplier = 0.01
     network = LeNet5()
     batch_size = 32
@@ -56,7 +56,7 @@ def test_dp_model_with_pynative_mode():
     loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
     factory_opt = DPOptimizerClassFactory(micro_batches=micro_batches)
     factory_opt.set_mechanisms('Gaussian',
-                               norm_bound=norm_clip,
+                               norm_bound=norm_bound,
                                initial_noise_multiplier=initial_noise_multiplier)
     net_opt = factory_opt.create('Momentum')(network.trainable_params(),
                                              learning_rate=0.1, momentum=0.9)
@@ -66,7 +66,7 @@ def test_dp_model_with_pynative_mode():
                                                target_unclipped_quantile=0.9,
                                                fraction_stddev=0.01)
     model = DPModel(micro_batches=micro_batches,
-                    norm_clip=norm_clip,
+                    norm_bound=norm_bound,
                     clip_mech=clip_mech,
                     noise_mech=None,
                     network=network,
@@ -86,7 +86,7 @@ def test_dp_model_with_pynative_mode():
 @pytest.mark.component_mindarmour
 def test_dp_model_with_graph_mode():
     context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
-    norm_clip = 1.0
+    norm_bound = 1.0
     initial_noise_multiplier = 0.01
     network = LeNet5()
     batch_size = 32
@@ -94,7 +94,7 @@ def test_dp_model_with_graph_mode():
     epochs = 1
     loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
     noise_mech = NoiseMechanismsFactory().create('Gaussian',
-                                                 norm_bound=norm_clip,
+                                                 norm_bound=norm_bound,
                                                  initial_noise_multiplier=initial_noise_multiplier)
     clip_mech = ClipMechanismsFactory().create('Gaussian',
                                                decay_policy='Linear',
@@ -105,7 +105,7 @@ def test_dp_model_with_graph_mode():
                           momentum=0.9)
     model = DPModel(micro_batches=2,
                     clip_mech=clip_mech,
-                    norm_clip=norm_clip,
+                    norm_bound=norm_bound,
                     noise_mech=noise_mech,
                     network=network,
                     loss_fn=loss,
@@ -124,22 +124,25 @@ def test_dp_model_with_graph_mode():
 @pytest.mark.component_mindarmour
 def test_dp_model_with_graph_mode_ada_gaussian():
     context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
-    norm_clip = 1.0
+    norm_bound = 1.0
     initial_noise_multiplier = 0.01
     network = LeNet5()
     batch_size = 32
     batches = 128
     epochs = 1
+    alpha = 0.8
     loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
     noise_mech = NoiseMechanismsFactory().create('AdaGaussian',
-                                                 norm_bound=norm_clip,
-                                                 initial_noise_multiplier=initial_noise_multiplier)
+                                                 norm_bound=norm_bound,
+                                                 initial_noise_multiplier=initial_noise_multiplier,
+                                                 noise_decay_rate=alpha,
+                                                 noise_update='Exp')
     clip_mech = None
     net_opt = nn.Momentum(network.trainable_params(), learning_rate=0.1,
                           momentum=0.9)
     model = DPModel(micro_batches=2,
                     clip_mech=clip_mech,
-                    norm_clip=norm_clip,
+                    norm_bound=norm_bound,
                     noise_mech=noise_mech,
                     network=network,
                     loss_fn=loss,

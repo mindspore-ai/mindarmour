@@ -19,56 +19,10 @@ import pytest
 from mindspore import context
 from mindspore import Tensor
 from mindspore.common import dtype as mstype
-from mindarmour.diff_privacy import NoiseGaussianRandom
-from mindarmour.diff_privacy import AdaGaussianRandom
+from mindarmour.diff_privacy import NoiseAdaGaussianRandom
 from mindarmour.diff_privacy import AdaClippingWithGaussianRandom
 from mindarmour.diff_privacy import NoiseMechanismsFactory
 from mindarmour.diff_privacy import ClipMechanismsFactory
-
-
-@pytest.mark.level0
-@pytest.mark.platform_x86_ascend_training
-@pytest.mark.env_onecard
-@pytest.mark.component_mindarmour
-def test_graph_gaussian():
-    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
-    grad = Tensor([0.3, 0.2, 0.4], mstype.float32)
-    norm_bound = 1.0
-    initial_noise_multiplier = 0.1
-    net = NoiseGaussianRandom(norm_bound, initial_noise_multiplier)
-    res = net(grad)
-    print(res)
-
-
-@pytest.mark.level0
-@pytest.mark.platform_x86_ascend_training
-@pytest.mark.env_onecard
-@pytest.mark.component_mindarmour
-def test_pynative_gaussian():
-    context.set_context(mode=context.PYNATIVE_MODE, device_target="Ascend")
-    grad = Tensor([0.3, 0.2, 0.4], mstype.float32)
-    norm_bound = 1.0
-    initial_noise_multiplier = 0.1
-    net = NoiseGaussianRandom(norm_bound, initial_noise_multiplier)
-    res = net(grad)
-    print(res)
-
-
-@pytest.mark.level0
-@pytest.mark.platform_x86_ascend_training
-@pytest.mark.env_onecard
-@pytest.mark.component_mindarmour
-def test_graph_ada_gaussian():
-    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
-    grad = Tensor([0.3, 0.2, 0.4], mstype.float32)
-    norm_bound = 1.0
-    initial_noise_multiplier = 0.1
-    alpha = 0.5
-    decay_policy = 'Step'
-    net = AdaGaussianRandom(norm_bound, initial_noise_multiplier,
-                            noise_decay_rate=alpha, decay_policy=decay_policy)
-    res = net(grad)
-    print(res)
 
 
 @pytest.mark.level0
@@ -81,38 +35,20 @@ def test_graph_factory():
     norm_bound = 1.0
     initial_noise_multiplier = 0.1
     alpha = 0.5
-    decay_policy = 'Step'
-    noise_mechanism = NoiseMechanismsFactory()
-    noise_construct = noise_mechanism.create('Gaussian',
-                                             norm_bound,
-                                             initial_noise_multiplier)
-    noise = noise_construct(grad)
+    noise_update = 'Step'
+    factory = NoiseMechanismsFactory()
+    noise_mech = factory.create('Gaussian',
+                                norm_bound,
+                                initial_noise_multiplier)
+    noise = noise_mech(grad)
     print('Gaussian noise: ', noise)
-    ada_mechanism = NoiseMechanismsFactory()
-    ada_noise_construct = ada_mechanism.create('AdaGaussian',
-                                               norm_bound,
-                                               initial_noise_multiplier,
-                                               noise_decay_rate=alpha,
-                                               decay_policy=decay_policy)
-    ada_noise = ada_noise_construct(grad)
+    ada_noise_mech = factory.create('AdaGaussian',
+                                    norm_bound,
+                                    initial_noise_multiplier,
+                                    noise_decay_rate=alpha,
+                                    noise_update=noise_update)
+    ada_noise = ada_noise_mech(grad)
     print('ada noise: ', ada_noise)
-
-
-@pytest.mark.level0
-@pytest.mark.platform_x86_ascend_training
-@pytest.mark.env_onecard
-@pytest.mark.component_mindarmour
-def test_pynative_ada_gaussian():
-    context.set_context(mode=context.PYNATIVE_MODE, device_target="Ascend")
-    grad = Tensor([0.3, 0.2, 0.4], mstype.float32)
-    norm_bound = 1.0
-    initial_noise_multiplier = 0.1
-    alpha = 0.5
-    decay_policy = 'Step'
-    net = AdaGaussianRandom(norm_bound, initial_noise_multiplier,
-                            noise_decay_rate=alpha, decay_policy=decay_policy)
-    res = net(grad)
-    print(res)
 
 
 @pytest.mark.level0
@@ -125,20 +61,106 @@ def test_pynative_factory():
     norm_bound = 1.0
     initial_noise_multiplier = 0.1
     alpha = 0.5
-    decay_policy = 'Step'
-    noise_mechanism = NoiseMechanismsFactory()
-    noise_construct = noise_mechanism.create('Gaussian',
-                                             norm_bound,
-                                             initial_noise_multiplier)
-    noise = noise_construct(grad)
+    noise_update = 'Step'
+    factory = NoiseMechanismsFactory()
+    noise_mech = factory.create('Gaussian',
+                                norm_bound,
+                                initial_noise_multiplier)
+    noise = noise_mech(grad)
     print('Gaussian noise: ', noise)
-    ada_mechanism = NoiseMechanismsFactory()
-    ada_noise_construct = ada_mechanism.create('AdaGaussian',
-                                               norm_bound,
-                                               initial_noise_multiplier,
-                                               noise_decay_rate=alpha,
-                                               decay_policy=decay_policy)
-    ada_noise = ada_noise_construct(grad)
+    ada_noise_mech = factory.create('AdaGaussian',
+                                    norm_bound,
+                                    initial_noise_multiplier,
+                                    noise_decay_rate=alpha,
+                                    noise_update=noise_update)
+    ada_noise = ada_noise_mech(grad)
+    print('ada noise: ', ada_noise)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_ascend_training
+@pytest.mark.env_onecard
+@pytest.mark.component_mindarmour
+def test_pynative_gaussian():
+    context.set_context(mode=context.PYNATIVE_MODE, device_target="Ascend")
+    grad = Tensor([0.3, 0.2, 0.4], mstype.float32)
+    norm_bound = 1.0
+    initial_noise_multiplier = 0.1
+    alpha = 0.5
+    noise_update = 'Step'
+    factory = NoiseMechanismsFactory()
+    noise_mech = factory.create('Gaussian',
+                                norm_bound,
+                                initial_noise_multiplier)
+    noise = noise_mech(grad)
+    print('Gaussian noise: ', noise)
+    ada_noise_mech = factory.create('AdaGaussian',
+                                    norm_bound,
+                                    initial_noise_multiplier,
+                                    noise_decay_rate=alpha,
+                                    noise_update=noise_update)
+    ada_noise = ada_noise_mech(grad)
+    print('ada noise: ', ada_noise)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_ascend_training
+@pytest.mark.env_onecard
+@pytest.mark.component_mindarmour
+def test_graph_ada_gaussian():
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+    grad = Tensor([0.3, 0.2, 0.4], mstype.float32)
+    norm_bound = 1.0
+    initial_noise_multiplier = 0.1
+    noise_decay_rate = 0.5
+    noise_update = 'Step'
+    ada_noise_mech = NoiseAdaGaussianRandom(norm_bound,
+                                            initial_noise_multiplier,
+                                            seed=0,
+                                            noise_decay_rate=noise_decay_rate,
+                                            noise_update=noise_update)
+    res = ada_noise_mech(grad)
+    print(res)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_ascend_training
+@pytest.mark.env_onecard
+@pytest.mark.component_mindarmour
+def test_pynative_ada_gaussian():
+    context.set_context(mode=context.PYNATIVE_MODE, device_target="Ascend")
+    grad = Tensor([0.3, 0.2, 0.4], mstype.float32)
+    norm_bound = 1.0
+    initial_noise_multiplier = 0.1
+    noise_decay_rate = 0.5
+    noise_update = 'Step'
+    ada_noise_mech = NoiseAdaGaussianRandom(norm_bound,
+                                            initial_noise_multiplier,
+                                            seed=0,
+                                            noise_decay_rate=noise_decay_rate,
+                                            noise_update=noise_update)
+    res = ada_noise_mech(grad)
+    print(res)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_ascend_training
+@pytest.mark.env_onecard
+@pytest.mark.component_mindarmour
+def test_graph_exponential():
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+    grad = Tensor([0.3, 0.2, 0.4], mstype.float32)
+    norm_bound = 1.0
+    initial_noise_multiplier = 0.1
+    alpha = 0.5
+    noise_update = 'Exp'
+    factory = NoiseMechanismsFactory()
+    ada_noise = factory.create('AdaGaussian',
+                               norm_bound,
+                               initial_noise_multiplier,
+                               noise_decay_rate=alpha,
+                               noise_update=noise_update)
+    ada_noise = ada_noise(grad)
     print('ada noise: ', ada_noise)
 
 
@@ -152,35 +174,14 @@ def test_pynative_exponential():
     norm_bound = 1.0
     initial_noise_multiplier = 0.1
     alpha = 0.5
-    decay_policy = 'Exp'
-    ada_mechanism = NoiseMechanismsFactory()
-    ada_noise_construct = ada_mechanism.create('AdaGaussian',
-                                               norm_bound,
-                                               initial_noise_multiplier,
-                                               noise_decay_rate=alpha,
-                                               decay_policy=decay_policy)
-    ada_noise = ada_noise_construct(grad)
-    print('ada noise: ', ada_noise)
-
-
-@pytest.mark.level0
-@pytest.mark.platform_x86_ascend_training
-@pytest.mark.env_onecard
-@pytest.mark.component_mindarmour
-def test_graph_exponential():
-    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
-    grad = Tensor([0.3, 0.2, 0.4], mstype.float32)
-    norm_bound = 1.0
-    initial_noise_multiplier = 0.1
-    alpha = 0.5
-    decay_policy = 'Exp'
-    ada_mechanism = NoiseMechanismsFactory()
-    ada_noise_construct = ada_mechanism.create('AdaGaussian',
-                                               norm_bound,
-                                               initial_noise_multiplier,
-                                               noise_decay_rate=alpha,
-                                               decay_policy=decay_policy)
-    ada_noise = ada_noise_construct(grad)
+    noise_update = 'Exp'
+    factory = NoiseMechanismsFactory()
+    ada_noise = factory.create('AdaGaussian',
+                               norm_bound,
+                               initial_noise_multiplier,
+                               noise_decay_rate=alpha,
+                               noise_update=noise_update)
+    ada_noise = ada_noise(grad)
     print('ada noise: ', ada_noise)
 
 
@@ -192,7 +193,7 @@ def test_ada_clip_gaussian_random_pynative():
     context.set_context(mode=context.PYNATIVE_MODE, device_target="Ascend")
     decay_policy = 'Linear'
     beta = Tensor(0.5, mstype.float32)
-    norm_clip = Tensor(1.0, mstype.float32)
+    norm_bound = Tensor(1.0, mstype.float32)
     beta_stddev = 0.1
     learning_rate = 0.1
     target_unclipped_quantile = 0.3
@@ -201,8 +202,8 @@ def test_ada_clip_gaussian_random_pynative():
                                              target_unclipped_quantile=target_unclipped_quantile,
                                              fraction_stddev=beta_stddev,
                                              seed=1)
-    next_norm_clip = ada_clip(beta, norm_clip)
-    print('Liner next norm clip:', next_norm_clip)
+    next_norm_bound = ada_clip(beta, norm_bound)
+    print('Liner next norm clip:', next_norm_bound)
 
     decay_policy = 'Geometric'
     ada_clip = AdaClippingWithGaussianRandom(decay_policy=decay_policy,
@@ -210,8 +211,8 @@ def test_ada_clip_gaussian_random_pynative():
                                              target_unclipped_quantile=target_unclipped_quantile,
                                              fraction_stddev=beta_stddev,
                                              seed=1)
-    next_norm_clip = ada_clip(beta, norm_clip)
-    print('Geometric next norm clip:', next_norm_clip)
+    next_norm_bound = ada_clip(beta, norm_bound)
+    print('Geometric next norm clip:', next_norm_bound)
 
 
 @pytest.mark.level0
@@ -222,7 +223,7 @@ def test_ada_clip_gaussian_random_graph():
     context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     decay_policy = 'Linear'
     beta = Tensor(0.5, mstype.float32)
-    norm_clip = Tensor(1.0, mstype.float32)
+    norm_bound = Tensor(1.0, mstype.float32)
     beta_stddev = 0.1
     learning_rate = 0.1
     target_unclipped_quantile = 0.3
@@ -231,8 +232,8 @@ def test_ada_clip_gaussian_random_graph():
                                              target_unclipped_quantile=target_unclipped_quantile,
                                              fraction_stddev=beta_stddev,
                                              seed=1)
-    next_norm_clip = ada_clip(beta, norm_clip)
-    print('Liner next norm clip:', next_norm_clip)
+    next_norm_bound = ada_clip(beta, norm_bound)
+    print('Liner next norm clip:', next_norm_bound)
 
     decay_policy = 'Geometric'
     ada_clip = AdaClippingWithGaussianRandom(decay_policy=decay_policy,
@@ -240,8 +241,8 @@ def test_ada_clip_gaussian_random_graph():
                                              target_unclipped_quantile=target_unclipped_quantile,
                                              fraction_stddev=beta_stddev,
                                              seed=1)
-    next_norm_clip = ada_clip(beta, norm_clip)
-    print('Geometric next norm clip:', next_norm_clip)
+    next_norm_bound = ada_clip(beta, norm_bound)
+    print('Geometric next norm clip:', next_norm_bound)
 
 
 @pytest.mark.level0
@@ -252,18 +253,18 @@ def test_pynative_clip_mech_factory():
     context.set_context(mode=context.PYNATIVE_MODE, device_target="Ascend")
     decay_policy = 'Linear'
     beta = Tensor(0.5, mstype.float32)
-    norm_clip = Tensor(1.0, mstype.float32)
+    norm_bound = Tensor(1.0, mstype.float32)
     beta_stddev = 0.1
     learning_rate = 0.1
     target_unclipped_quantile = 0.3
-    clip_mechanism = ClipMechanismsFactory()
-    ada_clip = clip_mechanism.create('Gaussian',
-                                     decay_policy=decay_policy,
-                                     learning_rate=learning_rate,
-                                     target_unclipped_quantile=target_unclipped_quantile,
-                                     fraction_stddev=beta_stddev)
-    next_norm_clip = ada_clip(beta, norm_clip)
-    print('next_norm_clip: ', next_norm_clip)
+    factory = ClipMechanismsFactory()
+    ada_clip = factory.create('Gaussian',
+                              decay_policy=decay_policy,
+                              learning_rate=learning_rate,
+                              target_unclipped_quantile=target_unclipped_quantile,
+                              fraction_stddev=beta_stddev)
+    next_norm_bound = ada_clip(beta, norm_bound)
+    print('next_norm_bound: ', next_norm_bound)
 
 
 @pytest.mark.level0
@@ -274,15 +275,15 @@ def test_graph_clip_mech_factory():
     context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     decay_policy = 'Linear'
     beta = Tensor(0.5, mstype.float32)
-    norm_clip = Tensor(1.0, mstype.float32)
+    norm_bound = Tensor(1.0, mstype.float32)
     beta_stddev = 0.1
     learning_rate = 0.1
     target_unclipped_quantile = 0.3
-    clip_mechanism = ClipMechanismsFactory()
-    ada_clip = clip_mechanism.create('Gaussian',
-                                     decay_policy=decay_policy,
-                                     learning_rate=learning_rate,
-                                     target_unclipped_quantile=target_unclipped_quantile,
-                                     fraction_stddev=beta_stddev)
-    next_norm_clip = ada_clip(beta, norm_clip)
-    print('next_norm_clip: ', next_norm_clip)
+    factory = ClipMechanismsFactory()
+    ada_clip = factory.create('Gaussian',
+                              decay_policy=decay_policy,
+                              learning_rate=learning_rate,
+                              target_unclipped_quantile=target_unclipped_quantile,
+                              fraction_stddev=beta_stddev)
+    next_norm_bound = ada_clip(beta, norm_bound)
+    print('next_norm_bound: ', next_norm_bound)

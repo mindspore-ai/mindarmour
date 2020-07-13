@@ -63,14 +63,14 @@ class ModelCoverageMetrics:
         self._model = check_model('model', model, Model)
         self._segmented_num = check_int_positive('segmented_num', segmented_num)
         self._neuron_num = check_int_positive('neuron_num', neuron_num)
-        if self._neuron_num > 1e+10:
+        if self._neuron_num >= 1e+10:
             msg = 'neuron_num should be less than 1e+10, otherwise a MemoryError' \
                   'would occur'
             LOGGER.error(TAG, msg)
         train_dataset = check_numpy_param('train_dataset', train_dataset)
-        self._lower_bounds = [np.inf]*neuron_num
-        self._upper_bounds = [-np.inf]*neuron_num
-        self._var = [0]*neuron_num
+        self._lower_bounds = [np.inf]*self._neuron_num
+        self._upper_bounds = [-np.inf]*self._neuron_num
+        self._var = [0]*self._neuron_num
         self._main_section_hits = [[0 for _ in range(self._segmented_num)] for _ in
                                    range(self._neuron_num)]
         self._lower_corner_hits = [0]*self._neuron_num

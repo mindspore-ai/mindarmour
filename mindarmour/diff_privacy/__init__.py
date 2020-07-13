@@ -2,7 +2,7 @@
 This module provide Differential Privacy feature to protect user privacy.
 """
 from .mechanisms.mechanisms import NoiseGaussianRandom
-from .mechanisms.mechanisms import AdaGaussianRandom
+from .mechanisms.mechanisms import NoiseAdaGaussianRandom
 from .mechanisms.mechanisms import AdaClippingWithGaussianRandom
 from .mechanisms.mechanisms import NoiseMechanismsFactory
 from .mechanisms.mechanisms import ClipMechanismsFactory
@@ -11,7 +11,7 @@ from .optimizer.optimizer import DPOptimizerClassFactory
 from .train.model import DPModel
 
 __all__ = ['NoiseGaussianRandom',
-           'AdaGaussianRandom',
+           'NoiseAdaGaussianRandom',
            'AdaClippingWithGaussianRandom',
            'NoiseMechanismsFactory',
            'ClipMechanismsFactory',

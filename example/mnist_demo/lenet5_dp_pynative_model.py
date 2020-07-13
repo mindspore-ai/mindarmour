@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-python lenet5_dp_pynative_mode.py --data_path /YourDataPath --micro_batches=2
+python lenet5_dp_pynative_model.py --data_path /YourDataPath --micro_batches=2
 """
 import os
 
@@ -32,6 +32,7 @@ import mindspore.common.dtype as mstype
 from mindarmour.diff_privacy import DPModel
 from mindarmour.diff_privacy import PrivacyMonitorFactory
 from mindarmour.diff_privacy import DPOptimizerClassFactory
+from mindarmour.diff_privacy import ClipMechanismsFactory
 from mindarmour.utils.logger import LogUtil
 from lenet5_net import LeNet5
 from lenet5_config import mnist_cfg as cfg
@@ -108,21 +109,35 @@ if __name__ == "__main__":
     # means that the privacy protection effect is weak. Mechanisms can be 'Gaussian' or 'AdaGaussian', in which noise
     # would be decayed with 'AdaGaussian' mechanism while be constant with 'Gaussian' mechanism.
     dp_opt = DPOptimizerClassFactory(micro_batches=cfg.micro_batches)
-    dp_opt.set_mechanisms(cfg.mechanisms,
-                          norm_bound=cfg.norm_clip,
-                          initial_noise_multiplier=cfg.initial_noise_multiplier)
+    dp_opt.set_mechanisms(cfg.noise_mechanisms,
+                          norm_bound=cfg.norm_bound,
+                          initial_noise_multiplier=cfg.initial_noise_multiplier,
+                          noise_update='Exp')
+    # Create a factory class of clip mechanisms, this method is to adaptive clip
+    # gradients while training, decay_policy support 'Linear' and 'Geometric',
+    # learning_rate is the learning rate to update clip_norm,
+    # target_unclipped_quantile is the target quantile of norm clip,
+    # fraction_stddev is the stddev of Gaussian normal which used in
+    # empirical_fraction, the formula is
+    # $empirical_fraction + N(0, fraction_stddev)$.
+    clip_mech = ClipMechanismsFactory().create(cfg.clip_mechanisms,
+                                               decay_policy=cfg.clip_decay_policy,
+                                               learning_rate=cfg.clip_learning_rate,
+                                               target_unclipped_quantile=cfg.target_unclipped_quantile,
+                                               fraction_stddev=cfg.fraction_stddev)
     net_opt = dp_opt.create('Momentum')(params=network.trainable_params(), learning_rate=cfg.lr, momentum=cfg.momentum)
     # Create a monitor for DP training. The function of the monitor is to compute and print the privacy budget(eps
     # and delta) while training.
     rdp_monitor = PrivacyMonitorFactory.create('rdp',
                                                num_samples=60000,
                                                batch_size=cfg.batch_size,
-                                               initial_noise_multiplier=cfg.initial_noise_multiplier*cfg.norm_clip,
+                                               initial_noise_multiplier=cfg.initial_noise_multiplier*cfg.norm_bound,
                                                per_print_times=10)
     # Create the DP model for training.
     model = DPModel(micro_batches=cfg.micro_batches,
-                    norm_clip=cfg.norm_clip,
-                    mech=None,
+                    norm_bound=cfg.norm_bound,
+                    noise_mech=None,
+                    clip_mech=clip_mech,
                     network=network,
                     loss_fn=net_loss,
                     optimizer=net_opt,
