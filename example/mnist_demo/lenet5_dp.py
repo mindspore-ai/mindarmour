@@ -31,7 +31,8 @@ import mindspore.common.dtype as mstype
 
 from mindarmour.diff_privacy import DPModel
 from mindarmour.diff_privacy import PrivacyMonitorFactory
-from mindarmour.diff_privacy import MechanismsFactory
+from mindarmour.diff_privacy import NoiseMechanismsFactory
+from mindarmour.diff_privacy import ClipMechanismsFactory
 from mindarmour.utils.logger import LogUtil
 from lenet5_net import LeNet5
 from lenet5_config import mnist_cfg as cfg
@@ -87,11 +88,14 @@ def generate_mnist_dataset(data_path, batch_size=32, repeat_size=1,
 
 if __name__ == "__main__":
     # This configure can run both in pynative mode and graph mode
-    context.set_context(mode=context.GRAPH_MODE, device_target=cfg.device_target)
+    context.set_context(mode=context.GRAPH_MODE,
+                        device_target=cfg.device_target)
     network = LeNet5()
-    net_loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True, reduction="mean")
-    config_ck = CheckpointConfig(save_checkpoint_steps=cfg.save_checkpoint_steps,
-                                 keep_checkpoint_max=cfg.keep_checkpoint_max)
+    net_loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True,
+                                                reduction="mean")
+    config_ck = CheckpointConfig(
+        save_checkpoint_steps=cfg.save_checkpoint_steps,
+        keep_checkpoint_max=cfg.keep_checkpoint_max)
     ckpoint_cb = ModelCheckpoint(prefix="checkpoint_lenet",
                                  directory='./trained_ckpt_file/',
                                  config=config_ck)
@@ -102,17 +106,33 @@ if __name__ == "__main__":
                                       cfg.epoch_size)
 
     if cfg.micro_batches and cfg.batch_size % cfg.micro_batches != 0:
-        raise ValueError("Number of micro_batches should divide evenly batch_size")
-    # Create a factory class of DP mechanisms, this method is adding noise in gradients while training.
-    # Initial_noise_multiplier is suggested to be greater than 1.0, otherwise the privacy budget would be huge, which
-    # means that the privacy protection effect is weak. Mechanisms can be 'Gaussian' or 'AdaGaussian', in which noise
-    # would be decayed with 'AdaGaussian' mechanism while be constant with 'Gaussian' mechanism.
-    mech = MechanismsFactory().create(cfg.mechanisms,
-                                      norm_bound=cfg.norm_clip,
-                                      initial_noise_multiplier=cfg.initial_noise_multiplier)
-    net_opt = nn.Momentum(params=network.trainable_params(), learning_rate=cfg.lr, momentum=cfg.momentum)
-    # Create a monitor for DP training. The function of the monitor is to compute and print the privacy budget(eps
-    # and delta) while training.
+        raise ValueError(
+            "Number of micro_batches should divide evenly batch_size")
+    # Create a factory class of DP noise mechanisms, this method is adding noise
+    # in gradients while training. Initial_noise_multiplier is suggested to be
+    # greater than 1.0, otherwise the privacy budget would be huge, which means
+    # that the privacy protection effect is weak. Mechanisms can be 'Gaussian'
+    # or 'AdaGaussian', in which noise would be decayed with 'AdaGaussian'
+    # mechanism while be constant with 'Gaussian' mechanism.
+    noise_mech = NoiseMechanismsFactory().create(cfg.noise_mechanisms,
+                                                 norm_bound=cfg.norm_clip,
+                                                 initial_noise_multiplier=cfg.initial_noise_multiplier)
+    # Create a factory class of clip mechanisms, this method is to adaptive clip
+    # gradients while training, decay_policy support 'Linear' and 'Geometric',
+    # learning_rate is the learning rate to update clip_norm,
+    # target_unclipped_quantile is the target quantile of norm clip,
+    # fraction_stddev is the stddev of Gaussian normal which used in
+    # empirical_fraction, the formula is
+    # $empirical_fraction + N(0, fraction_stddev)$.
+    clip_mech = ClipMechanismsFactory().create(cfg.clip_mechanisms,
+                                               decay_policy=cfg.clip_decay_policy,
+                                               learning_rate=cfg.clip_learning_rate,
+                                               target_unclipped_quantile=cfg.target_unclipped_quantile,
+                                               fraction_stddev=cfg.fraction_stddev)
+    net_opt = nn.Momentum(params=network.trainable_params(),
+                          learning_rate=cfg.lr, momentum=cfg.momentum)
+    # Create a monitor for DP training. The function of the monitor is to
+    # compute and print the privacy budget(eps and delta) while training.
     rdp_monitor = PrivacyMonitorFactory.create('rdp',
                                                num_samples=60000,
                                                batch_size=cfg.batch_size,
@@ -121,20 +141,23 @@ if __name__ == "__main__":
     # Create the DP model for training.
     model = DPModel(micro_batches=cfg.micro_batches,
                     norm_clip=cfg.norm_clip,
-                    mech=mech,
+                    noise_mech=noise_mech,
+                    clip_mech=clip_mech,
                     network=network,
                     loss_fn=net_loss,
                     optimizer=net_opt,
                     metrics={"Accuracy": Accuracy()})
 
     LOGGER.info(TAG, "============== Starting Training ==============")
-    model.train(cfg['epoch_size'], ds_train, callbacks=[ckpoint_cb, LossMonitor(), rdp_monitor],
+    model.train(cfg['epoch_size'], ds_train,
+                callbacks=[ckpoint_cb, LossMonitor(), rdp_monitor],
                 dataset_sink_mode=cfg.dataset_sink_mode)
 
     LOGGER.info(TAG, "============== Starting Testing ==============")
     ckpt_file_name = 'trained_ckpt_file/checkpoint_lenet-10_234.ckpt'
     param_dict = load_checkpoint(ckpt_file_name)
     load_param_into_net(network, param_dict)
-    ds_eval = generate_mnist_dataset(os.path.join(cfg.data_path, 'test'), batch_size=cfg.batch_size)
+    ds_eval = generate_mnist_dataset(os.path.join(cfg.data_path, 'test'),
+                                     batch_size=cfg.batch_size)
     acc = model.eval(ds_eval, dataset_sink_mode=False)
     LOGGER.info(TAG, "============== Accuracy: %s  ==============", acc)
