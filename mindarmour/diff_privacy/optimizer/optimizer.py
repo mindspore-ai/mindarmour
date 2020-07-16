@@ -22,7 +22,7 @@ from mindspore.ops import functional as F
 from mindspore.common import dtype as mstype
 
 from mindarmour.utils.logger import LogUtil
-from mindarmour.diff_privacy import MechanismsFactory
+from mindarmour.diff_privacy import NoiseMechanismsFactory
 from mindarmour.diff_privacy.mechanisms.mechanisms import _MechanismsParamsUpdater
 from mindarmour.utils._check_param import check_int_positive
 
@@ -70,7 +70,7 @@ class DPOptimizerClassFactory:
     """
 
     def __init__(self, micro_batches=2):
-        self._mech_factory = MechanismsFactory()
+        self._mech_factory = NoiseMechanismsFactory()
         self.mech = None
         self._micro_batches = check_int_positive('micro_batches', micro_batches)
 

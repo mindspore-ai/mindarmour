@@ -28,11 +28,54 @@ from mindarmour.utils._check_param import check_param_in_range
 from mindarmour.utils.logger import LogUtil
 
 LOGGER = LogUtil.get_instance()
-TAG = 'Defense'
+TAG = 'NoiseMechanism'
 
 
-class MechanismsFactory:
-    """ Factory class of mechanisms"""
+class ClipMechanismsFactory:
+    """ Factory class of clip mechanisms"""
+
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def create(mech_name, *args, **kwargs):
+        """
+        Args:
+            mech_name(str): Clip noise generated strategy, support 'Gaussian' now.
+            args(Union[float, str]): Parameters used for creating clip mechanisms.
+            kwargs(Union[float, str]): Parameters used for creating clip
+                mechanisms.
+
+        Raises:
+            NameError: `mech_name` must be in ['Gaussian'].
+
+        Returns:
+            Mechanisms, class of noise generated Mechanism.
+
+        Examples:
+            >>> decay_policy = 'Linear'
+            >>> beta = Tensor(0.5, mstype.float32)
+            >>> norm_clip = Tensor(1.0, mstype.float32)
+            >>> beta_stddev = 0.1
+            >>> learning_rate = 0.1
+            >>> target_unclipped_quantile = 0.3
+            >>> clip_mechanism = ClipMechanismsFactory()
+            >>> ada_clip = clip_mechanism.create('Gaussian',
+            >>>                          decay_policy=decay_policy,
+            >>>                          learning_rate=learning_rate,
+            >>>                          target_unclipped_quantile=target_unclipped_quantile,
+            >>>                          fraction_stddev=beta_stddev)
+            >>> next_norm_clip = ada_clip(beta, norm_clip)
+
+        """
+        if mech_name == 'Gaussian':
+            return AdaClippingWithGaussianRandom(*args, **kwargs)
+        raise NameError("The {} is not implement, please choose "
+                        "['Gaussian']".format(mech_name))
+
+
+class NoiseMechanismsFactory:
+    """ Factory class of noise mechanisms"""
 
     def __init__(self):
         pass
@@ -56,42 +99,38 @@ class MechanismsFactory:
             Mechanisms, class of noise generated Mechanism.
 
         Examples:
-            >>> class Net(nn.Cell):
-            >>>     def __init__(self):
-            >>>         super(Net, self).__init__()
-            >>>         self.conv = nn.Conv2d(3, 64, 3, has_bias=False, weight_init='normal')
-            >>>         self.bn = nn.BatchNorm2d(64)
-            >>>         self.relu = nn.ReLU()
-            >>>         self.flatten = nn.Flatten()
-            >>>         self.fc = nn.Dense(64*224*224, 12) # padding=0
-            >>>
-            >>>     def construct(self, x):
-            >>>         x = self.conv(x)
-            >>>         x = self.bn(x)
-            >>>         x = self.relu(x)
-            >>>         x = self.flatten(x)
-            >>>         out = self.fc(x)
-            >>>         return out
             >>> norm_clip = 1.0
-            >>> initial_noise_multiplier = 1.5
-            >>> net = Net()
+            >>> initial_noise_multiplier = 0.01
+            >>> network = LeNet5()
+            >>> batch_size = 32
+            >>> batches = 128
+            >>> epochs = 1
             >>> loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
-            >>> net_opt = Momentum(params=net.trainable_params(), learning_rate=0.01, momentum=0.9)
-            >>> mech = MechanismsFactory().create('Gaussian',
-            >>>                                   norm_bound=norm_clip,
-            >>>                                   initial_noise_multiplier=initial_noise_multiplier)
+            >>> noise_mech = NoiseMechanismsFactory().create('Gaussian',
+            >>>                                              norm_bound=norm_clip,
+            >>>                                              initial_noise_multiplier=initial_noise_multiplier)
+            >>> clip_mech = ClipMechanismsFactory().create('Gaussian',
+            >>>                                            decay_policy='Linear',
+            >>>                                            learning_rate=0.01,
+            >>>                                            target_unclipped_quantile=0.9,
+            >>>                                            fraction_stddev=0.01)
+            >>> net_opt = nn.Momentum(network.trainable_params(), learning_rate=0.1,
+            >>>                       momentum=0.9)
             >>> model = DPModel(micro_batches=2,
-            >>>                 norm_clip=1.0,
-            >>>                 mech=mech,
-            >>>                 network=net,
+            >>>                 clip_mech=clip_mech,
+            >>>                 norm_clip=norm_clip,
+            >>>                 noise_mech=noise_mech,
+            >>>                 network=network,
             >>>                 loss_fn=loss,
             >>>                 optimizer=net_opt,
             >>>                 metrics=None)
-            >>> dataset = get_dataset()
-            >>> model.train(2, dataset)
+            >>> ms_ds = ds.GeneratorDataset(dataset_generator(batch_size, batches),
+            >>>                            ['data', 'label'])
+            >>> ms_ds.set_dataset_size(batch_size * batches)
+            >>> model.train(epochs, ms_ds, dataset_sink_mode=False)
         """
         if policy == 'Gaussian':
-            return GaussianRandom(*args, **kwargs)
+            return NoiseGaussianRandom(*args, **kwargs)
         if policy == 'AdaGaussian':
             return AdaGaussianRandom(*args, **kwargs)
         raise NameError("The {} is not implement, please choose "
@@ -110,7 +149,7 @@ class Mechanisms(Cell):
         """
 
 
-class GaussianRandom(Mechanisms):
+class NoiseGaussianRandom(Mechanisms):
     """
     Gaussian noise generated mechanism.
 
@@ -133,18 +172,21 @@ class GaussianRandom(Mechanisms):
         >>> gradients = Tensor([0.2, 0.9], mstype.float32)
         >>> norm_bound = 0.5
         >>> initial_noise_multiplier = 1.5
-        >>> net = GaussianRandom(norm_bound, initial_noise_multiplier)
+        >>> net = NoiseGaussianRandom(norm_bound, initial_noise_multiplier)
         >>> res = net(gradients)
         >>> print(res)
     """
 
-    def __init__(self, norm_bound=0.5, initial_noise_multiplier=1.5, seed=0, policy=None):
-        super(GaussianRandom, self).__init__()
+    def __init__(self, norm_bound=0.5, initial_noise_multiplier=1.5, seed=0,
+                 policy=None):
+        super(NoiseGaussianRandom, self).__init__()
         self._norm_bound = check_value_positive('norm_bound', norm_bound)
         self._norm_bound = Tensor(norm_bound, mstype.float32)
-        self._initial_noise_multiplier = check_value_positive('initial_noise_multiplier',
-                                                              initial_noise_multiplier)
-        self._initial_noise_multiplier = Tensor(initial_noise_multiplier, mstype.float32)
+        self._initial_noise_multiplier = check_value_positive(
+            'initial_noise_multiplier',
+            initial_noise_multiplier)
+        self._initial_noise_multiplier = Tensor(initial_noise_multiplier,
+                                                mstype.float32)
         self._mean = Tensor(0, mstype.float32)
         self._normal = P.Normal(seed=seed)
         self._decay_policy = policy
@@ -201,17 +243,20 @@ class AdaGaussianRandom(Mechanisms):
                  noise_decay_rate=6e-4, decay_policy='Time', seed=0):
         super(AdaGaussianRandom, self).__init__()
         norm_bound = check_value_positive('norm_bound', norm_bound)
-        initial_noise_multiplier = check_value_positive('initial_noise_multiplier',
-                                                        initial_noise_multiplier)
+        initial_noise_multiplier = check_value_positive(
+            'initial_noise_multiplier',
+            initial_noise_multiplier)
         self._norm_bound = Tensor(norm_bound, mstype.float32)
 
-        initial_noise_multiplier = Tensor(initial_noise_multiplier, mstype.float32)
+        initial_noise_multiplier = Tensor(initial_noise_multiplier,
+                                          mstype.float32)
         self._initial_noise_multiplier = Parameter(initial_noise_multiplier,
                                                    name='initial_noise_multiplier')
         self._noise_multiplier = Parameter(initial_noise_multiplier,
                                            name='noise_multiplier')
         self._mean = Tensor(0, mstype.float32)
-        noise_decay_rate = check_param_type('noise_decay_rate', noise_decay_rate, float)
+        noise_decay_rate = check_param_type('noise_decay_rate',
+                                            noise_decay_rate, float)
         check_param_in_range('noise_decay_rate', noise_decay_rate, 0.0, 1.0)
         self._noise_decay_rate = Tensor(noise_decay_rate, mstype.float32)
         if decay_policy not in ['Time', 'Step', 'Exp']:
@@ -232,7 +277,9 @@ class AdaGaussianRandom(Mechanisms):
             Tensor, generated noise with shape like given gradients.
         """
         shape = P.Shape()(gradients)
-        noise = self._normal(shape, self._mean, self._mul(self._noise_multiplier, self._norm_bound))
+        noise = self._normal(shape, self._mean,
+                             self._mul(self._noise_multiplier,
+                                       self._norm_bound))
         return noise
 
 
@@ -241,10 +288,14 @@ class _MechanismsParamsUpdater(Cell):
     Update mechanisms parameters, the parameters will refresh in train period.
 
     Args:
-        policy(str): Pass in by the mechanisms class, mechanisms parameters update policy.
-        decay_rate(Tensor): Pass in by the mechanisms class, hyper parameter for controlling the decay size.
-        cur_noise_multiplier(Parameter): Pass in by the mechanisms class, current params value in this time.
-        init_noise_multiplier(Parameter):Pass in by the mechanisms class, initial params value to be updated.
+        policy(str): Pass in by the mechanisms class, mechanisms parameters
+            update policy.
+        decay_rate(Tensor): Pass in by the mechanisms class, hyper parameter for
+            controlling the decay size.
+        cur_noise_multiplier(Parameter): Pass in by the mechanisms class,
+            current params value in this time.
+        init_noise_multiplier(Parameter):Pass in by the mechanisms class,
+            initial params value to be updated.
 
     Returns:
         Tuple, next params value.
@@ -281,5 +332,100 @@ class _MechanismsParamsUpdater(Cell):
             next_noise_multiplier = self._assign(self._cur_noise_multiplier,
                                                  self._mul(temp, self._cur_noise_multiplier))
         else:
-            next_noise_multiplier = self._assign(self._cur_noise_multiplier, self._div(self._one, self._exp(self._one)))
+            next_noise_multiplier = self._assign(self._cur_noise_multiplier,
+                                                 self._div(self._one, self._exp(self._one)))
         return next_noise_multiplier
+
+
+class AdaClippingWithGaussianRandom(Cell):
+    """
+    Adaptive clipping. If `decay_policy` is 'Linear', the update formula is
+    $ norm_clip = norm_clip - learning_rate*(beta-target_unclipped_quantile)$.
+    `decay_policy` is 'Geometric', the update formula is
+    $ norm_clip = norm_clip*exp(-learning_rate*(empirical_fraction-target_unclipped_quantile))$.
+    where beta is the empirical fraction of samples with the value at most
+    `target_unclipped_quantile`.
+
+    Args:
+        decay_policy(str): Decay policy of adaptive clipping, decay_policy must
+            be in ['Linear', 'Geometric']. Default: Linear.
+        learning_rate(float): Learning rate of update norm clip. Default: 0.01.
+        target_unclipped_quantile(float): Target quantile of norm clip. Default: 0.9.
+        fraction_stddev(float): The stddev of Gaussian normal which used in
+            empirical_fraction, the formula is $empirical_fraction + N(0, fraction_stddev)$.
+        seed(int): Original random seed, if seed=0 random normal will use secure
+            random number. IF seed!=0 random normal will generate values using
+            given seed. Default: 0.
+
+    Returns:
+        Tensor, undated norm clip .
+
+    Examples:
+        >>> decay_policy = 'Linear'
+        >>> beta = Tensor(0.5, mstype.float32)
+        >>> norm_clip = Tensor(1.0, mstype.float32)
+        >>> beta_stddev = 0.01
+        >>> learning_rate = 0.001
+        >>> target_unclipped_quantile = 0.9
+        >>> ada_clip = AdaClippingWithGaussianRandom(decay_policy=decay_policy,
+        >>>                                          learning_rate=learning_rate,
+        >>>                                          target_unclipped_quantile=target_unclipped_quantile,
+        >>>                                          fraction_stddev=beta_stddev)
+        >>> next_norm_clip = ada_clip(beta, norm_clip)
+
+    """
+
+    def __init__(self, decay_policy='Linear', learning_rate=0.001,
+                 target_unclipped_quantile=0.9, fraction_stddev=0.01, seed=0):
+        super(AdaClippingWithGaussianRandom, self).__init__()
+        if decay_policy not in ['Linear', 'Geometric']:
+            msg = "decay policy of adaptive clip must be in ['Linear', 'Geometric'], \
+                but got: {}".format(decay_policy)
+            LOGGER.error(TAG, msg)
+            raise ValueError(msg)
+        self._decay_policy = decay_policy
+        learning_rate = check_param_type('learning_rate', learning_rate, float)
+        learning_rate = check_value_positive('learning_rate', learning_rate)
+        self._learning_rate = Tensor(learning_rate, mstype.float32)
+        fraction_stddev = check_param_type('fraction_stddev', fraction_stddev, float)
+        self._fraction_stddev = Tensor(fraction_stddev, mstype.float32)
+        target_unclipped_quantile = check_param_type('target_unclipped_quantile',
+                                                     target_unclipped_quantile,
+                                                     float)
+        self._target_unclipped_quantile = Tensor(target_unclipped_quantile,
+                                                 mstype.float32)
+
+        self._zero = Tensor(0, mstype.float32)
+        self._add = P.TensorAdd()
+        self._sub = P.Sub()
+        self._mul = P.Mul()
+        self._exp = P.Exp()
+        self._normal = P.Normal(seed=seed)
+
+    def construct(self, empirical_fraction, norm_clip):
+        """
+        Update value of norm_clip.
+
+        Args:
+            empirical_fraction(Tensor): empirical fraction of samples with the
+                value at most `target_unclipped_quantile`.
+            norm_clip(Tensor): Clipping bound for the l2 norm of the gradients.
+
+        Returns:
+            Tensor, generated noise with shape like given gradients.
+        """
+        fraction_noise = self._normal((1,), self._zero, self._fraction_stddev)
+        empirical_fraction = self._add(empirical_fraction, fraction_noise)
+        if self._decay_policy == 'Linear':
+            grad_clip = self._sub(empirical_fraction,
+                                  self._target_unclipped_quantile)
+            next_norm_clip = self._sub(norm_clip,
+                                       self._mul(self._learning_rate, grad_clip))
+
+        # decay_policy == 'Geometric'
+        else:
+            grad_clip = self._sub(empirical_fraction,
+                                  self._target_unclipped_quantile)
+            grad_clip = self._exp(self._mul(-self._learning_rate, grad_clip))
+            next_norm_clip = self._mul(norm_clip, grad_clip)
+        return next_norm_clip
