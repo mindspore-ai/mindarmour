@@ -143,7 +143,13 @@ class DPModel(Model):
                 LOGGER.error(TAG, msg)
                 raise ValueError(msg)
         self._noise_mech = noise_mech
-        if clip_mech is not None:
+        if noise_mech is not None:
+            if 'Ada' in noise_mech.__class__.__name__ and clip_mech is not None:
+                msg = 'When noise_mech is Adaptive, clip_mech must be None.'
+                LOGGER.error(TAG, msg)
+                raise ValueError(msg)
+
+        if clip_mech is None or isinstance(clip_mech, Cell):
             self._clip_mech = clip_mech
         super(DPModel, self).__init__(**kwargs)
 
