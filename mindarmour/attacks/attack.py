@@ -49,8 +49,8 @@ class Attack:
             numpy.ndarray, generated adversarial examples
 
         Examples:
-            >>> inputs = Tensor([[0.2, 0.4, 0.5, 0.2], [0.7, 0.2, 0.4, 0.3]])
-            >>> labels = [3, 0]
+            >>> inputs = np.array([[0.2, 0.4, 0.5, 0.2], [0.7, 0.2, 0.4, 0.3]])
+            >>> labels = np.array([3, 0])
             >>> advs = attack.batch_generate(inputs, labels, batch_size=2)
         """
         arr_x, arr_y = check_pair_numpy_param('inputs', inputs, 'labels', labels)

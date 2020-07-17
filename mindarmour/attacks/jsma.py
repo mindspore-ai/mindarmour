@@ -65,6 +65,7 @@ class JSMAAttack(Attack):
         super(JSMAAttack).__init__()
         LOGGER.debug(TAG, "init jsma class.")
         self._network = check_model('network', network, Cell)
+        self._network.set_grad(True)
         self._min = check_value_non_negative('box_min', box_min)
         self._max = check_value_non_negative('box_max', box_max)
         self._num_classes = check_int_positive('num_classes', num_classes)

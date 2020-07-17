@@ -61,6 +61,7 @@ class DeepFool(Attack):
                  norm_level=2, bounds=None, sparse=True):
         super(DeepFool, self).__init__()
         self._network = check_model('network', network, Cell)
+        self._network.set_grad(True)
         self._max_iters = check_int_positive('max_iters', max_iters)
         self._overshoot = check_value_positive('overshoot', overshoot)
         self._norm_level = check_norm_level(norm_level)

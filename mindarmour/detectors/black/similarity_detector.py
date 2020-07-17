@@ -74,8 +74,8 @@ class SimilarityDetector(Detector):
 
     Examples:
         >>> detector = SimilarityDetector(model)
-        >>> detector.fit(Tensor(ori), Tensor(labels))
-        >>> adv_ids = detector.detect(Tensor(adv))
+        >>> detector.fit(ori, labels)
+        >>> adv_ids = detector.detect(adv)
     """
 
     def __init__(self, trans_model, max_k_neighbor=1000, chunk_size=1000,

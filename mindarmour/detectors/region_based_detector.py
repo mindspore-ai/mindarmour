@@ -53,8 +53,8 @@ class RegionBasedDetector(Detector):
 
     Examples:
         >>> detector = RegionBasedDetector(model)
-        >>> detector.fit(Tensor(ori), Tensor(labels))
-        >>> adv_ids = detector.detect(Tensor(adv))
+        >>> detector.fit(ori, labels)
+        >>> adv_ids = detector.detect(adv)
     """
 
     def __init__(self, model, number_points=10, initial_radius=0.0,
