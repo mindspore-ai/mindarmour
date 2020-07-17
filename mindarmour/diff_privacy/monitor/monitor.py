@@ -112,14 +112,15 @@ class RDPMonitor(Callback):
         >>> net_loss = nn.SoftmaxCrossEntropyWithLogits()
         >>> epochs = 2
         >>> norm_clip = 1.0
-        >>> initial_noise_multiplier = 0.01
-        >>> mech = MechanismsFactory().create('Gaussian',
+        >>> initial_noise_multiplier = 1.5
+        >>> mech = NoiseMechanismsFactory().create('AdaGaussian',
         >>> norm_bound=norm_clip, initial_noise_multiplier=initial_noise_multiplier)
         >>> net_opt = nn.Momentum(network.trainable_params(), 0.01, 0.9)
         >>> model = DPModel(micro_batches=2, norm_clip=norm_clip,
         >>> mech=mech, network=network, loss_fn=loss, optimizer=net_opt, metrics=None)
         >>> rdp = PrivacyMonitorFactory.create(policy='rdp',
-        >>> num_samples=60000, batch_size=256)
+        >>> num_samples=60000, batch_size=256,
+        >>> initial_noise_multiplier=initial_noise_multiplier)
         >>> model.train(epochs, ds, callbacks=[rdp], dataset_sink_mode=False)
     """
 
@@ -392,15 +393,16 @@ class ZCDPMonitor(Callback):
         >>> net_loss = nn.SoftmaxCrossEntropyWithLogits()
         >>> epochs = 2
         >>> norm_clip = 1.0
-        >>> initial_noise_multiplier = 0.01
-        >>> mech = MechanismsFactory().create('Gaussian',
+        >>> initial_noise_multiplier = 1.5
+        >>> mech = NoiseMechanismsFactory().create('AdaGaussian',
         >>> norm_bound=norm_clip, initial_noise_multiplier=initial_noise_multiplier)
         >>> net_opt = nn.Momentum(network.trainable_params(), 0.01, 0.9)
         >>> model = DPModel(micro_batches=2, norm_clip=norm_clip,
         >>> mech=mech, network=network, loss_fn=loss, optimizer=net_opt, metrics=None)
-        >>> rdp = PrivacyMonitorFactory.create(policy='rdp',
-        >>> num_samples=60000, batch_size=256)
-        >>> model.train(epochs, ds, callbacks=[rdp], dataset_sink_mode=False)
+        >>> zcdp = PrivacyMonitorFactory.create(policy='zcdp',
+        >>> num_samples=60000, batch_size=256,
+        >>> initial_noise_multiplier=initial_noise_multiplier)
+        >>> model.train(epochs, ds, callbacks=[zcdp], dataset_sink_mode=False)
     """
 
     def __init__(self, num_samples, batch_size, initial_noise_multiplier=1.5,

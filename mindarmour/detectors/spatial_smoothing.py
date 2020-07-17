@@ -50,8 +50,8 @@ class SpatialSmoothing(Detector):
 
     Examples:
         >>> detector = SpatialSmoothing(model)
-        >>> detector.fit(Tensor(ori), Tensor(labels))
-        >>> adv_ids = detector.detect(Tensor(adv))
+        >>> detector.fit(ori, labels)
+        >>> adv_ids = detector.detect(adv)
     """
 
     def __init__(self, model, ksize=3, is_local_smooth=True,

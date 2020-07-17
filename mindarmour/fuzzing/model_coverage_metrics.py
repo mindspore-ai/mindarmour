@@ -22,6 +22,10 @@ from mindspore import Model
 
 from mindarmour.utils._check_param import check_model, check_numpy_param, \
     check_int_positive
+from mindarmour.utils.logger import LogUtil
+
+LOGGER = LogUtil.get_instance()
+TAG = 'ModelCoverageMetrics'
 
 
 class ModelCoverageMetrics:
@@ -59,6 +63,10 @@ class ModelCoverageMetrics:
         self._model = check_model('model', model, Model)
         self._segmented_num = check_int_positive('segmented_num', segmented_num)
         self._neuron_num = check_int_positive('neuron_num', neuron_num)
+        if self._neuron_num > 1e+10:
+            msg = 'neuron_num should be less than 1e+10, otherwise a MemoryError' \
+                  'would occur'
+            LOGGER.error(TAG, msg)
         train_dataset = check_numpy_param('train_dataset', train_dataset)
         self._lower_bounds = [np.inf]*neuron_num
         self._upper_bounds = [-np.inf]*neuron_num

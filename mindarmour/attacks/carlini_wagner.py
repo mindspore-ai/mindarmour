@@ -107,6 +107,7 @@ class CarliniWagnerL2Attack(Attack):
         LOGGER.info(TAG, "init CW object.")
         super(CarliniWagnerL2Attack, self).__init__()
         self._network = check_model('network', network, Cell)
+        self._network.set_grad(True)
         self._num_classes = check_int_positive('num_classes', num_classes)
         self._min = check_param_type('box_min', box_min, float)
         self._max = check_param_type('box_max', box_max, float)

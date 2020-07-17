@@ -70,7 +70,7 @@ class BlackDefenseEvaluate:
         >>> def_detection_counts = np.array([1, 5, 10])
         >>> true_labels = np.array([3, 1, 0])
         >>> max_queries = 100
-        >>> def_eval = BlackDefenseEvaluat(raw_preds,
+        >>> def_eval = BlackDefenseEvaluate(raw_preds,
         >>>                             def_preds,
         >>>                             raw_query_counts,
         >>>                             def_query_counts,
