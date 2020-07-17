@@ -134,11 +134,7 @@ def test_dp_model_with_graph_mode_ada_gaussian():
     noise_mech = NoiseMechanismsFactory().create('AdaGaussian',
                                                  norm_bound=norm_clip,
                                                  initial_noise_multiplier=initial_noise_multiplier)
-    clip_mech = ClipMechanismsFactory().create('Gaussian',
-                                               decay_policy='Linear',
-                                               learning_rate=0.01,
-                                               target_unclipped_quantile=0.9,
-                                               fraction_stddev=0.01)
+    clip_mech = None
     net_opt = nn.Momentum(network.trainable_params(), learning_rate=0.1,
                           momentum=0.9)
     model = DPModel(micro_batches=2,
