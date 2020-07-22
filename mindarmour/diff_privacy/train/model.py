@@ -75,7 +75,7 @@ class DPModel(Model):
     Args:
         micro_batches (int): The number of small batches split from an original
             batch. Default: 2.
-        norm_clip (float): Use to clip the bound, if set 1, will retun the
+        norm_bound (float): Use to clip the bound, if set 1, will return the
             original data. Default: 1.0.
         noise_mech (Mechanisms): The object can generate the different type of
             noise. Default: None.
@@ -83,7 +83,7 @@ class DPModel(Model):
             Default: None.
 
     Examples:
-        >>> norm_clip = 1.0
+        >>> norm_bound = 1.0
         >>> initial_noise_multiplier = 0.01
         >>> network = LeNet5()
         >>> batch_size = 32
@@ -93,7 +93,7 @@ class DPModel(Model):
         >>> loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
         >>> factory_opt = DPOptimizerClassFactory(micro_batches=micro_batches)
         >>> factory_opt.set_mechanisms('Gaussian',
-        >>>                            norm_bound=norm_clip,
+        >>>                            norm_bound=norm_bound,
         >>>                            initial_noise_multiplier=initial_noise_multiplier)
         >>> net_opt = factory_opt.create('Momentum')(network.trainable_params(),
         >>>                                          learning_rate=0.1, momentum=0.9)
@@ -103,7 +103,7 @@ class DPModel(Model):
         >>>                                            target_unclipped_quantile=0.9,
         >>>                                            fraction_stddev=0.01)
         >>> model = DPModel(micro_batches=micro_batches,
-        >>>                 norm_clip=norm_clip,
+        >>>                 norm_bound=norm_bound,
         >>>                 clip_mech=clip_mech,
         >>>                 noise_mech=None,
         >>>                 network=network,
@@ -116,17 +116,18 @@ class DPModel(Model):
         >>> model.train(epochs, ms_ds, dataset_sink_mode=False)
     """
 
-    def __init__(self, micro_batches=2, norm_clip=1.0, noise_mech=None,
+    def __init__(self, micro_batches=2, norm_bound=1.0, noise_mech=None,
                  clip_mech=None, **kwargs):
         if micro_batches:
             self._micro_batches = check_int_positive('micro_batches',
                                                      micro_batches)
         else:
             self._micro_batches = None
-        norm_clip = check_param_type('norm_clip', norm_clip, float)
-        norm_clip = check_value_positive('norm_clip', norm_clip)
-        norm_clip = Tensor(norm_clip, mstype.float32)
-        self._norm_clip = Parameter(norm_clip, 'norm_clip')
+        norm_bound = check_param_type('norm_bound', norm_bound, float)
+        norm_bound = check_value_positive('norm_bound', norm_bound)
+        norm_bound = Tensor(norm_bound, mstype.float32)
+        self._norm_bound = Parameter(norm_bound, 'norm_bound')
+
         if noise_mech is not None and "DPOptimizer" in kwargs['optimizer'].__class__.__name__:
             msg = 'DPOptimizer is not supported while noise_mech is not None'
             LOGGER.error(TAG, msg)
@@ -219,14 +220,14 @@ class DPModel(Model):
                                                          optimizer,
                                                          scale_update_cell=update_cell,
                                                          micro_batches=self._micro_batches,
-                                                         norm_clip=self._norm_clip,
+                                                         norm_bound=self._norm_bound,
                                                          clip_mech=self._clip_mech,
                                                          noise_mech=self._noise_mech).set_train()
                 return network
 
         network = _TrainOneStepCell(network,
                                     optimizer,
-                                    self._norm_clip,
+                                    self._norm_bound,
                                     loss_scale,
                                     micro_batches=self._micro_batches,
                                     clip_mech=self._clip_mech,
@@ -347,7 +348,7 @@ class _TrainOneStepWithLossScaleCell(Cell):
             Default: None.
         micro_batches (int): The number of small batches split from an original
             batch. Default: None.
-        norm_clip (Tensor): Use to clip the bound, if set 1, will return the
+        norm_bound (Tensor): Use to clip the bound, if set 1, will return the
             original data. Default: 1.0.
         noise_mech (Mechanisms): The object can generate the different type of
             noise. Default: None.
@@ -366,7 +367,7 @@ class _TrainOneStepWithLossScaleCell(Cell):
     """
 
     def __init__(self, network, optimizer, scale_update_cell=None,
-                 micro_batches=None, norm_clip=1.0, noise_mech=None,
+                 micro_batches=None, norm_bound=1.0, noise_mech=None,
                  clip_mech=None):
         super(_TrainOneStepWithLossScaleCell, self).__init__(auto_prefix=False)
         self.network = network
@@ -405,15 +406,13 @@ class _TrainOneStepWithLossScaleCell(Cell):
         self.loss_scale = None
         self.loss_scaling_manager = scale_update_cell
         if scale_update_cell:
-            self.loss_scale = Parameter(
-                Tensor(scale_update_cell.get_loss_scale(),
-                       dtype=mstype.float32),
-                name="loss_scale")
+            self.loss_scale = Parameter(Tensor(scale_update_cell.get_loss_scale(), dtype=mstype.float32),
+                                        name="loss_scale")
         self.add_flags(has_effect=True)
 
         # dp params
         self._micro_batches = micro_batches
-        self._norm_clip = norm_clip
+        self._norm_bound = norm_bound
         self._split = P.Split(0, self._micro_batches)
         self._clip_by_global_norm = _ClipGradients()
         self._noise_mech = noise_mech
@@ -433,9 +432,9 @@ class _TrainOneStepWithLossScaleCell(Cell):
         self._cast = P.Cast()
 
         self._noise_mech_param_updater = None
-        if self._noise_mech is not None and self._noise_mech._decay_policy is not None:
+        if self._noise_mech is not None and self._noise_mech._noise_update is not None:
             self._noise_mech_param_updater = _MechanismsParamsUpdater(
-                policy=self._noise_mech._decay_policy,
+                noise_update=self._noise_mech._noise_update,
                 decay_rate=self._noise_mech._noise_decay_rate,
                 cur_noise_multiplier=
                 self._noise_mech._noise_multiplier,
@@ -477,10 +476,10 @@ class _TrainOneStepWithLossScaleCell(Cell):
                                    self._reduce_sum(self._square_all(grad)))
         norm_grad = self._sqrt(square_sum)
         beta = self._add(beta,
-                         self._cast(self._less(norm_grad, self._norm_clip),
+                         self._cast(self._less(norm_grad, self._norm_bound),
                                     mstype.float32))
         record_grad = self._clip_by_global_norm(record_grad, GRADIENT_CLIP_TYPE,
-                                                self._norm_clip)
+                                                self._norm_bound)
         grads = record_grad
         total_loss = loss
         for i in range(1, self._micro_batches):
@@ -497,12 +496,12 @@ class _TrainOneStepWithLossScaleCell(Cell):
                                        self._reduce_sum(self._square_all(grad)))
             norm_grad = self._sqrt(square_sum)
             beta = self._add(beta,
-                             self._cast(self._less(norm_grad, self._norm_clip),
+                             self._cast(self._less(norm_grad, self._norm_bound),
                                         mstype.float32))
 
             record_grad = self._clip_by_global_norm(record_grad,
                                                     GRADIENT_CLIP_TYPE,
-                                                    self._norm_clip)
+                                                    self._norm_bound)
             grads = self._tuple_add(grads, record_grad)
             total_loss = P.TensorAdd()(total_loss, loss)
         loss = P.Div()(total_loss, self._micro_float)
@@ -552,8 +551,8 @@ class _TrainOneStepWithLossScaleCell(Cell):
         ret = (loss, cond, scaling_sens)
 
         if self._clip_mech is not None:
-            next_norm_clip = self._clip_mech(beta, self._norm_clip)
-            P.assign(self._norm_clip, next_norm_clip)
+            next_norm_bound = self._clip_mech(beta, self._norm_bound)
+            P.assign(self._norm_bound, next_norm_bound)
         return F.depend(ret, opt)
 
 
@@ -573,7 +572,7 @@ class _TrainOneStepCell(Cell):
             propagation. Default value is 1.0.
         micro_batches (int): The number of small batches split from an original
             batch. Default: None.
-        norm_clip (Tensor): Use to clip the bound, if set 1, will return the
+        norm_bound (Tensor): Use to clip the bound, if set 1, will return the
             original data. Default: 1.0.
         noise_mech (Mechanisms): The object can generate the different type
             of noise. Default: None.
@@ -586,7 +585,7 @@ class _TrainOneStepCell(Cell):
         Tensor, a scalar Tensor with shape :math:`()`.
     """
 
-    def __init__(self, network, optimizer, norm_clip=1.0, sens=1.0,
+    def __init__(self, network, optimizer, norm_bound=1.0, sens=1.0,
                  micro_batches=None,
                  noise_mech=None, clip_mech=None):
         super(_TrainOneStepCell, self).__init__(auto_prefix=False)
@@ -616,7 +615,7 @@ class _TrainOneStepCell(Cell):
             LOGGER.error(TAG, msg)
             raise ValueError(msg)
         self._micro_batches = micro_batches
-        self._norm_clip = norm_clip
+        self._norm_bound = norm_bound
         self._split = P.Split(0, self._micro_batches)
         self._clip_by_global_norm = _ClipGradients()
         self._noise_mech = noise_mech
@@ -637,9 +636,9 @@ class _TrainOneStepCell(Cell):
         self._micro_float = Tensor(micro_batches, mstype.float32)
 
         self._noise_mech_param_updater = None
-        if self._noise_mech is not None and self._noise_mech._decay_policy is not None:
+        if self._noise_mech is not None and self._noise_mech._noise_update is not None:
             self._noise_mech_param_updater = _MechanismsParamsUpdater(
-                policy=self._noise_mech._decay_policy,
+                noise_update=self._noise_mech._noise_update,
                 decay_rate=self._noise_mech._noise_decay_rate,
                 cur_noise_multiplier=
                 self._noise_mech._noise_multiplier,
@@ -664,11 +663,11 @@ class _TrainOneStepCell(Cell):
                                    self._reduce_sum(self._square_all(grad)))
         norm_grad = self._sqrt(square_sum)
         beta = self._add(beta,
-                         self._cast(self._less(norm_grad, self._norm_clip),
+                         self._cast(self._less(norm_grad, self._norm_bound),
                                     mstype.float32))
 
         record_grad = self._clip_by_global_norm(record_grad, GRADIENT_CLIP_TYPE,
-                                                self._norm_clip)
+                                                self._norm_bound)
         grads = record_grad
         total_loss = loss
         for i in range(1, self._micro_batches):
@@ -683,12 +682,12 @@ class _TrainOneStepCell(Cell):
                                        self._reduce_sum(self._square_all(grad)))
             norm_grad = self._sqrt(square_sum)
             beta = self._add(beta,
-                             self._cast(self._less(norm_grad, self._norm_clip),
+                             self._cast(self._less(norm_grad, self._norm_bound),
                                         mstype.float32))
 
             record_grad = self._clip_by_global_norm(record_grad,
                                                     GRADIENT_CLIP_TYPE,
-                                                    self._norm_clip)
+                                                    self._norm_bound)
             grads = self._tuple_add(grads, record_grad)
             total_loss = P.TensorAdd()(total_loss, loss)
         loss = self._div(total_loss, self._micro_float)
@@ -712,8 +711,8 @@ class _TrainOneStepCell(Cell):
             grads = self.grad_reducer(grads)
 
         if self._clip_mech is not None:
-            next_norm_clip = self._clip_mech(beta, self._norm_clip)
-            self._norm_clip = self._assign(self._norm_clip, next_norm_clip)
-            loss = F.depend(loss, next_norm_clip)
+            next_norm_bound = self._clip_mech(beta, self._norm_bound)
+            self._norm_bound = self._assign(self._norm_bound, next_norm_bound)
+            loss = F.depend(loss, next_norm_bound)
 
         return F.depend(loss, self.optimizer(grads))

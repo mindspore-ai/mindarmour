@@ -34,10 +34,10 @@ def test_optimizer():
     momentum = 0.9
     micro_batches = 2
     loss = nn.SoftmaxCrossEntropyWithLogits()
-    gaussian_mech = DPOptimizerClassFactory(micro_batches)
-    gaussian_mech.set_mechanisms('Gaussian', norm_bound=1.5, initial_noise_multiplier=5.0)
-    net_opt = gaussian_mech.create('SGD')(params=network.trainable_params(), learning_rate=lr,
-                                          momentum=momentum)
+    factory = DPOptimizerClassFactory(micro_batches)
+    factory.set_mechanisms('Gaussian', norm_bound=1.5, initial_noise_multiplier=5.0)
+    net_opt = factory.create('SGD')(params=network.trainable_params(), learning_rate=lr,
+                                    momentum=momentum)
     _ = Model(network, loss_fn=loss, optimizer=net_opt, metrics=None)
 
 
@@ -52,10 +52,10 @@ def test_optimizer_gpu():
     momentum = 0.9
     micro_batches = 2
     loss = nn.SoftmaxCrossEntropyWithLogits()
-    gaussian_mech = DPOptimizerClassFactory(micro_batches)
-    gaussian_mech.set_mechanisms('Gaussian', norm_bound=1.5, initial_noise_multiplier=5.0)
-    net_opt = gaussian_mech.create('SGD')(params=network.trainable_params(), learning_rate=lr,
-                                          momentum=momentum)
+    factory = DPOptimizerClassFactory(micro_batches)
+    factory.set_mechanisms('Gaussian', norm_bound=1.5, initial_noise_multiplier=5.0)
+    net_opt = factory.create('SGD')(params=network.trainable_params(), learning_rate=lr,
+                                    momentum=momentum)
     _ = Model(network, loss_fn=loss, optimizer=net_opt, metrics=None)
 
 
@@ -70,8 +70,8 @@ def test_optimizer_cpu():
     momentum = 0.9
     micro_batches = 2
     loss = nn.SoftmaxCrossEntropyWithLogits()
-    gaussian_mech = DPOptimizerClassFactory(micro_batches)
-    gaussian_mech.set_mechanisms('Gaussian', norm_bound=1.5, initial_noise_multiplier=5.0)
-    net_opt = gaussian_mech.create('SGD')(params=network.trainable_params(), learning_rate=lr,
-                                          momentum=momentum)
+    factory = DPOptimizerClassFactory(micro_batches)
+    factory.set_mechanisms('Gaussian', norm_bound=1.5, initial_noise_multiplier=5.0)
+    net_opt = factory.create('SGD')(params=network.trainable_params(), learning_rate=lr,
+                                    momentum=momentum)
     _ = Model(network, loss_fn=loss, optimizer=net_opt, metrics=None)
