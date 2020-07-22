@@ -35,11 +35,6 @@ mnist_cfg = edict({
     'norm_bound': 1.0,  # the clip bound of the gradients of model's training parameters
     'initial_noise_multiplier': 1.0,  # the initial multiplication coefficient of the noise added to training
     # parameters' gradients
-    'noise_mechanisms': 'Gaussian',  # the method of adding noise in gradients while training
-    'clip_mechanisms': 'Gaussian',  # the method of adaptive clipping gradients while training
-    'clip_decay_policy': 'Linear', # Decay policy of adaptive clipping, decay_policy must be in ['Linear', 'Geometric'].
-    'clip_learning_rate': 0.001, # Learning rate of update norm clip.
-    'target_unclipped_quantile': 0.9, # Target quantile of norm clip.
-    'fraction_stddev': 0.01, # The stddev of Gaussian normal which used in empirical_fraction.
+    'noise_mechanisms': 'AdaGaussian',  # the method of adding noise in gradients while training
     'optimizer': 'Momentum'  # the base optimizer used for Differential privacy training
 })

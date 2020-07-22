@@ -48,6 +48,9 @@ class ModelCoverageMetrics:
         train_dataset (numpy.ndarray): Training dataset used for determine
             the neurons' output boundaries.
 
+    Raises:
+        ValueError: If neuron_num is too big (for example, bigger than 1e+9).
+
     Examples:
         >>> train_images = np.random.random((10000, 128)).astype(np.float32)
         >>> test_images = np.random.random((5000, 128)).astype(np.float32)
@@ -63,10 +66,11 @@ class ModelCoverageMetrics:
         self._model = check_model('model', model, Model)
         self._segmented_num = check_int_positive('segmented_num', segmented_num)
         self._neuron_num = check_int_positive('neuron_num', neuron_num)
-        if self._neuron_num >= 1e+10:
+        if self._neuron_num > 1e+9:
             msg = 'neuron_num should be less than 1e+10, otherwise a MemoryError' \
                   'would occur'
             LOGGER.error(TAG, msg)
+            raise ValueError(msg)
         train_dataset = check_numpy_param('train_dataset', train_dataset)
         self._lower_bounds = [np.inf]*self._neuron_num
         self._upper_bounds = [-np.inf]*self._neuron_num
