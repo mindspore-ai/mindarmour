@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Training example of adaClip-mechanism differential privacy.
+Training example of adaGaussian-mechanism differential privacy.
 """
 import os
 
@@ -32,7 +32,6 @@ import mindspore.common.dtype as mstype
 from mindarmour.diff_privacy import DPModel
 from mindarmour.diff_privacy import PrivacyMonitorFactory
 from mindarmour.diff_privacy import NoiseMechanismsFactory
-from mindarmour.diff_privacy import ClipMechanismsFactory
 from mindarmour.utils.logger import LogUtil
 from lenet5_net import LeNet5
 from lenet5_config import mnist_cfg as cfg
@@ -116,19 +115,8 @@ if __name__ == "__main__":
     noise_mech = NoiseMechanismsFactory().create(cfg.noise_mechanisms,
                                                  norm_bound=cfg.norm_bound,
                                                  initial_noise_multiplier=cfg.initial_noise_multiplier,
-                                                 noise_update=None)
-    # Create a factory class of clip mechanisms, this method is to adaptive clip
-    # gradients while training, decay_policy support 'Linear' and 'Geometric',
-    # learning_rate is the learning rate to update clip_norm,
-    # target_unclipped_quantile is the target quantile of norm clip,
-    # fraction_stddev is the stddev of Gaussian normal which used in
-    # empirical_fraction, the formula is
-    # $empirical_fraction + N(0, fraction_stddev)$.
-    clip_mech = ClipMechanismsFactory().create(cfg.clip_mechanisms,
-                                               decay_policy=cfg.clip_decay_policy,
-                                               learning_rate=cfg.clip_learning_rate,
-                                               target_unclipped_quantile=cfg.target_unclipped_quantile,
-                                               fraction_stddev=cfg.fraction_stddev)
+                                                 noise_update='Exp')
+
     net_opt = nn.Momentum(params=network.trainable_params(),
                           learning_rate=cfg.lr, momentum=cfg.momentum)
     # Create a monitor for DP training. The function of the monitor is to
@@ -137,13 +125,11 @@ if __name__ == "__main__":
                                                num_samples=60000,
                                                batch_size=cfg.batch_size,
                                                initial_noise_multiplier=cfg.initial_noise_multiplier,
-                                               per_print_times=234,
-                                               noise_decay_mode=None)
+                                               per_print_times=234)
     # Create the DP model for training.
     model = DPModel(micro_batches=cfg.micro_batches,
                     norm_bound=cfg.norm_bound,
                     noise_mech=noise_mech,
-                    clip_mech=clip_mech,
                     network=network,
                     loss_fn=net_loss,
                     optimizer=net_opt,

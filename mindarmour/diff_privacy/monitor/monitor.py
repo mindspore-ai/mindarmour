@@ -364,6 +364,9 @@ class ZCDPMonitor(Callback):
     .. math::
         (ρ+２\sqrt{ρlog(1/δ)}, δ)
 
+    It should be noted that ZCDPMonitor is not suitable for subsampling
+    noise mechanisms(such as NoiseAdaGaussianRandom and NoiseGaussianRandom).
+    The matching noise mechanism of ZCDP will be developed in the future.
     Reference: `Concentrated Differentially Private Gradient Descent with
     Adaptive per-Iteration Privacy Budget <https://arxiv.org/abs/1808.09501>`_
 
