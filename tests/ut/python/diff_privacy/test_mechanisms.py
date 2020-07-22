@@ -35,7 +35,7 @@ def test_graph_factory():
     norm_bound = 1.0
     initial_noise_multiplier = 0.1
     alpha = 0.5
-    noise_update = 'Step'
+    decay_policy = 'Step'
     factory = NoiseMechanismsFactory()
     noise_mech = factory.create('Gaussian',
                                 norm_bound,
@@ -46,7 +46,7 @@ def test_graph_factory():
                                     norm_bound,
                                     initial_noise_multiplier,
                                     noise_decay_rate=alpha,
-                                    noise_update=noise_update)
+                                    decay_policy=decay_policy)
     ada_noise = ada_noise_mech(grad)
     print('ada noise: ', ada_noise)
 
@@ -61,7 +61,7 @@ def test_pynative_factory():
     norm_bound = 1.0
     initial_noise_multiplier = 0.1
     alpha = 0.5
-    noise_update = 'Step'
+    decay_policy = 'Step'
     factory = NoiseMechanismsFactory()
     noise_mech = factory.create('Gaussian',
                                 norm_bound,
@@ -72,7 +72,7 @@ def test_pynative_factory():
                                     norm_bound,
                                     initial_noise_multiplier,
                                     noise_decay_rate=alpha,
-                                    noise_update=noise_update)
+                                    decay_policy=decay_policy)
     ada_noise = ada_noise_mech(grad)
     print('ada noise: ', ada_noise)
 
@@ -87,7 +87,7 @@ def test_pynative_gaussian():
     norm_bound = 1.0
     initial_noise_multiplier = 0.1
     alpha = 0.5
-    noise_update = 'Step'
+    decay_policy = 'Step'
     factory = NoiseMechanismsFactory()
     noise_mech = factory.create('Gaussian',
                                 norm_bound,
@@ -98,7 +98,7 @@ def test_pynative_gaussian():
                                     norm_bound,
                                     initial_noise_multiplier,
                                     noise_decay_rate=alpha,
-                                    noise_update=noise_update)
+                                    decay_policy=decay_policy)
     ada_noise = ada_noise_mech(grad)
     print('ada noise: ', ada_noise)
 
@@ -113,12 +113,12 @@ def test_graph_ada_gaussian():
     norm_bound = 1.0
     initial_noise_multiplier = 0.1
     noise_decay_rate = 0.5
-    noise_update = 'Step'
+    decay_policy = 'Step'
     ada_noise_mech = NoiseAdaGaussianRandom(norm_bound,
                                             initial_noise_multiplier,
                                             seed=0,
                                             noise_decay_rate=noise_decay_rate,
-                                            noise_update=noise_update)
+                                            decay_policy=decay_policy)
     res = ada_noise_mech(grad)
     print(res)
 
@@ -133,12 +133,12 @@ def test_pynative_ada_gaussian():
     norm_bound = 1.0
     initial_noise_multiplier = 0.1
     noise_decay_rate = 0.5
-    noise_update = 'Step'
+    decay_policy = 'Step'
     ada_noise_mech = NoiseAdaGaussianRandom(norm_bound,
                                             initial_noise_multiplier,
                                             seed=0,
                                             noise_decay_rate=noise_decay_rate,
-                                            noise_update=noise_update)
+                                            decay_policy=decay_policy)
     res = ada_noise_mech(grad)
     print(res)
 
@@ -153,13 +153,13 @@ def test_graph_exponential():
     norm_bound = 1.0
     initial_noise_multiplier = 0.1
     alpha = 0.5
-    noise_update = 'Exp'
+    decay_policy = 'Exp'
     factory = NoiseMechanismsFactory()
     ada_noise = factory.create('AdaGaussian',
                                norm_bound,
                                initial_noise_multiplier,
                                noise_decay_rate=alpha,
-                               noise_update=noise_update)
+                               decay_policy=decay_policy)
     ada_noise = ada_noise(grad)
     print('ada noise: ', ada_noise)
 
@@ -174,13 +174,13 @@ def test_pynative_exponential():
     norm_bound = 1.0
     initial_noise_multiplier = 0.1
     alpha = 0.5
-    noise_update = 'Exp'
+    decay_policy = 'Exp'
     factory = NoiseMechanismsFactory()
     ada_noise = factory.create('AdaGaussian',
                                norm_bound,
                                initial_noise_multiplier,
                                noise_decay_rate=alpha,
-                               noise_update=noise_update)
+                               decay_policy=decay_policy)
     ada_noise = ada_noise(grad)
     print('ada noise: ', ada_noise)
 

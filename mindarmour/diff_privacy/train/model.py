@@ -432,9 +432,9 @@ class _TrainOneStepWithLossScaleCell(Cell):
         self._cast = P.Cast()
 
         self._noise_mech_param_updater = None
-        if self._noise_mech is not None and self._noise_mech._noise_update is not None:
+        if self._noise_mech is not None and self._noise_mech._decay_policy is not None:
             self._noise_mech_param_updater = _MechanismsParamsUpdater(
-                noise_update=self._noise_mech._noise_update,
+                decay_policy=self._noise_mech._decay_policy,
                 decay_rate=self._noise_mech._noise_decay_rate,
                 cur_noise_multiplier=
                 self._noise_mech._noise_multiplier,
@@ -636,9 +636,9 @@ class _TrainOneStepCell(Cell):
         self._micro_float = Tensor(micro_batches, mstype.float32)
 
         self._noise_mech_param_updater = None
-        if self._noise_mech is not None and self._noise_mech._noise_update is not None:
+        if self._noise_mech is not None and self._noise_mech._decay_policy is not None:
             self._noise_mech_param_updater = _MechanismsParamsUpdater(
-                noise_update=self._noise_mech._noise_update,
+                decay_policy=self._noise_mech._decay_policy,
                 decay_rate=self._noise_mech._noise_decay_rate,
                 cur_noise_multiplier=
                 self._noise_mech._noise_multiplier,

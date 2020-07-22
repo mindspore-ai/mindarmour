@@ -127,8 +127,8 @@ class DPOptimizerClassFactory:
                 self._micro_float = Tensor(micro_batches, mstype.float32)
 
                 self._mech_param_updater = None
-                if self._mech is not None and self._mech._noise_update is not None:
-                    self._mech_param_updater = _MechanismsParamsUpdater(noise_update=self._mech._noise_update,
+                if self._mech is not None and self._mech._decay_policy is not None:
+                    self._mech_param_updater = _MechanismsParamsUpdater(decay_policy=self._mech._decay_policy,
                                                                         decay_rate=self._mech._noise_decay_rate,
                                                                         cur_noise_multiplier=
                                                                         self._mech._noise_multiplier,

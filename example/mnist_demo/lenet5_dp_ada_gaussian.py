@@ -115,7 +115,7 @@ if __name__ == "__main__":
     noise_mech = NoiseMechanismsFactory().create(cfg.noise_mechanisms,
                                                  norm_bound=cfg.norm_bound,
                                                  initial_noise_multiplier=cfg.initial_noise_multiplier,
-                                                 noise_update='Exp')
+                                                 decay_policy='Exp')
 
     net_opt = nn.Momentum(params=network.trainable_params(),
                           learning_rate=cfg.lr, momentum=cfg.momentum)

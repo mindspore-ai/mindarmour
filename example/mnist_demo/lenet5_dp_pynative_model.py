@@ -111,7 +111,7 @@ if __name__ == "__main__":
     dp_opt.set_mechanisms(cfg.noise_mechanisms,
                           norm_bound=cfg.norm_bound,
                           initial_noise_multiplier=cfg.initial_noise_multiplier,
-                          noise_update='Exp')
+                          decay_policy='Exp')
     # Create a factory class of clip mechanisms, this method is to adaptive clip
     # gradients while training, decay_policy support 'Linear' and 'Geometric',
     # learning_rate is the learning rate to update clip_norm,
