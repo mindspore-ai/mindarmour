@@ -136,7 +136,7 @@ def test_dp_model_with_graph_mode_ada_gaussian():
                                                  norm_bound=norm_bound,
                                                  initial_noise_multiplier=initial_noise_multiplier,
                                                  noise_decay_rate=alpha,
-                                                 noise_update='Exp')
+                                                 decay_policy='Exp')
     clip_mech = None
     net_opt = nn.Momentum(network.trainable_params(), learning_rate=0.1,
                           momentum=0.9)

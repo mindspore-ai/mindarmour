@@ -83,7 +83,7 @@ class NoiseMechanismsFactory:
 
     @staticmethod
     def create(mech_name='Gaussian', norm_bound=0.5, initial_noise_multiplier=1.5, seed=0, noise_decay_rate=6e-6,
-               noise_update=None):
+               decay_policy=None):
         """
         Args:
             mech_name(str): Noise generated strategy, could be 'Gaussian' or
@@ -97,7 +97,7 @@ class NoiseMechanismsFactory:
                 random number. IF seed!=0 random normal will generate values using
                 given seed.
             noise_decay_rate(float): Hyper parameter for controlling the noise decay.
-            noise_update(str): Mechanisms parameters update policy. Default: None, no
+            decay_policy(str): Mechanisms parameters update policy. Default: None, no
                 parameters need update.
 
         Raises:
@@ -141,13 +141,13 @@ class NoiseMechanismsFactory:
             return NoiseGaussianRandom(norm_bound=norm_bound,
                                        initial_noise_multiplier=initial_noise_multiplier,
                                        seed=seed,
-                                       noise_update=noise_update)
+                                       decay_policy=decay_policy)
         if mech_name == 'AdaGaussian':
             return NoiseAdaGaussianRandom(norm_bound=norm_bound,
                                           initial_noise_multiplier=initial_noise_multiplier,
                                           seed=seed,
                                           noise_decay_rate=noise_decay_rate,
-                                          noise_update=noise_update)
+                                          decay_policy=decay_policy)
         raise NameError("The {} is not implement, please choose "
                         "['Gaussian', 'AdaGaussian']".format(mech_name))
 
@@ -176,7 +176,7 @@ class NoiseGaussianRandom(_Mechanisms):
         seed(int): Original random seed, if seed=0 random normal will use secure
             random number. IF seed!=0 random normal will generate values using
             given seed.
-        noise_update(str): Mechanisms parameters update policy. Default: None.
+        decay_policy(str): Mechanisms parameters update policy. Default: None.
 
     Returns:
         Tensor, generated noise with shape like given gradients.
@@ -186,13 +186,13 @@ class NoiseGaussianRandom(_Mechanisms):
         >>> norm_bound = 0.5
         >>> initial_noise_multiplier = 1.5
         >>> seed = 0
-        >>> noise_update = None
-        >>> net = NoiseGaussianRandom(norm_bound, initial_noise_multiplier, seed, noise_update)
+        >>> decay_policy = None
+        >>> net = NoiseGaussianRandom(norm_bound, initial_noise_multiplier, seed, decay_policy)
         >>> res = net(gradients)
         >>> print(res)
     """
 
-    def __init__(self, norm_bound, initial_noise_multiplier, seed, noise_update=None):
+    def __init__(self, norm_bound, initial_noise_multiplier, seed, decay_policy=None):
         super(NoiseGaussianRandom, self).__init__()
         self._norm_bound = check_value_positive('norm_bound', norm_bound)
         self._norm_bound = Tensor(norm_bound, mstype.float32)
@@ -200,9 +200,9 @@ class NoiseGaussianRandom(_Mechanisms):
                                                               initial_noise_multiplier)
         self._initial_noise_multiplier = Tensor(initial_noise_multiplier, mstype.float32)
         self._mean = Tensor(0, mstype.float32)
-        if noise_update is not None:
-            raise ValueError('noise_update must be None in GaussianRandom class, but got {}.'.format(noise_update))
-        self._noise_update = noise_update
+        if decay_policy is not None:
+            raise ValueError('decay_policy must be None in GaussianRandom class, but got {}.'.format(decay_policy))
+        self._decay_policy = decay_policy
         self._seed = seed
 
     def construct(self, gradients):
@@ -237,7 +237,7 @@ class NoiseAdaGaussianRandom(NoiseGaussianRandom):
             random number. IF seed!=0 random normal will generate values using
             given seed.
         noise_decay_rate(float): Hyper parameter for controlling the noise decay.
-        noise_update(str): Noise decay strategy include 'Step', 'Time', 'Exp'.
+        decay_policy(str): Noise decay strategy include 'Step', 'Time', 'Exp'.
 
     Returns:
         Tensor, generated noise with shape like given gradients.
@@ -248,13 +248,13 @@ class NoiseAdaGaussianRandom(NoiseGaussianRandom):
         >>> initial_noise_multiplier = 1.5
         >>> seed = 0
         >>> noise_decay_rate = 6e-4
-        >>> noise_update = "Time"
-        >>> net = NoiseAdaGaussianRandom(norm_bound, initial_noise_multiplier, seed, noise_decay_rate, noise_update)
+        >>> decay_policy = "Time"
+        >>> net = NoiseAdaGaussianRandom(norm_bound, initial_noise_multiplier, seed, noise_decay_rate, decay_policy)
         >>> res = net(gradients)
         >>> print(res)
     """
 
-    def __init__(self, norm_bound, initial_noise_multiplier, seed, noise_decay_rate, noise_update):
+    def __init__(self, norm_bound, initial_noise_multiplier, seed, noise_decay_rate, decay_policy):
         super(NoiseAdaGaussianRandom, self).__init__(norm_bound=norm_bound,
                                                      initial_noise_multiplier=initial_noise_multiplier,
                                                      seed=seed)
@@ -263,10 +263,10 @@ class NoiseAdaGaussianRandom(NoiseGaussianRandom):
         noise_decay_rate = check_param_type('noise_decay_rate', noise_decay_rate, float)
         check_param_in_range('noise_decay_rate', noise_decay_rate, 0.0, 1.0)
         self._noise_decay_rate = Tensor(noise_decay_rate, mstype.float32)
-        if noise_update not in ['Time', 'Step', 'Exp']:
-            raise NameError("The noise_update must be in ['Time', 'Step', 'Exp'], but "
-                            "get {}".format(noise_update))
-        self._noise_update = noise_update
+        if decay_policy not in ['Time', 'Step', 'Exp']:
+            raise NameError("The decay_policy must be in ['Time', 'Step', 'Exp'], but "
+                            "get {}".format(decay_policy))
+        self._decay_policy = decay_policy
 
 
 class _MechanismsParamsUpdater(Cell):
@@ -274,7 +274,7 @@ class _MechanismsParamsUpdater(Cell):
     Update mechanisms parameters, the parameters will refresh in train period.
 
     Args:
-        noise_update(str): Pass in by the mechanisms class, mechanisms parameters
+        decay_policy(str): Pass in by the mechanisms class, mechanisms parameters
             update policy.
         decay_rate(Tensor): Pass in by the mechanisms class, hyper parameter for
             controlling the decay size.
@@ -286,9 +286,9 @@ class _MechanismsParamsUpdater(Cell):
     Returns:
         Tuple, next params value.
     """
-    def __init__(self, noise_update, decay_rate, cur_noise_multiplier, init_noise_multiplier):
+    def __init__(self, decay_policy, decay_rate, cur_noise_multiplier, init_noise_multiplier):
         super(_MechanismsParamsUpdater, self).__init__()
-        self._noise_update = noise_update
+        self._decay_policy = decay_policy
         self._decay_rate = decay_rate
         self._cur_noise_multiplier = cur_noise_multiplier
         self._init_noise_multiplier = init_noise_multiplier
@@ -308,12 +308,12 @@ class _MechanismsParamsUpdater(Cell):
         Returns:
             Tuple, next step parameters value.
         """
-        if self._noise_update == 'Time':
+        if self._decay_policy == 'Time':
             temp = self._div(self._init_noise_multiplier, self._cur_noise_multiplier)
             temp = self._add(temp, self._decay_rate)
             next_noise_multiplier = self._assign(self._cur_noise_multiplier,
                                                  self._div(self._init_noise_multiplier, temp))
-        elif self._noise_update == 'Step':
+        elif self._decay_policy == 'Step':
             temp = self._sub(self._one, self._decay_rate)
             next_noise_multiplier = self._assign(self._cur_noise_multiplier,
                                                  self._mul(temp, self._cur_noise_multiplier))
