@@ -225,6 +225,8 @@ class NoiseAdaGaussianRandom(NoiseGaussianRandom):
     """
     Adaptive Gaussian noise generated mechanism. Noise would be decayed with
     training. Decay mode could be 'Time' mode, 'Step' mode, 'Exp' mode.
+    `self._noise_multiplier` will be update during the model.train, using
+    _MechanismsParamsUpdater.
 
     Args:
         norm_bound(float): Clipping bound for the l2 norm of the gradients.
