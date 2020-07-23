@@ -39,13 +39,21 @@ class ClipMechanismsFactory:
         pass
 
     @staticmethod
-    def create(mech_name, *args, **kwargs):
+    def create(mech_name, decay_policy='Linear', learning_rate=0.001,
+               target_unclipped_quantile=0.9, fraction_stddev=0.01, seed=0):
         """
         Args:
             mech_name(str): Clip noise generated strategy, support 'Gaussian' now.
-            args(Union[float, str]): Parameters used for creating clip mechanisms.
-            kwargs(Union[float, str]): Parameters used for creating clip
-                mechanisms.
+            decay_policy(str): Decay policy of adaptive clipping, decay_policy must
+                be in ['Linear', 'Geometric']. Default: Linear.
+            learning_rate(float): Learning rate of update norm clip. Default: 0.001.
+            target_unclipped_quantile(float): Target quantile of norm clip. Default: 0.9.
+            fraction_stddev(float): The stddev of Gaussian normal which used in
+                empirical_fraction, the formula is $empirical_fraction + N(0, fraction_stddev)$.
+                Default: 0.01.
+            seed(int): Original random seed, if seed=0 random normal will use secure
+                random number. IF seed!=0 random normal will generate values using
+                given seed. Default: 0.
 
         Raises:
             NameError: `mech_name` must be in ['Gaussian'].
@@ -70,7 +78,8 @@ class ClipMechanismsFactory:
 
         """
         if mech_name == 'Gaussian':
-            return AdaClippingWithGaussianRandom(*args, **kwargs)
+            return AdaClippingWithGaussianRandom(decay_policy, learning_rate,
+                                                 target_unclipped_quantile, fraction_stddev, seed)
         raise NameError("The {} is not implement, please choose "
                         "['Gaussian']".format(mech_name))
 
@@ -82,23 +91,23 @@ class NoiseMechanismsFactory:
         pass
 
     @staticmethod
-    def create(mech_name='Gaussian', norm_bound=0.5, initial_noise_multiplier=1.5, seed=0, noise_decay_rate=6e-6,
+    def create(mech_name, norm_bound=1.0, initial_noise_multiplier=1.0, seed=0, noise_decay_rate=6e-6,
                decay_policy=None):
         """
         Args:
             mech_name(str): Noise generated strategy, could be 'Gaussian' or
                 'AdaGaussian'. Noise would be decayed with 'AdaGaussian' mechanism
                 while be constant with 'Gaussian' mechanism.
-            norm_bound(float): Clipping bound for the l2 norm of the gradients.
+            norm_bound(float): Clipping bound for the l2 norm of the gradients. Default: 1.0.
             initial_noise_multiplier(float): Ratio of the standard deviation of
                 Gaussian noise divided by the norm_bound, which will be used to
-                calculate privacy spent.
+                calculate privacy spent. Default: 1.0.
             seed(int): Original random seed, if seed=0 random normal will use secure
                 random number. IF seed!=0 random normal will generate values using
-                given seed.
-            noise_decay_rate(float): Hyper parameter for controlling the noise decay.
+                given seed. Default: 0.
+            noise_decay_rate(float): Hyper parameter for controlling the noise decay. Default: 6e-6.
             decay_policy(str): Mechanisms parameters update policy. Default: None, no
-                parameters need update.
+                parameters need update. Default: None.
 
         Raises:
             NameError: `mech_name` must be in ['Gaussian', 'AdaGaussian'].
@@ -170,12 +179,13 @@ class NoiseGaussianRandom(_Mechanisms):
 
     Args:
         norm_bound(float): Clipping bound for the l2 norm of the gradients.
+            Default: 1.0.
         initial_noise_multiplier(float): Ratio of the standard deviation of
             Gaussian noise divided by the norm_bound, which will be used to
-            calculate privacy spent.
+            calculate privacy spent. Default: 1.0.
         seed(int): Original random seed, if seed=0 random normal will use secure
             random number. IF seed!=0 random normal will generate values using
-            given seed.
+            given seed. Default: 0.
         decay_policy(str): Mechanisms parameters update policy. Default: None.
 
     Returns:
@@ -192,7 +202,7 @@ class NoiseGaussianRandom(_Mechanisms):
         >>> print(res)
     """
 
-    def __init__(self, norm_bound, initial_noise_multiplier, seed, decay_policy=None):
+    def __init__(self, norm_bound=1.0, initial_noise_multiplier=1.0, seed=0, decay_policy=None):
         super(NoiseGaussianRandom, self).__init__()
         self._norm_bound = check_value_positive('norm_bound', norm_bound)
         self._norm_bound = Tensor(norm_bound, mstype.float32)
@@ -230,14 +240,17 @@ class NoiseAdaGaussianRandom(NoiseGaussianRandom):
 
     Args:
         norm_bound(float): Clipping bound for the l2 norm of the gradients.
+             Default: 1.0.
         initial_noise_multiplier(float): Ratio of the standard deviation of
             Gaussian noise divided by the norm_bound, which will be used to
-            calculate privacy spent.
+            calculate privacy spent. Default: 1.0.
         seed(int): Original random seed, if seed=0 random normal will use secure
             random number. IF seed!=0 random normal will generate values using
-            given seed.
+            given seed. Default: 0.
         noise_decay_rate(float): Hyper parameter for controlling the noise decay.
+            Default: 6e-6.
         decay_policy(str): Noise decay strategy include 'Step', 'Time', 'Exp'.
+            Default: 'Exp'.
 
     Returns:
         Tensor, generated noise with shape like given gradients.
@@ -248,13 +261,13 @@ class NoiseAdaGaussianRandom(NoiseGaussianRandom):
         >>> initial_noise_multiplier = 1.5
         >>> seed = 0
         >>> noise_decay_rate = 6e-4
-        >>> decay_policy = "Time"
+        >>> decay_policy = "Exp"
         >>> net = NoiseAdaGaussianRandom(norm_bound, initial_noise_multiplier, seed, noise_decay_rate, decay_policy)
         >>> res = net(gradients)
         >>> print(res)
     """
 
-    def __init__(self, norm_bound, initial_noise_multiplier, seed, noise_decay_rate, decay_policy):
+    def __init__(self, norm_bound=1.0, initial_noise_multiplier=1.0, seed=0, noise_decay_rate=6e-6, decay_policy='Exp'):
         super(NoiseAdaGaussianRandom, self).__init__(norm_bound=norm_bound,
                                                      initial_noise_multiplier=initial_noise_multiplier,
                                                      seed=seed)
@@ -293,7 +306,7 @@ class _MechanismsParamsUpdater(Cell):
         self._cur_noise_multiplier = cur_noise_multiplier
         self._init_noise_multiplier = init_noise_multiplier
 
-        self._div = P.Sub()
+        self._div = P.Div()
         self._add = P.TensorAdd()
         self._assign = P.Assign()
         self._sub = P.Sub()
@@ -335,10 +348,11 @@ class AdaClippingWithGaussianRandom(Cell):
     Args:
         decay_policy(str): Decay policy of adaptive clipping, decay_policy must
             be in ['Linear', 'Geometric']. Default: Linear.
-        learning_rate(float): Learning rate of update norm clip. Default: 0.01.
+        learning_rate(float): Learning rate of update norm clip. Default: 0.001.
         target_unclipped_quantile(float): Target quantile of norm clip. Default: 0.9.
         fraction_stddev(float): The stddev of Gaussian normal which used in
             empirical_fraction, the formula is $empirical_fraction + N(0, fraction_stddev)$.
+            Default: 0.01.
         seed(int): Original random seed, if seed=0 random normal will use secure
             random number. IF seed!=0 random normal will generate values using
             given seed. Default: 0.
