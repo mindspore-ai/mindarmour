@@ -95,7 +95,7 @@ class Fuzzing:
                     mutate_tests.append(mutate_test)
             if not mutate_tests:
                 mutate_tests.append(seed)
-            return np.array(mutate_tests)
+        return np.array(mutate_tests)
 
     def fuzzing(self, coverage_metric='KMNC'):
         """

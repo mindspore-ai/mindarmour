@@ -34,7 +34,7 @@ from mindarmour.diff_privacy import PrivacyMonitorFactory
 from mindarmour.diff_privacy import NoiseMechanismsFactory
 from mindarmour.utils.logger import LogUtil
 from lenet5_net import LeNet5
-from lenet5_config import mnist_cfg as cfg
+from dp_ada_gaussian_config import mnist_cfg as cfg
 
 LOGGER = LogUtil.get_instance()
 LOGGER.set_level('INFO')
