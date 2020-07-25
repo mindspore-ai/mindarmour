@@ -50,8 +50,7 @@ from mindspore import ParameterTuple
 from mindarmour.utils.logger import LogUtil
 from mindarmour.diff_privacy.mechanisms.mechanisms import \
     _MechanismsParamsUpdater
-from mindarmour.utils._check_param import check_param_type
-from mindarmour.utils._check_param import check_value_positive
+from mindarmour.utils._check_param import check_value_positive, check_param_type
 from mindarmour.utils._check_param import check_int_positive
 
 LOGGER = LogUtil.get_instance()
