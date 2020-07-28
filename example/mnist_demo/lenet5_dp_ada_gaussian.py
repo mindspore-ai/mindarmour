@@ -141,7 +141,7 @@ if __name__ == "__main__":
                 dataset_sink_mode=cfg.dataset_sink_mode)
 
     LOGGER.info(TAG, "============== Starting Testing ==============")
-    ckpt_file_name = 'trained_ckpt_file/checkpoint_lenet-10_234.ckpt'
+    ckpt_file_name = 'trained_ckpt_file/checkpoint_lenet-5_234.ckpt'
     param_dict = load_checkpoint(ckpt_file_name)
     load_param_into_net(network, param_dict)
     ds_eval = generate_mnist_dataset(os.path.join(cfg.data_path, 'test'),

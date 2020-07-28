@@ -656,14 +656,16 @@ class _TrainOneStepCell(Cell):
         record_grad = self.grad(self.network, weights)(record_datas[0],
                                                        record_labels[0], sens)
         beta = self._zero
-        square_sum = self._zero
-        for grad in record_grad:
-            square_sum = self._add(square_sum,
-                                   self._reduce_sum(self._square_all(grad)))
-        norm_grad = self._sqrt(square_sum)
-        beta = self._add(beta,
-                         self._cast(self._less(norm_grad, self._norm_bound),
-                                    mstype.float32))
+        # calcu beta
+        if self._clip_mech is not None:
+            square_sum = self._zero
+            for grad in record_grad:
+                square_sum = self._add(square_sum,
+                                       self._reduce_sum(self._square_all(grad)))
+            norm_grad = self._sqrt(square_sum)
+            beta = self._add(beta,
+                             self._cast(self._less(norm_grad, self._norm_bound),
+                                        mstype.float32))
 
         record_grad = self._clip_by_global_norm(record_grad, GRADIENT_CLIP_TYPE,
                                                 self._norm_bound)
@@ -675,14 +677,16 @@ class _TrainOneStepCell(Cell):
             record_grad = self.grad(self.network, weights)(record_datas[i],
                                                            record_labels[i],
                                                            sens)
-            square_sum = self._zero
-            for grad in record_grad:
-                square_sum = self._add(square_sum,
-                                       self._reduce_sum(self._square_all(grad)))
-            norm_grad = self._sqrt(square_sum)
-            beta = self._add(beta,
-                             self._cast(self._less(norm_grad, self._norm_bound),
-                                        mstype.float32))
+            # calcu beta
+            if self._clip_mech is not None:
+                square_sum = self._zero
+                for grad in record_grad:
+                    square_sum = self._add(square_sum,
+                                           self._reduce_sum(self._square_all(grad)))
+                norm_grad = self._sqrt(square_sum)
+                beta = self._add(beta,
+                                 self._cast(self._less(norm_grad, self._norm_bound),
+                                            mstype.float32))
 
             record_grad = self._clip_by_global_norm(record_grad,
                                                     GRADIENT_CLIP_TYPE,
@@ -690,7 +694,6 @@ class _TrainOneStepCell(Cell):
             grads = self._tuple_add(grads, record_grad)
             total_loss = P.TensorAdd()(total_loss, loss)
         loss = self._div(total_loss, self._micro_float)
-        beta = self._div(beta, self._micro_batches)
 
         if self._noise_mech is not None:
             grad_noise_tuple = ()
@@ -710,8 +713,9 @@ class _TrainOneStepCell(Cell):
             grads = self.grad_reducer(grads)
 
         if self._clip_mech is not None:
+            beta = self._div(beta, self._micro_batches)
             next_norm_bound = self._clip_mech(beta, self._norm_bound)
             self._norm_bound = self._assign(self._norm_bound, next_norm_bound)
-            loss = F.depend(loss, next_norm_bound)
+            loss = F.depend(loss, self._norm_bound)
 
         return F.depend(loss, self.optimizer(grads))
