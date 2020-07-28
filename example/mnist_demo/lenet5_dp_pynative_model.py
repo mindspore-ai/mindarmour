@@ -111,7 +111,7 @@ if __name__ == "__main__":
     dp_opt.set_mechanisms(cfg.noise_mechanisms,
                           norm_bound=cfg.norm_bound,
                           initial_noise_multiplier=cfg.initial_noise_multiplier,
-                          decay_policy='Exp')
+                          decay_policy=None)
     # Create a factory class of clip mechanisms, this method is to adaptive clip
     # gradients while training, decay_policy support 'Linear' and 'Geometric',
     # learning_rate is the learning rate to update clip_norm,
@@ -147,7 +147,7 @@ if __name__ == "__main__":
                 dataset_sink_mode=cfg.dataset_sink_mode)
 
     LOGGER.info(TAG, "============== Starting Testing ==============")
-    ckpt_file_name = 'trained_ckpt_file/checkpoint_lenet-10_234.ckpt'
+    ckpt_file_name = 'trained_ckpt_file/checkpoint_lenet-5_234.ckpt'
     param_dict = load_checkpoint(ckpt_file_name)
     load_param_into_net(network, param_dict)
     ds_eval = generate_mnist_dataset(os.path.join(cfg.data_path, 'test'), batch_size=cfg.batch_size)
