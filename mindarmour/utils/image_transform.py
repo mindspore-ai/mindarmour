@@ -52,13 +52,13 @@ class Contrast(ImageTransform):
 
     def random_param(self):
         """ Random generate parameters. """
-        self.factor = random.uniform(-10, 10)
+        self.factor = random.uniform(-5, 5)
 
     def transform(self):
-        img = Image.fromarray(self.image, self.mode)
+        img = Image.fromarray(np.uint8(self.image*255), self.mode)
         img_contrast = ImageEnhance.Contrast(img)
         trans_image = img_contrast.enhance(self.factor)
-        trans_image = np.array(trans_image)
+        trans_image = np.array(trans_image)/255
         return trans_image
 
 
@@ -79,13 +79,13 @@ class Brightness(ImageTransform):
 
     def random_param(self):
         """ Random generate parameters. """
-        self.factor = random.uniform(-10, 10)
+        self.factor = random.uniform(0, 5)
 
     def transform(self):
-        img = Image.fromarray(self.image, self.mode)
+        img = Image.fromarray(np.uint8(self.image*255), self.mode)
         img_contrast = ImageEnhance.Brightness(img)
         trans_image = img_contrast.enhance(self.factor)
-        trans_image = np.array(trans_image)
+        trans_image = np.array(trans_image)/255
         return trans_image
 
 
@@ -106,13 +106,13 @@ class Blur(ImageTransform):
 
     def random_param(self):
         """ Random generate parameters. """
-        self.radius = random.uniform(-10, 10)
+        self.radius = random.uniform(-1.5, 1.5)
 
     def transform(self):
         """ Transform the image. """
-        img = Image.fromarray(self.image, self.mode)
+        img = Image.fromarray(np.uint8(self.image*255), self.mode)
         trans_image = img.filter(ImageFilter.GaussianBlur(radius=self.radius))
-        trans_image = np.array(trans_image)
+        trans_image = np.array(trans_image)/255
         return trans_image
 
 
@@ -133,14 +133,14 @@ class Noise(ImageTransform):
 
     def random_param(self):
         """ random generate parameters """
-        self.factor = random.uniform(-1, 1)
+        self.factor = random.uniform(0.7, 1)
 
     def transform(self):
         """ Random generate parameters. """
         noise = np.random.uniform(low=-1, high=1, size=self.image.shape)
         trans_image = np.copy(self.image)
         trans_image[noise < -self.factor] = 0
-        trans_image[noise > self.factor] = 255
+        trans_image[noise > self.factor] = 1
         trans_image = np.array(trans_image)
         return trans_image
 
@@ -163,15 +163,15 @@ class Translate(ImageTransform):
     def random_param(self):
         """ Random generate parameters. """
         image_shape = np.shape(self.image)
-        self.x_bias = random.uniform(0, image_shape[0])
-        self.y_bias = random.uniform(0, image_shape[1])
+        self.x_bias = random.uniform(-image_shape[0]/3, image_shape[0]/3)
+        self.y_bias = random.uniform(-image_shape[1]/3, image_shape[1]/3)
 
     def transform(self):
         """ Transform the image. """
-        img = Image.fromarray(self.image, self.mode)
+        img = Image.fromarray(np.uint8(self.image*255), self.mode)
         trans_image = img.transform(img.size, Image.AFFINE,
                                     (1, 0, self.x_bias, 0, 1, self.y_bias))
-        trans_image = np.array(trans_image)
+        trans_image = np.array(trans_image)/255
         return trans_image
 
 
@@ -192,15 +192,15 @@ class Scale(ImageTransform):
 
     def random_param(self):
         """ Random generate parameters. """
-        self.factor_x = random.uniform(0, 1)
-        self.factor_y = random.uniform(0, 1)
+        self.factor_x = random.uniform(0.7, 2)
+        self.factor_y = random.uniform(0.7, 2)
 
     def transform(self):
         """ Transform the image. """
-        img = Image.fromarray(self.image, self.mode)
+        img = Image.fromarray(np.uint8(self.image*255), self.mode)
         trans_image = img.transform(img.size, Image.AFFINE,
                                     (self.factor_x, 0, 0, 0, self.factor_y, 0))
-        trans_image = np.array(trans_image)
+        trans_image = np.array(trans_image)/255
         return trans_image
 
 
@@ -225,7 +225,7 @@ class Shear(ImageTransform):
 
     def transform(self):
         """ Transform the image. """
-        img = Image.fromarray(self.image, self.mode)
+        img = Image.fromarray(np.uint8(self.image*255), self.mode)
         if np.random.random() > 0.5:
             level = -self.factor
         else:
@@ -236,7 +236,7 @@ class Shear(ImageTransform):
         else:
             trans_image = img.transform(img.size, Image.AFFINE,
                                         (1, 0, 0, level, 1, 0))
-        trans_image = np.array(trans_image, dtype=np.float)
+        trans_image = np.array(trans_image, dtype=np.float)/255
         return trans_image
 
 
@@ -261,7 +261,7 @@ class Rotate(ImageTransform):
 
     def transform(self):
         """ Transform the image. """
-        img = Image.fromarray(self.image, self.mode)
+        img = Image.fromarray(np.uint8(self.image*255), self.mode)
         trans_image = img.rotate(self.angle)
-        trans_image = np.array(trans_image)
+        trans_image = np.array(trans_image)/255
         return trans_image
