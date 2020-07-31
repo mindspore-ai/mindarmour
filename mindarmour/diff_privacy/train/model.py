@@ -78,8 +78,12 @@ class DPModel(Model):
             original data. Default: 1.0.
         noise_mech (Mechanisms): The object can generate the different type of
             noise. Default: None.
-        clip_mech (Mechanisms): The object is used to update the adaptive clip .
+        clip_mech (Mechanisms): The object is used to update the adaptive clip.
             Default: None.
+
+    Raises:
+        ValueError: If DPOptimizer and noise_mecn are both None or not None.
+        ValueError: If noise_mech or DPOtimizer's mech method is adaptive while clip_mech is not None.
 
     Examples:
         >>> norm_bound = 1.0
@@ -127,14 +131,23 @@ class DPModel(Model):
         norm_bound = Tensor(norm_bound, mstype.float32)
         self._norm_bound = Parameter(norm_bound, 'norm_bound')
 
-        if noise_mech is not None and "DPOptimizer" in kwargs['optimizer'].__class__.__name__:
+        opt = kwargs['optimizer']
+        opt_name = opt.__class__.__name__
+        # Check whether noise_mech and DPOptimizer are both None or not None, if so, raise ValueError.
+        # And check whether noise_mech or DPOtimizer's mech method is adaptive while clip_mech is not None,
+        # if so, rasie ValuerError too.
+        if noise_mech is not None and "DPOptimizer" in opt_name:
             msg = 'DPOptimizer is not supported while noise_mech is not None'
             LOGGER.error(TAG, msg)
             raise ValueError(msg)
         if noise_mech is None:
-            if "DPOptimizer" in kwargs['optimizer'].__class__.__name__:
+            if "DPOptimizer" in opt_name:
                 if context.get_context('mode') != context.PYNATIVE_MODE:
                     msg = 'DPOptimizer just support pynative mode currently.'
+                    LOGGER.error(TAG, msg)
+                    raise ValueError(msg)
+                if 'Ada' in opt._mech.__class__.__name__ and clip_mech is not None:
+                    msg = "When DPOptimizer's mech method is adaptive, clip_mech must be None."
                     LOGGER.error(TAG, msg)
                     raise ValueError(msg)
             else:
