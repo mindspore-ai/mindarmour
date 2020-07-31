@@ -1,3 +1,32 @@
+# Release 0.6.0-beta
+
+## Major Features and Improvements
+
+### Differential privacy model training
+
+* Optimizers with differential privacy
+
+  * Differential privacy model training now supports some new policies.
+
+  * Adaptive Norm policy is supported.
+
+  * Adaptive Noise policy with exponential decrease is supported.  
+
+* Differential Privacy Training Monitor
+
+  * A new monitor is supported using zCDP as its asymptotic budget estimator.
+
+## Bugfixes
+
+## Contributors
+
+Thanks goes to these wonderful people:
+
+Liu Liu, Huanhuan Zheng, XiuLang jin, Zhidan liu.
+
+Contributions of any kind are welcome.
+
+
 # Release 0.5.0-beta
 
 ## Major Features and Improvements
