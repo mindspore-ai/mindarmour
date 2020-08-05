@@ -50,7 +50,7 @@ class ClipMechanismsFactory:
             learning_rate(float): Learning rate of update norm clip. Default: 0.001.
             target_unclipped_quantile(float): Target quantile of norm clip. Default: 0.9.
             fraction_stddev(float): The stddev of Gaussian normal which used in
-                empirical_fraction, the formula is $empirical_fraction + N(0, fraction_stddev)$.
+                empirical_fraction, the formula is :math:`empirical fraction + N(0, fraction sstddev)`.
                 Default: 0.01.
             seed(int): Original random seed, if seed=0 random normal will use secure
                 random number. IF seed!=0 random normal will generate values using
@@ -342,10 +342,10 @@ class _MechanismsParamsUpdater(Cell):
 
 class AdaClippingWithGaussianRandom(Cell):
     """
-    Adaptive clipping. If `decay_policy` is 'Linear', the update formula is
-    norm_bound = norm_bound - learning_rate*(beta - target_unclipped_quantile).
-    If `decay_policy` is 'Geometric', the update formula is norm_bound =
-    norm_bound*exp(-learning_rate*(empirical_fraction - target_unclipped_quantile)).
+    Adaptive clipping. If `decay_policy` is 'Linear', the update formula :math:`norm bound = norm bound -
+    learning rate*(beta - target unclipped quantile)`.
+    If `decay_policy` is 'Geometric', the update formula is :math:`norm bound =
+    norm bound*exp(-learning rate*(empirical fraction - target unclipped quantile))`.
     where beta is the empirical fraction of samples with the value at most
     `target_unclipped_quantile`.
 
