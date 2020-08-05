@@ -8,13 +8,20 @@
 - [Release Notes](#release-notes)
 - [License](#license)
 
+[查看中文](./README_CN.md)
+
 ## What is MindArmour
 
-A tool box for MindSpore users to enhance model security and trustworthiness.
+A tool box for MindSpore users to enhance model security and trustworthiness and protect privacy data.
 
-MindArmour is designed for adversarial examples, including four submodule: adversarial examples generation, adversarial example detection, model defense and evaluation. The architecture is shown as follow：
+MindArmour model security module is designed for adversarial examples, including four submodule: adversarial examples generation, adversarial examples detection, model defense and evaluation. The architecture is shown as follow：
 
 ![mindarmour_architecture](docs/mindarmour_architecture.png)
+
+MindArmour differential privacy module Differential-Privacy implements the differential privacy optimizer. Currently, SGD, Momentum and Adam are supported. They are differential privacy optimizers based on the Gaussian mechanism. 
+This mechanism supports both non-adaptive and adaptive policy. Rényi differential privacy (RDP) and Zero-Concentrated differential privacy（ZDP） are provided to monitor differential privacy budgets. The architecture is shown as follow：
+
+![dp_architecture](docs/differential_privacy_architecture_en.png)
 
 ## Setting up MindArmour
 
