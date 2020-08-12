@@ -77,7 +77,7 @@ def test_lenet_mnist_coverage_cpu():
     # get test data
     test_data = (np.random.random((2000, 10))*20).astype(np.float32)
     test_labels = np.random.randint(0, 10, 2000).astype(np.int32)
-    model_fuzz_test.test_adequacy_coverage_calculate(test_data)
+    model_fuzz_test.calculate_coverage(test_data)
     LOGGER.info(TAG, 'KMNC of this test is : %s', model_fuzz_test.get_kmnc())
     LOGGER.info(TAG, 'NBC of this test is : %s', model_fuzz_test.get_nbc())
     LOGGER.info(TAG, 'SNAC of this test is : %s', model_fuzz_test.get_snac())
@@ -86,8 +86,7 @@ def test_lenet_mnist_coverage_cpu():
     loss = SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
     attack = FastGradientSignMethod(net, eps=0.3, loss_fn=loss)
     adv_data = attack.batch_generate(test_data, test_labels, batch_size=32)
-    model_fuzz_test.test_adequacy_coverage_calculate(adv_data,
-                                                     bias_coefficient=0.5)
+    model_fuzz_test.calculate_coverage(adv_data, bias_coefficient=0.5)
     LOGGER.info(TAG, 'KMNC of this test is : %s', model_fuzz_test.get_kmnc())
     LOGGER.info(TAG, 'NBC of this test is : %s', model_fuzz_test.get_nbc())
     LOGGER.info(TAG, 'SNAC of this test is : %s', model_fuzz_test.get_snac())
@@ -113,7 +112,7 @@ def test_lenet_mnist_coverage_ascend():
     test_data = (np.random.random((2000, 10))*20).astype(np.float32)
     test_labels = np.random.randint(0, 10, 2000)
     test_labels = (np.eye(10)[test_labels]).astype(np.float32)
-    model_fuzz_test.test_adequacy_coverage_calculate(test_data)
+    model_fuzz_test.calculate_coverage(test_data)
     LOGGER.info(TAG, 'KMNC of this test is : %s', model_fuzz_test.get_kmnc())
     LOGGER.info(TAG, 'NBC of this test is : %s', model_fuzz_test.get_nbc())
     LOGGER.info(TAG, 'SNAC of this test is : %s', model_fuzz_test.get_snac())
@@ -121,8 +120,7 @@ def test_lenet_mnist_coverage_ascend():
     # generate adv_data
     attack = FastGradientSignMethod(net, eps=0.3)
     adv_data = attack.batch_generate(test_data, test_labels, batch_size=32)
-    model_fuzz_test.test_adequacy_coverage_calculate(adv_data,
-                                                     bias_coefficient=0.5)
+    model_fuzz_test.calculate_coverage(adv_data, bias_coefficient=0.5)
     LOGGER.info(TAG, 'KMNC of this test is : %s', model_fuzz_test.get_kmnc())
     LOGGER.info(TAG, 'NBC of this test is : %s', model_fuzz_test.get_nbc())
     LOGGER.info(TAG, 'SNAC of this test is : %s', model_fuzz_test.get_snac())
