@@ -22,7 +22,7 @@ mnist_cfg = edict({
     'num_classes': 10,  # the number of classes of model's output
     'lr': 0.01,  # the learning rate of model's optimizer
     'momentum': 0.9,  # the momentum value of model's optimizer
-    'epoch_size': 5,  # training epochs
+    'epoch_size': 10,  # training epochs
     'batch_size': 256,  # batch size for training
     'image_height': 32,  # the height of training samples
     'image_width': 32,  # the width of training samples
