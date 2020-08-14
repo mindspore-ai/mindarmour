@@ -27,6 +27,7 @@ from mindarmour.diff_privacy import ClipMechanismsFactory
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_ascend_training
+@pytest.mark.platform_arm_ascend_training
 @pytest.mark.env_onecard
 @pytest.mark.component_mindarmour
 def test_graph_factory():
@@ -53,6 +54,7 @@ def test_graph_factory():
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_ascend_training
+@pytest.mark.platform_arm_ascend_training
 @pytest.mark.env_onecard
 @pytest.mark.component_mindarmour
 def test_pynative_factory():
@@ -79,6 +81,7 @@ def test_pynative_factory():
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_ascend_training
+@pytest.mark.platform_arm_ascend_training
 @pytest.mark.env_onecard
 @pytest.mark.component_mindarmour
 def test_pynative_gaussian():
@@ -105,6 +108,7 @@ def test_pynative_gaussian():
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_ascend_training
+@pytest.mark.platform_arm_ascend_training
 @pytest.mark.env_onecard
 @pytest.mark.component_mindarmour
 def test_graph_ada_gaussian():
@@ -125,6 +129,7 @@ def test_graph_ada_gaussian():
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_ascend_training
+@pytest.mark.platform_arm_ascend_training
 @pytest.mark.env_onecard
 @pytest.mark.component_mindarmour
 def test_pynative_ada_gaussian():
@@ -145,6 +150,7 @@ def test_pynative_ada_gaussian():
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_ascend_training
+@pytest.mark.platform_arm_ascend_training
 @pytest.mark.env_onecard
 @pytest.mark.component_mindarmour
 def test_graph_exponential():
@@ -166,6 +172,7 @@ def test_graph_exponential():
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_ascend_training
+@pytest.mark.platform_arm_ascend_training
 @pytest.mark.env_onecard
 @pytest.mark.component_mindarmour
 def test_pynative_exponential():
@@ -187,6 +194,7 @@ def test_pynative_exponential():
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_ascend_training
+@pytest.mark.platform_arm_ascend_training
 @pytest.mark.env_onecard
 @pytest.mark.component_mindarmour
 def test_ada_clip_gaussian_random_pynative():
@@ -217,6 +225,7 @@ def test_ada_clip_gaussian_random_pynative():
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_ascend_training
+@pytest.mark.platform_arm_ascend_training
 @pytest.mark.env_onecard
 @pytest.mark.component_mindarmour
 def test_ada_clip_gaussian_random_graph():
@@ -247,6 +256,7 @@ def test_ada_clip_gaussian_random_graph():
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_ascend_training
+@pytest.mark.platform_arm_ascend_training
 @pytest.mark.env_onecard
 @pytest.mark.component_mindarmour
 def test_pynative_clip_mech_factory():
@@ -269,6 +279,7 @@ def test_pynative_clip_mech_factory():
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_ascend_training
+@pytest.mark.platform_arm_ascend_training
 @pytest.mark.env_onecard
 @pytest.mark.component_mindarmour
 def test_graph_clip_mech_factory():

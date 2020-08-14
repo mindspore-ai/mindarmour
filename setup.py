@@ -105,7 +105,8 @@ setup(
         'scipy >= 1.3.3',
         'numpy >= 1.17.0',
         'matplotlib >= 3.2.1',
-        'Pillow >= 2.0.0'
+        'Pillow >= 2.0.0',
+        'scikit-learn >= 0.21.2'
     ],
     classifiers=[
         'License :: OSI Approved :: Apache Software License'
