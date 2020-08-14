@@ -18,16 +18,12 @@ import pytest
 
 import numpy as np
 
-from sklearn.neighbors import KNeighborsClassifier as knn
-from sklearn.linear_model import LogisticRegression
-from sklearn.neural_network import MLPClassifier
-from sklearn.ensemble import RandomForestClassifier
-
 from mindarmour.diff_privacy.evaluation.attacker import get_attack_model
 
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_ascend_training
+@pytest.mark.platform_arm_ascend_training
 @pytest.mark.env_onecard
 @pytest.mark.component_mindarmour
 def test_get_knn_model():
@@ -36,17 +32,17 @@ def test_get_knn_model():
     config_knn = {
         "method": "KNN",
         "params": {
-            "n_neighbors": [3, 5, 7],
+            "n_neighbors": [3],
         }
     }
     knn_attacker = get_attack_model(features, labels, config_knn)
-    assert isinstance(knn_attacker, knn)
     pred = knn_attacker.predict(features)
     assert pred is not None
 
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_ascend_training
+@pytest.mark.platform_arm_ascend_training
 @pytest.mark.env_onecard
 @pytest.mark.component_mindarmour
 def test_get_lr_model():
@@ -59,13 +55,13 @@ def test_get_lr_model():
         }
     }
     lr_attacker = get_attack_model(features, labels, config_lr)
-    assert isinstance(lr_attacker, LogisticRegression)
     pred = lr_attacker.predict(features)
     assert pred is not None
 
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_ascend_training
+@pytest.mark.platform_arm_ascend_training
 @pytest.mark.env_onecard
 @pytest.mark.component_mindarmour
 def test_get_mlp_model():
@@ -80,13 +76,13 @@ def test_get_mlp_model():
         }
     }
     mlpc_attacker = get_attack_model(features, labels, config_mlpc)
-    assert isinstance(mlpc_attacker, MLPClassifier)
     pred = mlpc_attacker.predict(features)
     assert pred is not None
 
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_ascend_training
+@pytest.mark.platform_arm_ascend_training
 @pytest.mark.env_onecard
 @pytest.mark.component_mindarmour
 def test_get_rf_model():
@@ -103,6 +99,5 @@ def test_get_rf_model():
         }
     }
     rf_attacker = get_attack_model(features, labels, config_rf)
-    assert isinstance(rf_attacker, RandomForestClassifier)
     pred = rf_attacker.predict(features)
     assert pred is not None

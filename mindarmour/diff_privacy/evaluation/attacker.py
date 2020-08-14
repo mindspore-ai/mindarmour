@@ -121,10 +121,10 @@ def get_attack_model(features, labels, config):
     method = str.lower(config["method"])
     if method == "knn":
         return _attack_knn(features, labels, config["params"])
-    if method == "LR":
+    if method in ["lr", "logitic regression"]:
         return _attack_lr(features, labels, config["params"])
-    if method == "MLP":
+    if method == "mlp":
         return _attack_mlpc(features, labels, config["params"])
-    if method == "RF":
+    if method in ["rf", "random forest"]:
         return _attack_rf(features, labels, config["params"])
     raise ValueError("Method {} is not support.".format(config["method"]))
