@@ -23,11 +23,11 @@ from mindspore import Tensor
 from mindarmour.fuzzing.model_coverage_metrics import ModelCoverageMetrics
 from mindarmour.utils._check_param import check_model, check_numpy_param, \
     check_int_positive
-from mindarmour.utils.image_transform import Contrast, Brightness, Blur, Noise, \
+from mindarmour.fuzzing.image_transform import Contrast, Brightness, Blur, Noise, \
     Translate, Scale, Shear, Rotate
 
 
-class Fuzzing:
+class Fuzzer:
     """
     Fuzzing test framework for deep neural networks.
 
@@ -84,7 +84,7 @@ class Fuzzing:
                                                             [])
                 transform = strages[trans_strage](
                     self._image_value_expand(seed), self.mode)
-                transform.random_param()
+                transform.set_params(auto_param=True)
                 mutate_test = transform.transform()
                 mutate_test = np.expand_dims(
                     self._image_value_compress(mutate_test), 0)
@@ -138,7 +138,7 @@ class Fuzzing:
         result = result.asnumpy()
         for index in range(len(mutate_tests)):
             mutate = np.expand_dims(mutate_tests[index], 0)
-            self.coverage_metrics.test_adequacy_coverage_calculate(
+            self.coverage_metrics.model_coverage_test(
                 mutate.astype(np.float32), batch_size=1)
             if coverage_metric == "KMNC":
                 coverages.append(self.coverage_metrics.get_kmnc())

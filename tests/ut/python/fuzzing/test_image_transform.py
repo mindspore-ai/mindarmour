@@ -18,7 +18,7 @@ import numpy as np
 import pytest
 
 from mindarmour.utils.logger import LogUtil
-from mindarmour.utils.image_transform import Contrast, Brightness, Blur, Noise, \
+from mindarmour.fuzzing.image_transform import Contrast, Brightness, Blur, Noise, \
     Translate, Scale, Shear, Rotate
 
 LOGGER = LogUtil.get_instance()
@@ -31,11 +31,10 @@ LOGGER.set_level('INFO')
 @pytest.mark.env_onecard
 @pytest.mark.component_mindarmour
 def test_contrast():
-    image = (np.random.rand(32, 32)*255).astype(np.float32)
-    mode = 'L'
-    trans = Contrast(image, mode)
-    trans.random_param()
-    _ = trans.transform()
+    image = (np.random.rand(32, 32)).astype(np.float32)
+    trans = Contrast()
+    trans.set_params(auto_param=True)
+    _ = trans.transform(image)
 
 
 @pytest.mark.level0
@@ -43,11 +42,10 @@ def test_contrast():
 @pytest.mark.env_onecard
 @pytest.mark.component_mindarmour
 def test_brightness():
-    image = (np.random.rand(32, 32)*255).astype(np.float32)
-    mode = 'L'
-    trans = Brightness(image, mode)
-    trans.random_param()
-    _ = trans.transform()
+    image = (np.random.rand(32, 32)).astype(np.float32)
+    trans = Brightness()
+    trans.set_params(auto_param=True)
+    _ = trans.transform(image)
 
 
 @pytest.mark.level0
@@ -57,11 +55,10 @@ def test_brightness():
 @pytest.mark.env_onecard
 @pytest.mark.component_mindarmour
 def test_blur():
-    image = (np.random.rand(32, 32)*255).astype(np.float32)
-    mode = 'L'
-    trans = Blur(image, mode)
-    trans.random_param()
-    _ = trans.transform()
+    image = (np.random.rand(32, 32)).astype(np.float32)
+    trans = Blur()
+    trans.set_params(auto_param=True)
+    _ = trans.transform(image)
 
 
 @pytest.mark.level0
@@ -71,11 +68,10 @@ def test_blur():
 @pytest.mark.env_onecard
 @pytest.mark.component_mindarmour
 def test_noise():
-    image = (np.random.rand(32, 32)*255).astype(np.float32)
-    mode = 'L'
-    trans = Noise(image, mode)
-    trans.random_param()
-    _ = trans.transform()
+    image = (np.random.rand(32, 32)).astype(np.float32)
+    trans = Noise()
+    trans.set_params(auto_param=True)
+    _ = trans.transform(image)
 
 
 @pytest.mark.level0
@@ -85,11 +81,10 @@ def test_noise():
 @pytest.mark.env_onecard
 @pytest.mark.component_mindarmour
 def test_translate():
-    image = (np.random.rand(32, 32)*255).astype(np.float32)
-    mode = 'L'
-    trans = Translate(image, mode)
-    trans.random_param()
-    _ = trans.transform()
+    image = (np.random.rand(32, 32)).astype(np.float32)
+    trans = Translate()
+    trans.set_params(auto_param=True)
+    _ = trans.transform(image)
 
 
 @pytest.mark.level0
@@ -99,11 +94,10 @@ def test_translate():
 @pytest.mark.env_onecard
 @pytest.mark.component_mindarmour
 def test_shear():
-    image = (np.random.rand(32, 32)*255).astype(np.float32)
-    mode = 'L'
-    trans = Shear(image, mode)
-    trans.random_param()
-    _ = trans.transform()
+    image = (np.random.rand(32, 32)).astype(np.float32)
+    trans = Shear()
+    trans.set_params(auto_param=True)
+    _ = trans.transform(image)
 
 
 @pytest.mark.level0
@@ -113,11 +107,10 @@ def test_shear():
 @pytest.mark.env_onecard
 @pytest.mark.component_mindarmour
 def test_scale():
-    image = (np.random.rand(32, 32)*255).astype(np.float32)
-    mode = 'L'
-    trans = Scale(image, mode)
-    trans.random_param()
-    _ = trans.transform()
+    image = (np.random.rand(32, 32)).astype(np.float32)
+    trans = Scale()
+    trans.set_params(auto_param=True)
+    _ = trans.transform(image)
 
 
 @pytest.mark.level0
@@ -127,8 +120,7 @@ def test_scale():
 @pytest.mark.env_onecard
 @pytest.mark.component_mindarmour
 def test_rotate():
-    image = (np.random.rand(32, 32)*255).astype(np.float32)
-    mode = 'L'
-    trans = Rotate(image, mode)
-    trans.random_param()
-    _ = trans.transform()
+    image = (np.random.rand(32, 32)).astype(np.float32)
+    trans = Rotate()
+    trans.set_params(auto_param=True)
+    _ = trans.transform(image)

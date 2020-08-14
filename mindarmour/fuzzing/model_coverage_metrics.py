@@ -133,8 +133,7 @@ class ModelCoverageMetrics:
                 else:
                     self._main_section_hits[i][int(section_indexes[i])] = 1
 
-    def test_adequacy_coverage_calculate(self, dataset, bias_coefficient=0,
-                                         batch_size=32):
+    def calculate_coverage(self, dataset, bias_coefficient=0, batch_size=32):
         """
         Calculate the testing adequacy of the given dataset.
 
@@ -147,7 +146,7 @@ class ModelCoverageMetrics:
 
         Examples:
             >>> model_fuzz_test = ModelCoverageMetrics(model, 10000, 10, train_images)
-            >>> model_fuzz_test.test_adequacy_coverage_calculate(test_images)
+            >>> model_fuzz_test.calculate_coverage(test_images)
         """
         dataset = check_numpy_param('dataset', dataset)
         batch_size = check_int_positive('batch_size', batch_size)
