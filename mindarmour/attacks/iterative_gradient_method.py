@@ -227,8 +227,8 @@ class BasicIterativeMethod(IterativeGradientMethod):
             clip_min, clip_max = self._bounds
             clip_diff = clip_max - clip_min
             for _ in range(self._nb_iter):
-                if 'self.prob' in globals():
-                    d_inputs = _transform_inputs(inputs, self.prob)
+                if 'self._prob' in globals():
+                    d_inputs = _transform_inputs(inputs, self._prob)
                 else:
                     d_inputs = inputs
                 adv_x = self._attack.generate(d_inputs, labels)
@@ -238,8 +238,8 @@ class BasicIterativeMethod(IterativeGradientMethod):
                 inputs = adv_x
         else:
             for _ in range(self._nb_iter):
-                if 'self.prob' in globals():
-                    d_inputs = _transform_inputs(inputs, self.prob)
+                if 'self._prob' in globals():
+                    d_inputs = _transform_inputs(inputs, self._prob)
                 else:
                     d_inputs = inputs
                 adv_x = self._attack.generate(d_inputs, labels)
@@ -311,8 +311,8 @@ class MomentumIterativeMethod(IterativeGradientMethod):
             clip_min, clip_max = self._bounds
             clip_diff = clip_max - clip_min
             for _ in range(self._nb_iter):
-                if 'self.prob' in globals():
-                    d_inputs = _transform_inputs(inputs, self.prob)
+                if 'self._prob' in globals():
+                    d_inputs = _transform_inputs(inputs, self._prob)
                 else:
                     d_inputs = inputs
                 gradient = self._gradient(d_inputs, labels)
@@ -325,8 +325,8 @@ class MomentumIterativeMethod(IterativeGradientMethod):
                 inputs = adv_x
         else:
             for _ in range(self._nb_iter):
-                if 'self.prob' in globals():
-                    d_inputs = _transform_inputs(inputs, self.prob)
+                if 'self._prob' in globals():
+                    d_inputs = _transform_inputs(inputs, self._prob)
                 else:
                     d_inputs = inputs
                 gradient = self._gradient(d_inputs, labels)
@@ -476,7 +476,7 @@ class DiverseInputIterativeMethod(BasicIterativeMethod):
                                                           is_targeted=is_targeted,
                                                           nb_iter=nb_iter,
                                                           loss_fn=loss_fn)
-        self.prob = check_param_type('prob', prob, float)
+        self._prob = check_param_type('prob', prob, float)
 
 
 class MomentumDiverseInputIterativeMethod(MomentumIterativeMethod):
@@ -511,7 +511,7 @@ class MomentumDiverseInputIterativeMethod(MomentumIterativeMethod):
                                                                   is_targeted=is_targeted,
                                                                   norm_level=norm_level,
                                                                   loss_fn=loss_fn)
-        self.prob = check_param_type('prob', prob, float)
+        self._prob = check_param_type('prob', prob, float)
 
 
 def _transform_inputs(inputs, prob, low=29, high=33, full_aug=False):

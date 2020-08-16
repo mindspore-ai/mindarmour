@@ -19,7 +19,7 @@ from mindspore import context
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 
 from lenet5_net import LeNet5
-from mindarmour.fuzzing.fuzzing import Fuzzing
+from mindarmour.fuzzing.fuzzing import Fuzzer
 from mindarmour.fuzzing.model_coverage_metrics import ModelCoverageMetrics
 from mindarmour.utils.logger import LogUtil
 
@@ -38,11 +38,20 @@ def test_lenet_mnist_fuzzing():
     load_dict = load_checkpoint(ckpt_name)
     load_param_into_net(net, load_dict)
     model = Model(net)
+    mutate_config = [{'method': 'Blur',
+                      'params': {'auto_param': True}},
+                     {'method': 'Contrast',
+                      'params': {'factor': 2}},
+                     {'method': 'Translate',
+                      'params': {'x_bias': 0.1, 'y_bias': 0.2}},
+                     {'method': 'FGSM',
+                      'params': {'eps': 0.1, 'alpha': 0.1}}
+                     ]
 
     # get training data
     data_list = "./MNIST_unzip/train"
     batch_size = 32
-    ds = generate_mnist_dataset(data_list, batch_size, sparse=True)
+    ds = generate_mnist_dataset(data_list, batch_size, sparse=False)
     train_images = []
     for data in ds.create_tuple_iterator():
         images = data[0].astype(np.float32)
@@ -56,7 +65,7 @@ def test_lenet_mnist_fuzzing():
     # get test data
     data_list = "./MNIST_unzip/test"
     batch_size = 32
-    ds = generate_mnist_dataset(data_list, batch_size, sparse=True)
+    ds = generate_mnist_dataset(data_list, batch_size, sparse=False)
     test_images = []
     test_labels = []
     for data in ds.create_tuple_iterator():
@@ -70,19 +79,20 @@ def test_lenet_mnist_fuzzing():
 
     # make initial seeds
     for img, label in zip(test_images, test_labels):
-        initial_seeds.append([img, label])
+        initial_seeds.append([img, label, 0])
 
     initial_seeds = initial_seeds[:100]
-    model_coverage_test.test_adequacy_coverage_calculate(np.array(test_images[:100]).astype(np.float32))
-    LOGGER.info(TAG, 'KMNC of this test is : %s', model_coverage_test.get_kmnc())
+    model_coverage_test.calculate_coverage(
+        np.array(test_images[:100]).astype(np.float32))
+    LOGGER.info(TAG, 'KMNC of this test is : %s',
+                model_coverage_test.get_kmnc())
 
-    model_fuzz_test = Fuzzing(initial_seeds, model, train_images, 20)
-    failed_tests = model_fuzz_test.fuzzing()
-    if failed_tests:
-        model_coverage_test.test_adequacy_coverage_calculate(np.array(failed_tests).astype(np.float32))
-        LOGGER.info(TAG, 'KMNC of this test is : %s', model_coverage_test.get_kmnc())
-    else:
-        LOGGER.info(TAG, 'Fuzzing test identifies none failed test')
+    model_fuzz_test = Fuzzer(model, train_images, 1000, 10)
+    _, _, _, _, metrics = model_fuzz_test.fuzzing(mutate_config, initial_seeds,
+                                                  eval_metric=True)
+    if metrics:
+        for key in metrics:
+            LOGGER.info(TAG, key + ': %s', metrics[key])
 
 
 if __name__ == '__main__':
