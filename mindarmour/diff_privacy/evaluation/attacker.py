@@ -32,7 +32,7 @@ def _attack_knn(features, labels, param_grid):
         param_grid (dict): Setting of GridSearchCV.
 
     Returns:
-        sklearn.neighbors.KNeighborsClassifier, trained model.
+        sklearn.model_selection.GridSearchCV, trained model.
     """
     knn_model = KNeighborsClassifier()
     knn_model = GridSearchCV(
@@ -53,9 +53,9 @@ def _attack_lr(features, labels, param_grid):
         param_grid (dict): Setting of GridSearchCV.
 
     Returns:
-        sklearn.linear_model.LogisticRegression, trained model.
+        sklearn.model_selection.GridSearchCV, trained model.
     """
-    lr_model = LogisticRegression(C=1.0, penalty="l2")
+    lr_model = LogisticRegression(C=1.0, penalty="l2", max_iter=1000)
     lr_model = GridSearchCV(
         lr_model, param_grid=param_grid, cv=3, n_jobs=1, iid=False,
         verbose=0,
@@ -74,7 +74,7 @@ def _attack_mlpc(features, labels, param_grid):
         param_grid (dict): Setting of GridSearchCV.
 
     Returns:
-        sklearn.neural_network.MLPClassifier, trained model.
+        sklearn.model_selection.GridSearchCV, trained model.
     """
     mlpc_model = MLPClassifier(random_state=1, max_iter=300)
     mlpc_model = GridSearchCV(
@@ -95,7 +95,7 @@ def _attack_rf(features, labels, random_grid):
         random_grid (dict): Setting of RandomizedSearchCV.
 
     Returns:
-        sklearn.ensemble.RandomForestClassifier, trained model.
+        sklearn.model_selection.RandomizedSearchCV, trained model.
     """
     rf_model = RandomForestClassifier(max_depth=2, random_state=0)
     rf_model = RandomizedSearchCV(
