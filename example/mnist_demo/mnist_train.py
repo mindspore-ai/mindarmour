@@ -27,6 +27,8 @@ from mindarmour.utils.logger import LogUtil
 sys.path.append("..")
 from data_processing import generate_mnist_dataset
 LOGGER = LogUtil.get_instance()
+LOGGER.set_level('INFO')
+
 TAG = "Lenet5_train"
 
 
