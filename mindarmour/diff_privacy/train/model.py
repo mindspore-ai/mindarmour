@@ -142,10 +142,6 @@ class DPModel(Model):
             raise ValueError(msg)
         if noise_mech is None:
             if "DPOptimizer" in opt_name:
-                if context.get_context('mode') != context.PYNATIVE_MODE:
-                    msg = 'DPOptimizer just support pynative mode currently.'
-                    LOGGER.error(TAG, msg)
-                    raise ValueError(msg)
                 if 'Ada' in opt._mech.__class__.__name__ and clip_mech is not None:
                     msg = "When DPOptimizer's mech method is adaptive, clip_mech must be None."
                     LOGGER.error(TAG, msg)
