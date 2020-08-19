@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Model-fuzz coverage test.
+Model-fuzzer test.
 """
 import numpy as np
 import pytest
@@ -121,7 +121,7 @@ def test_fuzzing_ascend():
     LOGGER.info(TAG, 'KMNC of this test is : %s',
                 model_coverage_test.get_kmnc())
 
-    model_fuzz_test = Fuzzer(model, train_images, 1000, 10)
+    model_fuzz_test = Fuzzer(model, train_images, 10, 1000)
     _, _, _, _, metrics = model_fuzz_test.fuzzing(mutate_config, initial_seeds)
     print(metrics)
 
@@ -167,6 +167,6 @@ def test_fuzzing_cpu():
     LOGGER.info(TAG, 'KMNC of this test is : %s',
                 model_coverage_test.get_kmnc())
 
-    model_fuzz_test = Fuzzer(model, train_images, 1000, 10)
+    model_fuzz_test = Fuzzer(model, train_images, 10, 1000)
     _, _, _, _, metrics = model_fuzz_test.fuzzing(mutate_config, initial_seeds)
     print(metrics)

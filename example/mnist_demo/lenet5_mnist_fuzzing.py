@@ -87,9 +87,9 @@ def test_lenet_mnist_fuzzing():
     LOGGER.info(TAG, 'KMNC of this test is : %s',
                 model_coverage_test.get_kmnc())
 
-    model_fuzz_test = Fuzzer(model, train_images, 1000, 10)
+    model_fuzz_test = Fuzzer(model, train_images, 10, 1000)
     _, _, _, _, metrics = model_fuzz_test.fuzzing(mutate_config, initial_seeds,
-                                                  eval_metric=True)
+                                                  eval_metrics='auto')
     if metrics:
         for key in metrics:
             LOGGER.info(TAG, key + ': %s', metrics[key])
@@ -97,5 +97,5 @@ def test_lenet_mnist_fuzzing():
 
 if __name__ == '__main__':
     # device_target can be "CPU", "GPU" or "Ascend"
-    context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     test_lenet_mnist_fuzzing()

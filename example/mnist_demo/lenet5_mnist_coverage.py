@@ -67,7 +67,7 @@ def test_lenet_mnist_coverage():
         test_labels.append(labels)
     test_images = np.concatenate(test_images, axis=0)
     test_labels = np.concatenate(test_labels, axis=0)
-    model_fuzz_test.test_adequacy_coverage_calculate(test_images)
+    model_fuzz_test.calculate_coverage(test_images)
     LOGGER.info(TAG, 'KMNC of this test is : %s', model_fuzz_test.get_kmnc())
     LOGGER.info(TAG, 'NBC of this test is : %s', model_fuzz_test.get_nbc())
     LOGGER.info(TAG, 'SNAC of this test is : %s', model_fuzz_test.get_snac())
@@ -76,14 +76,13 @@ def test_lenet_mnist_coverage():
     loss = SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
     attack = FastGradientSignMethod(net, eps=0.3, loss_fn=loss)
     adv_data = attack.batch_generate(test_images, test_labels, batch_size=32)
-    model_fuzz_test.test_adequacy_coverage_calculate(adv_data,
-                                                     bias_coefficient=0.5)
-    LOGGER.info(TAG, 'KMNC of this test is : %s', model_fuzz_test.get_kmnc())
-    LOGGER.info(TAG, 'NBC of this test is : %s', model_fuzz_test.get_nbc())
-    LOGGER.info(TAG, 'SNAC of this test is : %s', model_fuzz_test.get_snac())
+    model_fuzz_test.calculate_coverage(adv_data, bias_coefficient=0.5)
+    LOGGER.info(TAG, 'KMNC of this adv data is : %s', model_fuzz_test.get_kmnc())
+    LOGGER.info(TAG, 'NBC of this adv data is : %s', model_fuzz_test.get_nbc())
+    LOGGER.info(TAG, 'SNAC of this adv data is : %s', model_fuzz_test.get_snac())
 
 
 if __name__ == '__main__':
     # device_target can be "CPU", "GPU" or "Ascend"
-    context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     test_lenet_mnist_coverage()
