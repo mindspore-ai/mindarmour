@@ -1,3 +1,30 @@
+# Release 0.7.0-beta
+
+## Major Features and Improvements
+
+### Differential privacy model training
+
+* Privacy leakage evaluation.
+
+  * Using Membership inference to evaluate the effectiveness of privacy-preserving techniques for AI.
+
+### Model robustness evaluation
+
+* Fuzzing based Adversarial Robustness testing.
+
+  * Coverage-guided test set generation.
+
+## Bugfixes
+
+## Contributors
+
+Thanks goes to these wonderful people:
+
+Liu Liu, Xiulang Jin, Zhidan Liu, Luobin Liu and Huanhuan Zheng.
+
+Contributions of any kind are welcome!
+
+
 # Release 0.6.0-beta
 
 ## Major Features and Improvements

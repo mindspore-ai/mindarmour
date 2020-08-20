@@ -18,7 +18,7 @@ from setuptools import setup
 from setuptools.command.egg_info import egg_info
 from setuptools.command.build_py import build_py
 
-version = '0.6.0'
+version = '0.7.0'
 cur_dir = os.path.dirname(os.path.realpath(__file__))
 pkg_dir = os.path.join(cur_dir, 'build')
 
@@ -95,7 +95,6 @@ setup(
     license='Apache 2.0',
     packages=find_packages(),
     include_package_data=True,
-    zip_safe=False,
     cmdclass={
         'egg_info': EggInfo,
         'build_py': BuildPy,
