@@ -11,6 +11,7 @@ from .monitor.monitor import RDPMonitor
 from .monitor.monitor import ZCDPMonitor
 from .optimizer.optimizer import DPOptimizerClassFactory
 from .train.model import DPModel
+from .evaluation.membership_inference import MembershipInference
 
 __all__ = ['NoiseGaussianRandom',
            'NoiseAdaGaussianRandom',
@@ -21,4 +22,5 @@ __all__ = ['NoiseGaussianRandom',
            'RDPMonitor',
            'ZCDPMonitor',
            'DPOptimizerClassFactory',
-           'DPModel']
+           'DPModel',
+           'MembershipInference']
