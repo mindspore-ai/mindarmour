@@ -7,6 +7,8 @@ from .mechanisms.mechanisms import AdaClippingWithGaussianRandom
 from .mechanisms.mechanisms import NoiseMechanismsFactory
 from .mechanisms.mechanisms import ClipMechanismsFactory
 from .monitor.monitor import PrivacyMonitorFactory
+from .monitor.monitor import RDPMonitor
+from .monitor.monitor import ZCDPMonitor
 from .optimizer.optimizer import DPOptimizerClassFactory
 from .train.model import DPModel
 
@@ -16,5 +18,7 @@ __all__ = ['NoiseGaussianRandom',
            'NoiseMechanismsFactory',
            'ClipMechanismsFactory',
            'PrivacyMonitorFactory',
+           'RDPMonitor',
+           'ZCDPMonitor',
            'DPOptimizerClassFactory',
            'DPModel']
