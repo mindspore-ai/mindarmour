@@ -41,7 +41,7 @@ def _eval_info(pred, truth, option):
         ValueError, size of parameter pred or truth is 0.
         ValueError, value of parameter option must be in ["precision", "accuracy", "recall"].
     """
-    if pred.size == 0 || truth.size == 0:
+    if pred.size == 0 or truth.size == 0:
         raise ValueError("Size of pred or truth is 0.")
 
     if option == "accuracy":
