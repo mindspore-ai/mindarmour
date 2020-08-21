@@ -98,7 +98,7 @@ class GradWrapWithLoss(Cell):
 
     Examples:
         >>> data = Tensor(np.ones([1, 1, 32, 32]).astype(np.float32)*0.01)
-        >>> label = Tensor(np.ones([1, 10]).astype(np.float32))
+        >>> labels = Tensor(np.ones([1, 10]).astype(np.float32))
         >>> net = NET()
         >>> loss_fn = nn.SoftmaxCrossEntropyWithLogits()
         >>> loss_net = WithLossCell(net, loss_fn)

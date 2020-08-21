@@ -78,7 +78,11 @@ class LogUtil:
     def set_level(self, level):
         """
         Set the logging level of this logger, level must be an integer or a
-        string.
+        string. Supported levels are 'NOTSET'(integer: 0), 'ERROR'(integer: 1-40),
+        'WARNING'('WARN', integer: 1-30), 'INFO'(integer: 1-20) and 'DEBUG'(integer: 1-10).
+        For example, if logger.set_level('WARNING') or logger.set_level(21), then
+        logger.warn() and logger.error() in scripts would be printed while running,
+        while logger.info() or logger.debug() would not be printed.
 
         Args:
             level (Union[int, str]): Level of logger.
