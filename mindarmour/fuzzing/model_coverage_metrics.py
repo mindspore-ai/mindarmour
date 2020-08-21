@@ -56,7 +56,7 @@ class ModelCoverageMetrics:
         >>> test_images = np.random.random((5000, 128)).astype(np.float32)
         >>> model = Model(net)
         >>> model_fuzz_test = ModelCoverageMetrics(model, 10000, 10, train_images)
-        >>> model_fuzz_test.test_adequacy_coverage_calculate(test_images)
+        >>> model_fuzz_test.calculate_coverage(test_images)
         >>> print('KMNC of this test is : %s', model_fuzz_test.get_kmnc())
         >>> print('NBC of this test is : %s', model_fuzz_test.get_nbc())
         >>> print('SNAC of this test is : %s', model_fuzz_test.get_snac())

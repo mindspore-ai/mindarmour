@@ -93,7 +93,7 @@ class Fuzzer:
         >>>                  {'method': 'Translate', 'params': {'x_bias': 0.1, 'y_bias': 0.2}},
         >>>                  {'method': 'FGSM', 'params': {'eps': 0.1, 'alpha': 0.1}}]
         >>> train_images = np.random.rand(32, 1, 32, 32).astype(np.float32)
-        >>> model_fuzz_test = Fuzzer(model, train_images, 1000, 10)
+        >>> model_fuzz_test = Fuzzer(model, train_images, 10, 1000)
         >>> samples, labels, preds, strategies, report = model_fuzz_test.fuzzing(mutate_config, initial_seeds)
     """
 
@@ -141,8 +141,9 @@ class Fuzzer:
         Args:
             mutate_config (list): Mutate configs. The format is
                 [{'method': 'Blur', 'params': {'auto_param': True}}, {'method': 'Contrast', 'params': {'factor': 2}}].
-                 The support methods list is in `self._strategies`, and the params of each
-                 method must within the range of changeable parameters.
+                The supported methods list is in `self._strategies`, and the params of each method must within the
+                range of changeable parameters.　All supported methods are: 'Contrast', 'Brightness', 'Blur',
+                'Noise', 'Translate', 'Scale', 'Shear', 'Rotate', 'FGSM', 'PGD' and 'MDIIM'.
             initial_seeds (numpy.ndarray): Initial seeds used to generate
                 mutated samples.
             coverage_metric (str): Model coverage metric of neural networks.
