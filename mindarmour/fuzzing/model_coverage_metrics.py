@@ -21,7 +21,7 @@ from mindspore import Tensor
 from mindspore import Model
 
 from mindarmour.utils._check_param import check_model, check_numpy_param, \
-    check_int_positive
+    check_int_positive, check_param_multi_types
 from mindarmour.utils.logger import LogUtil
 
 LOGGER = LogUtil.get_instance()
@@ -52,8 +52,9 @@ class ModelCoverageMetrics:
         ValueError: If neuron_num is too big (for example, bigger than 1e+9).
 
     Examples:
-        >>> train_images = np.random.random((10000, 128)).astype(np.float32)
-        >>> test_images = np.random.random((5000, 128)).astype(np.float32)
+        >>> net = LeNet5()
+        >>> train_images = np.random.random((10000, 1, 32, 32)).astype(np.float32)
+        >>> test_images = np.random.random((5000, 1, 32, 32)).astype(np.float32)
         >>> model = Model(net)
         >>> model_fuzz_test = ModelCoverageMetrics(model, 10000, 10, train_images)
         >>> model_fuzz_test.calculate_coverage(test_images)
@@ -148,8 +149,10 @@ class ModelCoverageMetrics:
             >>> model_fuzz_test = ModelCoverageMetrics(model, 10000, 10, train_images)
             >>> model_fuzz_test.calculate_coverage(test_images)
         """
+
         dataset = check_numpy_param('dataset', dataset)
         batch_size = check_int_positive('batch_size', batch_size)
+        bias_coefficient = check_param_multi_types('bias_coefficient', bias_coefficient, [int, float])
         self._lower_bounds -= bias_coefficient*self._var
         self._upper_bounds += bias_coefficient*self._var
         intervals = (self._upper_bounds - self._lower_bounds) / self._segmented_num

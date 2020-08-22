@@ -22,7 +22,8 @@ from mindspore import Tensor
 
 from mindarmour.fuzzing.model_coverage_metrics import ModelCoverageMetrics
 from mindarmour.utils._check_param import check_model, check_numpy_param, \
-    check_param_multi_types, check_norm_level, check_param_in_range
+    check_param_multi_types, check_norm_level, check_param_in_range, \
+    check_param_type, check_int_positive
 from mindarmour.fuzzing.image_transform import Contrast, Brightness, Blur, \
     Noise, Translate, Scale, Shear, Rotate
 from mindarmour.attacks import FastGradientSignMethod, \
@@ -185,7 +186,6 @@ class Fuzzer:
             ValueError: If metric in list `eval_metrics` is not in ['accuracy', 'attack_success_rate',
                 'kmnc', 'nbc', 'snac'].
         """
-        eval_metrics_ = None
         if isinstance(eval_metrics, (list, tuple)):
             eval_metrics_ = []
             avaliable_metrics = ['accuracy', 'attack_success_rate', 'kmnc', 'nbc', 'snac']
@@ -215,7 +215,26 @@ class Fuzzer:
             raise TypeError(msg)
 
         # Check whether the mutate_config meet the specification.
+        mutate_config = check_param_type('mutate_config', mutate_config, list)
+        for method in mutate_config:
+            check_param_type("method['params']", method['params'], dict)
+        if coverage_metric not in ['KMNC', 'NBC', 'SNAC']:
+            msg = "coverage_metric must be in ['KMNC', 'NBC', 'SNAC'], but got {}." \
+                .format(coverage_metric)
+            LOGGER.error(TAG, msg)
+            raise ValueError(msg)
+        max_iters = check_int_positive('max_iters', max_iters)
+        mutate_num_per_seed = check_int_positive('mutate_num_per_seed', mutate_num_per_seed)
         mutates = self._init_mutates(mutate_config)
+        initial_seeds = check_param_type('initial_seeds', initial_seeds, list)
+        for seed in initial_seeds:
+            check_param_type('seed', seed, list)
+            check_numpy_param('seed[0]', seed[0])
+            check_numpy_param('seed[1]', seed[1])
+            if seed[2] != 0:
+                msg = "initial seed[2] must be 0, but got {}.".format(seed[2])
+                LOGGER.error(TAG, msg)
+                raise ValueError(msg)
         seed, initial_seeds = _select_next(initial_seeds)
         fuzz_samples = []
         gt_labels = []
@@ -260,7 +279,7 @@ class Fuzzer:
         for index in range(len(samples)):
             mutate = samples[:index + 1]
             self._coverage_metrics.calculate_coverage(mutate.astype(np.float32))
-            if coverage_metric == "KMNC":
+            if coverage_metric == 'KMNC':
                 coverages.append(self._coverage_metrics.get_kmnc())
             if coverage_metric == 'NBC':
                 coverages.append(self._coverage_metrics.get_nbc())
@@ -369,11 +388,11 @@ class Fuzzer:
             dict, evaluate metrics include accuarcy, attack success rate
                 and neural coverage.
         """
+        gt_labels = np.asarray(gt_labels)
+        fuzz_preds = np.asarray(fuzz_preds)
         temp = np.argmax(gt_labels, axis=1) == np.argmax(fuzz_preds, axis=1)
         metrics_report = {}
         if metrics == 'auto' or 'accuracy' in metrics:
-            gt_labels = np.asarray(gt_labels)
-            fuzz_preds = np.asarray(fuzz_preds)
             acc = np.sum(temp) / np.size(temp)
             metrics_report['Accuracy'] = acc
 
