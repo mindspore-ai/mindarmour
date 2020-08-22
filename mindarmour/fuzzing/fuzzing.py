@@ -393,13 +393,19 @@ class Fuzzer:
         temp = np.argmax(gt_labels, axis=1) == np.argmax(fuzz_preds, axis=1)
         metrics_report = {}
         if metrics == 'auto' or 'accuracy' in metrics:
-            acc = np.sum(temp) / np.size(temp)
+            if temp.any():
+                acc = np.sum(temp) / np.size(temp)
+            else:
+                acc = 0
             metrics_report['Accuracy'] = acc
 
         if metrics == 'auto' or 'attack_success_rate' in metrics:
             cond = [elem in self._attacks_list for elem in fuzz_strategies]
             temp = temp[cond]
-            attack_success_rate = 1 - np.sum(temp) / np.size(temp)
+            if temp.any():
+                attack_success_rate = 1 - np.sum(temp) / np.size(temp)
+            else:
+                attack_success_rate = None
             metrics_report['Attack_success_rate'] = attack_success_rate
 
         if metrics == 'auto' or 'kmnc' in metrics or 'nbc' in metrics or 'snac' in metrics:
