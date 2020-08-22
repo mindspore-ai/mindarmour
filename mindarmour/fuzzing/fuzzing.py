@@ -140,17 +140,28 @@ class Fuzzer:
 
         Args:
             mutate_config (list): Mutate configs. The format is
-                [{'method': 'Blur', 'params': {'auto_param': True}}, {'method': 'Contrast', 'params': {'factor': 2}}].
-                The supported methods list is in `self._strategies`, and the params of each method must within the
-                range of changeable parameters.　All supported methods are: 'Contrast', 'Brightness', 'Blur',
-                'Noise', 'Translate', 'Scale', 'Shear', 'Rotate', 'FGSM', 'PGD' and 'MDIIM'.
+                [{'method': 'Blur', 'params': {'auto_param': True}},
+                 {'method': 'Contrast', 'params': {'factor': 2}}].
+                The supported methods list is in `self._strategies`, and the
+                params of each method must within the range of changeable parameters.　
+                Supported methods are grouped in three types:
+                Firstly, pixel value based transform methods include:
+                'Contrast', 'Brightness', 'Blur' and 'Noise'. Secondly, affine
+                transform methods include: 'Translate', 'Scale', 'Shear' and
+                'Rotate'. Thirdly, attack methods include: 'FGSM', 'PGD' and 'MDIIM'.
+                `mutate_config` must have method in the type of pixel value based
+                transform methods. The way of setting parameters for first and
+                second type methods can be seen in 'mindarmour/fuzzing/image_transform.py'.
+                For third type methods, you can refer to the corresponding class.
             initial_seeds (numpy.ndarray): Initial seeds used to generate
                 mutated samples.
-            coverage_metric (str): Model coverage metric of neural networks.
-                Default: 'KMNC'.
-            eval_metrics (Union[list, tuple, str]): Evaluation metrics. If the type is 'auto',
-                it will calculate all the metrics, else if the type is list or tuple, it will
-                calculate the metrics specified by user. Default: 'auto'.
+            coverage_metric (str): Model coverage metric of neural networks. All
+                supported metrics are: 'KMNC', 'NBC', 'SNAC'. Default: 'KMNC'.
+            eval_metrics (Union[list, tuple, str]): Evaluation metrics. If the
+                type is 'auto', it will calculate all the metrics, else if the
+                type is list or tuple, it will calculate the metrics specified
+                by user. All supported evaluate methods are 'accuracy',
+                'attack_success_rate', 'kmnc', 'nbc', 'snac'. Default: 'auto'.
             max_iters (int): Max number of select a seed to mutate.
                 Default: 10000.
             mutate_num_per_seed (int): The number of mutate times for a seed.
