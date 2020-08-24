@@ -22,9 +22,6 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import RandomizedSearchCV
 
 
-method_list = ["lr", "knn", "rf", "mlp"]
-
-
 def _attack_knn(features, labels, param_grid):
     """
     Train and return a KNN model.
@@ -117,9 +114,19 @@ def get_attack_model(features, labels, config):
         features (numpy.ndarray): Loss and logits characteristics of each sample.
         labels (numpy.ndarray): Labels of each sample whether belongs to training set.
         config (dict): Config of attacker, with key in ["method", "params"].
+            The format is {"method": "knn", "params": {"n_neighbors": [3, 5, 7]}},
+            params of each method must within the range of changeable parameters.
+            Tips of params implement can be found in
+            "https://scikit-learn.org/0.16/modules/generated/sklearn.grid_search.GridSearchCV.html".
 
     Returns:
         sklearn.BaseEstimator, trained model specify by config["method"].
+
+    Examples:
+        >>> features = np.random.randn(10, 10)
+        >>> labels = np.random.randint(0, 2, 10)
+        >>> config = {"method": "knn", "params": {"n_neighbors": [3, 5, 7]}}
+        >>> attack_model = get_attack_model(features, labels, config)
     """
     method = str.lower(config["method"])
 
