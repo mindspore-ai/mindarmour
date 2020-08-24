@@ -39,14 +39,22 @@ def test_lenet_mnist_fuzzing():
     load_param_into_net(net, load_dict)
     model = Model(net)
     mutate_config = [{'method': 'Blur',
-                      'params': {'auto_param': True}},
-                     {'method': 'Contrast',
-                      'params': {'factor': 2}},
-                     {'method': 'Translate',
-                      'params': {'x_bias': 0.1, 'y_bias': 0.2}},
-                     {'method': 'FGSM',
-                      'params': {'eps': 0.1, 'alpha': 0.1}}
-                     ]
+                     'params': {'auto_param': True}},
+                    {'method': 'Contrast',
+                     'params': {'auto_param': True}},
+                    {'method': 'Translate',
+                     'params': {'auto_param': True}},
+                    {'method': 'Brightness',
+                     'params': {'auto_param': True}},
+                    {'method': 'Noise',
+                     'params': {'auto_param': True}},
+                    {'method': 'Scale',
+                     'params': {'auto_param': True}},
+                    {'method': 'Shear',
+                     'params': {'auto_param': True}},
+                    {'method': 'FGSM',
+                     'params': {'eps': 0.3, 'alpha': 0.1}}
+                    ]
 
     # get training data
     data_list = "./MNIST_unzip/train"
@@ -59,7 +67,7 @@ def test_lenet_mnist_fuzzing():
     train_images = np.concatenate(train_images, axis=0)
 
     # initialize fuzz test with training dataset
-    model_coverage_test = ModelCoverageMetrics(model, 1000, 10, train_images)
+    model_coverage_test = ModelCoverageMetrics(model, 10, 1000, train_images)
 
     # fuzz test with original test data
     # get test data

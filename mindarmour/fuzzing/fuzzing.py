@@ -102,8 +102,9 @@ class Fuzzer:
         self._target_model = check_model('model', target_model, Model)
         train_dataset = check_numpy_param('train_dataset', train_dataset)
         self._coverage_metrics = ModelCoverageMetrics(target_model,
+                                                      neuron_num,
                                                       segmented_num,
-                                                      neuron_num, train_dataset)
+                                                      train_dataset)
         # Allowed mutate strategies so far.
         self._strategies = {'Contrast': Contrast, 'Brightness': Brightness,
                             'Blur': Blur, 'Noise': Noise, 'Translate': Translate,
@@ -190,11 +191,6 @@ class Fuzzer:
             eval_metrics_ = []
             avaliable_metrics = ['accuracy', 'attack_success_rate', 'kmnc', 'nbc', 'snac']
             for elem in eval_metrics:
-                if not isinstance(elem, str):
-                    msg = 'the type of metric in list `eval_metrics` must be str, but got {}.' \
-                        .format(type(elem))
-                    LOGGER.error(TAG, msg)
-                    raise TypeError(msg)
                 if elem not in avaliable_metrics:
                     msg = 'metric in list `eval_metrics` must be in {}, but got {}.' \
                         .format(avaliable_metrics, elem)

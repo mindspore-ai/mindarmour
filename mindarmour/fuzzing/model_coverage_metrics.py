@@ -43,8 +43,8 @@ class ModelCoverageMetrics:
 
     Args:
         model (Model): The pre-trained model which waiting for testing.
-        segmented_num (int): The number of segmented sections of neurons' output intervals.
         neuron_num (int): The number of testing neurons.
+        segmented_num (int): The number of segmented sections of neurons' output intervals.
         train_dataset (numpy.ndarray): Training dataset used for determine
             the neurons' output boundaries.
 
@@ -56,14 +56,14 @@ class ModelCoverageMetrics:
         >>> train_images = np.random.random((10000, 1, 32, 32)).astype(np.float32)
         >>> test_images = np.random.random((5000, 1, 32, 32)).astype(np.float32)
         >>> model = Model(net)
-        >>> model_fuzz_test = ModelCoverageMetrics(model, 10000, 10, train_images)
+        >>> model_fuzz_test = ModelCoverageMetrics(model, 10, 1000, train_images)
         >>> model_fuzz_test.calculate_coverage(test_images)
         >>> print('KMNC of this test is : %s', model_fuzz_test.get_kmnc())
         >>> print('NBC of this test is : %s', model_fuzz_test.get_nbc())
         >>> print('SNAC of this test is : %s', model_fuzz_test.get_snac())
     """
 
-    def __init__(self, model, segmented_num, neuron_num, train_dataset):
+    def __init__(self, model, neuron_num, segmented_num, train_dataset):
         self._model = check_model('model', model, Model)
         self._segmented_num = check_int_positive('segmented_num', segmented_num)
         self._neuron_num = check_int_positive('neuron_num', neuron_num)

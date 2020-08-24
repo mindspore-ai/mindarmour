@@ -51,7 +51,7 @@ def test_lenet_mnist_coverage():
     train_images = np.concatenate(train_images, axis=0)
 
     # initialize fuzz test with training dataset
-    model_fuzz_test = ModelCoverageMetrics(model, 10000, 10, train_images)
+    model_fuzz_test = ModelCoverageMetrics(model, 10, 1000, train_images)
 
     # fuzz test with original test data
     # get test data
