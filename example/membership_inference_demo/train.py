@@ -27,7 +27,7 @@ import mindspore.nn as nn
 from mindspore import Tensor
 from mindspore import context
 from mindspore.nn.optim.momentum import Momentum
-from mindspore.train.callback import ModelCheckpoint, CheckpointConfig
+from mindspore.train.callback import ModelCheckpoint, CheckpointConfig, LossMonitor
 from mindspore.train.model import Model
 from mindspore.train.serialization import load_param_into_net, load_checkpoint
 from mindarmour.utils import LogUtil
@@ -187,12 +187,13 @@ if __name__ == '__main__':
                   amp_level="O2", keep_batchnorm_fp32=False, loss_scale_manager=None)
 
     # checkpoint save
+    callbacks = [LossMonitor()]
     if args.rank_save_ckpt_flag:
         ckpt_config = CheckpointConfig(save_checkpoint_steps=args.ckpt_interval*args.steps_per_epoch,
                                        keep_checkpoint_max=args.ckpt_save_max)
         ckpt_cb = ModelCheckpoint(config=ckpt_config,
                                   directory=args.outputs_dir,
                                   prefix='{}'.format(args.rank))
-        callbacks = ckpt_cb
+        callbacks.append(ckpt_cb)
 
     model.train(args.max_epoch, dataset, callbacks=callbacks)

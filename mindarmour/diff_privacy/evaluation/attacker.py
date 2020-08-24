@@ -22,6 +22,9 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import RandomizedSearchCV
 
 
+method_list = ["lr", "knn", "rf", "mlp"]
+
+
 def _attack_knn(features, labels, param_grid):
     """
     Train and return a KNN model.
@@ -119,12 +122,13 @@ def get_attack_model(features, labels, config):
         sklearn.BaseEstimator, trained model specify by config["method"].
     """
     method = str.lower(config["method"])
+
     if method == "knn":
         return _attack_knn(features, labels, config["params"])
-    if method in ["lr", "logitic regression"]:
+    if method == "lr":
         return _attack_lr(features, labels, config["params"])
     if method == "mlp":
         return _attack_mlpc(features, labels, config["params"])
-    if method in ["rf", "random forest"]:
+    if method == "rf":
         return _attack_rf(features, labels, config["params"])
-    raise ValueError("Method {} is not support.".format(config["method"]))
+    return None
