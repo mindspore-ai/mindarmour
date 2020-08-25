@@ -579,7 +579,7 @@ class Rotate(ImageTransform):
         """
         _, chw, normalized, gray3dim, image = self._check(image)
         img = to_pil(image)
-        trans_image = img.rotate(self.angle, expand=True)
+        trans_image = img.rotate(self.angle, expand=False)
         trans_image = self._original_format(trans_image, chw, normalized,
                                             gray3dim)
         return trans_image
