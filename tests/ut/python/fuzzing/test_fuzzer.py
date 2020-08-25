@@ -102,7 +102,7 @@ def test_fuzzing_ascend():
                      ]
     # initialize fuzz test with training dataset
     train_images = np.random.rand(32, 1, 32, 32).astype(np.float32)
-    model_coverage_test = ModelCoverageMetrics(model, 1000, 10, train_images)
+    model_coverage_test = ModelCoverageMetrics(model, 10, 1000, train_images)
 
     # fuzz test with original test data
     # get test data
@@ -148,7 +148,7 @@ def test_fuzzing_cpu():
                      ]
     # initialize fuzz test with training dataset
     train_images = np.random.rand(32, 1, 32, 32).astype(np.float32)
-    model_coverage_test = ModelCoverageMetrics(model, 1000, 10, train_images)
+    model_coverage_test = ModelCoverageMetrics(model, 10, 1000, train_images)
 
     # fuzz test with original test data
     # get test data
