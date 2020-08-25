@@ -120,20 +120,18 @@ class Fuzzer:
             'FGSM': {'params': {'eps': {'dtype': [float, int], 'range': [0, 1]},
                                 'alpha': {'dtype': [float, int],
                                           'range': [0, 1]},
-                                'bounds': {'dtype': [list, tuple],
-                                           'range': None}}},
+                                'bounds': {'dtype': [list, tuple]}}},
             'PGD': {'params': {'eps': {'dtype': [float, int], 'range': [0, 1]},
                                'eps_iter': {'dtype': [float, int],
                                             'range': [0, 1e5]},
                                'nb_iter': {'dtype': [float, int],
                                            'range': [0, 1e5]},
-                               'bounds': {'dtype': [list, tuple],
-                                          'range': None}}},
+                               'bounds': {'dtype': [list, tuple]}}},
             'MDIIM': {
                 'params': {'eps': {'dtype': [float, int], 'range': [0, 1]},
-                           'norm_level': {'dtype': [str], 'range': None},
+                           'norm_level': {'dtype': [str]},
                            'prob': {'dtype': [float, int], 'range': [0, 1]},
-                           'bounds': {'dtype': [list, tuple], 'range': None}}}}
+                           'bounds': {'dtype': [list, tuple]}}}}
 
     def fuzzing(self, mutate_config, initial_seeds, coverage_metric='KMNC',
                 eval_metrics='auto', max_iters=10000, mutate_num_per_seed=20):
