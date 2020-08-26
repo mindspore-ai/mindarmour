@@ -117,21 +117,21 @@ class Fuzzer:
                                         'Noise']
         self._attacks_list = ['FGSM', 'PGD', 'MDIIM']
         self._attack_param_checklists = {
-            'FGSM': {'params': {'eps': {'dtype': [float, int], 'range': [0, 1]},
-                                'alpha': {'dtype': [float, int],
+            'FGSM': {'params': {'eps': {'dtype': [float], 'range': [0, 1]},
+                                'alpha': {'dtype': [float],
                                           'range': [0, 1]},
-                                'bounds': {'dtype': [list, tuple]}}},
-            'PGD': {'params': {'eps': {'dtype': [float, int], 'range': [0, 1]},
-                               'eps_iter': {'dtype': [float, int],
-                                            'range': [0, 1e5]},
-                               'nb_iter': {'dtype': [float, int],
+                                'bounds': {'dtype': [tuple]}}},
+            'PGD': {'params': {'eps': {'dtype': [float], 'range': [0, 1]},
+                               'eps_iter': {'dtype': [float],
+                                            'range': [0, 1]},
+                               'nb_iter': {'dtype': [int],
                                            'range': [0, 1e5]},
-                               'bounds': {'dtype': [list, tuple]}}},
+                               'bounds': {'dtype': [tuple]}}},
             'MDIIM': {
-                'params': {'eps': {'dtype': [float, int], 'range': [0, 1]},
+                'params': {'eps': {'dtype': [float], 'range': [0, 1]},
                            'norm_level': {'dtype': [str]},
-                           'prob': {'dtype': [float, int], 'range': [0, 1]},
-                           'bounds': {'dtype': [list, tuple]}}}}
+                           'prob': {'dtype': [float], 'range': [0, 1]},
+                           'bounds': {'dtype': [tuple]}}}}
 
     def fuzzing(self, mutate_config, initial_seeds, coverage_metric='KMNC',
                 eval_metrics='auto', max_iters=10000, mutate_num_per_seed=20):
