@@ -140,8 +140,8 @@ class ModelCoverageMetrics:
 
         Args:
             dataset (numpy.ndarray): Data for fuzz test.
-            bias_coefficient (float): The coefficient used for changing the
-                neurons' output boundaries. Default: 0.
+            bias_coefficient (Union[int, float]): The coefficient used
+                for changing the neurons' output boundaries. Default: 0.
             batch_size (int): The number of samples in a predict batch.
                 Default: 32.
 
