@@ -141,8 +141,8 @@ class Fuzzer:
         Args:
             mutate_config (list): Mutate configs. The format is
                 [{'method': 'Blur', 'params': {'auto_param': True}},
-                 {'method': 'Contrast', 'params': {'factor': 2}}].
-                The supported methods list is in `self._strategies`, and the
+                {'method': 'Contrast', 'params': {'factor': 2}}]. The
+                supported methods list is in `self._strategies`, and the
                 params of each method must within the range of changeable parameters.　
                 Supported methods are grouped in three types:
                 Firstly, pixel value based transform methods include:
@@ -153,8 +153,9 @@ class Fuzzer:
                 transform methods. The way of setting parameters for first and
                 second type methods can be seen in 'mindarmour/fuzzing/image_transform.py'.
                 For third type methods, you can refer to the corresponding class.
-            initial_seeds (numpy.ndarray): Initial seeds used to generate
-                mutated samples.
+            initial_seeds (list[list]): Initial seeds used to generate mutated
+                samples. The format of initial seeds is [[image_data, label],
+                [...], ...].
             coverage_metric (str): Model coverage metric of neural networks. All
                 supported metrics are: 'KMNC', 'NBC', 'SNAC'. Default: 'KMNC'.
             eval_metrics (Union[list, tuple, str]): Evaluation metrics. If the
@@ -210,8 +211,18 @@ class Fuzzer:
 
         # Check whether the mutate_config meet the specification.
         mutate_config = check_param_type('mutate_config', mutate_config, list)
-        for method in mutate_config:
-            check_param_type("method['params']", method['params'], dict)
+        for config in mutate_config:
+            check_param_type("config['params']", config['params'], dict)
+            if set(config.keys()) != {'method', 'params'}:
+                msg = "Config must contain 'method' and 'params', but got {}." \
+                    .format(set(config.keys()))
+                LOGGER.error(TAG, msg)
+                raise TypeError(msg)
+            if config['method'] not in self._strategies.keys():
+                msg = "Config methods must be in {}, but got {}." \
+                    .format(self._strategies.keys(), config['method'])
+                LOGGER.error(TAG, msg)
+                raise TypeError(msg)
         if coverage_metric not in ['KMNC', 'NBC', 'SNAC']:
             msg = "coverage_metric must be in ['KMNC', 'NBC', 'SNAC'], but got {}." \
                 .format(coverage_metric)
@@ -225,10 +236,7 @@ class Fuzzer:
             check_param_type('seed', seed, list)
             check_numpy_param('seed[0]', seed[0])
             check_numpy_param('seed[1]', seed[1])
-            if seed[2] != 0:
-                msg = "initial seed[2] must be 0, but got {}.".format(seed[2])
-                LOGGER.error(TAG, msg)
-                raise ValueError(msg)
+            seed.append(0)
         seed, initial_seeds = _select_next(initial_seeds)
         fuzz_samples = []
         gt_labels = []

@@ -113,7 +113,7 @@ def test_fuzzing_ascend():
     initial_seeds = []
     # make initial seeds
     for img, label in zip(test_images, test_labels):
-        initial_seeds.append([img, label, 0])
+        initial_seeds.append([img, label])
 
     initial_seeds = initial_seeds[:100]
     model_coverage_test.calculate_coverage(
@@ -159,7 +159,7 @@ def test_fuzzing_cpu():
     initial_seeds = []
     # make initial seeds
     for img, label in zip(test_images, test_labels):
-        initial_seeds.append([img, label, 0])
+        initial_seeds.append([img, label])
 
     initial_seeds = initial_seeds[:100]
     model_coverage_test.calculate_coverage(

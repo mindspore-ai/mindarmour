@@ -39,21 +39,21 @@ def test_lenet_mnist_fuzzing():
     load_param_into_net(net, load_dict)
     model = Model(net)
     mutate_config = [{'method': 'Blur',
-                     'params': {'auto_param': True}},
-                    {'method': 'Contrast',
-                     'params': {'auto_param': True}},
-                    {'method': 'Translate',
-                     'params': {'auto_param': True}},
-                    {'method': 'Brightness',
-                     'params': {'auto_param': True}},
-                    {'method': 'Noise',
-                     'params': {'auto_param': True}},
-                    {'method': 'Scale',
-                     'params': {'auto_param': True}},
-                    {'method': 'Shear',
-                     'params': {'auto_param': True}},
-                    {'method': 'FGSM',
-                     'params': {'eps': 0.3, 'alpha': 0.1}}
+                      'params': {'auto_param': True}},
+                     {'method': 'Contrast',
+                      'params': {'auto_param': True}},
+                     {'method': 'Translate',
+                      'params': {'auto_param': True}},
+                     {'method': 'Brightness',
+                      'params': {'auto_param': True}},
+                     {'method': 'Noise',
+                      'params': {'auto_param': True}},
+                     {'method': 'Scale',
+                      'params': {'auto_param': True}},
+                     {'method': 'Shear',
+                      'params': {'auto_param': True}},
+                     {'method': 'FGSM',
+                      'params': {'eps': 0.3, 'alpha': 0.1}}
                     ]
 
     # get training data
@@ -87,7 +87,7 @@ def test_lenet_mnist_fuzzing():
 
     # make initial seeds
     for img, label in zip(test_images, test_labels):
-        initial_seeds.append([img, label, 0])
+        initial_seeds.append([img, label])
 
     initial_seeds = initial_seeds[:100]
     model_coverage_test.calculate_coverage(
