@@ -21,6 +21,11 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import RandomizedSearchCV
 
+from mindarmour.utils.logger import LogUtil
+
+LOGGER = LogUtil.get_instance()
+TAG = "Attacker"
+
 
 def _attack_knn(features, labels, param_grid):
     """
@@ -138,4 +143,7 @@ def get_attack_model(features, labels, config):
         return _attack_mlpc(features, labels, config["params"])
     if method == "rf":
         return _attack_rf(features, labels, config["params"])
-    return None
+
+    msg = "Method {} is not supported.".format(config["method"])
+    LOGGER.error(TAG, msg)
+    raise ValueError(msg)
