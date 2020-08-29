@@ -136,6 +136,7 @@ class AdversarialDefenseWithAttacks(AdversarialDefense):
         self._replace_ratio = check_param_in_range('replace_ratio',
                                                    replace_ratio,
                                                    0, 1)
+        self._graph_initialized = False
 
     def defense(self, inputs, labels):
         """
@@ -150,6 +151,9 @@ class AdversarialDefenseWithAttacks(AdversarialDefense):
         """
         inputs, labels = check_pair_numpy_param('inputs', inputs, 'labels',
                                                 labels)
+        if not self._graph_initialized:
+            self._train_net(Tensor(inputs), Tensor(labels))
+            self._graph_initialized = True
 
         x_len = inputs.shape[0]
         n_adv = int(np.ceil(self._replace_ratio*x_len))
