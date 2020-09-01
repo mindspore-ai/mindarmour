@@ -383,7 +383,7 @@ class _TrainOneStepWithLossScaleCell(Cell):
         self.network.add_flags(defer_inline=True)
         self.weights = ParameterTuple(network.trainable_params())
         self.optimizer = optimizer
-        self.grad = C.GradOperation('grad', get_by_list=True, sens_param=True)
+        self.grad = C.GradOperation(get_by_list=True, sens_param=True)
         self.hyper_map = C.HyperMap()
         if context.get_context("device_target") == "GPU":
             self.gpu_target = True
@@ -602,7 +602,7 @@ class _TrainOneStepCell(Cell):
         self.network.add_flags(defer_inline=True)
         self.weights = optimizer.parameters
         self.optimizer = optimizer
-        self.grad = C.GradOperation('grad', get_by_list=True, sens_param=True)
+        self.grad = C.GradOperation(get_by_list=True, sens_param=True)
         self.sens = sens
         self.reducer_flag = False
         self.grad_reducer = None
