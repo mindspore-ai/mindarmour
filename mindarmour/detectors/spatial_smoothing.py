@@ -83,10 +83,10 @@ class SpatialSmoothing(Detector):
             as positive, i.e. adversarial.
         """
         inputs = check_numpy_param('inputs', inputs)
-        raw_pred = self._model.predict(Tensor(inputs))
-        smoothing_pred = self._model.predict(Tensor(self.transform(inputs)))
+        raw_pred = self._model.predict(Tensor(inputs)).asnumpy()
+        smoothing_pred = self._model.predict(Tensor(self.transform(inputs))).asnumpy()
 
-        dist = self._dist(raw_pred.asnumpy(), smoothing_pred.asnumpy())
+        dist = self._dist(raw_pred, smoothing_pred)
         index = int(len(dist)*(1 - self._fpr))
         threshold = np.sort(dist, axis=None)[index]
         self._threshold = threshold
@@ -104,9 +104,9 @@ class SpatialSmoothing(Detector):
             input sample with index i is adversarial.
         """
         inputs = check_numpy_param('inputs', inputs)
-        raw_pred = self._model.predict(Tensor(inputs))
-        smoothing_pred = self._model.predict(Tensor(self.transform(inputs)))
-        dist = self._dist(raw_pred.asnumpy(), smoothing_pred.asnumpy())
+        raw_pred = self._model.predict(Tensor(inputs)).asnumpy()
+        smoothing_pred = self._model.predict(Tensor(self.transform(inputs))).asnumpy()
+        dist = self._dist(raw_pred, smoothing_pred)
 
         res = [0]*len(dist)
         for i, elem in enumerate(dist):
@@ -127,9 +127,9 @@ class SpatialSmoothing(Detector):
             float, distance.
         """
         inputs = check_numpy_param('inputs', inputs)
-        raw_pred = self._model.predict(Tensor(inputs))
-        smoothing_pred = self._model.predict(Tensor(self.transform(inputs)))
-        dist = self._dist(raw_pred.asnumpy(), smoothing_pred.asnumpy())
+        raw_pred = self._model.predict(Tensor(inputs)).asnumpy()
+        smoothing_pred = self._model.predict(Tensor(self.transform(inputs))).asnumpy()
+        dist = self._dist(raw_pred, smoothing_pred)
         return dist
 
     def transform(self, inputs):

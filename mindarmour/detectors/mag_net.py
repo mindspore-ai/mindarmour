@@ -121,8 +121,8 @@ class ErrorBasedDetector(Detector):
             float, the distance between reconstructed and original samples.
         """
         inputs = check_numpy_param('inputs', inputs)
-        x_trans = self._auto_encoder.predict(Tensor(inputs))
-        diff = np.abs(inputs - x_trans.asnumpy())
+        x_trans = self._auto_encoder.predict(Tensor(inputs)).asnumpy()
+        diff = np.abs(inputs - x_trans)
         dims = tuple(np.arange(len(inputs.shape))[1:])
         marks = np.mean(np.power(diff, 2), axis=dims)
         return marks
@@ -138,10 +138,10 @@ class ErrorBasedDetector(Detector):
             numpy.ndarray, reconstructed images.
         """
         inputs = check_numpy_param('inputs', inputs)
-        x_trans = self._auto_encoder.predict(Tensor(inputs))
+        x_trans = self._auto_encoder.predict(Tensor(inputs)).asnumpy()
         if self._bounds is not None:
             clip_min, clip_max = self._bounds
-            x_trans = np.clip(x_trans.asnumpy(), clip_min, clip_max)
+            x_trans = np.clip(x_trans, clip_min, clip_max)
         return x_trans
 
     def set_threshold(self, threshold):
@@ -214,12 +214,12 @@ class DivergenceBasedDetector(ErrorBasedDetector):
         """
         inputs = check_numpy_param('inputs', inputs)
         x_len = inputs.shape[0]
-        x_transformed = self._auto_encoder.predict(Tensor(inputs))
-        x_origin = self._model.predict(Tensor(inputs))
-        x_trans = self._model.predict(x_transformed)
+        x_transformed = self._auto_encoder.predict(Tensor(inputs)).asnumpy()
+        x_origin = self._model.predict(Tensor(inputs)).asnumpy()
+        x_trans = self._model.predict(Tensor(x_transformed)).asnumpy()
 
-        y_pred = softmax(x_origin.asnumpy() / self._t, axis=1)
-        y_trans_pred = softmax(x_trans.asnumpy() / self._t, axis=1)
+        y_pred = softmax(x_origin / self._t, axis=1)
+        y_trans_pred = softmax(x_trans / self._t, axis=1)
 
         if self._option == 'jsd':
             marks = [_jsd(y_pred[i], y_trans_pred[i]) for i in range(x_len)]

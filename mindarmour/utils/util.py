@@ -108,9 +108,7 @@ class GradWrapWithLoss(Cell):
 
     def __init__(self, network):
         super(GradWrapWithLoss, self).__init__()
-        self._grad_all = GradOperation(name="get_all",
-                                       get_all=True,
-                                       sens_param=False)
+        self._grad_all = GradOperation(get_all=True, sens_param=False)
         self._network = network
 
     def construct(self, inputs, labels):
@@ -149,8 +147,7 @@ class GradWrap(Cell):
 
     def __init__(self, network):
         super(GradWrap, self).__init__()
-        self.grad = GradOperation(name="grad", get_all=False,
-                                  sens_param=True)
+        self.grad = GradOperation(get_all=False, sens_param=True)
         self.network = network
 
     def construct(self, inputs, weight):
