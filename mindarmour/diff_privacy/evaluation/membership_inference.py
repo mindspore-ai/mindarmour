@@ -15,14 +15,16 @@
 Membership Inference
 """
 
+from multiprocessing import cpu_count
 import numpy as np
 
 import mindspore as ms
 from mindspore.train import Model
 from mindspore.dataset.engine import Dataset
 from mindspore import Tensor
-from mindarmour.diff_privacy.evaluation.attacker import get_attack_model
 from mindarmour.utils.logger import LogUtil
+from .attacker import get_attack_model
+from ._check_config import check_config_params
 
 LOGGER = LogUtil.get_instance()
 TAG = "MembershipInference"
@@ -101,13 +103,15 @@ class MembershipInference:
 
     Args:
         model (Model): Target model.
+        n_jobs (int): Number of jobs run in parallel. -1 means using all processors,
+            otherwise the value of n_jobs must be a positive integer.
 
     Examples:
         >>> train_1, train_2 are non-overlapping datasets from training dataset of target model.
         >>> test_1, test_2 are non-overlapping datasets from test dataset of target model.
         >>> We use train_1, test_1 to train attack model, and use train_2, test_2 to evaluate attack model.
         >>> model = Model(network=net, loss_fn=loss, optimizer=opt, metrics={'acc', 'loss'})
-        >>> inference_model = MembershipInference(model)
+        >>> inference_model = MembershipInference(model, n_jobs=-1)
         >>> config = [{"method": "KNN", "params": {"n_neighbors": [3, 5, 7]}}]
         >>> inference_model.train(train_1, test_1, config)
         >>> metrics = ["precision", "recall", "accuracy"]
@@ -115,15 +119,26 @@ class MembershipInference:
 
     Raises:
         TypeError: If type of model is not mindspore.train.Model.
+        TypeError: If type of n_jobs is not int.
+        ValueError: The value of n_jobs is neither -1 nor a positive integer.
     """
 
-    def __init__(self, model):
+    def __init__(self, model, n_jobs=-1):
         if not isinstance(model, Model):
             msg = "Type of parameter 'model' must be Model, but got {}.".format(type(model))
             LOGGER.error(TAG, msg)
             raise TypeError(msg)
+        if not isinstance(n_jobs, int):
+            msg = "Type of parameter 'n_jobs' must be int, but got {}".format(type(n_jobs))
+            LOGGER.error(TAG, msg)
+            raise TypeError(msg)
+        if not (n_jobs == -1 or n_jobs > 0):
+            msg = "Value of n_jobs must be either -1 or positive integer, but got {}.".format(n_jobs)
+            LOGGER.error(TAG, msg)
+            raise ValueError(msg)
 
         self.model = model
+        self.n_jobs = min(n_jobs, cpu_count())
         self.method_list = ["knn", "lr", "mlp", "rf"]
         self.attack_list = []
 
@@ -162,24 +177,13 @@ class MembershipInference:
             LOGGER.error(TAG, msg)
             raise TypeError(msg)
 
-        for config in attack_config:
-            if not isinstance(config, dict):
-                msg = "Type of each config in 'attack_config' must be dict, but got {}.".format(type(config))
-                LOGGER.error(TAG, msg)
-                raise TypeError(msg)
-            if {"params", "method"} != set(config.keys()):
-                msg = "Each config in attack_config must have keys 'method' and 'params'," \
-                      "but your key value is {}.".format(set(config.keys()))
-                LOGGER.error(TAG, msg)
-                raise KeyError(msg)
-            if str.lower(config["method"]) not in self.method_list:
-                msg = "Method {} is not support.".format(config["method"])
-                LOGGER.error(TAG, msg)
-                raise ValueError(msg)
+        check_config_params(attack_config) # Verify attack config.
 
         features, labels = self._transform(dataset_train, dataset_test)
+
         for config in attack_config:
-            self.attack_list.append(get_attack_model(features, labels, config))
+            self.attack_list.append(get_attack_model(features, labels, config, n_jobs=self.n_jobs))
+
 
     def eval(self, dataset_train, dataset_test, metrics):
         """
