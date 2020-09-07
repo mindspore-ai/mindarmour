@@ -23,9 +23,8 @@ from mindspore.nn import SoftmaxCrossEntropyWithLogits
 from scipy.special import softmax
 
 from lenet5_net import LeNet5
-from mindarmour.attacks.iterative_gradient_method import \
-    MomentumDiverseInputIterativeMethod
-from mindarmour.evaluations.attack_evaluation import AttackEvaluate
+from mindarmour.adv_robustness.attacks import MomentumDiverseInputIterativeMethod
+from mindarmour.adv_robustness.evaluations import AttackEvaluate
 from mindarmour.utils.logger import LogUtil
 
 

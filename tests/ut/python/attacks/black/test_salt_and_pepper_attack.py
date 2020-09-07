@@ -22,9 +22,8 @@ from mindspore import Tensor
 from mindspore.nn import Cell
 from mindspore import context
 
-from mindarmour.attacks.black.salt_and_pepper_attack import \
-    SaltAndPepperNoiseAttack
-from mindarmour.attacks.black.black_model import BlackModel
+from mindarmour import BlackModel
+from mindarmour.adv_robustness.attacks import SaltAndPepperNoiseAttack
 
 context.set_context(mode=context.GRAPH_MODE)
 context.set_context(device_target="Ascend")

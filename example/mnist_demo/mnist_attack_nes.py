@@ -19,8 +19,8 @@ from mindspore import context
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 
 from lenet5_net import LeNet5
-from mindarmour.attacks.black.black_model import BlackModel
-from mindarmour.attacks.black.natural_evolutionary_strategy import NES
+from mindarmour import BlackModel
+from mindarmour.adv_robustness.attacks import NES
 from mindarmour.utils.logger import LogUtil
 
 sys.path.append("..")

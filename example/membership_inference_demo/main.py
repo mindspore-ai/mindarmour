@@ -28,7 +28,7 @@ import numpy as np
 from mindspore.train import Model
 from mindspore.train.serialization import load_param_into_net, load_checkpoint
 import mindspore.nn as nn
-from mindarmour.diff_privacy.evaluation.membership_inference import MembershipInference
+from mindarmour.privacy.evaluation import MembershipInference
 from mindarmour.utils import LogUtil
 logging = LogUtil.get_instance()
 logging.set_level(20)

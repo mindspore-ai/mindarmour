@@ -22,7 +22,7 @@ import mindspore.dataset as ds
 from mindspore.train import Model
 import mindspore.context as context
 
-from mindarmour.diff_privacy import PrivacyMonitorFactory
+from mindarmour.privacy.diff_privacy import PrivacyMonitorFactory
 from mindarmour.utils.logger import LogUtil
 
 from test_network import LeNet5

@@ -17,12 +17,12 @@ DeepFool-Attack test.
 import numpy as np
 import pytest
 
-import mindspore.ops.operations as M
+import mindspore.ops.operations as P
 from mindspore.nn import Cell
 from mindspore import context
 from mindspore import Tensor
 
-from mindarmour.attacks.deep_fool import DeepFool
+from mindarmour.adv_robustness.attacks import DeepFool
 
 context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
 
@@ -41,7 +41,7 @@ class Net(Cell):
         Introduce the layers used for network construction.
         """
         super(Net, self).__init__()
-        self._softmax = M.Softmax()
+        self._softmax = P.Softmax()
 
     def construct(self, inputs):
         """

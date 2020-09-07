@@ -14,7 +14,7 @@
 """ check parameters for MindArmour. """
 import numpy as np
 
-from mindarmour.utils.logger import LogUtil
+from .logger import LogUtil
 
 LOGGER = LogUtil.get_instance()
 TAG = 'check parameters'

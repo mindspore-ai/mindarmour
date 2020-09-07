@@ -29,9 +29,9 @@ import mindspore.dataset.transforms.c_transforms as C
 from mindspore.dataset.transforms.vision import Inter
 import mindspore.common.dtype as mstype
 
-from mindarmour.diff_privacy import DPModel
-from mindarmour.diff_privacy import PrivacyMonitorFactory
-from mindarmour.diff_privacy import NoiseMechanismsFactory
+from mindarmour.privacy.diff_privacy import DPModel
+from mindarmour.privacy.diff_privacy import PrivacyMonitorFactory
+from mindarmour.privacy.diff_privacy import NoiseMechanismsFactory
 from mindarmour.utils.logger import LogUtil
 from lenet5_net import LeNet5
 from dp_ada_gaussian_config import mnist_cfg as cfg

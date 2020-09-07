@@ -17,7 +17,7 @@ Defense evaluation test.
 import numpy as np
 import pytest
 
-from mindarmour.evaluations.defense_evaluation import DefenseEvaluate
+from mindarmour.adv_robustness.evaluations import DefenseEvaluate
 
 
 @pytest.mark.level0

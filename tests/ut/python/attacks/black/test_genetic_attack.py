@@ -21,8 +21,8 @@ from mindspore import Tensor
 from mindspore import context
 from mindspore.nn import Cell
 
-from mindarmour.attacks.black.black_model import BlackModel
-from mindarmour.attacks.black.genetic_attack import GeneticAttack
+from mindarmour import BlackModel
+from mindarmour.adv_robustness.attacks import GeneticAttack
 
 context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
 

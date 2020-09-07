@@ -22,8 +22,8 @@ import mindspore.nn as nn
 from mindspore.nn import Cell
 from mindspore import context
 
-from mindarmour.attacks.black.pso_attack import PSOAttack
-from mindarmour.attacks.black.black_model import BlackModel
+from mindarmour.adv_robustness.attacks import PSOAttack
+from mindarmour import BlackModel
 
 
 # for user

@@ -17,7 +17,7 @@ from mindspore import Tensor
 from mindspore.nn import Cell
 from mindspore.ops.composite import GradOperation
 
-from mindarmour.utils.logger import LogUtil
+from .logger import LogUtil
 
 LOGGER = LogUtil.get_instance()
 TAG = 'util'

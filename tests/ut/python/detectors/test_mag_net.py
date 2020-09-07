@@ -23,8 +23,8 @@ from mindspore.ops.operations import TensorAdd
 from mindspore import Model
 from mindspore import context
 
-from mindarmour.detectors.mag_net import ErrorBasedDetector
-from mindarmour.detectors.mag_net import DivergenceBasedDetector
+from mindarmour.adv_robustness.detectors import ErrorBasedDetector
+from mindarmour.adv_robustness.detectors import DivergenceBasedDetector
 
 context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
 

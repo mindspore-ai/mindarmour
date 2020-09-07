@@ -17,12 +17,12 @@ Spatial-smoothing detector test.
 import numpy as np
 import pytest
 
-import mindspore.ops.operations as M
+import mindspore.ops.operations as P
 from mindspore import Model
 from mindspore.nn import Cell
 from mindspore import context
 
-from mindarmour.detectors.spatial_smoothing import SpatialSmoothing
+from mindarmour.adv_robustness.detectors import SpatialSmoothing
 
 context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
 
@@ -34,7 +34,7 @@ class Net(Cell):
     """
     def __init__(self):
         super(Net, self).__init__()
-        self._softmax = M.Softmax()
+        self._softmax = P.Softmax()
 
     def construct(self, inputs):
         """

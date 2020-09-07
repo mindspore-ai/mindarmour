@@ -23,9 +23,9 @@ from mindspore.train.serialization import load_checkpoint, load_param_into_net
 from scipy.special import softmax
 
 from lenet5_net import LeNet5
-from mindarmour.attacks.black.black_model import BlackModel
-from mindarmour.attacks.black.pso_attack import PSOAttack
-from mindarmour.detectors.black.similarity_detector import SimilarityDetector
+from mindarmour import BlackModel
+from mindarmour.adv_robustness.attacks.black.pso_attack import PSOAttack
+from mindarmour.adv_robustness.detectors import SimilarityDetector
 from mindarmour.utils.logger import LogUtil
 
 

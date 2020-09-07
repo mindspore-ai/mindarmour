@@ -23,7 +23,7 @@ from mindspore.nn.optim.momentum import Momentum
 from mindspore import context
 from mindspore.common.initializer import TruncatedNormal
 
-from mindarmour.attacks import FastGradientSignMethod
+from mindarmour.adv_robustness.attacks import FastGradientSignMethod
 
 
 def conv(in_channels, out_channels, kernel_size, stride=1, padding=0):

@@ -17,7 +17,7 @@ Attack evaluation test.
 import numpy as np
 import pytest
 
-from mindarmour.evaluations.attack_evaluation import AttackEvaluate
+from mindarmour.adv_robustness.evaluations import AttackEvaluate
 
 
 @pytest.mark.level0

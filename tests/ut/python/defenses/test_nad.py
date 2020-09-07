@@ -23,8 +23,7 @@ from mindspore import nn
 from mindspore.nn.optim.momentum import Momentum
 
 from mock_net import Net
-from mindarmour.defenses.natural_adversarial_defense import \
-    NaturalAdversarialDefense
+from mindarmour.adv_robustness.defenses import NaturalAdversarialDefense
 from mindarmour.utils.logger import LogUtil
 
 LOGGER = LogUtil.get_instance()

@@ -21,7 +21,7 @@ import mindspore.ops.operations as M
 from mindspore.nn import Cell
 from mindspore import context
 
-from mindarmour.attacks.carlini_wagner import CarliniWagnerL2Attack
+from mindarmour.adv_robustness.attacks import CarliniWagnerL2Attack
 
 
 context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")

@@ -28,13 +28,13 @@ from mindspore.train.serialization import load_checkpoint, load_param_into_net
 from scipy.special import softmax
 
 from lenet5_net import LeNet5
-from mindarmour.attacks import FastGradientSignMethod
-from mindarmour.attacks import GeneticAttack
-from mindarmour.attacks.black.black_model import BlackModel
-from mindarmour.defenses import NaturalAdversarialDefense
-from mindarmour.detectors.black.similarity_detector import SimilarityDetector
-from mindarmour.evaluations import BlackDefenseEvaluate
-from mindarmour.evaluations import DefenseEvaluate
+from mindarmour.adv_robustness.attacks import FastGradientSignMethod
+from mindarmour.adv_robustness.attacks import GeneticAttack
+from mindarmour.adv_robustness.attacks import BlackModel
+from mindarmour.adv_robustness.defenses import NaturalAdversarialDefense
+from mindarmour.adv_robustness.detectors import SimilarityDetector
+from mindarmour.adv_robustness.evaluations import BlackDefenseEvaluate
+from mindarmour.adv_robustness.evaluations import DefenseEvaluate
 from mindarmour.utils.logger import LogUtil
 
 sys.path.append("..")

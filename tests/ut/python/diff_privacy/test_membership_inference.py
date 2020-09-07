@@ -26,7 +26,7 @@ from mindspore import nn
 from mindspore.train import Model
 import mindspore.context as context
 
-from mindarmour.diff_privacy.evaluation.membership_inference import MembershipInference
+from mindarmour.privacy.evaluation import MembershipInference
 
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../"))
 from defenses.mock_net import Net

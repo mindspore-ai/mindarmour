@@ -17,7 +17,7 @@ Black-box defense evaluation test.
 import numpy as np
 import pytest
 
-from mindarmour.evaluations.black.defense_evaluation import BlackDefenseEvaluate
+from mindarmour.adv_robustness.evaluations import BlackDefenseEvaluate
 
 
 @pytest.mark.level0
