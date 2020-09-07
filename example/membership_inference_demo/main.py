@@ -59,7 +59,7 @@ if __name__ == "__main__":
 
     # load the pretrained model
     net = vgg16(args.num_classes, args)
-    loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
+    loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True)
     opt = nn.Momentum(params=get_param_groups(net), learning_rate=0.1, momentum=0.9,
                       weight_decay=args.weight_decay, loss_scale=args.loss_scale)
     load_param_into_net(net, load_checkpoint(args.pre_trained))

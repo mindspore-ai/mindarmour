@@ -111,7 +111,7 @@ def test_fast_gradient_method_cpu():
     input_np = np.asarray([[0.1, 0.2, 0.7]], np.float32)
     label = np.asarray([2], np.int32)
 
-    loss = SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
+    loss = SoftmaxCrossEntropyWithLogits(sparse=True)
     attack = FastGradientMethod(Net(), loss_fn=loss)
     ms_adv_x = attack.generate(input_np, label)
 

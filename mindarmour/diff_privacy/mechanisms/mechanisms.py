@@ -123,7 +123,7 @@ class NoiseMechanismsFactory:
             >>> batch_size = 32
             >>> batches = 128
             >>> epochs = 1
-            >>> loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
+            >>> loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True)
             >>> noise_mech = NoiseMechanismsFactory().create('Gaussian',
             >>>                                              norm_bound=norm_bound,
             >>>                                              initial_noise_multiplier=initial_noise_multiplier)

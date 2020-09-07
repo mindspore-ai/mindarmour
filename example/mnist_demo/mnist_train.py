@@ -38,8 +38,7 @@ def mnist_train(epoch_size, batch_size, lr, momentum):
                                 batch_size=batch_size, repeat_size=1)
 
     network = LeNet5()
-    net_loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True,
-                                                reduction="mean")
+    net_loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True, reduction="mean")
     net_opt = nn.Momentum(network.trainable_params(), lr, momentum)
     config_ck = CheckpointConfig(save_checkpoint_steps=1875,
                                  keep_checkpoint_max=10)

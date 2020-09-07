@@ -73,8 +73,7 @@ class GradientMethod(Attack):
         else:
             self._alpha = alpha
         if loss_fn is None:
-            loss_fn = SoftmaxCrossEntropyWithLogits(is_grad=False,
-                                                    sparse=False)
+            loss_fn = SoftmaxCrossEntropyWithLogits(sparse=False)
         with_loss_cell = WithLossCell(self._network, loss_fn)
         self._grad_all = GradWrapWithLoss(with_loss_cell)
         self._grad_all.set_train()

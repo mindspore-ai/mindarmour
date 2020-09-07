@@ -73,7 +73,7 @@ def test_lenet_mnist_coverage():
     LOGGER.info(TAG, 'SNAC of this test is : %s', model_fuzz_test.get_snac())
 
     # generate adv_data
-    loss = SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
+    loss = SoftmaxCrossEntropyWithLogits(sparse=True)
     attack = FastGradientSignMethod(net, eps=0.3, loss_fn=loss)
     adv_data = attack.batch_generate(test_images, test_labels, batch_size=32)
     model_fuzz_test.calculate_coverage(adv_data, bias_coefficient=0.5)

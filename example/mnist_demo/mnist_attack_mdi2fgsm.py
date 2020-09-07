@@ -77,7 +77,7 @@ def test_momentum_diverse_input_iterative_method():
     LOGGER.info(TAG, "prediction accuracy before attacking is : %s", accuracy)
 
     # attacking
-    loss = SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
+    loss = SoftmaxCrossEntropyWithLogits(sparse=True)
     attack = MomentumDiverseInputIterativeMethod(net, loss_fn=loss)
     start_time = time.clock()
     adv_data = attack.batch_generate(np.concatenate(test_images),

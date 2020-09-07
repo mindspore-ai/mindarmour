@@ -89,7 +89,7 @@ def generate_mnist_dataset(data_path, batch_size=32, repeat_size=1,
 if __name__ == "__main__":
     context.set_context(mode=context.GRAPH_MODE, device_target=cfg.device_target)
     network = LeNet5()
-    net_loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True, reduction="mean")
+    net_loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True, reduction="mean")
     config_ck = CheckpointConfig(save_checkpoint_steps=cfg.save_checkpoint_steps,
                                  keep_checkpoint_max=cfg.keep_checkpoint_max)
     ckpoint_cb = ModelCheckpoint(prefix="checkpoint_lenet",

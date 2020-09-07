@@ -75,7 +75,7 @@ def test_projected_gradient_descent_method():
     LOGGER.info(TAG, "prediction accuracy before attacking is : %s", accuracy)
 
     # attacking
-    loss = SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
+    loss = SoftmaxCrossEntropyWithLogits(sparse=True)
     attack = ProjectedGradientDescent(net, eps=0.3, loss_fn=loss)
     start_time = time.clock()
     adv_data = attack.batch_generate(np.concatenate(test_images),

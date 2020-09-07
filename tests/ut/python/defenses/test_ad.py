@@ -52,7 +52,7 @@ def test_ad():
         labels = np.eye(num_classes)[labels].astype(np.float32)
 
     net = Net()
-    loss_fn = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=sparse)
+    loss_fn = nn.SoftmaxCrossEntropyWithLogits(sparse=sparse)
     optimizer = Momentum(learning_rate=Tensor(np.array([0.001], np.float32)),
                          momentum=0.9,
                          params=net.trainable_params())

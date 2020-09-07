@@ -58,7 +58,7 @@ class AdversarialDefense(Defense):
         >>> net = Net()
         >>> lr = 0.0001
         >>> momentum = 0.9
-        >>> loss_fn = SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
+        >>> loss_fn = SoftmaxCrossEntropyWithLogits(sparse=True)
         >>> optimizer = Momentum(net.trainable_params(), lr, momentum)
         >>> adv_defense = AdversarialDefense(net, loss_fn, optimizer)
         >>> inputs = np.random.rand(32, 1, 28, 28).astype(np.float32)
@@ -70,7 +70,7 @@ class AdversarialDefense(Defense):
         super(AdversarialDefense, self).__init__(network)
         network = check_model('network', network, Cell)
         if loss_fn is None:
-            loss_fn = SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
+            loss_fn = SoftmaxCrossEntropyWithLogits(sparse=True)
 
         if optimizer is None:
             optimizer = Momentum(

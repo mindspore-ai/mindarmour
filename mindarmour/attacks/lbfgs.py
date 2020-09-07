@@ -66,7 +66,7 @@ class LBFGS(Attack):
         self._nb_iter = check_int_positive('nb_iter', nb_iter)
         self._search_iters = check_int_positive('search_iters', search_iters)
         if loss_fn is None:
-            loss_fn = SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=False)
+            loss_fn = SoftmaxCrossEntropyWithLogits(sparse=False)
         with_loss_cell = WithLossCell(self._network, loss_fn)
         self._grad_all = GradWrapWithLoss(with_loss_cell)
         self._dtype = None

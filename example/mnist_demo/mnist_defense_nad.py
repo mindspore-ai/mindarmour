@@ -48,7 +48,7 @@ def test_nad_method():
     ds_train = generate_mnist_dataset(os.path.join(mnist_path, "train"),
                                       batch_size=batch_size, repeat_size=1)
     net = LeNet5()
-    loss = SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
+    loss = SoftmaxCrossEntropyWithLogits(sparse=True)
     opt = nn.Momentum(net.trainable_params(), 0.01, 0.09)
     model = Model(net, loss, opt, metrics=None)
     model.train(10, ds_train, callbacks=[LossMonitor()],

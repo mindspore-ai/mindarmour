@@ -39,7 +39,7 @@ from mindspore.ops.operations import NPUClearFloatStatus
 from mindspore.ops.operations import ReduceSum
 from mindspore.ops.operations import LessEqual
 from mindspore.ops.operations import ControlDepend
-from mindspore.parallel._utils import _get_mirror_mean
+from mindspore.parallel._utils import _get_gradients_mean
 from mindspore.parallel._utils import _get_device_num
 from mindspore.nn.wrap.grad_reducer import DistributedGradReducer
 from mindspore.common.parameter import Parameter
@@ -93,7 +93,7 @@ class DPModel(Model):
         >>> batches = 128
         >>> epochs = 1
         >>> micro_batches = 2
-        >>> loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
+        >>> loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True)
         >>> factory_opt = DPOptimizerClassFactory(micro_batches=micro_batches)
         >>> factory_opt.set_mechanisms('Gaussian',
         >>>                            norm_bound=norm_bound,
@@ -405,7 +405,7 @@ class _TrainOneStepWithLossScaleCell(Cell):
         self.reducer_flag = self.parallel_mode in [ParallelMode.DATA_PARALLEL,
                                                    ParallelMode.HYBRID_PARALLEL]
         if self.reducer_flag:
-            mean = _get_mirror_mean()
+            mean = _get_gradients_mean()
             degree = _get_device_num()
             self.grad_reducer = DistributedGradReducer(optimizer.parameters,
                                                        mean, degree)
@@ -611,7 +611,7 @@ class _TrainOneStepCell(Cell):
                 ParallelMode.DATA_PARALLEL, ParallelMode.HYBRID_PARALLEL):
             self.reducer_flag = True
         if self.reducer_flag:
-            mean = _get_mirror_mean()
+            mean = _get_gradients_mean()
             degree = _get_device_num()
             self.grad_reducer = DistributedGradReducer(optimizer.parameters,
                                                        mean, degree)

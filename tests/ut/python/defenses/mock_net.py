@@ -95,7 +95,7 @@ if __name__ == '__main__':
     attack.generate(inputs_np, labels_np)
 
     # test train ops
-    loss_fn = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=sparse)
+    loss_fn = nn.SoftmaxCrossEntropyWithLogits(sparse=sparse)
     optimizer = Momentum(filter(lambda x: x.requires_grad, net.get_parameters()),
                          0.01, 0.9)
     loss_net = WithLossCell(net, loss_fn)
