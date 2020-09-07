@@ -83,7 +83,7 @@ def test_lbfgs_attack():
                 targeted_labels[i] = (targeted_labels[i] + 1) % 10
     else:
         targeted_labels = true_labels.astype(np.int32)
-    loss = SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
+    loss = SoftmaxCrossEntropyWithLogits(sparse=True)
     attack = LBFGS(net, is_targeted=is_targeted, loss_fn=loss)
     start_time = time.clock()
     adv_data = attack.batch_generate(np.concatenate(test_images),

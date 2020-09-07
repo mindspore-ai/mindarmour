@@ -53,7 +53,7 @@ def test_dp_model_with_pynative_mode():
     batches = 128
     epochs = 1
     micro_batches = 2
-    loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
+    loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True)
     factory_opt = DPOptimizerClassFactory(micro_batches=micro_batches)
     factory_opt.set_mechanisms('Gaussian',
                                norm_bound=norm_bound,
@@ -92,7 +92,7 @@ def test_dp_model_with_graph_mode():
     batch_size = 32
     batches = 128
     epochs = 1
-    loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
+    loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True)
     noise_mech = NoiseMechanismsFactory().create('Gaussian',
                                                  norm_bound=norm_bound,
                                                  initial_noise_multiplier=initial_noise_multiplier)
@@ -131,7 +131,7 @@ def test_dp_model_with_graph_mode_ada_gaussian():
     batches = 128
     epochs = 1
     alpha = 0.8
-    loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
+    loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True)
     noise_mech = NoiseMechanismsFactory().create('AdaGaussian',
                                                  norm_bound=norm_bound,
                                                  initial_noise_multiplier=initial_noise_multiplier,

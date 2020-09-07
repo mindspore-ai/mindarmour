@@ -129,7 +129,7 @@ class IterativeGradientMethod(Attack):
         for b in self._bounds:
             _ = check_param_multi_types('bound', b, [int, float])
         if loss_fn is None:
-            loss_fn = SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=False)
+            loss_fn = SoftmaxCrossEntropyWithLogits(sparse=False)
         self._loss_grad = GradWrapWithLoss(WithLossCell(self._network, loss_fn))
         self._loss_grad.set_train()
 

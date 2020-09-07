@@ -48,7 +48,7 @@ def dataset_generator(batch_size, batches):
 @pytest.mark.component_mindarmour
 def test_get_membership_inference_object():
     net = Net()
-    loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
+    loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True)
     opt = nn.Momentum(params=net.trainable_params(), learning_rate=0.1, momentum=0.9)
     model = Model(network=net, loss_fn=loss, optimizer=opt)
     inference_model = MembershipInference(model)
@@ -62,7 +62,7 @@ def test_get_membership_inference_object():
 @pytest.mark.component_mindarmour
 def test_membership_inference_object_train():
     net = Net()
-    loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
+    loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True)
     opt = nn.Momentum(params=net.trainable_params(), learning_rate=0.1, momentum=0.9)
     model = Model(network=net, loss_fn=loss, optimizer=opt)
     inference_model = MembershipInference(model)
@@ -92,7 +92,7 @@ def test_membership_inference_object_train():
 @pytest.mark.component_mindarmour
 def test_membership_inference_eval():
     net = Net()
-    loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
+    loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True)
     opt = nn.Momentum(params=net.trainable_params(), learning_rate=0.1, momentum=0.9)
     model = Model(network=net, loss_fn=loss, optimizer=opt)
     inference_model = MembershipInference(model)

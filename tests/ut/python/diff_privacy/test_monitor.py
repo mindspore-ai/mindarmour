@@ -58,8 +58,7 @@ def test_dp_monitor():
     LOGGER.info(TAG, 'The recommended maximum training epochs is: %s',
                 suggest_epoch)
     network = LeNet5()
-    net_loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True,
-                                                reduction="mean")
+    net_loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True, reduction="mean")
     net_opt = nn.Momentum(network.trainable_params(), 0.01, 0.9)
 
     model = Model(network, net_loss, net_opt)
@@ -88,8 +87,7 @@ def test_dp_monitor_gpu():
     LOGGER.info(TAG, 'The recommended maximum training epochs is: %s',
                 suggest_epoch)
     network = LeNet5()
-    net_loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True,
-                                                reduction="mean")
+    net_loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True, reduction="mean")
     net_opt = nn.Momentum(network.trainable_params(), 0.01, 0.9)
 
     model = Model(network, net_loss, net_opt)
@@ -118,8 +116,7 @@ def test_dp_monitor_cpu():
     LOGGER.info(TAG, 'The recommended maximum training epochs is: %s',
                 suggest_epoch)
     network = LeNet5()
-    net_loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True,
-                                                reduction="mean")
+    net_loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True, reduction="mean")
     net_opt = nn.Momentum(network.trainable_params(), 0.01, 0.9)
 
     model = Model(network, net_loss, net_opt)
@@ -149,8 +146,7 @@ def test_dp_monitor_zcdp():
     LOGGER.info(TAG, 'The recommended maximum training epochs is: %s',
                 suggest_epoch)
     network = LeNet5()
-    net_loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True,
-                                                reduction="mean")
+    net_loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True, reduction="mean")
     net_opt = nn.Momentum(network.trainable_params(), 0.01, 0.9)
 
     model = Model(network, net_loss, net_opt)
@@ -179,8 +175,7 @@ def test_dp_monitor_zcdp_gpu():
     LOGGER.info(TAG, 'The recommended maximum training epochs is: %s',
                 suggest_epoch)
     network = LeNet5()
-    net_loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True,
-                                                reduction="mean")
+    net_loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True, reduction="mean")
     net_opt = nn.Momentum(network.trainable_params(), 0.01, 0.9)
 
     model = Model(network, net_loss, net_opt)
@@ -209,8 +204,7 @@ def test_dp_monitor_zcdp_cpu():
     LOGGER.info(TAG, 'The recommended maximum training epochs is: %s',
                 suggest_epoch)
     network = LeNet5()
-    net_loss = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True,
-                                                reduction="mean")
+    net_loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True, reduction="mean")
     net_opt = nn.Momentum(network.trainable_params(), 0.01, 0.9)
 
     model = Model(network, net_loss, net_opt)

@@ -53,7 +53,7 @@ def test_pad():
 
     # construct network
     net = Net()
-    loss_fn = nn.SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=sparse)
+    loss_fn = nn.SoftmaxCrossEntropyWithLogits(sparse=sparse)
     optimizer = Momentum(net.trainable_params(), 0.001, 0.9)
 
     # defense

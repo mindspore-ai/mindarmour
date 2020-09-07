@@ -164,7 +164,7 @@ def test_black_defense():
     wb_model = ModelToBeAttacked(wb_net)
 
     # gen white-box adversarial examples of test data
-    loss = SoftmaxCrossEntropyWithLogits(is_grad=False, sparse=True)
+    loss = SoftmaxCrossEntropyWithLogits(sparse=True)
     wb_attack = FastGradientSignMethod(wb_net, eps=0.3, loss_fn=loss)
     wb_adv_sample = wb_attack.generate(attacked_sample,
                                        attacked_true_label)
