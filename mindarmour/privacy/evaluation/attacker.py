@@ -153,4 +153,4 @@ def get_attack_model(features, labels, config, n_jobs=-1):
 
     msg = "Method {} is not supported.".format(config["method"])
     LOGGER.error(TAG, msg)
-    raise ValueError(msg)
+    raise NameError(msg)

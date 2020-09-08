@@ -27,12 +27,12 @@ from mindarmour.privacy.evaluation.attacker import get_attack_model
 @pytest.mark.env_onecard
 @pytest.mark.component_mindarmour
 def test_get_knn_model():
-    features = np.random.randint(0, 10, [10, 10])
-    labels = np.random.randint(0, 2, [10])
+    features = np.random.randint(0, 10, [100, 10])
+    labels = np.random.randint(0, 2, [100])
     config_knn = {
         "method": "KNN",
         "params": {
-            "n_neighbors": [3],
+            "n_neighbors": [3, 5, 7],
         }
     }
     knn_attacker = get_attack_model(features, labels, config_knn, -1)
@@ -46,8 +46,8 @@ def test_get_knn_model():
 @pytest.mark.env_onecard
 @pytest.mark.component_mindarmour
 def test_get_lr_model():
-    features = np.random.randint(0, 10, [10, 10])
-    labels = np.random.randint(0, 2, [10])
+    features = np.random.randint(0, 10, [100, 10])
+    labels = np.random.randint(0, 2, [100])
     config_lr = {
         "method": "LR",
         "params": {
@@ -65,8 +65,8 @@ def test_get_lr_model():
 @pytest.mark.env_onecard
 @pytest.mark.component_mindarmour
 def test_get_mlp_model():
-    features = np.random.randint(0, 10, [10, 10])
-    labels = np.random.randint(0, 2, [10])
+    features = np.random.randint(0, 10, [100, 10])
+    labels = np.random.randint(0, 2, [100])
     config_mlpc = {
         "method": "MLP",
         "params": {
@@ -86,14 +86,14 @@ def test_get_mlp_model():
 @pytest.mark.env_onecard
 @pytest.mark.component_mindarmour
 def test_get_rf_model():
-    features = np.random.randint(0, 10, [10, 10])
-    labels = np.random.randint(0, 2, [10])
+    features = np.random.randint(0, 10, [100, 10])
+    labels = np.random.randint(0, 2, [100])
     config_rf = {
         "method": "RF",
         "params": {
             "n_estimators": [100],
             "max_features": ["auto", "sqrt"],
-            "max_depth": [5, 10, 20, None],
+            "max_depth": [None, 5, 10, 20],
             "min_samples_split": [2, 5, 10],
             "min_samples_leaf": [1, 2, 4],
         }
