@@ -24,12 +24,15 @@ import numpy as np
 import mindspore.dataset as ds
 from mindspore import nn
 from mindspore.train import Model
+import mindspore.context as context
 
 from mindarmour.diff_privacy.evaluation.membership_inference import MembershipInference
 
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../"))
 from defenses.mock_net import Net
 
+
+context.set_context(mode=context.GRAPH_MODE)
 
 def dataset_generator(batch_size, batches):
     """mock training data."""
@@ -51,7 +54,7 @@ def test_get_membership_inference_object():
     loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True)
     opt = nn.Momentum(params=net.trainable_params(), learning_rate=0.1, momentum=0.9)
     model = Model(network=net, loss_fn=loss, optimizer=opt)
-    inference_model = MembershipInference(model)
+    inference_model = MembershipInference(model, -1)
     assert isinstance(inference_model, MembershipInference)
 
 
@@ -65,7 +68,7 @@ def test_membership_inference_object_train():
     loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True)
     opt = nn.Momentum(params=net.trainable_params(), learning_rate=0.1, momentum=0.9)
     model = Model(network=net, loss_fn=loss, optimizer=opt)
-    inference_model = MembershipInference(model)
+    inference_model = MembershipInference(model, -1)
     assert isinstance(inference_model, MembershipInference)
 
     config = [{
@@ -95,7 +98,7 @@ def test_membership_inference_eval():
     loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True)
     opt = nn.Momentum(params=net.trainable_params(), learning_rate=0.1, momentum=0.9)
     model = Model(network=net, loss_fn=loss, optimizer=opt)
-    inference_model = MembershipInference(model)
+    inference_model = MembershipInference(model, -1)
     assert isinstance(inference_model, MembershipInference)
 
     batch_size = 16
