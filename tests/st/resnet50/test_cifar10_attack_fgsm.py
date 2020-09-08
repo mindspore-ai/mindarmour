@@ -29,7 +29,7 @@ from mindspore.common import dtype as mstype
 from mindspore.ops import operations as P
 from mindspore.ops import functional as F
 
-from mindarmour.attacks.gradient_method import FastGradientSignMethod
+from mindarmour.adv_robustness.attacks import FastGradientSignMethod
 
 from resnet_cifar10 import resnet50_cifar10
 

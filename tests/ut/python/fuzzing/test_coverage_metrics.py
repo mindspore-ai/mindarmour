@@ -17,15 +17,14 @@ Model-fuzz coverage test.
 import numpy as np
 import pytest
 
+from mindspore import nn
+from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
 from mindspore.train import Model
-import mindspore.nn as nn
-from mindspore.nn import Cell
 from mindspore import context
-from mindspore.nn import SoftmaxCrossEntropyWithLogits
 
-from mindarmour.attacks.gradient_method import FastGradientSignMethod
+from mindarmour.adv_robustness.attacks import FastGradientSignMethod
 from mindarmour.utils.logger import LogUtil
-from mindarmour.fuzzing.model_coverage_metrics import ModelCoverageMetrics
+from mindarmour.fuzz_testing import ModelCoverageMetrics
 
 LOGGER = LogUtil.get_instance()
 TAG = 'Neuron coverage test'

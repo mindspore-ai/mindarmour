@@ -22,8 +22,8 @@ from mindspore.train.serialization import load_checkpoint, load_param_into_net
 from scipy.special import softmax
 
 from lenet5_net import LeNet5
-from mindarmour.attacks.deep_fool import DeepFool
-from mindarmour.evaluations.attack_evaluation import AttackEvaluate
+from mindarmour.adv_robustness.attacks.deep_fool import DeepFool
+from mindarmour.adv_robustness.evaluations import AttackEvaluate
 from mindarmour.utils.logger import LogUtil
 
 

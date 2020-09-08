@@ -23,10 +23,10 @@ from mindspore import nn
 from mindspore.nn.optim.momentum import Momentum
 
 from mock_net import Net
-from mindarmour.attacks.gradient_method import FastGradientSignMethod
-from mindarmour.attacks.iterative_gradient_method import \
+from mindarmour.adv_robustness.attacks import FastGradientSignMethod
+from mindarmour.adv_robustness.attacks import \
     ProjectedGradientDescent
-from mindarmour.defenses.adversarial_defense import EnsembleAdversarialDefense
+from mindarmour.adv_robustness.defenses import EnsembleAdversarialDefense
 from mindarmour.utils.logger import LogUtil
 
 LOGGER = LogUtil.get_instance()

@@ -18,7 +18,7 @@ import pytest
 
 import numpy as np
 
-from mindarmour.diff_privacy.evaluation.attacker import get_attack_model
+from mindarmour.privacy.evaluation.attacker import get_attack_model
 
 
 @pytest.mark.level0

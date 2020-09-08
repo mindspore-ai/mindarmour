@@ -22,12 +22,12 @@ from mindspore.nn import Cell
 import mindspore.context as context
 from mindspore.nn import SoftmaxCrossEntropyWithLogits
 
-from mindarmour.attacks.gradient_method import FastGradientMethod
-from mindarmour.attacks.gradient_method import FastGradientSignMethod
-from mindarmour.attacks.gradient_method import LeastLikelyClassMethod
-from mindarmour.attacks.gradient_method import RandomFastGradientMethod
-from mindarmour.attacks.gradient_method import RandomFastGradientSignMethod
-from mindarmour.attacks.gradient_method import RandomLeastLikelyClassMethod
+from mindarmour.adv_robustness.attacks import FastGradientMethod
+from mindarmour.adv_robustness.attacks import FastGradientSignMethod
+from mindarmour.adv_robustness.attacks import LeastLikelyClassMethod
+from mindarmour.adv_robustness.attacks import RandomFastGradientMethod
+from mindarmour.adv_robustness.attacks import RandomFastGradientSignMethod
+from mindarmour.adv_robustness.attacks import RandomLeastLikelyClassMethod
 
 context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
 

@@ -22,7 +22,7 @@ from mindspore import Model
 from mindspore import context
 from mindspore.ops.operations import TensorAdd
 
-from mindarmour.detectors.black.similarity_detector import SimilarityDetector
+from mindarmour.adv_robustness.detectors import SimilarityDetector
 
 context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
 

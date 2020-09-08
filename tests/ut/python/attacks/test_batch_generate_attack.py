@@ -21,7 +21,7 @@ import mindspore.ops.operations as P
 from mindspore.nn import Cell
 import mindspore.context as context
 
-from mindarmour.attacks.gradient_method import FastGradientMethod
+from mindarmour.adv_robustness.attacks import FastGradientMethod
 
 
 context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")

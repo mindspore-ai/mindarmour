@@ -17,7 +17,7 @@ from mindspore import nn
 from mindspore import context
 from mindspore.train.model import Model
 
-from mindarmour.diff_privacy import DPOptimizerClassFactory
+from mindarmour.privacy.diff_privacy import DPOptimizerClassFactory
 
 from test_network import LeNet5
 

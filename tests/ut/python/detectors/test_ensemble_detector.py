@@ -22,9 +22,9 @@ from mindspore.ops.operations import TensorAdd
 from mindspore.train.model import Model
 from mindspore import context
 
-from mindarmour.detectors.mag_net import ErrorBasedDetector
-from mindarmour.detectors.region_based_detector import RegionBasedDetector
-from mindarmour.detectors.ensemble_detector import EnsembleDetector
+from mindarmour.adv_robustness.detectors import ErrorBasedDetector
+from mindarmour.adv_robustness.detectors import RegionBasedDetector
+from mindarmour.adv_robustness.detectors import EnsembleDetector
 
 context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
 

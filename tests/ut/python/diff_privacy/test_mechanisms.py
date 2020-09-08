@@ -19,10 +19,10 @@ import pytest
 from mindspore import context
 from mindspore import Tensor
 from mindspore.common import dtype as mstype
-from mindarmour.diff_privacy import NoiseAdaGaussianRandom
-from mindarmour.diff_privacy import AdaClippingWithGaussianRandom
-from mindarmour.diff_privacy import NoiseMechanismsFactory
-from mindarmour.diff_privacy import ClipMechanismsFactory
+from mindarmour.privacy.diff_privacy import NoiseAdaGaussianRandom
+from mindarmour.privacy.diff_privacy import AdaClippingWithGaussianRandom
+from mindarmour.privacy.diff_privacy import NoiseMechanismsFactory
+from mindarmour.privacy.diff_privacy import ClipMechanismsFactory
 
 
 @pytest.mark.level0

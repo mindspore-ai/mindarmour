@@ -23,8 +23,8 @@ from mindspore.nn import SoftmaxCrossEntropyWithLogits
 from scipy.special import softmax
 
 from lenet5_net import LeNet5
-from mindarmour.attacks.gradient_method import FastGradientSignMethod
-from mindarmour.evaluations.attack_evaluation import AttackEvaluate
+from mindarmour.adv_robustness.attacks import FastGradientSignMethod
+from mindarmour.adv_robustness.evaluations import AttackEvaluate
 from mindarmour.utils.logger import LogUtil
 
 

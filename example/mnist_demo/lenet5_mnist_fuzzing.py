@@ -19,8 +19,8 @@ from mindspore import context
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 
 from lenet5_net import LeNet5
-from mindarmour.fuzzing.fuzzing import Fuzzer
-from mindarmour.fuzzing.model_coverage_metrics import ModelCoverageMetrics
+from mindarmour.fuzz_testing import Fuzzer
+from mindarmour.fuzz_testing import ModelCoverageMetrics
 from mindarmour.utils.logger import LogUtil
 
 sys.path.append("..")

@@ -18,8 +18,8 @@ import numpy as np
 import pytest
 
 from mindarmour.utils.logger import LogUtil
-from mindarmour.fuzzing.image_transform import Contrast, Brightness, Blur, Noise, \
-    Translate, Scale, Shear, Rotate
+from mindarmour.fuzz_testing.image_transform import Contrast, Brightness, \
+    Blur, Noise, Translate, Scale, Shear, Rotate
 
 LOGGER = LogUtil.get_instance()
 TAG = 'Image transform test'

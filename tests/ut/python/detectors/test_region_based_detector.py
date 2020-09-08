@@ -22,8 +22,7 @@ from mindspore import Model
 from mindspore import context
 from mindspore.ops.operations import TensorAdd
 
-from mindarmour.detectors.region_based_detector import \
-    RegionBasedDetector
+from mindarmour.adv_robustness.detectors import RegionBasedDetector
 
 
 context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")

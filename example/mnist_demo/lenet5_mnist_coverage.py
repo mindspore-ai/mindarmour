@@ -20,8 +20,8 @@ from mindspore.nn import SoftmaxCrossEntropyWithLogits
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 
 from lenet5_net import LeNet5
-from mindarmour.attacks.gradient_method import FastGradientSignMethod
-from mindarmour.fuzzing.model_coverage_metrics import ModelCoverageMetrics
+from mindarmour.adv_robustness.attacks import FastGradientSignMethod
+from mindarmour.fuzz_testing import ModelCoverageMetrics
 from mindarmour.utils.logger import LogUtil
 
 sys.path.append("..")

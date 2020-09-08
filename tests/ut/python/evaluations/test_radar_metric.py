@@ -15,7 +15,7 @@
 Radar map test.
 """
 import pytest
-from mindarmour.evaluations.visual_metrics import RadarMetric
+from mindarmour.adv_robustness.evaluations import RadarMetric
 @pytest.mark.level0
 @pytest.mark.platform_arm_ascend_training
 @pytest.mark.platform_x86_ascend_training

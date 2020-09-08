@@ -23,8 +23,8 @@ from mindspore.nn import SoftmaxCrossEntropyWithLogits
 from mindspore.train import Model
 from mindspore.train.callback import LossMonitor
 
-from mindarmour.attacks import FastGradientSignMethod
-from mindarmour.defenses import NaturalAdversarialDefense
+from mindarmour.adv_robustness.attacks import FastGradientSignMethod
+from mindarmour.adv_robustness.defenses import NaturalAdversarialDefense
 from mindarmour.utils.logger import LogUtil
 
 from lenet5_net import LeNet5

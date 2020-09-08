@@ -21,12 +21,12 @@ from mindspore.ops import operations as P
 from mindspore.nn import Cell
 from mindspore import context
 
-from mindarmour.attacks import BasicIterativeMethod
-from mindarmour.attacks import MomentumIterativeMethod
-from mindarmour.attacks import ProjectedGradientDescent
-from mindarmour.attacks import IterativeGradientMethod
-from mindarmour.attacks import DiverseInputIterativeMethod
-from mindarmour.attacks import MomentumDiverseInputIterativeMethod
+from mindarmour.adv_robustness.attacks import BasicIterativeMethod
+from mindarmour.adv_robustness.attacks import MomentumIterativeMethod
+from mindarmour.adv_robustness.attacks import ProjectedGradientDescent
+from mindarmour.adv_robustness.attacks import IterativeGradientMethod
+from mindarmour.adv_robustness.attacks import DiverseInputIterativeMethod
+from mindarmour.adv_robustness.attacks import MomentumDiverseInputIterativeMethod
 
 context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
 

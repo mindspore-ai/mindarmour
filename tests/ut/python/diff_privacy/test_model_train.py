@@ -21,10 +21,10 @@ from mindspore import nn
 from mindspore import context
 import mindspore.dataset as ds
 
-from mindarmour.diff_privacy import DPModel
-from mindarmour.diff_privacy import NoiseMechanismsFactory
-from mindarmour.diff_privacy import ClipMechanismsFactory
-from mindarmour.diff_privacy import DPOptimizerClassFactory
+from mindarmour.privacy.diff_privacy import DPModel
+from mindarmour.privacy.diff_privacy import NoiseMechanismsFactory
+from mindarmour.privacy.diff_privacy import ClipMechanismsFactory
+from mindarmour.privacy.diff_privacy import DPOptimizerClassFactory
 
 from test_network import LeNet5
 
