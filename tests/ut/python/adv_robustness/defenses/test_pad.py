@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-ensemble adversarial defense test.
+Projected adversarial defense test.
 """
 import logging
 
@@ -22,15 +22,13 @@ from mindspore import context
 from mindspore import nn
 from mindspore.nn.optim.momentum import Momentum
 
-from mock_net import Net
-from mindarmour.adv_robustness.attacks import FastGradientSignMethod
-from mindarmour.adv_robustness.attacks import \
-    ProjectedGradientDescent
-from mindarmour.adv_robustness.defenses import EnsembleAdversarialDefense
+from mindarmour.adv_robustness.defenses import ProjectedAdversarialDefense
 from mindarmour.utils.logger import LogUtil
 
+from ut.python.utils.mock_net import Net
+
 LOGGER = LogUtil.get_instance()
-TAG = 'Ead_Test'
+TAG = 'Pad_Test'
 
 
 @pytest.mark.level0
@@ -38,10 +36,10 @@ TAG = 'Ead_Test'
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_ead():
-    """UT for ensemble adversarial defense."""
+def test_pad():
+    """UT for projected adversarial defense."""
     num_classes = 10
-    batch_size = 64
+    batch_size = 32
 
     sparse = False
     context.set_context(mode=context.GRAPH_MODE)
@@ -53,17 +51,15 @@ def test_ead():
     if not sparse:
         labels = np.eye(num_classes)[labels].astype(np.float32)
 
+    # construct network
     net = Net()
     loss_fn = nn.SoftmaxCrossEntropyWithLogits(sparse=sparse)
     optimizer = Momentum(net.trainable_params(), 0.001, 0.9)
 
-    net = Net()
-    fgsm = FastGradientSignMethod(net)
-    pgd = ProjectedGradientDescent(net)
-    ead = EnsembleAdversarialDefense(net, [fgsm, pgd], loss_fn=loss_fn,
-                                     optimizer=optimizer)
+    # defense
+    pad = ProjectedAdversarialDefense(net, loss_fn=loss_fn, optimizer=optimizer)
     LOGGER.set_level(logging.DEBUG)
-    LOGGER.debug(TAG, '---start ensemble adversarial defense--')
-    loss = ead.defense(inputs, labels)
-    LOGGER.debug(TAG, '---end ensemble adversarial defense--')
+    LOGGER.debug(TAG, '---start projected adversarial defense--')
+    loss = pad.defense(inputs, labels)
+    LOGGER.debug(TAG, '---end projected adversarial defense--')
     assert np.any(loss >= 0.0)

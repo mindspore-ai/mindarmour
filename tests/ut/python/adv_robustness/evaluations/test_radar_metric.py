@@ -16,6 +16,8 @@ Radar map test.
 """
 import pytest
 from mindarmour.adv_robustness.evaluations import RadarMetric
+
+
 @pytest.mark.level0
 @pytest.mark.platform_arm_ascend_training
 @pytest.mark.platform_x86_ascend_training
@@ -31,7 +33,7 @@ def test_radar_metric():
 
     # create obj
     _ = RadarMetric(metrics_name, metrics_data, metrics_labels, title='',
-                     scale='sparse')
+                    scale='sparse')
 
 
 @pytest.mark.level0

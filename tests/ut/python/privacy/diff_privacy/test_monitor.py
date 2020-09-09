@@ -25,7 +25,7 @@ import mindspore.context as context
 from mindarmour.privacy.diff_privacy import PrivacyMonitorFactory
 from mindarmour.utils.logger import LogUtil
 
-from test_network import LeNet5
+from ut.python.utils.mock_net import Net
 
 LOGGER = LogUtil.get_instance()
 TAG = 'DP-Monitor Test'
@@ -57,7 +57,7 @@ def test_dp_monitor():
     suggest_epoch = rdp.max_epoch_suggest()
     LOGGER.info(TAG, 'The recommended maximum training epochs is: %s',
                 suggest_epoch)
-    network = LeNet5()
+    network = Net()
     net_loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True, reduction="mean")
     net_opt = nn.Momentum(network.trainable_params(), 0.01, 0.9)
 
@@ -86,7 +86,7 @@ def test_dp_monitor_gpu():
     suggest_epoch = rdp.max_epoch_suggest()
     LOGGER.info(TAG, 'The recommended maximum training epochs is: %s',
                 suggest_epoch)
-    network = LeNet5()
+    network = Net()
     net_loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True, reduction="mean")
     net_opt = nn.Momentum(network.trainable_params(), 0.01, 0.9)
 
@@ -115,7 +115,7 @@ def test_dp_monitor_cpu():
     suggest_epoch = rdp.max_epoch_suggest()
     LOGGER.info(TAG, 'The recommended maximum training epochs is: %s',
                 suggest_epoch)
-    network = LeNet5()
+    network = Net()
     net_loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True, reduction="mean")
     net_opt = nn.Momentum(network.trainable_params(), 0.01, 0.9)
 
@@ -145,7 +145,7 @@ def test_dp_monitor_zcdp():
     suggest_epoch = zcdp.max_epoch_suggest()
     LOGGER.info(TAG, 'The recommended maximum training epochs is: %s',
                 suggest_epoch)
-    network = LeNet5()
+    network = Net()
     net_loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True, reduction="mean")
     net_opt = nn.Momentum(network.trainable_params(), 0.01, 0.9)
 
@@ -174,7 +174,7 @@ def test_dp_monitor_zcdp_gpu():
     suggest_epoch = zcdp.max_epoch_suggest()
     LOGGER.info(TAG, 'The recommended maximum training epochs is: %s',
                 suggest_epoch)
-    network = LeNet5()
+    network = Net()
     net_loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True, reduction="mean")
     net_opt = nn.Momentum(network.trainable_params(), 0.01, 0.9)
 
@@ -203,7 +203,7 @@ def test_dp_monitor_zcdp_cpu():
     suggest_epoch = zcdp.max_epoch_suggest()
     LOGGER.info(TAG, 'The recommended maximum training epochs is: %s',
                 suggest_epoch)
-    network = LeNet5()
+    network = Net()
     net_loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True, reduction="mean")
     net_opt = nn.Momentum(network.trainable_params(), 0.01, 0.9)
 

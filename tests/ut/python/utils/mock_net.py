@@ -11,6 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""
+mocked model for UT of defense algorithms.
+"""
 from mindspore import nn
 from mindspore.common.initializer import TruncatedNormal
 
@@ -29,15 +32,15 @@ def fc_with_initialize(input_channels, out_channels):
 
 
 def weight_variable():
-    return TruncatedNormal(0.05)
+    return TruncatedNormal(0.02)
 
 
-class LeNet5(nn.Cell):
+class Net(nn.Cell):
     """
     Lenet network
     """
     def __init__(self):
-        super(LeNet5, self).__init__()
+        super(Net, self).__init__()
         self.conv1 = conv(1, 6, 5)
         self.conv2 = conv(6, 16, 5)
         self.fc1 = fc_with_initialize(16*5*5, 120)

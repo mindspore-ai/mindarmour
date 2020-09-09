@@ -15,7 +15,6 @@
 LBFGS-Attack test.
 """
 import os
-import sys
 
 import numpy as np
 import pytest
@@ -25,9 +24,7 @@ from mindspore.train.serialization import load_checkpoint, load_param_into_net
 from mindarmour.adv_robustness.attacks import LBFGS
 from mindarmour.utils.logger import LogUtil
 
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                             "../../../../"))
-from example.mnist_demo.lenet5_net import LeNet5
+from ut.python.utils.mock_net import Net
 
 context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
 
@@ -50,16 +47,16 @@ def test_lbfgs_attack():
     # upload trained network
     current_dir = os.path.dirname(os.path.abspath(__file__))
     ckpt_name = os.path.join(current_dir,
-                             '../test_data/trained_ckpt_file/checkpoint_lenet-10_1875.ckpt')
-    net = LeNet5()
+                             '../../dataset/trained_ckpt_file/checkpoint_lenet-10_1875.ckpt')
+    net = Net()
     load_dict = load_checkpoint(ckpt_name)
     load_param_into_net(net, load_dict)
 
     # get one mnist image
     input_np = np.load(os.path.join(current_dir,
-                                    '../test_data/test_images.npy'))[:1]
+                                    '../../dataset/test_images.npy'))[:1]
     label_np = np.load(os.path.join(current_dir,
-                                    '../test_data/test_labels.npy'))[:1]
+                                    '../../dataset/test_labels.npy'))[:1]
     LOGGER.debug(TAG, 'true label is :{}'.format(label_np[0]))
     classes = 10
     target_np = np.random.randint(0, classes, 1)

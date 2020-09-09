@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import os
-import sys
 
 import numpy as np
 import pytest
@@ -24,9 +23,7 @@ from mindarmour import BlackModel
 from mindarmour.adv_robustness.attacks import NES
 from mindarmour.utils.logger import LogUtil
 
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                             "../../../../../"))
-from example.mnist_demo.lenet5_net import LeNet5
+from ut.python.utils.mock_net import Net
 
 context.set_context(mode=context.GRAPH_MODE)
 context.set_context(device_target="Ascend")
@@ -73,31 +70,35 @@ def _pseudorandom_target(index, total_indices, true_class):
 def create_target_images(dataset, data_labels, target_labels):
     res = []
     for label in target_labels:
-        for i in range(len(data_labels)):
-            if data_labels[i] == label:
+        for i, data_label in enumerate(data_labels):
+            if data_label == label:
                 res.append(dataset[i])
                 break
     return np.array(res)
 
+
 def get_model(current_dir):
     ckpt_name = os.path.join(current_dir,
-                             '../../test_data/trained_ckpt_file/checkpoint_lenet-10_1875.ckpt')
-    net = LeNet5()
+                             '../../../dataset/trained_ckpt_file/checkpoint_lenet-10_1875.ckpt')
+    net = Net()
     load_dict = load_checkpoint(ckpt_name)
     load_param_into_net(net, load_dict)
     net.set_train(False)
     model = ModelToBeAttacked(net)
     return model
 
+
 def get_dataset(current_dir):
     # upload trained network
 
     # get test data
     test_images = np.load(os.path.join(current_dir,
-                                       '../../test_data/test_images.npy'))
+                                       '../../../dataset/test_images.npy'))
     test_labels = np.load(os.path.join(current_dir,
-                                       '../../test_data/test_labels.npy'))
+                                       '../../../dataset/test_labels.npy'))
     return test_images, test_labels
+
+
 def nes_mnist_attack(scene, top_k):
     """
     hsja-Attack test

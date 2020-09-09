@@ -90,7 +90,7 @@ def test_salt_and_pepper_attack_method():
     labels = labels.astype(np.float32)
 
     attack = SaltAndPepperNoiseAttack(model, sparse=False)
-    is_adv, adv_data, query_times = attack.generate(inputs, labels)
+    _, adv_data, _ = attack.generate(inputs, labels)
     assert np.any(adv_data[0] != inputs[0]), 'Salt and pepper attack method: ' \
                                              'generate value must not be equal' \
                                              ' to original value.'

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Projected adversarial defense test.
+Natural adversarial defense test.
 """
 import logging
 
@@ -22,12 +22,13 @@ from mindspore import context
 from mindspore import nn
 from mindspore.nn.optim.momentum import Momentum
 
-from mock_net import Net
-from mindarmour.adv_robustness.defenses import ProjectedAdversarialDefense
+from mindarmour.adv_robustness.defenses import NaturalAdversarialDefense
 from mindarmour.utils.logger import LogUtil
 
+from ut.python.utils.mock_net import Net
+
 LOGGER = LogUtil.get_instance()
-TAG = 'Pad_Test'
+TAG = 'Nad_Test'
 
 
 @pytest.mark.level0
@@ -35,8 +36,8 @@ TAG = 'Pad_Test'
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_pad():
-    """UT for projected adversarial defense."""
+def test_nad():
+    """UT for natural adversarial defense."""
     num_classes = 10
     batch_size = 32
 
@@ -50,15 +51,14 @@ def test_pad():
     if not sparse:
         labels = np.eye(num_classes)[labels].astype(np.float32)
 
-    # construct network
     net = Net()
     loss_fn = nn.SoftmaxCrossEntropyWithLogits(sparse=sparse)
     optimizer = Momentum(net.trainable_params(), 0.001, 0.9)
 
     # defense
-    pad = ProjectedAdversarialDefense(net, loss_fn=loss_fn, optimizer=optimizer)
+    nad = NaturalAdversarialDefense(net, loss_fn=loss_fn, optimizer=optimizer)
     LOGGER.set_level(logging.DEBUG)
-    LOGGER.debug(TAG, '---start projected adversarial defense--')
-    loss = pad.defense(inputs, labels)
-    LOGGER.debug(TAG, '---end projected adversarial defense--')
+    LOGGER.debug(TAG, '---start natural adversarial defense--')
+    loss = nad.defense(inputs, labels)
+    LOGGER.debug(TAG, '---end natural adversarial defense--')
     assert np.any(loss >= 0.0)
