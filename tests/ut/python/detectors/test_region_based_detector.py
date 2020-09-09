@@ -84,7 +84,7 @@ def test_value_error():
     adv = np.random.rand(4, 4).astype(np.float32)
     model = Model(Net())
     # model should be mindspore model
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         assert RegionBasedDetector(Net())
 
     with pytest.raises(ValueError):

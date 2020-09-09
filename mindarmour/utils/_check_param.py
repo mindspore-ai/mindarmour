@@ -129,7 +129,7 @@ def check_model(model_name, model, model_type):
                 model_type,
                 type(model).__name__)
     LOGGER.error(TAG, msg)
-    raise ValueError(msg)
+    raise TypeError(msg)
 
 
 def check_numpy_param(arg_name, arg_value):
