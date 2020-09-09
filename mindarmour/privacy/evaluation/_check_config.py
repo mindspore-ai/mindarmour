@@ -15,11 +15,12 @@
 Verify attack config
 """
 
+from mindarmour.utils._check_param import check_param_type
 from mindarmour.utils.logger import LogUtil
 
 LOGGER = LogUtil.get_instance()
 
-TAG = "check_params"
+TAG = "check_config"
 
 
 def _is_positive_int(item):
@@ -77,7 +78,7 @@ def _is_dict(item):
     return isinstance(item, dict)
 
 
-VALID_PARAMS_DICT = {
+_VALID_CONFIG_CHECKLIST = {
     "knn": {
         "n_neighbors": [_is_positive_int],
         "weights": [{"uniform", "distance"}],
@@ -126,7 +127,7 @@ VALID_PARAMS_DICT = {
     "rf": {
         "n_estimators": [_is_positive_int],
         "criterion": [{"gini", "entropy"}],
-        "max_depth": [_is_positive_int],
+        "max_depth": [{None}, _is_positive_int],
         "min_samples_split": [_is_positive_float],
         "min_samples_leaf": [_is_positive_float],
         "min_weight_fraction_leaf": [_is_non_negative_float],
@@ -148,24 +149,15 @@ VALID_PARAMS_DICT = {
 
 
 
-def _check_config(config_list, check_params):
+def _check_config(attack_config, config_checklist):
     """
     Verify that config_list is valid.
     Check_params is the valid value range of the parameter.
     """
-    if not isinstance(config_list, (list, tuple)):
-        msg = "Type of parameter 'config_list' must be list, but got {}.".format(type(config_list))
-        LOGGER.error(TAG, msg)
-        raise TypeError(msg)
-
-    for config in config_list:
-        if not isinstance(config, dict):
-            msg = "Type of each config in config_list must be dict, but got {}.".format(type(config))
-            LOGGER.error(TAG, msg)
-            raise TypeError(msg)
-
+    for config in attack_config:
+        check_param_type("config", config, dict)
         if set(config.keys()) != {"params", "method"}:
-            msg = "Keys of each config in config_list must be {}," \
+            msg = "Keys of each config in attack_config must be {}," \
                 "but got {}.".format({'method', 'params'}, set(config.keys()))
             LOGGER.error(TAG, msg)
             raise KeyError(msg)
@@ -173,27 +165,22 @@ def _check_config(config_list, check_params):
         method = str.lower(config["method"])
         params = config["params"]
 
-        if method not in check_params.keys():
+        if method not in config_checklist.keys():
             msg = "Method {} is not supported.".format(method)
             LOGGER.error(TAG, msg)
-            raise ValueError(msg)
+            raise NameError(msg)
 
-        if not params.keys() <= check_params[method].keys():
+        if not params.keys() <= config_checklist[method].keys():
             msg = "Params in method {} is not accepted, the parameters " \
-                "that can be set are {}.".format(method, set(check_params[method].keys()))
+                "that can be set are {}.".format(method, set(config_checklist[method].keys()))
 
             LOGGER.error(TAG, msg)
             raise KeyError(msg)
 
         for param_key in params.keys():
             param_value = params[param_key]
-            candidate_values = check_params[method][param_key]
-
-            if not isinstance(param_value, list):
-                msg = "The parameter '{}' in method '{}' setting must within the range of " \
-                "changeable parameters.".format(param_key, method)
-                LOGGER.error(TAG, msg)
-                raise ValueError(msg)
+            candidate_values = config_checklist[method][param_key]
+            check_param_type('param_value', param_value, list)
 
             if candidate_values is None:
                 continue
@@ -204,7 +191,7 @@ def _check_config(config_list, check_params):
                     if isinstance(candidate_value, set) and item_value in candidate_value:
                         flag = True
                         break
-                    elif candidate_value(item_value):
+                    elif not isinstance(candidate_value, set) and candidate_value(item_value):
                         flag = True
                         break
 
@@ -213,8 +200,8 @@ def _check_config(config_list, check_params):
                     raise ValueError(msg)
 
 
-def check_config_params(config_list):
+def verify_config_params(attack_config):
     """
     External interfaces to verify attack config.
     """
-    _check_config(config_list, VALID_PARAMS_DICT)
+    _check_config(attack_config, _VALID_CONFIG_CHECKLIST)
