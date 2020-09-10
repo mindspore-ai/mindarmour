@@ -26,7 +26,7 @@ from mindarmour.privacy.diff_privacy import NoiseMechanismsFactory
 from mindarmour.privacy.diff_privacy import ClipMechanismsFactory
 from mindarmour.privacy.diff_privacy import DPOptimizerClassFactory
 
-from test_network import LeNet5
+from ut.python.utils.mock_net import Net
 
 
 def dataset_generator(batch_size, batches):
@@ -48,7 +48,7 @@ def test_dp_model_with_pynative_mode():
     context.set_context(mode=context.PYNATIVE_MODE, device_target="Ascend")
     norm_bound = 1.0
     initial_noise_multiplier = 0.01
-    network = LeNet5()
+    network = Net()
     batch_size = 32
     batches = 128
     epochs = 1
@@ -88,7 +88,7 @@ def test_dp_model_with_graph_mode():
     context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     norm_bound = 1.0
     initial_noise_multiplier = 0.01
-    network = LeNet5()
+    network = Net()
     batch_size = 32
     batches = 128
     epochs = 1
@@ -126,7 +126,7 @@ def test_dp_model_with_graph_mode_ada_gaussian():
     context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     norm_bound = 1.0
     initial_noise_multiplier = 0.01
-    network = LeNet5()
+    network = Net()
     batch_size = 32
     batches = 128
     epochs = 1

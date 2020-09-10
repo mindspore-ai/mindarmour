@@ -15,7 +15,6 @@
 PointWise Attack test
 """
 import os
-import sys
 
 import numpy as np
 import pytest
@@ -27,10 +26,7 @@ from mindarmour import BlackModel
 from mindarmour.adv_robustness.attacks import PointWiseAttack
 from mindarmour.utils.logger import LogUtil
 
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                             "../../../../../"))
-from example.mnist_demo.lenet5_net import LeNet5
-
+from ut.python.utils.mock_net import Net
 
 context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
 
@@ -65,16 +61,16 @@ def test_pointwise_attack_method():
     # upload trained network
     current_dir = os.path.dirname(os.path.abspath(__file__))
     ckpt_name = os.path.join(current_dir,
-                             '../../test_data/trained_ckpt_file/checkpoint_lenet-10_1875.ckpt')
-    net = LeNet5()
+                             '../../../dataset/trained_ckpt_file/checkpoint_lenet-10_1875.ckpt')
+    net = Net()
     load_dict = load_checkpoint(ckpt_name)
     load_param_into_net(net, load_dict)
 
     # get one mnist image
     input_np = np.load(os.path.join(current_dir,
-                                    '../../test_data/test_images.npy'))[:3]
+                                    '../../../dataset/test_images.npy'))[:3]
     labels = np.load(os.path.join(current_dir,
-                                  '../../test_data/test_labels.npy'))[:3]
+                                  '../../../dataset/test_labels.npy'))[:3]
     model = ModelToBeAttacked(net)
     pre_label = np.argmax(model.predict(input_np), axis=1)
     LOGGER.info(TAG, 'original sample predict labels are :{}'.format(pre_label))

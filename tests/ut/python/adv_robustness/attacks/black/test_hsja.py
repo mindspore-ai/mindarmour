@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import os
-import sys
 
 import numpy as np
 import pytest
@@ -24,9 +23,7 @@ from mindarmour import BlackModel
 from mindarmour.adv_robustness.attacks import HopSkipJumpAttack
 from mindarmour.utils.logger import LogUtil
 
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                             "../../../../../"))
-from example.mnist_demo.lenet5_net import LeNet5
+from ut.python.utils.mock_net import Net
 
 context.set_context(mode=context.GRAPH_MODE)
 context.set_context(device_target="Ascend")
@@ -64,24 +61,26 @@ def random_target_labels(true_labels):
 def create_target_images(dataset, data_labels, target_labels):
     res = []
     for label in target_labels:
-        for i in range(len(data_labels)):
-            if data_labels[i] == label:
+        for i, data_label in enumerate(data_labels):
+            if data_label == label:
                 res.append(dataset[i])
                 break
     return np.array(res)
+
 
 # public variable
 def get_model():
     # upload trained network
     current_dir = os.path.dirname(os.path.abspath(__file__))
     ckpt_name = os.path.join(current_dir,
-                             '../../test_data/trained_ckpt_file/checkpoint_lenet-10_1875.ckpt')
-    net = LeNet5()
+                             '../../../dataset/trained_ckpt_file/checkpoint_lenet-10_1875.ckpt')
+    net = Net()
     load_dict = load_checkpoint(ckpt_name)
     load_param_into_net(net, load_dict)
     net.set_train(False)
     model = ModelToBeAttacked(net)
     return model
+
 
 @pytest.mark.level0
 @pytest.mark.platform_arm_ascend_training
@@ -97,9 +96,9 @@ def test_hsja_mnist_attack():
 
     # get test data
     test_images_set = np.load(os.path.join(current_dir,
-                                           '../../test_data/test_images.npy'))
+                                           '../../../dataset/test_images.npy'))
     test_labels_set = np.load(os.path.join(current_dir,
-                                           '../../test_data/test_labels.npy'))
+                                           '../../../dataset/test_labels.npy'))
     # prediction accuracy before attack
     model = get_model()
     batch_num = 1  # the number of batches of attacking samples

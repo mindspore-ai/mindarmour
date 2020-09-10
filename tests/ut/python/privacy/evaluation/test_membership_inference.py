@@ -14,9 +14,6 @@
 """
 membership inference test
 """
-import os
-import sys
-
 import pytest
 
 import numpy as np
@@ -28,11 +25,11 @@ import mindspore.context as context
 
 from mindarmour.privacy.evaluation import MembershipInference
 
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../"))
-from defenses.mock_net import Net
+from ut.python.utils.mock_net import Net
 
 
 context.set_context(mode=context.GRAPH_MODE)
+
 
 def dataset_generator(batch_size, batches):
     """mock training data."""

@@ -12,22 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Natural adversarial defense test.
+Adversarial defense test.
 """
 import logging
 
 import numpy as np
 import pytest
+from mindspore import Tensor
 from mindspore import context
 from mindspore import nn
 from mindspore.nn.optim.momentum import Momentum
 
-from mock_net import Net
-from mindarmour.adv_robustness.defenses import NaturalAdversarialDefense
+from mindarmour.adv_robustness.defenses import AdversarialDefense
 from mindarmour.utils.logger import LogUtil
 
+from ut.python.utils.mock_net import Net
+
 LOGGER = LogUtil.get_instance()
-TAG = 'Nad_Test'
+TAG = 'Ad_Test'
 
 
 @pytest.mark.level0
@@ -35,8 +37,8 @@ TAG = 'Nad_Test'
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_nad():
-    """UT for natural adversarial defense."""
+def test_ad():
+    """UT for adversarial defense."""
     num_classes = 10
     batch_size = 32
 
@@ -52,12 +54,13 @@ def test_nad():
 
     net = Net()
     loss_fn = nn.SoftmaxCrossEntropyWithLogits(sparse=sparse)
-    optimizer = Momentum(net.trainable_params(), 0.001, 0.9)
+    optimizer = Momentum(learning_rate=Tensor(np.array([0.001], np.float32)),
+                         momentum=0.9,
+                         params=net.trainable_params())
 
-    # defense
-    nad = NaturalAdversarialDefense(net, loss_fn=loss_fn, optimizer=optimizer)
+    ad_defense = AdversarialDefense(net, loss_fn=loss_fn, optimizer=optimizer)
     LOGGER.set_level(logging.DEBUG)
-    LOGGER.debug(TAG, '---start natural adversarial defense--')
-    loss = nad.defense(inputs, labels)
-    LOGGER.debug(TAG, '---end natural adversarial defense--')
+    LOGGER.debug(TAG, '--start adversarial defense--')
+    loss = ad_defense.defense(inputs, labels)
+    LOGGER.debug(TAG, '--end adversarial defense--')
     assert np.any(loss >= 0.0)

@@ -19,7 +19,7 @@ from mindspore.train.model import Model
 
 from mindarmour.privacy.diff_privacy import DPOptimizerClassFactory
 
-from test_network import LeNet5
+from ut.python.utils.mock_net import Net
 
 
 @pytest.mark.level0
@@ -29,7 +29,7 @@ from test_network import LeNet5
 @pytest.mark.component_mindarmour
 def test_optimizer():
     context.set_context(mode=context.PYNATIVE_MODE, device_target="Ascend")
-    network = LeNet5()
+    network = Net()
     lr = 0.01
     momentum = 0.9
     micro_batches = 2
@@ -47,7 +47,7 @@ def test_optimizer():
 @pytest.mark.component_mindarmour
 def test_optimizer_gpu():
     context.set_context(mode=context.PYNATIVE_MODE, device_target="GPU")
-    network = LeNet5()
+    network = Net()
     lr = 0.01
     momentum = 0.9
     micro_batches = 2
@@ -65,7 +65,7 @@ def test_optimizer_gpu():
 @pytest.mark.component_mindarmour
 def test_optimizer_cpu():
     context.set_context(mode=context.PYNATIVE_MODE, device_target="CPU")
-    network = LeNet5()
+    network = Net()
     lr = 0.01
     momentum = 0.9
     micro_batches = 2
