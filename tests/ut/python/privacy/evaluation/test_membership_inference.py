@@ -80,8 +80,6 @@ def test_membership_inference_object_train():
                                    ["image", "label"])
     ds_test = ds.GeneratorDataset(dataset_generator(batch_size, batches),
                                   ["image", "label"])
-    ds_train.set_dataset_size(batch_size*batches)
-    ds_test.set_dataset_size((batch_size*batches))
     inference_model.train(ds_train, ds_test, config)
 
 
@@ -104,8 +102,6 @@ def test_membership_inference_eval():
                                      ["image", "label"])
     eval_test = ds.GeneratorDataset(dataset_generator(batch_size, batches),
                                     ["image", "label"])
-    eval_train.set_dataset_size(batch_size * batches)
-    eval_test.set_dataset_size((batch_size * batches))
 
     metrics = ["precision", "accuracy", "recall"]
     inference_model.eval(eval_train, eval_test, metrics)

@@ -144,7 +144,6 @@ class NoiseMechanismsFactory:
             >>>                 metrics=None)
             >>> ms_ds = ds.GeneratorDataset(dataset_generator(batch_size, batches),
             >>>                            ['data', 'label'])
-            >>> ms_ds.set_dataset_size(batch_size * batches)
             >>> model.train(epochs, ms_ds, dataset_sink_mode=False)
         """
         if mech_name == 'Gaussian':

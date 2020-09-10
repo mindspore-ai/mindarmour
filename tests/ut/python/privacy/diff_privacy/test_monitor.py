@@ -66,7 +66,6 @@ def test_dp_monitor():
     LOGGER.info(TAG, "============== Starting Training ==============")
     ds1 = ds.GeneratorDataset(dataset_generator(batch_size, batches),
                               ["data", "label"])
-    ds1.set_dataset_size(batch_size * batches)
     model.train(epochs, ds1, callbacks=[rdp], dataset_sink_mode=False)
 
 
@@ -95,7 +94,6 @@ def test_dp_monitor_gpu():
     LOGGER.info(TAG, "============== Starting Training ==============")
     ds1 = ds.GeneratorDataset(dataset_generator(batch_size, batches),
                               ["data", "label"])
-    ds1.set_dataset_size(batch_size * batches)
     model.train(epochs, ds1, callbacks=[rdp], dataset_sink_mode=False)
 
 
@@ -124,7 +122,6 @@ def test_dp_monitor_cpu():
     LOGGER.info(TAG, "============== Starting Training ==============")
     ds1 = ds.GeneratorDataset(dataset_generator(batch_size, batches),
                               ["data", "label"])
-    ds1.set_dataset_size(batch_size * batches)
     model.train(epochs, ds1, callbacks=[rdp], dataset_sink_mode=False)
 
 
@@ -154,7 +151,6 @@ def test_dp_monitor_zcdp():
     LOGGER.info(TAG, "============== Starting Training ==============")
     ds1 = ds.GeneratorDataset(dataset_generator(batch_size, batches),
                               ["data", "label"])
-    ds1.set_dataset_size(batch_size * batches)
     model.train(epochs, ds1, callbacks=[zcdp], dataset_sink_mode=False)
 
 
@@ -183,7 +179,6 @@ def test_dp_monitor_zcdp_gpu():
     LOGGER.info(TAG, "============== Starting Training ==============")
     ds1 = ds.GeneratorDataset(dataset_generator(batch_size, batches),
                               ["data", "label"])
-    ds1.set_dataset_size(batch_size * batches)
     model.train(epochs, ds1, callbacks=[zcdp], dataset_sink_mode=False)
 
 
@@ -212,5 +207,4 @@ def test_dp_monitor_zcdp_cpu():
     LOGGER.info(TAG, "============== Starting Training ==============")
     ds1 = ds.GeneratorDataset(dataset_generator(batch_size, batches),
                               ["data", "label"])
-    ds1.set_dataset_size(batch_size * batches)
     model.train(epochs, ds1, callbacks=[zcdp], dataset_sink_mode=False)
