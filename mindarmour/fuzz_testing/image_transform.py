@@ -17,7 +17,7 @@ Image transform
 import numpy as np
 from PIL import Image, ImageEnhance, ImageFilter
 
-from mindspore.dataset.transforms.vision.py_transforms_util import is_numpy, \
+from mindspore.dataset.vision.py_transforms_util import is_numpy, \
     to_pil, hwc_to_chw
 from mindarmour.utils._check_param import check_param_multi_types
 from mindarmour.utils.logger import LogUtil
