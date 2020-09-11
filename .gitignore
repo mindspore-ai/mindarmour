@@ -13,7 +13,7 @@ build/
 dist/
 local_script/
 example/dataset/
-example/mnist_demo/MNIST_unzip/
+example/mnist_demo/MNIST/
 example/mnist_demo/trained_ckpt_file/
 example/mnist_demo/model/
 example/cifar_demo/model/
