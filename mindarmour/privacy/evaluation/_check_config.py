@@ -15,6 +15,8 @@
 Verify attack config
 """
 
+import numpy as np
+
 from mindarmour.utils._check_param import check_param_type
 from mindarmour.utils.logger import LogUtil
 
@@ -138,7 +140,6 @@ _VALID_CONFIG_CHECKLIST = {
         "min_impurity_decrease": [_is_non_negative_float],
         "min_impurity_split": [{None}, _is_positive_float],
         "bootstrap": [{True, False}],
-        "oob_scroe": [{True, False}],
         "n_jobs": [_is_positive_int, {None}],
         "random_state": None,
         "verbose": [_is_non_negative_int],
@@ -182,7 +183,7 @@ def _check_config(attack_config, config_checklist):
         for param_key in params.keys():
             param_value = params[param_key]
             candidate_values = config_checklist[method][param_key]
-            check_param_type('param_value', param_value, list)
+            check_param_type('param_value', param_value, (list, tuple, np.ndarray))
 
             if candidate_values is None:
                 continue
