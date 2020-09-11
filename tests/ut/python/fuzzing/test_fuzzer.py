@@ -92,13 +92,13 @@ def test_fuzzing_ascend():
     batch_size = 8
     num_classe = 10
     mutate_config = [{'method': 'Blur',
-                      'params': {'auto_param': True}},
+                      'params': {'auto_param': [True]}},
                      {'method': 'Contrast',
-                      'params': {'factor': 2}},
+                      'params': {'factor': [2, 1]}},
                      {'method': 'Translate',
-                      'params': {'x_bias': 0.1, 'y_bias': 0.2}},
+                      'params': {'x_bias': [0.1, 0.3], 'y_bias': [0.2]}},
                      {'method': 'FGSM',
-                      'params': {'eps': 0.1, 'alpha': 0.1}}
+                      'params': {'eps': [0.1, 0.2, 0.3], 'alpha': [0.1]}}
                      ]
     # initialize fuzz test with training dataset
     train_images = np.random.rand(32, 1, 32, 32).astype(np.float32)
@@ -138,13 +138,13 @@ def test_fuzzing_cpu():
     batch_size = 8
     num_classe = 10
     mutate_config = [{'method': 'Blur',
-                      'params': {'auto_param': True}},
+                      'params': {'auto_param': [True]}},
                      {'method': 'Contrast',
-                      'params': {'factor': 2}},
+                      'params': {'factor': [2, 1]}},
                      {'method': 'Translate',
-                      'params': {'x_bias': 0.1, 'y_bias': 0.2}},
+                      'params': {'x_bias': [0.1, 0.3], 'y_bias': [0.2]}},
                      {'method': 'FGSM',
-                      'params': {'eps': 0.1, 'alpha': 0.1}}
+                      'params': {'eps': [0.1, 0.2, 0.3], 'alpha': [0.1]}}
                      ]
     # initialize fuzz test with training dataset
     train_images = np.random.rand(32, 1, 32, 32).astype(np.float32)
