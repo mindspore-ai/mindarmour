@@ -11,10 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import os
-
 import numpy as np
-import pytest
+
 from mindspore import Tensor
 from mindspore import context
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
@@ -23,12 +21,11 @@ from mindarmour import BlackModel
 from mindarmour.adv_robustness.attacks import HopSkipJumpAttack
 from mindarmour.utils.logger import LogUtil
 
-from ut.python.utils.mock_net import Net
-
-context.set_context(mode=context.GRAPH_MODE)
-context.set_context(device_target="Ascend")
+from examples.common.dataset.data_processing import generate_mnist_dataset
+from examples.common.networks.lenet5.lenet5_net import LeNet5
 
 LOGGER = LogUtil.get_instance()
+LOGGER.set_level('INFO')
 TAG = 'HopSkipJumpAttack'
 
 
@@ -61,81 +58,66 @@ def random_target_labels(true_labels):
 def create_target_images(dataset, data_labels, target_labels):
     res = []
     for label in target_labels:
-        for i, data_label in enumerate(data_labels):
+        for data_label, data in zip(data_labels, dataset):
             if data_label == label:
-                res.append(dataset[i])
+                res.append(data)
                 break
     return np.array(res)
 
 
-# public variable
-def get_model():
-    # upload trained network
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    ckpt_path = os.path.join(current_dir,
-                             '../../../dataset/trained_ckpt_file/checkpoint_lenet-10_1875.ckpt')
-    net = Net()
-    load_dict = load_checkpoint(ckpt_path)
-    load_param_into_net(net, load_dict)
-    net.set_train(False)
-    model = ModelToBeAttacked(net)
-    return model
-
-
-@pytest.mark.level0
-@pytest.mark.platform_arm_ascend_training
-@pytest.mark.platform_x86_ascend_training
-@pytest.mark.env_card
-@pytest.mark.component_mindarmour
 def test_hsja_mnist_attack():
     """
     hsja-Attack test
     """
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-
+    # upload trained network
+    ckpt_path = '../../../common/networks/lenet5/trained_ckpt_file/checkpoint_lenet-10_1875.ckpt'
+    net = LeNet5()
+    load_dict = load_checkpoint(ckpt_path)
+    load_param_into_net(net, load_dict)
+    net.set_train(False)
 
     # get test data
-    test_images_set = np.load(os.path.join(current_dir,
-                                           '../../../dataset/test_images.npy'))
-    test_labels_set = np.load(os.path.join(current_dir,
-                                           '../../../dataset/test_labels.npy'))
+    data_list = "../../../common/dataset/MNIST/test"
+    batch_size = 32
+    ds = generate_mnist_dataset(data_list, batch_size=batch_size)
+
     # prediction accuracy before attack
-    model = get_model()
-    batch_num = 1  # the number of batches of attacking samples
+    model = ModelToBeAttacked(net)
+    batch_num = 5  # the number of batches of attacking samples
+    test_images = []
+    test_labels = []
     predict_labels = []
     i = 0
-
-    for img in test_images_set:
+    for data in ds.create_tuple_iterator():
         i += 1
-        pred_labels = np.argmax(model.predict(img), axis=1)
+        images = data[0].astype(np.float32)
+        labels = data[1]
+        test_images.append(images)
+        test_labels.append(labels)
+        pred_labels = np.argmax(model.predict(images), axis=1)
         predict_labels.append(pred_labels)
         if i >= batch_num:
             break
     predict_labels = np.concatenate(predict_labels)
-    true_labels = test_labels_set[:batch_num]
+    true_labels = np.concatenate(test_labels)
     accuracy = np.mean(np.equal(predict_labels, true_labels))
     LOGGER.info(TAG, "prediction accuracy before attacking is : %s",
                 accuracy)
-    test_images = test_images_set[:batch_num]
+    test_images = np.concatenate(test_images)
 
     # attacking
     norm = 'l2'
     search = 'grid_search'
     target = False
-
     attack = HopSkipJumpAttack(model, constraint=norm, stepsize_search=search)
     if target:
         target_labels = random_target_labels(true_labels)
-        target_images = create_target_images(test_images_set, test_labels_set,
+        target_images = create_target_images(test_images, predict_labels,
                                              target_labels)
-        LOGGER.info(TAG, 'len target labels : %s', len(target_labels))
-        LOGGER.info(TAG, 'len target_images : %s', len(target_images))
-        LOGGER.info(TAG, 'len test_images : %s', len(test_images))
         attack.set_target_images(target_images)
         success_list, adv_data, _ = attack.generate(test_images, target_labels)
     else:
         success_list, adv_data, _ = attack.generate(test_images, None)
-    assert (adv_data != test_images).any()
 
     adv_datas = []
     gts = []
@@ -149,17 +131,12 @@ def test_hsja_mnist_attack():
         pred_logits_adv = model.predict(adv_datas)
         pred_lables_adv = np.argmax(pred_logits_adv, axis=1)
         accuracy_adv = np.mean(np.equal(pred_lables_adv, gts))
+        mis_rate = (1 - accuracy_adv)*(len(adv_datas) / len(success_list))
         LOGGER.info(TAG, 'mis-classification rate of adversaries is : %s',
-                    accuracy_adv)
+                    mis_rate)
 
 
-@pytest.mark.level0
-@pytest.mark.platform_arm_ascend_training
-@pytest.mark.platform_x86_ascend_training
-@pytest.mark.env_card
-@pytest.mark.component_mindarmour
-def test_value_error():
-    model = get_model()
-    norm = 'l2'
-    with pytest.raises(ValueError):
-        assert HopSkipJumpAttack(model, constraint=norm, stepsize_search='bad-search')
+if __name__ == '__main__':
+    # device_target can be "CPU", "GPU" or "Ascend"
+    context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
+    test_hsja_mnist_attack()

@@ -46,10 +46,10 @@ def test_lbfgs_attack():
     np.random.seed(123)
     # upload trained network
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    ckpt_name = os.path.join(current_dir,
+    ckpt_path = os.path.join(current_dir,
                              '../../dataset/trained_ckpt_file/checkpoint_lenet-10_1875.ckpt')
     net = Net()
-    load_dict = load_checkpoint(ckpt_name)
+    load_dict = load_checkpoint(ckpt_path)
     load_param_into_net(net, load_dict)
 
     # get one mnist image
