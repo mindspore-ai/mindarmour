@@ -24,10 +24,10 @@ With adaptive norm clip mechanism, the norm clip of the gradients would be chang
 $ cd examples/privacy/diff_privacy
 $ python lenet5_dp.py
 ```
-## 3. Membership inference attack
-By this attack method, we could judge whether a sample is belongs to training dataset or not.
+## 3. Membership inference evaluation
+By this evaluation method, we could judge whether a sample is belongs to training dataset or not.
 ```sh
 $ cd examples/privacy/membership_inference_attack
-$ python vgg_cifar_attack.py
+$ python train.py --data_path home_path_to_cifar100 --ckpt_path ./
+$ python example_vgg_cifar.py --data_path home_path_to_cifar100 --pre_trained 0-100_781.ckpt
 ```
-

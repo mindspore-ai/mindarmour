@@ -56,7 +56,7 @@ def test_nad_method():
                                      batch_size=batch_size, repeat_size=1)
     inputs = []
     labels = []
-    for data in ds_test.create_tuple_iterator():
+    for data in ds_test.create_tuple_iterator(output_numpy=True):
         inputs.append(data[0].astype(np.float32))
         labels.append(data[1])
     inputs = np.concatenate(inputs)
@@ -99,7 +99,7 @@ def test_nad_method():
                                       batch_size=batch_size, repeat_size=1)
     inputs_train = []
     labels_train = []
-    for data in ds_train.create_tuple_iterator():
+    for data in ds_train.create_tuple_iterator(output_numpy=True):
         inputs_train.append(data[0].astype(np.float32))
         labels_train.append(data[1])
     inputs_train = np.concatenate(inputs_train)

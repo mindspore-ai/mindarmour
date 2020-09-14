@@ -138,7 +138,7 @@ def test_defense_evaluation():
     ds_test = generate_mnist_dataset(data_list, batch_size=batch_size)
     inputs = []
     labels = []
-    for data in ds_test.create_tuple_iterator():
+    for data in ds_test.create_tuple_iterator(output_numpy=True):
         inputs.append(data[0].astype(np.float32))
         labels.append(data[1])
     inputs = np.concatenate(inputs).astype(np.float32)
