@@ -492,7 +492,7 @@ class Shear(ImageTransform):
             auto_param (bool): True if auto generate parameters. Default: False.
         """
         if factor_x != 0 and factor_y != 0:
-            msg = 'factor_x and factor_y can not be both more than 0.'
+            msg = 'At least one of factor_x and factor_y is zero.'
             LOGGER.error(TAG, msg)
             raise ValueError(msg)
         if auto_param:

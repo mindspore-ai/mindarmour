@@ -76,12 +76,11 @@ def _check_eval_metrics(eval_metrics):
     """ Check evaluation metrics."""
     if isinstance(eval_metrics, (list, tuple)):
         eval_metrics_ = []
-        available_metrics = ['accuracy', 'attack_success_rate', 'kmnc', 'nbc',
-                             'snac']
+        available_metrics = ['accuracy', 'attack_success_rate', 'kmnc', 'nbc', 'snac']
         for elem in eval_metrics:
             if elem not in available_metrics:
-                msg = 'metric in list `eval_metrics` must be in {}, but got {}.' \
-                    .format(available_metrics, elem)
+                msg = 'metric in list `eval_metrics` must be in {}, but ' \
+                      'got {}.'.format(available_metrics, elem)
                 LOGGER.error(TAG, msg)
                 raise ValueError(msg)
             eval_metrics_.append(elem.lower())
@@ -185,7 +184,7 @@ class Fuzzer:
         Args:
             mutate_config (list): Mutate configs. The format is
                 [{'method': 'Blur',
-                 'params': {'radius': [0.1, 0.2], 'auto_param': [True, False]}},
+                'params': {'radius': [0.1, 0.2], 'auto_param': [True, False]}},
                 {'method': 'Contrast',
                 'params': {'factor': [1, 1.5, 2]}},
                 {'method': 'FGSM',
@@ -233,14 +232,14 @@ class Fuzzer:
             TypeError: If the type of `eval_metrics` is not str, list or tuple.
             TypeError: If the type of metric in list `eval_metrics` is not str.
             ValueError: If `eval_metrics` is not equal to 'auto' when it's type is str.
-            ValueError: If metric in list `eval_metrics` is not in ['accuracy', 'attack_success_rate',
-                'kmnc', 'nbc', 'snac'].
+            ValueError: If metric in list `eval_metrics` is not in ['accuracy',
+                'attack_success_rate', 'kmnc', 'nbc', 'snac'].
         """
         # Check parameters.
         eval_metrics_ = _check_eval_metrics(eval_metrics)
         if coverage_metric not in ['KMNC', 'NBC', 'SNAC']:
-            msg = "coverage_metric must be in ['KMNC', 'NBC', 'SNAC'], but got {}." \
-                .format(coverage_metric)
+            msg = "coverage_metric must be in ['KMNC', 'NBC', 'SNAC'], " \
+                  "but got {}.".format(coverage_metric)
             LOGGER.error(TAG, msg)
             raise ValueError(msg)
         max_iters = check_int_positive('max_iters', max_iters)
@@ -272,9 +271,8 @@ class Fuzzer:
                                                                          mutate_config,
                                                                          mutate_num_per_seed)
             # Calculate the coverages and predictions of generated samples.
-            coverages, predicts = self._get_coverages_and_predict(
-                mutate_samples,
-                coverage_metric)
+            coverages, predicts = self._get_coverages_and_predict(mutate_samples,
+                                                                  coverage_metric)
             coverage_gains = _coverage_gains(coverages)
             for mutate, cov, pred, strategy in zip(mutate_samples,
                                                    coverage_gains,
@@ -337,8 +335,11 @@ class Fuzzer:
             for p in params:
                 selected_param[p] = choice(params[p])
 
-            if method in list(
-                    self._pixel_value_trans_list + self._affine_trans_list):
+            if method in list(self._pixel_value_trans_list + self._affine_trans_list):
+                if method == 'Shear':
+                    shear_keys = selected_param.keys()
+                    if 'factor_x' in shear_keys and 'factor_y' in shear_keys:
+                        selected_param[choice(['factor_x', 'factor_y'])] = 0
                 transform.set_params(**selected_param)
                 mutate_sample = transform.transform(seed[0])
             else:
@@ -413,24 +414,24 @@ class Fuzzer:
             for param_value in params[param_name]:
                 if param_name == 'bounds':
                     bounds = check_param_multi_types('bounds', param_value, [tuple])
+                    if len(bounds) != 2:
+                        msg = 'bounds must be format (lower_bound, upper_bound)'
                     for bound_value in bounds:
                         _ = check_param_multi_types('bound', bound_value,
                                                     [int, float])
                     if bounds[0] >= bounds[1]:
-                        msg = "upper bound must more than lower bound, but upper " \
-                              "bound got {}, lower bound got {}".format(bounds[0],
-                                                                        bounds[1])
+                        msg = "upper bound must more than lower bound, " \
+                              "but upper bound got {}, lower bound " \
+                              "got {}".format(bounds[0], bounds[1])
                         raise ValueError(msg)
                 elif param_name == 'norm_level':
                     _ = check_norm_level(param_value)
                 else:
-                    allow_type = \
-                        self._attack_param_checklists[method][param_name]['dtype']
-                    allow_range = \
-                        self._attack_param_checklists[method][param_name]['range']
-                    _ = check_param_multi_types(str(param_name), param_value,
-                                                allow_type)
-                    _ = check_param_in_range(str(param_name), param_value,
+                    allow_type = self._attack_param_checklists[method][param_name]['dtype']
+                    allow_range = self._attack_param_checklists[method][param_name]['range']
+                    _ = check_param_multi_types(str(param_name), param_value, allow_type)
+                    _ = check_param_in_range(str(param_name),
+                                             param_value,
                                              allow_range[0],
                                              allow_range[1])
 
