@@ -42,7 +42,7 @@ def test_lenet_mnist_coverage():
     batch_size = 32
     ds = generate_mnist_dataset(data_list, batch_size, sparse=True)
     train_images = []
-    for data in ds.create_tuple_iterator():
+    for data in ds.create_tuple_iterator(output_numpy=True):
         images = data[0].astype(np.float32)
         train_images.append(images)
     train_images = np.concatenate(train_images, axis=0)
@@ -57,7 +57,7 @@ def test_lenet_mnist_coverage():
     ds = generate_mnist_dataset(data_list, batch_size, sparse=True)
     test_images = []
     test_labels = []
-    for data in ds.create_tuple_iterator():
+    for data in ds.create_tuple_iterator(output_numpy=True):
         images = data[0].astype(np.float32)
         labels = data[1]
         test_images.append(images)

@@ -55,7 +55,7 @@ def test_projected_gradient_descent_method():
     test_labels = []
     predict_labels = []
     i = 0
-    for data in ds.create_tuple_iterator():
+    for data in ds.create_tuple_iterator(output_numpy=True):
         i += 1
         images = data[0].astype(np.float32)
         labels = data[1]

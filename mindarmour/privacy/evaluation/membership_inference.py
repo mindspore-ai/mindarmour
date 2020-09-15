@@ -43,7 +43,7 @@ def _eval_info(pred, truth, option):
             values are 'precision', 'accuracy' and 'recall'.
 
     Returns:
-        float32, Calculated evaluation results.
+        float32, calculated evaluation results.
 
     Raises:
         ValueError, size of parameter pred or truth is 0.
@@ -80,7 +80,7 @@ def _softmax_cross_entropy(logits, labels):
         labels (numpy.ndarray): Numpy array of shape(N, ).
 
     Returns:
-        numpy.ndarray: Numpy array of shape(N, ), containing loss value for each vector in logits.
+        numpy.ndarray: numpy array of shape(N, ), containing loss value for each vector in logits.
     """
     labels = np.eye(logits.shape[1])[labels].astype(np.int32)
     logits = np.exp(logits) / np.sum(np.exp(logits), axis=1, keepdims=True)
@@ -111,11 +111,11 @@ class MembershipInference:
         >>> # test_1, test_2 are non-overlapping datasets from test dataset of target model.
         >>> # We use train_1, test_1 to train attack model, and use train_2, test_2 to evaluate attack model.
         >>> model = Model(network=net, loss_fn=loss, optimizer=opt, metrics={'acc', 'loss'})
-        >>> inference_model = MembershipInference(model, n_jobs=-1)
+        >>> attack_model = MembershipInference(model, n_jobs=-1)
         >>> config = [{"method": "KNN", "params": {"n_neighbors": [3, 5, 7]}}]
-        >>> inference_model.train(train_1, test_1, config)
+        >>> attack_model.train(train_1, test_1, config)
         >>> metrics = ["precision", "recall", "accuracy"]
-        >>> result = inference_model.eval(train_2, test_2, metrics)
+        >>> result = attack_model.eval(train_2, test_2, metrics)
 
     Raises:
         TypeError: If type of model is not mindspore.train.Model.
@@ -147,11 +147,11 @@ class MembershipInference:
                 {"method": "lr", "params": {"C": np.logspace(-4, 2, 10)}}].
                 The support methods are knn, lr, mlp and rf, and the params of each method
                 must within the range of changeable parameters. Tips of params implement
-                can be found in
-                https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html
-                https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html
-                https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
-                https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPRegressor.html
+                can be found below:
+                `KNN<https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html>`_,
+                `LR<https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html>`_,
+                `RF<https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html>`_,
+                `MLP<https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPRegressor.html>`_.
 
         Raises:
             KeyError: If any config in attack_config doesn't have keys {"method", "params"}.
@@ -179,7 +179,7 @@ class MembershipInference:
                 must be in ["precision", "accuracy", "recall"]. Default: ["precision"].
 
         Returns:
-            list, Each element contains an evaluation indicator for the attack model.
+            list, each element contains an evaluation indicator for the attack model.
         """
         check_param_type("dataset_train", dataset_train, Dataset)
         check_param_type("dataset_test", dataset_test, Dataset)
@@ -207,13 +207,13 @@ class MembershipInference:
         Generate corresponding loss_logits features and new label, and return after shuffle.
 
         Args:
-            dataset_train: The training set for the target model.
-            dataset_test: The test set for the target model.
+            dataset_train (mindspore.dataset): The train set for the target model.
+            dataset_test (mindspore.dataset): The test set for the target model.
 
         Returns:
-            - numpy.ndarray, Loss_logits features for each sample. Shape is (N, C).
+            - numpy.ndarray, loss_logits features for each sample. Shape is (N, C).
                 N is the number of sample. C = 1 + dim(logits).
-            - numpy.ndarray, Labels for each sample, Shape is (N,).
+            - numpy.ndarray, labels for each sample, Shape is (N,).
         """
         features_train, labels_train = self._generate(dataset_train, 1)
         features_test, labels_test = self._generate(dataset_test, 0)
@@ -231,18 +231,18 @@ class MembershipInference:
         Return a loss_logits features and labels for training attack model.
 
         Args:
-            input_dataset (mindspore.dataset): The dataset to be generate.
-            label (int32): Whether input_dataset belongs to the target model.
+            input_dataset (mindspore.dataset): The dataset to be generated.
+            label (int): Whether input_dataset belongs to the target model.
 
         Returns:
-            - numpy.ndarray, Loss_logits features for each sample. Shape is (N, C).
+            - numpy.ndarray, loss_logits features for each sample. Shape is (N, C).
                 N is the number of sample. C = 1 + dim(logits).
-            - numpy.ndarray, Labels for each sample, Shape is (N,).
+            - numpy.ndarray, labels for each sample, Shape is (N,).
         """
         loss_logits = np.array([])
-        for batch in input_dataset.create_dict_iterator():
-            batch_data = Tensor(batch['image'], ms.float32)
-            batch_labels = batch['label'].astype(np.int32)
+        for batch in input_dataset.create_tuple_iterator(output_numpy=True):
+            batch_data = Tensor(batch[0], ms.float32)
+            batch_labels = batch[1].astype(np.int32)
             batch_logits = self._model.predict(batch_data).asnumpy()
             batch_loss = _softmax_cross_entropy(batch_logits, batch_labels)
 

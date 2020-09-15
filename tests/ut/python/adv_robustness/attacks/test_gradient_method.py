@@ -29,8 +29,6 @@ from mindarmour.adv_robustness.attacks import RandomFastGradientMethod
 from mindarmour.adv_robustness.attacks import RandomFastGradientSignMethod
 from mindarmour.adv_robustness.attacks import RandomLeastLikelyClassMethod
 
-context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
-
 
 # for user
 class Net(Cell):
@@ -68,6 +66,7 @@ def test_fast_gradient_method():
     """
     Fast gradient method unit test.
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     input_np = np.asarray([[0.1, 0.2, 0.7]], np.float32)
     label = np.asarray([2], np.int32)
     label = np.eye(3)[label].astype(np.float32)
@@ -128,6 +127,7 @@ def test_random_fast_gradient_method():
     """
     Random fast gradient method unit test.
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     input_np = np.asarray([[0.1, 0.2, 0.7]], np.float32)
     label = np.asarray([2], np.int32)
     label = np.eye(3)[label].astype(np.float32)
@@ -149,6 +149,7 @@ def test_fast_gradient_sign_method():
     """
     Fast gradient sign method unit test.
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     input_np = np.asarray([[0.1, 0.2, 0.7]], np.float32)
     label = np.asarray([2], np.int32)
     label = np.eye(3)[label].astype(np.float32)
@@ -170,6 +171,7 @@ def test_random_fast_gradient_sign_method():
     """
     Random fast gradient sign method unit test.
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     input_np = np.random.random((1, 28)).astype(np.float32)
     label = np.asarray([2], np.int32)
     label = np.eye(28)[label].astype(np.float32)
@@ -191,6 +193,7 @@ def test_least_likely_class_method():
     """
     Least likely class method unit test.
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     input_np = np.asarray([[0.1, 0.2, 0.7]], np.float32)
     label = np.asarray([2], np.int32)
     label = np.eye(3)[label].astype(np.float32)
@@ -212,6 +215,7 @@ def test_random_least_likely_class_method():
     """
     Random least likely class method unit test.
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     input_np = np.asarray([[0.1, 0.2, 0.7]], np.float32)
     label = np.asarray([2], np.int32)
     label = np.eye(3)[label].astype(np.float32)
@@ -233,6 +237,7 @@ def test_assert_error():
     """
     Random least likely class method unit test.
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     with pytest.raises(ValueError) as e:
         assert RandomLeastLikelyClassMethod(Net(), eps=0.05, alpha=0.21)
     assert str(e.value) == 'eps must be larger than alpha!'
