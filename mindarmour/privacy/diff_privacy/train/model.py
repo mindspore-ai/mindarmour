@@ -306,8 +306,7 @@ class _ClipGradients(nn.Cell):
         """
         construct a compute flow.
         """
-        # pylint: disable=consider-using-in
-        if clip_type != 0 and clip_type != 1:
+        if clip_type not in (0, 1):
             return grads
 
         new_grads = ()

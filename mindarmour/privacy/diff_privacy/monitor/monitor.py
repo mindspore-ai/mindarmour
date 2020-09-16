@@ -62,7 +62,7 @@ class PrivacyMonitorFactory:
             return RDPMonitor(*args, **kwargs)
         if policy == 'zcdp':
             return ZCDPMonitor(*args, **kwargs)
-        raise ValueError("Only RDP-policy or ZCDP-policy is supported by now")
+        raise ValueError("The policy must be 'rdp' or 'zcdp', but got {}".format(policy))
 
 
 class RDPMonitor(Callback):
@@ -86,7 +86,8 @@ class RDPMonitor(Callback):
             be used to calculate privacy spent. Default: 1.5.
         max_eps (Union[float, int, None]): The maximum acceptable epsilon
             budget for DP training, which is used for estimating the max
-            training epochs. Default: 10.0.
+            training epochs. 'None' means there is no limit to epsilon budget.
+            Default: 10.0.
         target_delta (Union[float, int, None]): Target delta budget for DP
             training. If target_delta is set to be δ, then the privacy budget
             δ would be fixed during the whole training process. Default: 1e-3.
@@ -94,7 +95,7 @@ class RDPMonitor(Callback):
             budget for DP training, which is used for estimating the max
             training epochs. Max_delta must be less than 1 and suggested
             to be less than 1e-3, otherwise overflow would be encountered.
-            Default: None.
+            'None' means there is no limit to delta budget. Default: None.
         target_eps (Union[float, int, None]): Target epsilon budget for DP
             training. If target_eps is set to be ε, then the privacy budget
             ε would be fixed during the whole training process. Default: None.
@@ -192,6 +193,7 @@ class RDPMonitor(Callback):
             msg = 'One of target eps and target delta must be None'
             LOGGER.error(TAG, msg)
             raise ValueError(msg)
+
         if dataset_sink_mode:
             self._per_print_times = int(self._num_samples / self._batch_size)
 
@@ -208,6 +210,14 @@ class RDPMonitor(Callback):
             >>> num_samples=60000, batch_size=32)
             >>> suggest_epoch = rdp.max_epoch_suggest()
         """
+        if self._target_delta is not None and self._max_eps is None:
+            msg = 'max_eps should be consistent with target_delta, but got None.'
+            LOGGER.error(TAG, msg)
+            raise ValueError(msg)
+        if self._target_eps is not None and self._max_delta is None:
+            msg = 'max_delta should be consistent with target_eps, but got None.'
+            LOGGER.error(TAG, msg)
+            raise ValueError(msg)
         epoch = 1
         while epoch < 10000:
             steps = self._num_samples // self._batch_size
@@ -427,7 +437,8 @@ class ZCDPMonitor(Callback):
                              initial_noise_multiplier)
         if noise_decay_mode is not None:
             if noise_decay_mode not in ('Step', 'Time', 'Exp'):
-                msg = "Noise decay mode must be in ('Step', 'Time', 'Exp')"
+                msg = "Noise decay mode must be in ('Step', 'Time', 'Exp'), but got {}.".\
+                    format(noise_decay_mode)
                 LOGGER.error(TAG, msg)
                 raise ValueError(msg)
             noise_decay_rate = check_param_type('noise_decay_rate', noise_decay_rate, float)
