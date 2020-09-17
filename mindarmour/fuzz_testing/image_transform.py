@@ -350,9 +350,9 @@ class Translate(ImageTransform):
     Translate an image.
 
     Args:
-        x_bias ([int, float): X-direction translation, x=x+x_bias*image_length.
+        x_bias (Union[int, float]): X-direction translation, x = x + x_bias*image_length.
             Default: 0.
-        y_bias ([int, float): Y-direction translation,  y=y+y_bias*image_wide.
+        y_bias (Union[int, float]): Y-direction translation,  y = y + y_bias*image_wide.
             Default: 0.
     """
 
@@ -365,10 +365,8 @@ class Translate(ImageTransform):
         Set translate parameters.
 
         Args:
-            x_bias ([float, int]): X-direction translation, x=x+x_bias*image_length.
-                Default: 0.
-            y_bias ([float, int]): Y-direction translation, y=y+y_bias*image_wide.
-                Default: 0.
+            x_bias (Union[float, int]): X-direction translation. Default: 0.
+            y_bias (Union[float, int]): Y-direction translation. Default: 0.
             auto_param (bool): True if auto generate parameters. Default: False.
         """
         self.auto_param = auto_param

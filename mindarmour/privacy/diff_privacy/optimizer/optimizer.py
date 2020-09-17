@@ -36,7 +36,7 @@ _reciprocal = P.Reciprocal()
 @_grad_scale.register("Tensor", "Tensor")
 def tensor_grad_scale(scale, grad):
     """ grad scaling """
-    return grad * _reciprocal(scale)
+    return grad*_reciprocal(scale)
 
 
 class _TupleAdd(nn.Cell):
@@ -59,14 +59,14 @@ class DPOptimizerClassFactory:
         micro_batches (int): The number of small batches split from an original batch. Default: 2.
 
     Returns:
-        Optimizer, Optimizer class
+        Optimizer, Optimizer class.
 
     Examples:
         >>> GaussianSGD = DPOptimizerClassFactory(micro_batches=2)
         >>> GaussianSGD.set_mechanisms('Gaussian', norm_bound=1.0, initial_noise_multiplier=1.5)
         >>> net_opt = GaussianSGD.create('Momentum')(params=network.trainable_params(),
-        >>>                                          learning_rate=cfg.lr,
-        >>>                                          momentum=cfg.momentum)
+        >>>                                          learning_rate=0.001,
+        >>>                                          momentum=0.9)
     """
 
     def __init__(self, micro_batches=2):
@@ -76,7 +76,9 @@ class DPOptimizerClassFactory:
 
     def set_mechanisms(self, policy, *args, **kwargs):
         """
-        Get noise mechanism object.
+        Get noise mechanism object. Policies can be 'sgd', 'momentum'
+        or 'adam'. Candidate args and kwargs can be seen in class
+        NoiseMechanismsFactory of mechanisms.py.
 
         Args:
             policy (str): Choose mechanism type.
@@ -85,15 +87,15 @@ class DPOptimizerClassFactory:
 
     def create(self, policy):
         """
-        Create DP optimizer.
+        Create DP optimizer. Policies can be 'sgd', 'momentum'
+        or 'adam'.
 
         Args:
             policy (str): Choose original optimizer type.
 
         Returns:
-            Optimizer, A optimizer with DP.
+            Optimizer, an optimizer with DP.
         """
-        dp_opt_class = None
         policy_ = policy.lower()
         if policy_ == 'sgd':
             dp_opt_class = self._get_dp_optimizer_class(nn.SGD)
@@ -102,7 +104,7 @@ class DPOptimizerClassFactory:
         elif policy_ == 'adam':
             dp_opt_class = self._get_dp_optimizer_class(nn.Adam)
         else:
-            msg = "The {} optimizer is not implement, please choose ['SGD', 'Momentum', 'Adam']" \
+            msg = "The policy must be in ('SGD', 'Momentum', 'Adam'), but got {}." \
                 .format(policy)
             LOGGER.error(TAG, msg)
             raise NameError(msg)
@@ -112,6 +114,10 @@ class DPOptimizerClassFactory:
         """
         Wrap original mindspore optimizer with `self._mech`.
         """
+        if self._mech is None:
+            msg = 'Noise mechanism should be given through set_mechanisms(), but got None.'
+            LOGGER.error(TAG, msg)
+            raise ValueError(msg)
         mech = self._mech
         micro_batches = self._micro_batches
 

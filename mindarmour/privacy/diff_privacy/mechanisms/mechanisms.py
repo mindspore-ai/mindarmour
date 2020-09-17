@@ -426,7 +426,6 @@ class AdaClippingWithGaussianRandom(Cell):
             next_norm_bound = self._sub(norm_bound,
                                         self._mul(self._learning_rate, grad_clip))
 
-        # decay_policy == 'Geometric'
         else:
             grad_clip = self._sub(empirical_fraction,
                                   self._target_unclipped_quantile)
