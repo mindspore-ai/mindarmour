@@ -254,6 +254,10 @@ class Fuzzer:
             raise ValueError(msg)
         for seed in initial_seeds:
             check_param_type('seed', seed, list)
+            if len(seed) != 2:
+                msg = 'seed in initial seeds must have two element image and ' \
+                      'label, but got {} element.'.format(len(seed))
+                raise ValueError(msg)
             check_numpy_param('seed[0]', seed[0])
             check_numpy_param('seed[1]', seed[1])
             seed.append(0)
@@ -321,16 +325,16 @@ class Fuzzer:
         """Mutate a seed using strategies random selected from mutate_config."""
         mutate_samples = []
         mutate_strategies = []
-        only_pixel_trans = seed[2]
         for _ in range(mutate_num_per_seed):
-            strage = choice(mutate_config)
+            only_pixel_trans = seed[2]
+            strategy = choice(mutate_config)
             # Choose a pixel value based transform method
             if only_pixel_trans:
-                while strage['method'] not in self._pixel_value_trans_list:
-                    strage = choice(mutate_config)
-            transform = mutates[strage['method']]
-            params = strage['params']
-            method = strage['method']
+                while strategy['method'] not in self._pixel_value_trans_list:
+                    strategy = choice(mutate_config)
+            transform = mutates[strategy['method']]
+            params = strategy['params']
+            method = strategy['method']
             selected_param = {}
             for p in params:
                 selected_param[p] = choice(params[p])
@@ -367,10 +371,10 @@ class Fuzzer:
         for config in mutate_config:
             check_param_type("config", config, dict)
             if set(config.keys()) != {'method', 'params'}:
-                msg = "Config must contain 'method' and 'params', but got {}." \
-                    .format(set(config.keys()))
+                msg = "The key of each config must be in ('method', 'params'), " \
+                      "but got {}.".format(set(config.keys()))
                 LOGGER.error(TAG, msg)
-                raise TypeError(msg)
+                raise KeyError(msg)
 
             method = config['method']
             params = config['params']
@@ -380,7 +384,7 @@ class Fuzzer:
                 msg = "Config methods must be in {}, but got {}." \
                     .format(self._strategies.keys(), method)
                 LOGGER.error(TAG, msg)
-                raise TypeError(msg)
+                raise ValueError(msg)
 
             if config['method'] in self._pixel_value_trans_list:
                 has_pixel_trans = True
@@ -415,7 +419,9 @@ class Fuzzer:
                 if param_name == 'bounds':
                     bounds = check_param_multi_types('bounds', param_value, [tuple])
                     if len(bounds) != 2:
-                        msg = 'bounds must be format (lower_bound, upper_bound)'
+                        msg = 'The format of bounds must be format (lower_bound, upper_bound),' \
+                              'but got its length as{}'.format(len(bounds))
+                        raise ValueError(msg)
                     for bound_value in bounds:
                         _ = check_param_multi_types('bound', bound_value,
                                                     [int, float])
@@ -458,7 +464,7 @@ class Fuzzer:
         Args:
             fuzz_samples ([numpy.ndarray, list]): Generated fuzz_testing samples
                 according to seeds.
-            true_labels ([numpy.ndarray, list]): Ground Truth labels of seeds.
+            true_labels ([numpy.ndarray, list]): Ground truth labels of seeds.
             fuzz_preds ([numpy.ndarray, list]): Predictions of generated fuzz samples.
             fuzz_strategies ([numpy.ndarray, list]): Mutate strategies of fuzz samples.
             metrics (Union[list, tuple, str]): evaluation metrics.

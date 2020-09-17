@@ -23,7 +23,7 @@ from mindarmour.utils._check_param import check_param_multi_types
 from mindarmour.utils.logger import LogUtil
 
 LOGGER = LogUtil.get_instance()
-TAG = 'ModelCoverageMetrics'
+TAG = 'Image Transformation'
 
 
 def chw_to_hwc(img):
@@ -38,7 +38,7 @@ def chw_to_hwc(img):
     """
     if is_numpy(img):
         return img.transpose(1, 2, 0).copy()
-    raise TypeError('img should be Numpy array. Got {}'.format(type(img)))
+    raise TypeError('img should be numpy.ndarray. Got {}'.format(type(img)))
 
 
 def is_hwc(img):
@@ -56,7 +56,7 @@ def is_hwc(img):
         if img_shape[2] == 3 and img_shape[1] > 3 and img_shape[0] > 3:
             return True
         return False
-    raise TypeError('img should be Numpy array. Got {}'.format(type(img)))
+    raise TypeError('img should be numpy.ndarray. Got {}'.format(type(img)))
 
 
 def is_chw(img):
@@ -74,7 +74,7 @@ def is_chw(img):
         if img_shape[0] == 3 and img_shape[1] > 3 and img_shape[2] > 3:
             return True
         return False
-    raise TypeError('img should be Numpy array. Got {}'.format(type(img)))
+    raise TypeError('img should be numpy.ndarray. Got {}'.format(type(img)))
 
 
 def is_rgb(img):
@@ -92,7 +92,7 @@ def is_rgb(img):
         if len(np.shape(img)) == 3 and (img_shape[0] == 3 or img_shape[2] == 3):
             return True
         return False
-    raise TypeError('img should be Numpy array. Got {}'.format(type(img)))
+    raise TypeError('img should be numpy.ndarray. Got {}'.format(type(img)))
 
 
 def is_normalized(img):
@@ -167,8 +167,8 @@ class Contrast(ImageTransform):
     Contrast of an image.
 
     Args:
-        factor ([float, int]): Control the contrast of an image. If 1.0 gives the
-            original image. If 0 gives a gray image. Default: 1.
+        factor (Union[float, int]): Control the contrast of an image. If 1.0,
+            gives the original image. If 0, gives a gray image. Default: 1.
     """
 
     def __init__(self, factor=1):
@@ -180,8 +180,8 @@ class Contrast(ImageTransform):
         Set contrast parameters.
 
         Args:
-            factor ([float, int]): Control the contrast of an image. If 1.0 gives
-                the original image. If 0 gives a gray image. Default: 1.
+            factor (Union[float, int]): Control the contrast of an image. If 1.0
+                gives the original image. If 0 gives a gray image. Default: 1.
             auto_param (bool): True if auto generate parameters. Default: False.
         """
         if auto_param:
@@ -214,8 +214,8 @@ class Brightness(ImageTransform):
     Brightness of an image.
 
     Args:
-        factor ([float, int]): Control the brightness of an image. If 1.0 gives
-            the original image. If 0 gives a black image. Default: 1.
+        factor (Union[float, int]): Control the brightness of an image. If 1.0
+            gives the original image. If 0 gives a black image. Default: 1.
     """
 
     def __init__(self, factor=1):
@@ -227,7 +227,7 @@ class Brightness(ImageTransform):
         Set brightness parameters.
 
         Args:
-            factor ([float, int]): Control the brightness of an image. If 1
+            factor (Union[float, int]): Control the brightness of an image. If 1
                 gives the original image. If 0 gives a black image. Default: 1.
             auto_param (bool): True if auto generate parameters. Default: False.
         """
@@ -260,7 +260,7 @@ class Blur(ImageTransform):
     Blurs the image using Gaussian blur filter.
 
     Args:
-        radius([float, int]): Blur radius, 0 means no blur. Default: 0.
+        radius(Union[float, int]): Blur radius, 0 means no blur. Default: 0.
     """
 
     def __init__(self, radius=0):
@@ -272,7 +272,7 @@ class Blur(ImageTransform):
         Set blur parameters.
 
         Args:
-            radius ([float, int]): Blur radius, 0 means no blur. Default: 0.
+            radius (Union[float, int]): Blur radius, 0 means no blur. Default: 0.
             auto_param (bool): True if auto generate parameters. Default: False.
         """
         if auto_param:
@@ -316,8 +316,8 @@ class Noise(ImageTransform):
         Set noise parameters.
 
         Args:
-            factor ([float, int]): 1 - factor is the ratio of pixels to add noise.
-                If 0 gives the original image. Default 0.
+            factor (Union[float, int]): 1 - factor is the ratio of pixels to
+                add noise. If 0 gives the original image. Default 0.
             auto_param (bool): True if auto generate parameters. Default: False.
         """
         if auto_param:
@@ -407,8 +407,10 @@ class Scale(ImageTransform):
     Scale an image in the middle.
 
     Args:
-        factor_x ([float, int]): Rescale in X-direction, x=factor_x*x. Default: 1.
-        factor_y ([float, int]): Rescale in Y-direction, y=factor_y*y. Default: 1.
+        factor_x (Union[float, int]): Rescale in X-direction, x=factor_x*x.
+            Default: 1.
+        factor_y (Union[float, int]): Rescale in Y-direction, y=factor_y*y.
+            Default: 1.
     """
 
     def __init__(self, factor_x=1, factor_y=1):
@@ -421,9 +423,9 @@ class Scale(ImageTransform):
         Set scale parameters.
 
         Args:
-            factor_x ([float, int]): Rescale in X-direction, x=factor_x*x.
+            factor_x (Union[float, int]): Rescale in X-direction, x=factor_x*x.
                 Default: 1.
-            factor_y ([float, int]): Rescale in Y-direction, y=factor_y*y.
+            factor_y (Union[float, int]): Rescale in Y-direction, y=factor_y*y.
                 Default: 1.
             auto_param (bool): True if auto generate parameters. Default: False.
         """
@@ -469,8 +471,10 @@ class Shear(ImageTransform):
     the sheared image will be rescaled to fit original size.
 
     Args:
-        factor_x ([float, int]): Shear factor of horizontal direction. Default: 0.
-        factor_y ([float, int]): Shear factor of vertical direction. Default: 0.
+        factor_x (Union[float, int]): Shear factor of horizontal direction.
+            Default: 0.
+        factor_y (Union[float, int]): Shear factor of vertical direction.
+            Default: 0.
 
     """
 
@@ -483,9 +487,9 @@ class Shear(ImageTransform):
         Set shear parameters.
 
         Args:
-            factor_x ([float, int]): Shear factor of horizontal direction.
+            factor_x (Union[float, int]): Shear factor of horizontal direction.
                 Default: 0.
-            factor_y ([float, int]): Shear factor of vertical direction.
+            factor_y (Union[float, int]): Shear factor of vertical direction.
                 Default: 0.
             auto_param (bool): True if auto generate parameters. Default: False.
         """
@@ -549,7 +553,7 @@ class Rotate(ImageTransform):
     Rotate an image of degrees counter clockwise around its center.
 
     Args:
-        angle([float, int]): Degrees counter clockwise. Default: 0.
+        angle(Union[float, int]): Degrees counter clockwise. Default: 0.
     """
 
     def __init__(self, angle=0):
@@ -561,7 +565,7 @@ class Rotate(ImageTransform):
         Set rotate parameters.
 
         Args:
-            angle([float, int]): Degrees counter clockwise. Default: 0.
+            angle(Union[float, int]): Degrees counter clockwise. Default: 0.
             auto_param (bool): True if auto generate parameters. Default: False.
         """
         if auto_param:
