@@ -148,10 +148,10 @@ class MembershipInference:
                 The support methods are knn, lr, mlp and rf, and the params of each method
                 must within the range of changeable parameters. Tips of params implement
                 can be found below:
-                `KNN<https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html>`_,
-                `LR<https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html>`_,
-                `RF<https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html>`_,
-                `MLP<https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPRegressor.html>`_.
+                `KNN <https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html>`_,
+                `LR <https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html>`_,
+                `RF <https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html>`_,
+                `MLP <https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPRegressor.html>`_.
 
         Raises:
             KeyError: If any config in attack_config doesn't have keys {"method", "params"}.
