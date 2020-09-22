@@ -12,15 +12,41 @@
 
 ## 简介
 
-MindArmour可用于增强模型的安全可信、保护用户的数据隐私。
+MindArmour关注AI的安全和隐私问题。致力于增强模型的安全可信、保护用户的数据隐私。主要包含3个模块：对抗样本鲁棒性模块、Fuzz Testing模块、隐私保护与评估模块。
 
-模型安全主要针对对抗样本，包含了4个子模块：对抗样本的生成、对抗样本的检测、模型防御、攻防评估。对抗样本的架构图如下：
+### 对抗样本鲁棒性模块
+对抗样本鲁棒性模块用于评估模型对于对抗样本的鲁棒性，并提供模型增强方法用于增强模型抗对抗样本攻击的能力，提升模型鲁棒性。对抗样本鲁棒性模块包含了4个子模块：对抗样本的生成、对抗样本的检测、模型防御、攻防评估。
 
-![mindarmour_architecture](docs/mindarmour_architecture_cn.png)
+对抗样本鲁棒性模块的架构图如下：
 
-隐私保护支持差分隐私，包括动态或者非动态的差分隐私SGD、Momentum、Adam优化器，噪声机制支持高斯分布噪声、拉普拉斯分布噪声，差分隐私预算监测包含ZDP、RDP。差分隐私的架构图如下：
+![mindarmour_architecture](docs/adversarial_robustness_cn.png)
+
+### Fuzz Testing模块
+Fuzz Testing模块是针对AI模型的安全测试，根据神经网络的特点，引入神经元覆盖率，作为Fuzz测试的指导，引导Fuzzer朝着神经元覆盖率增加的方向生成样本，让输入能够激活更多的神经元，神经元值的分布范围更广，以充分测试神经网络，探索不同类型的模型输出结果和错误行为。
+
+Fuzz Testing模块的架构图如下：
+
+![fuzzer_architecture](docs/fuzzer_architecture_cn.png)
+
+### 隐私保护模块
+
+隐私保护模块包含差分隐私训练与隐私泄露评估。
+
+#### 差分隐私训练模块
+
+差分隐私训练包括动态或者非动态的差分隐私SGD、Momentum、Adam优化器，噪声机制支持高斯分布噪声、拉普拉斯分布噪声，差分隐私预算监测包含ZCDP、RDP。
+
+差分隐私的架构图如下：
 
 ![dp_architecture](docs/differential_privacy_architecture_cn.png)
+
+#### 隐私泄露评估模块
+
+隐私泄露评估模块用于评估模型泄露用户隐私的风险。利用成员推理方法来推测样本是否属于用户训练数据集，从而评估深度学习模型的隐私数据安全。
+
+隐私泄露评估模块框架图如下：
+
+![privacy_leakage](docs/privacy_leakage_cn.png)
 
 
 ## 开始
