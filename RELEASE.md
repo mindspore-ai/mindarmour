@@ -1,3 +1,35 @@
+# Release 1.0.0
+
+## Major Features and Improvements
+
+### Differential privacy model training
+
+* Privacy leakage evaluation.
+
+    * Parameter verification enhancement.
+    * Support parallel computing.
+
+### Model robustness evaluation
+
+* Fuzzing based Adversarial Robustness testing.
+
+    * Parameter verification enhancement.
+
+### Other
+* Api & Directory Structure
+    * Adjusted the directory structure based on different features.
+    * Optimize the structure of examples.
+## Bugfixes
+
+## Contributors
+
+Thanks goes to these wonderful people:
+
+Liu Liu, Xiulang Jin, Zhidan Liu and Luobin Liu.
+
+Contributions of any kind are welcome!
+
+
 # Release 0.7.0-beta
 
 ## Major Features and Improvements
