@@ -204,7 +204,7 @@ class Fuzzer:
                 `self._attack_param_checklists`.
             initial_seeds (list[list]): Initial seeds used to generate mutated
                 samples. The format of initial seeds is [[image_data, label],
-                [...], ...].
+                [...], ...] and the label must be one-hot.
             coverage_metric (str): Model coverage metric of neural networks. All
                 supported metrics are: 'KMNC', 'NBC', 'SNAC'. Default: 'KMNC'.
             eval_metrics (Union[list, tuple, str]): Evaluation metrics. If the

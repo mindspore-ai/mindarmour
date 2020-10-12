@@ -21,12 +21,12 @@ import mindspore.common.dtype as mstype
 
 
 def generate_mnist_dataset(data_path, batch_size=32, repeat_size=1,
-                           num_parallel_workers=1, sparse=True):
+                           num_samples=None, num_parallel_workers=1, sparse=True):
     """
     create dataset for training or testing
     """
     # define dataset
-    ds1 = ds.MnistDataset(data_path)
+    ds1 = ds.MnistDataset(data_path, num_samples=num_samples)
 
     # define operation parameters
     resize_height, resize_width = 32, 32
