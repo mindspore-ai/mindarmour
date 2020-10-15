@@ -17,7 +17,7 @@ from abc import abstractmethod
 import numpy as np
 from PIL import Image, ImageOps
 
-from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
+from mindspore.nn import Cell
 from mindspore import Tensor
 
 from mindarmour.utils.logger import LogUtil
@@ -114,7 +114,8 @@ class IterativeGradientMethod(Attack):
         bounds (tuple): Upper and lower bounds of data, indicating the data range.
             In form of (clip_min, clip_max). Default: (0.0, 1.0).
         nb_iter (int): Number of iteration. Default: 5.
-        loss_fn (Loss): Loss function for optimization. Default: None.
+        loss_fn (Loss): Loss function for optimization. If None, the input network \
+            is already equipped with loss function. Default: None.
     """
     def __init__(self, network, eps=0.3, eps_iter=0.1, bounds=(0.0, 1.0), nb_iter=5,
                  loss_fn=None):
@@ -123,12 +124,15 @@ class IterativeGradientMethod(Attack):
         self._eps = check_value_positive('eps', eps)
         self._eps_iter = check_value_positive('eps_iter', eps_iter)
         self._nb_iter = check_int_positive('nb_iter', nb_iter)
-        self._bounds = check_param_multi_types('bounds', bounds, [list, tuple])
-        for b in self._bounds:
-            _ = check_param_multi_types('bound', b, [int, float])
+        self._bounds = None
+        if bounds is not None:
+            self._bounds = check_param_multi_types('bounds', bounds, [list, tuple])
+            for b in self._bounds:
+                _ = check_param_multi_types('bound', b, [int, float])
         if loss_fn is None:
-            loss_fn = SoftmaxCrossEntropyWithLogits(sparse=False)
-        self._loss_grad = GradWrapWithLoss(WithLossCell(self._network, loss_fn))
+            self._loss_grad = network
+        else:
+            self._loss_grad = GradWrapWithLoss(WithLossCell(self._network, loss_fn))
         self._loss_grad.set_train()
 
     @abstractmethod
@@ -139,8 +143,8 @@ class IterativeGradientMethod(Attack):
         Args:
             inputs (numpy.ndarray): Benign input samples used as references to create
                 adversarial examples.
-            labels (numpy.ndarray): Original/target labels.
-
+            labels (Union[numpy.ndarray, tuple]): Original/target labels. \
+                For each input if it has more than one label, it is wrapped in a tuple.
         Raises:
             NotImplementedError: This function is not available in
                 IterativeGradientMethod.
@@ -177,12 +181,13 @@ class BasicIterativeMethod(IterativeGradientMethod):
         is_targeted (bool): If True, targeted attack. If False, untargeted
             attack. Default: False.
         nb_iter (int): Number of iteration. Default: 5.
-        loss_fn (Loss): Loss function for optimization. Default: None.
+        loss_fn (Loss): Loss function for optimization. If None, the input network \
+            is already equipped with loss function. Default: None.
         attack (class): The single step gradient method of each iteration. In
             this class, FGSM is used.
 
     Examples:
-        >>> attack = BasicIterativeMethod(network)
+        >>> attack = BasicIterativeMethod(network, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
     """
     def __init__(self, network, eps=0.3, eps_iter=0.1, bounds=(0.0, 1.0),
                  is_targeted=False, nb_iter=5, loss_fn=None):
@@ -207,8 +212,8 @@ class BasicIterativeMethod(IterativeGradientMethod):
         Args:
             inputs (numpy.ndarray): Benign input samples used as references to
                 create adversarial examples.
-            labels (numpy.ndarray): Original/target labels.
-
+            labels (Union[numpy.ndarray, tuple]): Original/target labels. \
+                For each input if it has more than one label, it is wrapped in a tuple.
         Returns:
             numpy.ndarray, generated adversarial examples.
 
@@ -218,8 +223,13 @@ class BasicIterativeMethod(IterativeGradientMethod):
             >>>                         [[0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
             >>>                          [0, 0, 0, 0, 0, 0, 1, 0, 0, 0]])
         """
-        inputs, labels = check_pair_numpy_param('inputs', inputs,
-                                                'labels', labels)
+        if isinstance(labels, tuple):
+            for i, labels_item in enumerate(labels):
+                inputs, _ = check_pair_numpy_param('inputs', inputs, \
+                    'labels[{}]'.format(i), labels_item)
+        else:
+            inputs, _ = check_pair_numpy_param('inputs', inputs, \
+                'labels', labels)
         arr_x = inputs
         if self._bounds is not None:
             clip_min, clip_max = self._bounds
@@ -267,7 +277,8 @@ class MomentumIterativeMethod(IterativeGradientMethod):
         decay_factor (float): Decay factor in iterations. Default: 1.0.
         norm_level (Union[int, numpy.inf]): Order of the norm. Possible values:
             np.inf, 1 or 2. Default: 'inf'.
-        loss_fn (Loss): Loss function for optimization. Default: None.
+        loss_fn (Loss): Loss function for optimization. If None, the input network \
+            is already equipped with loss function. Default: None.
     """
 
     def __init__(self, network, eps=0.3, eps_iter=0.1, bounds=(0.0, 1.0),
@@ -290,7 +301,8 @@ class MomentumIterativeMethod(IterativeGradientMethod):
         Args:
             inputs (numpy.ndarray): Benign input samples used as references to
                 create adversarial examples.
-            labels (numpy.ndarray): Original/target labels.
+            labels (Union[numpy.ndarray, tuple]): Original/target labels. \
+                For each input if it has more than one label, it is wrapped in a tuple.
 
         Returns:
             numpy.ndarray, generated adversarial examples.
@@ -301,8 +313,13 @@ class MomentumIterativeMethod(IterativeGradientMethod):
             >>>                         [[0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
             >>>                          [0, 0, 0, 0, 0, 1, 0, 0, 0, 0]])
         """
-        inputs, labels = check_pair_numpy_param('inputs', inputs,
-                                                'labels', labels)
+        if isinstance(labels, tuple):
+            for i, labels_item in enumerate(labels):
+                inputs, _ = check_pair_numpy_param('inputs', inputs, \
+                    'labels[{}]'.format(i), labels_item)
+        else:
+            inputs, _ = check_pair_numpy_param('inputs', inputs, \
+                'labels', labels)
         arr_x = inputs
         momentum = 0
         if self._bounds is not None:
@@ -340,7 +357,8 @@ class MomentumIterativeMethod(IterativeGradientMethod):
 
         Args:
             inputs (numpy.ndarray): Input samples.
-            labels (numpy.ndarray): Original/target labels.
+            labels (Union[numpy.ndarray, tuple]): Original/target labels. \
+                For each input if it has more than one label, it is wrapped in a tuple.
 
         Returns:
             numpy.ndarray, gradient of labels w.r.t inputs.
@@ -350,7 +368,13 @@ class MomentumIterativeMethod(IterativeGradientMethod):
             >>>                       [[0, 0, 0, 1, 0, 0, 0, 0, 0, 0])
         """
         # get grad of loss over x
-        out_grad = self._loss_grad(Tensor(inputs), Tensor(labels))
+        if isinstance(labels, tuple):
+            labels_tensor = tuple()
+            for item in labels:
+                labels_tensor += (Tensor(item),)
+        else:
+            labels_tensor = (Tensor(labels),)
+        out_grad = self._loss_grad(Tensor(inputs), *labels_tensor)
         if isinstance(out_grad, tuple):
             out_grad = out_grad[0]
         gradient = out_grad.asnumpy()
@@ -384,7 +408,8 @@ class ProjectedGradientDescent(BasicIterativeMethod):
         nb_iter (int): Number of iteration. Default: 5.
         norm_level (Union[int, numpy.inf]): Order of the norm. Possible values:
             np.inf, 1 or 2. Default: 'inf'.
-        loss_fn (Loss): Loss function for optimization. Default: None.
+        loss_fn (Loss): Loss function for optimization. If None, the input network \
+            is already equipped with loss function. Default: None.
     """
 
     def __init__(self, network, eps=0.3, eps_iter=0.1, bounds=(0.0, 1.0),
@@ -406,7 +431,8 @@ class ProjectedGradientDescent(BasicIterativeMethod):
         Args:
             inputs (numpy.ndarray): Benign input samples used as references to
                 create adversarial examples.
-            labels (numpy.ndarray): Original/target labels.
+            labels (Union[numpy.ndarray, tuple]): Original/target labels. \
+                For each input if it has more than one label, it is wrapped in a tuple.
 
         Returns:
             numpy.ndarray, generated adversarial examples.
@@ -417,8 +443,13 @@ class ProjectedGradientDescent(BasicIterativeMethod):
             >>>                         [[0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
             >>>                          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
         """
-        inputs, labels = check_pair_numpy_param('inputs', inputs,
-                                                'labels', labels)
+        if isinstance(labels, tuple):
+            for i, labels_item in enumerate(labels):
+                inputs, _ = check_pair_numpy_param('inputs', inputs, \
+                    'labels[{}]'.format(i), labels_item)
+        else:
+            inputs, _ = check_pair_numpy_param('inputs', inputs, \
+                'labels', labels)
         arr_x = inputs
         if self._bounds is not None:
             clip_min, clip_max = self._bounds
@@ -460,7 +491,8 @@ class DiverseInputIterativeMethod(BasicIterativeMethod):
         is_targeted (bool): If True, targeted attack. If False, untargeted
             attack. Default: False.
         prob (float): Transformation probability. Default: 0.5.
-        loss_fn (Loss): Loss function for optimization. Default: None.
+        loss_fn (Loss): Loss function for optimization. If None, the input network \
+            is already equipped with loss function. Default: None.
     """
     def __init__(self, network, eps=0.3, bounds=(0.0, 1.0),
                  is_targeted=False, prob=0.5, loss_fn=None):
@@ -495,7 +527,8 @@ class MomentumDiverseInputIterativeMethod(MomentumIterativeMethod):
         norm_level (Union[int, numpy.inf]): Order of the norm. Possible values:
             np.inf, 1 or 2. Default: 'l1'.
         prob (float): Transformation probability. Default: 0.5.
-        loss_fn (Loss): Loss function for optimization. Default: None.
+        loss_fn (Loss): Loss function for optimization. If None, the input network \
+            is already equipped with loss function. Default: None.
        """
     def __init__(self, network, eps=0.3, bounds=(0.0, 1.0),
                  is_targeted=False, norm_level='l1', prob=0.5, loss_fn=None):

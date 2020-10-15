@@ -59,8 +59,8 @@ def test_ead():
     optimizer = Momentum(net.trainable_params(), 0.001, 0.9)
 
     net = Net()
-    fgsm = FastGradientSignMethod(net)
-    pgd = ProjectedGradientDescent(net)
+    fgsm = FastGradientSignMethod(net, loss_fn=loss_fn)
+    pgd = ProjectedGradientDescent(net, loss_fn=loss_fn)
     ead = EnsembleAdversarialDefense(net, [fgsm, pgd], loss_fn=loss_fn,
                                      optimizer=optimizer)
     LOGGER.set_level(logging.DEBUG)

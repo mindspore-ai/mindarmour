@@ -20,6 +20,7 @@ import pytest
 from mindspore.ops import operations as P
 from mindspore.nn import Cell
 from mindspore import context
+from mindspore.nn import SoftmaxCrossEntropyWithLogits
 
 from mindarmour.adv_robustness.attacks import BasicIterativeMethod
 from mindarmour.adv_robustness.attacks import MomentumIterativeMethod
@@ -70,7 +71,7 @@ def test_basic_iterative_method():
 
     for i in range(5):
         net = Net()
-        attack = BasicIterativeMethod(net, nb_iter=i + 1)
+        attack = BasicIterativeMethod(net, nb_iter=i + 1, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
         ms_adv_x = attack.generate(input_np, label)
         assert np.any(
             ms_adv_x != input_np), 'Basic iterative method: generate value' \
@@ -91,7 +92,7 @@ def test_momentum_iterative_method():
     label = np.eye(3)[label].astype(np.float32)
 
     for i in range(5):
-        attack = MomentumIterativeMethod(Net(), nb_iter=i + 1)
+        attack = MomentumIterativeMethod(Net(), nb_iter=i + 1, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
         ms_adv_x = attack.generate(input_np, label)
         assert np.any(ms_adv_x != input_np), 'Momentum iterative method: generate' \
                                              ' value must not be equal to' \
@@ -112,7 +113,7 @@ def test_projected_gradient_descent_method():
     label = np.eye(3)[label].astype(np.float32)
 
     for i in range(5):
-        attack = ProjectedGradientDescent(Net(), nb_iter=i + 1)
+        attack = ProjectedGradientDescent(Net(), nb_iter=i + 1, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
         ms_adv_x = attack.generate(input_np, label)
 
         assert np.any(
@@ -134,7 +135,7 @@ def test_diverse_input_iterative_method():
     label = np.asarray([2], np.int32)
     label = np.eye(3)[label].astype(np.float32)
 
-    attack = DiverseInputIterativeMethod(Net())
+    attack = DiverseInputIterativeMethod(Net(), loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
     ms_adv_x = attack.generate(input_np, label)
     assert np.any(ms_adv_x != input_np), 'Diverse input iterative method: generate' \
                                              ' value must not be equal to' \
@@ -154,7 +155,7 @@ def test_momentum_diverse_input_iterative_method():
     label = np.asarray([2], np.int32)
     label = np.eye(3)[label].astype(np.float32)
 
-    attack = MomentumDiverseInputIterativeMethod(Net())
+    attack = MomentumDiverseInputIterativeMethod(Net(), loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
     ms_adv_x = attack.generate(input_np, label)
     assert np.any(ms_adv_x != input_np), 'Momentum diverse input iterative method: ' \
                                              'generate value must not be equal to' \
@@ -167,10 +168,7 @@ def test_momentum_diverse_input_iterative_method():
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
 def test_error():
-    with pytest.raises(TypeError):
-        # check_param_multi_types
-        assert IterativeGradientMethod(Net(), bounds=None)
-    attack = IterativeGradientMethod(Net(), bounds=(0.0, 1.0))
+    attack = IterativeGradientMethod(Net(), bounds=(0.0, 1.0), loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
     with pytest.raises(NotImplementedError):
         input_np = np.asarray([[0.1, 0.2, 0.7]], np.float32)
         label = np.asarray([2], np.int32)

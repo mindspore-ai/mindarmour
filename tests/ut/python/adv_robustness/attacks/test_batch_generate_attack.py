@@ -18,7 +18,7 @@ import numpy as np
 import pytest
 
 import mindspore.ops.operations as P
-from mindspore.nn import Cell
+from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
 import mindspore.context as context
 
 from mindarmour.adv_robustness.attacks import FastGradientMethod
@@ -67,7 +67,7 @@ def test_batch_generate_attack():
     label = np.random.randint(0, 10, 128).astype(np.int32)
     label = np.eye(10)[label].astype(np.float32)
 
-    attack = FastGradientMethod(Net())
+    attack = FastGradientMethod(Net(), loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
     ms_adv_x = attack.batch_generate(input_np, label, batch_size=32)
 
     assert np.any(ms_adv_x != input_np), 'Fast gradient method: generate value' \
