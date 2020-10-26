@@ -71,7 +71,7 @@ def test_fast_gradient_method():
     label = np.asarray([2], np.int32)
     label = np.eye(3)[label].astype(np.float32)
 
-    attack = FastGradientMethod(Net())
+    attack = FastGradientMethod(Net(), loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
     ms_adv_x = attack.generate(input_np, label)
 
     assert np.any(ms_adv_x != input_np), 'Fast gradient method: generate value' \
@@ -91,7 +91,7 @@ def test_fast_gradient_method_gpu():
     label = np.asarray([2], np.int32)
     label = np.eye(3)[label].astype(np.float32)
 
-    attack = FastGradientMethod(Net())
+    attack = FastGradientMethod(Net(), loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
     ms_adv_x = attack.generate(input_np, label)
 
     assert np.any(ms_adv_x != input_np), 'Fast gradient method: generate value' \
@@ -132,7 +132,7 @@ def test_random_fast_gradient_method():
     label = np.asarray([2], np.int32)
     label = np.eye(3)[label].astype(np.float32)
 
-    attack = RandomFastGradientMethod(Net())
+    attack = RandomFastGradientMethod(Net(), loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
     ms_adv_x = attack.generate(input_np, label)
 
     assert np.any(ms_adv_x != input_np), 'Random fast gradient method: ' \
@@ -154,7 +154,7 @@ def test_fast_gradient_sign_method():
     label = np.asarray([2], np.int32)
     label = np.eye(3)[label].astype(np.float32)
 
-    attack = FastGradientSignMethod(Net())
+    attack = FastGradientSignMethod(Net(), loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
     ms_adv_x = attack.generate(input_np, label)
 
     assert np.any(ms_adv_x != input_np), 'Fast gradient sign method: generate' \
@@ -176,7 +176,7 @@ def test_random_fast_gradient_sign_method():
     label = np.asarray([2], np.int32)
     label = np.eye(28)[label].astype(np.float32)
 
-    attack = RandomFastGradientSignMethod(Net())
+    attack = RandomFastGradientSignMethod(Net(), loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
     ms_adv_x = attack.generate(input_np, label)
 
     assert np.any(ms_adv_x != input_np), 'Random fast gradient sign method: ' \
@@ -198,7 +198,7 @@ def test_least_likely_class_method():
     label = np.asarray([2], np.int32)
     label = np.eye(3)[label].astype(np.float32)
 
-    attack = LeastLikelyClassMethod(Net())
+    attack = LeastLikelyClassMethod(Net(), loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
     ms_adv_x = attack.generate(input_np, label)
 
     assert np.any(ms_adv_x != input_np), 'Least likely class method: generate' \
@@ -220,7 +220,8 @@ def test_random_least_likely_class_method():
     label = np.asarray([2], np.int32)
     label = np.eye(3)[label].astype(np.float32)
 
-    attack = RandomLeastLikelyClassMethod(Net(), eps=0.1, alpha=0.01)
+    attack = RandomLeastLikelyClassMethod(Net(), eps=0.1, alpha=0.01, \
+        loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
     ms_adv_x = attack.generate(input_np, label)
 
     assert np.any(ms_adv_x != input_np), 'Random least likely class method: ' \
@@ -239,5 +240,6 @@ def test_assert_error():
     """
     context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     with pytest.raises(ValueError) as e:
-        assert RandomLeastLikelyClassMethod(Net(), eps=0.05, alpha=0.21)
+        assert RandomLeastLikelyClassMethod(Net(), eps=0.05, alpha=0.21, \
+            loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
     assert str(e.value) == 'eps must be larger than alpha!'

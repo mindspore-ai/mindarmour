@@ -19,6 +19,7 @@ from random import choice
 import numpy as np
 from mindspore import Model
 from mindspore import Tensor
+from mindspore import nn
 
 from mindarmour.utils._check_param import check_model, check_numpy_param, \
     check_param_multi_types, check_norm_level, check_param_in_range, \
@@ -451,6 +452,8 @@ class Fuzzer:
             else:
                 network = self._target_model._network
                 loss_fn = self._target_model._loss_fn
+                if loss_fn is None:
+                    loss_fn = nn.SoftmaxCrossEntropyWithLogits(sparse=False)
                 mutates[method] = self._strategies[method](network,
                                                            loss_fn=loss_fn)
         return mutates

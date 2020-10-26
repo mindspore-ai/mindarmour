@@ -19,7 +19,7 @@ from abc import abstractmethod
 import numpy as np
 
 from mindspore import Tensor
-from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
+from mindspore.nn import Cell
 
 from mindarmour.utils.util import WithLossCell, GradWrapWithLoss
 from mindarmour.utils.logger import LogUtil
@@ -44,12 +44,13 @@ class GradientMethod(Attack):
             Default: None.
         bounds (tuple): Upper and lower bounds of data, indicating the data range.
             In form of (clip_min, clip_max). Default: None.
-        loss_fn (Loss): Loss function for optimization. Default: None.
+        loss_fn (Loss): Loss function for optimization. If None, the input network \
+            is already equipped with loss function. Default: None.
 
     Examples:
         >>> inputs = np.array([[0.1, 0.2, 0.6], [0.3, 0, 0.4]])
         >>> labels = np.array([[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]])
-        >>> attack = FastGradientMethod(network)
+        >>> attack = FastGradientMethod(network, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
         >>> adv_x = attack.generate(inputs, labels)
     """
 
@@ -71,9 +72,10 @@ class GradientMethod(Attack):
         else:
             self._alpha = alpha
         if loss_fn is None:
-            loss_fn = SoftmaxCrossEntropyWithLogits(sparse=False)
-        with_loss_cell = WithLossCell(self._network, loss_fn)
-        self._grad_all = GradWrapWithLoss(with_loss_cell)
+            self._grad_all = self._network
+        else:
+            with_loss_cell = WithLossCell(self._network, loss_fn)
+            self._grad_all = GradWrapWithLoss(with_loss_cell)
         self._grad_all.set_train()
 
     def generate(self, inputs, labels):
@@ -83,13 +85,19 @@ class GradientMethod(Attack):
         Args:
             inputs (numpy.ndarray): Benign input samples used as references to create
                     adversarial examples.
-            labels (numpy.ndarray): Original/target labels.
+            labels (Union[numpy.ndarray, tuple]): Original/target labels. \
+                For each input if it has more than one label, it is wrapped in a tuple.
 
         Returns:
             numpy.ndarray, generated adversarial examples.
         """
-        inputs, labels = check_pair_numpy_param('inputs', inputs,
-                                                'labels', labels)
+        if isinstance(labels, tuple):
+            for i, labels_item in enumerate(labels):
+                inputs, _ = check_pair_numpy_param('inputs', inputs, \
+                    'labels[{}]'.format(i), labels_item)
+        else:
+            inputs, _ = check_pair_numpy_param('inputs', inputs, \
+                'labels', labels)
         self._dtype = inputs.dtype
         gradient = self._gradient(inputs, labels)
         # use random method or not
@@ -117,7 +125,8 @@ class GradientMethod(Attack):
         Args:
             inputs (numpy.ndarray): Benign input samples used as references to
                 create adversarial examples.
-            labels (numpy.ndarray): Original/target labels.
+            labels (Union[numpy.ndarray, tuple]): Original/target labels. \
+                For each input if it has more than one label, it is wrapped in a tuple.
 
         Raises:
             NotImplementedError: It is an abstract method.
@@ -149,12 +158,13 @@ class FastGradientMethod(GradientMethod):
             Possible values: np.inf, 1 or 2. Default: 2.
         is_targeted (bool): If True, targeted attack. If False, untargeted
             attack. Default: False.
-        loss_fn (Loss): Loss function for optimization. Default: None.
+        loss_fn (Loss): Loss function for optimization. If None, the input network \
+            is already equipped with loss function. Default: None.
 
     Examples:
         >>> inputs = np.array([[0.1, 0.2, 0.6], [0.3, 0, 0.4]])
         >>> labels = np.array([[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]])
-        >>> attack = FastGradientMethod(network)
+        >>> attack = FastGradientMethod(network, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
         >>> adv_x = attack.generate(inputs, labels)
     """
 
@@ -175,12 +185,19 @@ class FastGradientMethod(GradientMethod):
 
         Args:
             inputs (numpy.ndarray): Input sample.
-            labels (numpy.ndarray): Original/target label.
+            labels (Union[numpy.ndarray, tuple]): Original/target labels. \
+                For each input if it has more than one label, it is wrapped in a tuple.
 
         Returns:
             numpy.ndarray, gradient of inputs.
         """
-        out_grad = self._grad_all(Tensor(inputs), Tensor(labels))
+        if isinstance(labels, tuple):
+            labels_tensor = tuple()
+            for item in labels:
+                labels_tensor += (Tensor(item),)
+        else:
+            labels_tensor = (Tensor(labels),)
+        out_grad = self._grad_all(Tensor(inputs), *labels_tensor)
         if isinstance(out_grad, tuple):
             out_grad = out_grad[0]
         gradient = out_grad.asnumpy()
@@ -210,7 +227,8 @@ class RandomFastGradientMethod(FastGradientMethod):
         Possible values: np.inf, 1 or 2. Default: 2.
         is_targeted (bool): If True, targeted attack. If False, untargeted
             attack. Default: False.
-        loss_fn (Loss): Loss function for optimization. Default: None.
+        loss_fn (Loss): Loss function for optimization. If None, the input network \
+            is already equipped with loss function. Default: None.
 
     Raises:
         ValueError: eps is smaller than alpha!
@@ -218,7 +236,7 @@ class RandomFastGradientMethod(FastGradientMethod):
     Examples:
         >>> inputs = np.array([[0.1, 0.2, 0.6], [0.3, 0, 0.4]])
         >>> labels = np.array([[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]])
-        >>> attack = RandomFastGradientMethod(network)
+        >>> attack = RandomFastGradientMethod(network, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
         >>> adv_x = attack.generate(inputs, labels)
     """
 
@@ -254,12 +272,13 @@ class FastGradientSignMethod(GradientMethod):
             In form of (clip_min, clip_max). Default: (0.0, 1.0).
         is_targeted (bool): If True, targeted attack. If False, untargeted
             attack. Default: False.
-        loss_fn (Loss): Loss function for optimization. Default: None.
+        loss_fn (Loss): Loss function for optimization. If None, the input network \
+            is already equipped with loss function. Default: None.
 
     Examples:
         >>> inputs = np.array([[0.1, 0.2, 0.6], [0.3, 0, 0.4]])
         >>> labels = np.array([[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]])
-        >>> attack = FastGradientSignMethod(network)
+        >>> attack = FastGradientSignMethod(network, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
         >>> adv_x = attack.generate(inputs, labels)
     """
 
@@ -279,12 +298,19 @@ class FastGradientSignMethod(GradientMethod):
 
         Args:
             inputs (numpy.ndarray): Input samples.
-            labels (numpy.ndarray): Original/target labels.
+            labels (union[numpy.ndarray, tuple]): original/target labels. \
+                for each input if it has more than one label, it is wrapped in a tuple.
 
         Returns:
             numpy.ndarray, gradient of inputs.
         """
-        out_grad = self._grad_all(Tensor(inputs), Tensor(labels))
+        if isinstance(labels, tuple):
+            labels_tensor = tuple()
+            for item in labels:
+                labels_tensor += (Tensor(item),)
+        else:
+            labels_tensor = (Tensor(labels),)
+        out_grad = self._grad_all(Tensor(inputs), *labels_tensor)
         if isinstance(out_grad, tuple):
             out_grad = out_grad[0]
         gradient = out_grad.asnumpy()
@@ -311,7 +337,8 @@ class RandomFastGradientSignMethod(FastGradientSignMethod):
             In form of (clip_min, clip_max). Default: (0.0, 1.0).
         is_targeted (bool): True: targeted attack. False: untargeted attack.
             Default: False.
-        loss_fn (Loss): Loss function for optimization. Default: None.
+        loss_fn (Loss): Loss function for optimization. If None, the input network \
+            is already equipped with loss function. Default: None.
 
     Raises:
         ValueError: eps is smaller than alpha!
@@ -319,7 +346,7 @@ class RandomFastGradientSignMethod(FastGradientSignMethod):
     Examples:
         >>> inputs = np.array([[0.1, 0.2, 0.6], [0.3, 0, 0.4]])
         >>> labels = np.array([[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]])
-        >>> attack = RandomFastGradientSignMethod(network)
+        >>> attack = RandomFastGradientSignMethod(network, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
         >>> adv_x = attack.generate(inputs, labels)
     """
 
@@ -350,12 +377,13 @@ class LeastLikelyClassMethod(FastGradientSignMethod):
             Default: None.
         bounds (tuple): Upper and lower bounds of data, indicating the data range.
             In form of (clip_min, clip_max). Default: (0.0, 1.0).
-        loss_fn (Loss): Loss function for optimization. Default: None.
+        loss_fn (Loss): Loss function for optimization. If None, the input network \
+            is already equipped with loss function. Default: None.
 
     Examples:
         >>> inputs = np.array([[0.1, 0.2, 0.6], [0.3, 0, 0.4]])
         >>> labels = np.array([[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]])
-        >>> attack = LeastLikelyClassMethod(network)
+        >>> attack = LeastLikelyClassMethod(network, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
         >>> adv_x = attack.generate(inputs, labels)
     """
 
@@ -384,7 +412,8 @@ class RandomLeastLikelyClassMethod(FastGradientSignMethod):
             Default: 0.035.
         bounds (tuple): Upper and lower bounds of data, indicating the data range.
             In form of (clip_min, clip_max). Default: (0.0, 1.0).
-        loss_fn (Loss): Loss function for optimization.
+        loss_fn (Loss): Loss function for optimization. If None, the input network \
+            is already equipped with loss function. Default: None.
 
     Raises:
         ValueError: eps is smaller than alpha!
@@ -392,7 +421,7 @@ class RandomLeastLikelyClassMethod(FastGradientSignMethod):
     Examples:
         >>> inputs = np.array([[0.1, 0.2, 0.6], [0.3, 0, 0.4]])
         >>> labels = np.array([[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]])
-        >>> attack = RandomLeastLikelyClassMethod(network)
+        >>> attack = RandomLeastLikelyClassMethod(network, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
         >>> adv_x = attack.generate(inputs, labels)
     """
 
