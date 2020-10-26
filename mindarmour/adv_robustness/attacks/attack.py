@@ -41,8 +41,8 @@ class Attack:
         Args:
             inputs (numpy.ndarray): Samples based on which adversarial
                 examples are generated.
-            labels (numpy.ndarray): Labels of samples, whose values determined
-                by specific attacks.
+            labels (Union[numpy.ndarray, tuple]): Original/target labels. \
+                For each input if it has more than one label, it is wrapped in a tuple.
             batch_size (int): The number of samples in one batch.
 
         Returns:
@@ -53,22 +53,36 @@ class Attack:
             >>> labels = np.array([3, 0])
             >>> advs = attack.batch_generate(inputs, labels, batch_size=2)
         """
-        arr_x, arr_y = check_pair_numpy_param('inputs', inputs, 'labels', labels)
+        if isinstance(labels, tuple):
+            for i, labels_item in enumerate(labels):
+                arr_x, _ = check_pair_numpy_param('inputs', inputs, \
+                    'labels[{}]'.format(i), labels_item)
+        else:
+            arr_x, _ = check_pair_numpy_param('inputs', inputs, \
+                'labels', labels)
+        arr_y = labels
         len_x = arr_x.shape[0]
         batch_size = check_int_positive('batch_size', batch_size)
-        batchs = int(len_x / batch_size)
-        rest = len_x - batchs*batch_size
+        batches = int(len_x / batch_size)
+        rest = len_x - batches*batch_size
         res = []
-        for i in range(batchs):
+        for i in range(batches):
             x_batch = arr_x[i*batch_size: (i + 1)*batch_size]
-            y_batch = arr_y[i*batch_size: (i + 1)*batch_size]
+            if isinstance(arr_y, tuple):
+                y_batch = tuple([sub_labels[i*batch_size: (i + 1)*batch_size] for sub_labels in arr_y])
+            else:
+                y_batch = arr_y[i*batch_size: (i + 1)*batch_size]
             adv_x = self.generate(x_batch, y_batch)
             # Black-attack methods will return 3 values, just get the second.
             res.append(adv_x[1] if isinstance(adv_x, tuple) else adv_x)
 
         if rest != 0:
-            x_batch = arr_x[batchs*batch_size:]
-            y_batch = arr_y[batchs*batch_size:]
+            x_batch = arr_x[batches*batch_size:]
+            if isinstance(arr_y, tuple):
+                y_batch = tuple([sub_labels[batches*batch_size:] for sub_labels in arr_y])
+            else:
+                y_batch = arr_y[batches*batch_size:]
+            y_batch = arr_y[batches*batch_size:]
             adv_x = self.generate(x_batch, y_batch)
             # Black-attack methods will return 3 values, just get the second.
             res.append(adv_x[1] if isinstance(adv_x, tuple) else adv_x)
@@ -85,8 +99,8 @@ class Attack:
         Args:
             inputs (numpy.ndarray): Samples based on which adversarial
                 examples are generated.
-            labels (numpy.ndarray): Labels of samples, whose values determined
-                by specific attacks.
+            labels (Union[numpy.ndarray, tuple]): Original/target labels. \
+                For each input if it has more than one label, it is wrapped in a tuple.
 
         Raises:
             NotImplementedError: It is an abstract method.
