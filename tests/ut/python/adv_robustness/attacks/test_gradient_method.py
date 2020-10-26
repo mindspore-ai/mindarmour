@@ -18,9 +18,9 @@ import numpy as np
 import pytest
 
 import mindspore.nn as nn
-from mindspore.nn import Cell
+from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
 import mindspore.context as context
-from mindspore.nn import SoftmaxCrossEntropyWithLogits
+from mindspore.ops.composite import GradOperation
 
 from mindarmour.adv_robustness.attacks import FastGradientMethod
 from mindarmour.adv_robustness.attacks import FastGradientSignMethod
@@ -55,6 +55,52 @@ class Net(Cell):
         """
         out = self._relu(inputs)
         return out
+
+
+class Net2(Cell):
+    """
+    Construct the network of target model. A network with multiple input data.
+
+    Examples:
+        >>> net = Net2()
+    """
+
+    def __init__(self):
+        super(Net2, self).__init__()
+        self._relu = nn.ReLU()
+
+    def construct(self, inputs1, inputs2):
+        out1 = self._relu(inputs1)
+        out2 = self._relu(inputs2)
+        return out1 + out2
+
+
+class WithLossCell(Cell):
+    """Wrap the network with loss function"""
+    def __init__(self, backbone, loss_fn):
+        super(WithLossCell, self).__init__(auto_prefix=False)
+        self._backbone = backbone
+        self._loss_fn = loss_fn
+
+    def construct(self, inputs1, inputs2, labels):
+        out = self._backbone(inputs1, inputs2)
+        return self._loss_fn(out, labels)
+
+
+class GradWrapWithLoss(Cell):
+    """
+    Construct a network to compute the gradient of loss function in \
+    input space and weighted by 'weight'.
+    """
+
+    def __init__(self, network):
+        super(GradWrapWithLoss, self).__init__()
+        self._grad_all = GradOperation(get_all=True, sens_param=False)
+        self._network = network
+
+    def construct(self, inputs1, inputs2, labels):
+        gout = self._grad_all(self._network)(inputs1, inputs2, labels)
+        return gout[0]
 
 
 @pytest.mark.level0
@@ -227,6 +273,78 @@ def test_random_least_likely_class_method():
     assert np.any(ms_adv_x != input_np), 'Random least likely class method: ' \
                                          'generate value must not be equal to' \
                                          ' original value.'
+
+
+@pytest.mark.level0
+@pytest.mark.platform_arm_ascend_training
+@pytest.mark.platform_x86_ascend_training
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_fast_gradient_method_multi_inputs():
+    """
+    Fast gradient method unit test.
+    """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+    input_np = np.asarray([[0.1, 0.2, 0.7]]).astype(np.float32)
+    anno_np = np.asarray([[0.4, 0.8, 0.5]]).astype(np.float32)
+    label = np.asarray([2], np.int32)
+    label = np.eye(3)[label].astype(np.float32)
+
+    loss_fn = SoftmaxCrossEntropyWithLogits(sparse=False)
+    with_loss_cell = WithLossCell(Net2(), loss_fn)
+    grad_with_loss_net = GradWrapWithLoss(with_loss_cell)
+    attack = FastGradientMethod(grad_with_loss_net)
+    ms_adv_x = attack.generate(input_np, (anno_np, label))
+
+    assert np.any(ms_adv_x != input_np), 'Fast gradient method: generate value' \
+                                         ' must not be equal to original value.'
+
+
+@pytest.mark.level0
+@pytest.mark.platform_arm_ascend_training
+@pytest.mark.platform_x86_ascend_training
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_batch_generate():
+    """
+    Fast gradient method unit test.
+    """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+    input_np = np.random.random([10, 3]).astype(np.float32)
+    label = np.random.randint(0, 3, [10])
+    label = np.eye(3)[label].astype(np.float32)
+
+    loss_fn = SoftmaxCrossEntropyWithLogits(sparse=False)
+    attack = FastGradientMethod(Net(), loss_fn=loss_fn)
+    ms_adv_x = attack.batch_generate(input_np, label, 4)
+
+    assert np.any(ms_adv_x != input_np), 'Fast gradient method: generate value' \
+                                         ' must not be equal to original value.'
+
+
+@pytest.mark.level0
+@pytest.mark.platform_arm_ascend_training
+@pytest.mark.platform_x86_ascend_training
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_batch_generate_multi_inputs():
+    """
+    Fast gradient method unit test.
+    """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+    input_np = np.random.random([10, 3]).astype(np.float32)
+    anno_np = np.random.random([10, 3]).astype(np.float32)
+    label = np.random.randint(0, 3, [10])
+    label = np.eye(3)[label].astype(np.float32)
+
+    loss_fn = SoftmaxCrossEntropyWithLogits(sparse=False)
+    with_loss_cell = WithLossCell(Net2(), loss_fn)
+    grad_with_loss_net = GradWrapWithLoss(with_loss_cell)
+    attack = FastGradientMethod(grad_with_loss_net)
+    ms_adv_x = attack.generate(input_np, (anno_np, label))
+
+    assert np.any(ms_adv_x != input_np), 'Fast gradient method: generate value' \
+                                         ' must not be equal to original value.'
 
 
 @pytest.mark.level0
