@@ -17,6 +17,8 @@ from mindspore import Tensor
 from mindspore.nn import Cell
 from mindspore.ops.composite import GradOperation
 
+from mindarmour.utils._check_param import check_numpy_param
+
 from .logger import LogUtil
 
 LOGGER = LogUtil.get_instance()
@@ -164,3 +166,36 @@ class GradWrap(Cell):
         """
         gout = self.grad(self.network)(inputs, weight)
         return gout
+
+
+def calculate_iou(box_i, box_j):
+    """
+    Calculate the intersection over union (iou) of two boxes.
+
+    Args:
+        box_i (numpy.ndarray): Coordinates of the first box, with the format as (x1, y1, x2, y2).
+            (x1, y1) and (x2, y2) are coordinates of the lower left corner and the upper right corner,
+            respectively.
+        box_j: (numpy.ndarray): Coordinates of the second box, with the format as (x1, y1, x2, y2).
+
+    Returns:
+        float, iou of two input boxes.
+    """
+    check_numpy_param('box_i', box_i)
+    check_numpy_param('box_j', box_j)
+    if box_i.shape[-1] != 4 or box_j.shape[-1] != 4:
+        msg = 'The length of both coordinate arrays should be 4, bug got {} and {}.'.format(box_i.shape, box_j.shape)
+        LOGGER.error(TAG, msg)
+        raise ValueError(msg)
+    i_x1, i_y1, i_x2, i_y2 = box_i
+    j_x1, j_y1, j_x2, j_y2 = box_j
+    s_i = (i_x2 - i_x1)*(i_y2 - i_y1)
+    s_j = (j_x2 - j_x1)*(j_y2 - j_y1)
+    inner_left_line = max(i_x1, j_x1)
+    inner_right_line = min(i_x2, j_x2)
+    inner_top_line = min(i_y2, j_y2)
+    inner_bottom_line = max(i_y1, j_y1)
+    if inner_left_line >= inner_right_line or inner_top_line <= inner_bottom_line:
+        return 0
+    inner_area = (inner_right_line - inner_left_line)*(inner_top_line - inner_bottom_line)
+    return inner_area / (s_i + s_j - inner_area)

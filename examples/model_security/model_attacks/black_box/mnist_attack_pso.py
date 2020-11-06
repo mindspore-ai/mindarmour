@@ -41,6 +41,9 @@ class ModelToBeAttacked(BlackModel):
 
     def predict(self, inputs):
         """predict"""
+        # Adapt to the input shape requirements of the target network if inputs is only one image.
+        if len(inputs.shape) == 3:
+            inputs = np.expand_dims(inputs, axis=0)
         result = self._network(Tensor(inputs.astype(np.float32)))
         return result.asnumpy()
 

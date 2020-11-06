@@ -20,36 +20,12 @@ from scipy.special import softmax
 from mindarmour.utils.logger import LogUtil
 from mindarmour.utils._check_param import check_numpy_param, check_model, \
     check_pair_numpy_param, check_param_type, check_value_positive, \
-    check_int_positive, check_param_multi_types
-from ..attack import Attack
+    check_int_positive, check_detection_inputs, check_value_non_negative, check_param_multi_types
+from mindarmour.adv_robustness.attacks.attack import Attack
 from .black_model import BlackModel
 
 LOGGER = LogUtil.get_instance()
 TAG = 'GeneticAttack'
-
-
-def _mutation(cur_pop, step_noise=0.01, prob=0.005):
-    """
-    Generate mutation samples in genetic_attack.
-
-    Args:
-        cur_pop (numpy.ndarray): Samples before mutation.
-        step_noise (float): Noise range. Default: 0.01.
-        prob (float): Mutation probability. Default: 0.005.
-
-    Returns:
-        numpy.ndarray, samples after mutation operation in genetic_attack.
-
-    Examples:
-        >>> mul_pop = self._mutation_op([0.2, 0.3, 0.4], step_noise=0.03,
-        >>> prob=0.01)
-    """
-    cur_pop = check_numpy_param('cur_pop', cur_pop)
-    perturb_noise = np.clip(np.random.random(cur_pop.shape) - 0.5,
-                            -step_noise, step_noise)
-    mutated_pop = perturb_noise*(
-        np.random.random(cur_pop.shape) < prob) + cur_pop
-    return mutated_pop
 
 
 class GeneticAttack(Attack):
@@ -65,6 +41,13 @@ class GeneticAttack(Attack):
 
     Args:
         model (BlackModel): Target model.
+        model_type (str): The type of targeted model. 'classification' and 'detection' are supported now.
+            default: 'classification'.
+        targeted (bool): If True, turns on the targeted attack. If False,
+            turns on untargeted attack. It should be noted that only untargeted attack
+            is supproted for model_type='detection', Default: False.
+        reserve_ratio (float): The percentage of objects that can be detected after attacks, specifically for
+            model_type='detection'. Default: 0.3.
         pop_size (int): The number of particles, which should be greater than
             zero. Default: 6.
         mutation_rate (float): The probability of mutations. Default: 0.005.
@@ -73,23 +56,33 @@ class GeneticAttack(Attack):
             example. Default: 1000.
         step_size (float): Attack step size. Default: 0.2.
         temp (float): Sampling temperature for selection. Default: 0.3.
-        bounds (tuple): Upper and lower bounds of data. In form of (clip_min,
-            clip_max). Default: (0, 1.0)
+            The greater the temp, the greater the differences between individuals'
+            selecting probabilities.
+        bounds (Union[tuple, list, None]): Upper and lower bounds of data. In form
+            of (clip_min, clip_max). Default: (0, 1.0).
         adaptive (bool): If True, turns on dynamic scaling of mutation
             parameters. If false, turns on static mutation parameters.
             Default: False.
         sparse (bool): If True, input labels are sparse-encoded. If False,
             input labels are one-hot-encoded. Default: True.
+        c (float): Weight of perturbation loss. Default: 0.1.
 
     Examples:
         >>> attack = GeneticAttack(model)
     """
-    def __init__(self, model, pop_size=6,
-                 mutation_rate=0.005, per_bounds=0.15, max_steps=1000,
-                 step_size=0.20, temp=0.3, bounds=(0, 1.0), adaptive=False,
-                 sparse=True):
+    def __init__(self, model, model_type='classification', targeted=True, reserve_ratio=0.3, sparse=True,
+                 pop_size=6, mutation_rate=0.005, per_bounds=0.15, max_steps=1000, step_size=0.20, temp=0.3,
+                 bounds=(0, 1.0), adaptive=False, c=0.1):
         super(GeneticAttack, self).__init__()
         self._model = check_model('model', model, BlackModel)
+        self._model_type = check_param_type('model_type', model_type, str)
+        self._targeted = check_param_type('targeted', targeted, bool)
+        self._reserve_ratio = check_value_non_negative('reserve_ratio', reserve_ratio)
+        if self._reserve_ratio > 1:
+            msg = "reserve_ratio should be less than 1.0, but got {}.".format(self._reserve_ratio)
+            LOGGER.error(TAG, msg)
+            raise ValueError(msg)
+        self._sparse = check_param_type('sparse', sparse, bool)
         self._per_bounds = check_value_positive('per_bounds', per_bounds)
         self._pop_size = check_int_positive('pop_size', pop_size)
         self._step_size = check_value_positive('step_size', step_size)
@@ -98,16 +91,41 @@ class GeneticAttack(Attack):
         self._mutation_rate = check_value_positive('mutation_rate',
                                                    mutation_rate)
         self._adaptive = check_param_type('adaptive', adaptive, bool)
-        self._bounds = check_param_multi_types('bounds', bounds, [list, tuple])
-        for b in self._bounds:
-            _ = check_param_multi_types('bound', b, [int, float])
         # initial global optimum fitness value
-        self._best_fit = -1
+        self._best_fit = -np.inf
         # count times of no progress
         self._plateau_times = 0
-        # count times of changing attack step
+        # count times of changing attack step_size
         self._adap_times = 0
-        self._sparse = check_param_type('sparse', sparse, bool)
+        self._bounds = bounds
+        if self._bounds is not None:
+            self._bounds = check_param_multi_types('bounds', bounds, [list, tuple])
+            for b in self._bounds:
+                _ = check_param_multi_types('bound', b, [int, float])
+        self._c = check_value_positive('c', c)
+
+    def _mutation(self, cur_pop, step_noise=0.01, prob=0.005):
+        """
+        Generate mutation samples in genetic_attack.
+
+        Args:
+            cur_pop (numpy.ndarray): Samples before mutation.
+            step_noise (float): Noise range. Default: 0.01.
+            prob (float): Mutation probability. Default: 0.005.
+
+        Returns:
+            numpy.ndarray, samples after mutation operation in genetic_attack.
+
+        Examples:
+            >>> mul_pop = self._mutation_op([0.2, 0.3, 0.4], step_noise=0.03,
+            >>> prob=0.01)
+        """
+        cur_pop = check_numpy_param('cur_pop', cur_pop)
+        perturb_noise = np.clip(np.random.random(cur_pop.shape) - 0.5,
+                                -step_noise, step_noise)*(self._bounds[1] - self._bounds[0])
+        mutated_pop = perturb_noise*(
+            np.random.random(cur_pop.shape) < prob) + cur_pop
+        return mutated_pop
 
     def generate(self, inputs, labels):
         """
@@ -115,8 +133,10 @@ class GeneticAttack(Attack):
         labels (or ground_truth labels).
 
         Args:
-            inputs (numpy.ndarray): Input samples.
-            labels (numpy.ndarray): Targeted labels.
+            inputs (Union[numpy.ndarray, tuple]): Input samples. The format of inputs can be (input1, input2, ...)
+                or only one array if model_type='detection'.
+            labels (Union[numpy.ndarray, tuple]): Targeted labels or ground-truth labels. The format of labels
+                should be (gt_boxes, gt_labels) if model_type='detection'.
 
         Returns:
             - numpy.ndarray, bool values for each attack result.
@@ -130,47 +150,96 @@ class GeneticAttack(Attack):
             >>>                         [0.3, 0.3, 0.2]],
             >>>                        [1, 2])
         """
-        inputs, labels = check_pair_numpy_param('inputs', inputs,
-                                                'labels', labels)
-        # if input is one-hot encoded, get sparse format value
-        if not self._sparse:
-            if labels.ndim != 2:
-                raise ValueError('labels must be 2 dims, '
-                                 'but got {} dims.'.format(labels.ndim))
-            labels = np.argmax(labels, axis=1)
+        if self._model_type == 'classification':
+            inputs, labels = check_pair_numpy_param('inputs', inputs,
+                                                    'labels', labels)
+            if not self._sparse:
+                if labels.ndim != 2:
+                    raise ValueError('labels must be 2 dims, '
+                                     'but got {} dims.'.format(labels.ndim))
+                labels = np.argmax(labels, axis=1)
+            images = inputs
+        elif self._model_type == 'detection':
+            images, auxiliary_inputs, gt_boxes, gt_labels = check_detection_inputs(inputs, labels)
+
         adv_list = []
         success_list = []
         query_times_list = []
-        for i in range(inputs.shape[0]):
+        for i in range(images.shape[0]):
             is_success = False
-            target_label = labels[i]
-            iters = 0
-            x_ori = inputs[i]
+            x_ori = images[i]
+            if not self._bounds:
+                self._bounds = [np.min(x_ori), np.max(x_ori)]
+            pixel_deep = self._bounds[1] - self._bounds[0]
+
+            if self._model_type == 'classification':
+                label_i = labels[i]
+            elif self._model_type == 'detection':
+                auxiliary_input_i = tuple()
+                for item in auxiliary_inputs:
+                    auxiliary_input_i += (np.expand_dims(item[i], axis=0),)
+                gt_boxes_i, gt_labels_i = gt_boxes[i], gt_labels[i]
+                inputs_i = (images[i],) + auxiliary_input_i
+                confi_ori, gt_object_num = self._detection_scores(inputs_i, gt_boxes_i, gt_labels_i, model=self._model)
+                LOGGER.info(TAG, 'The number of ground-truth objects is %s', gt_object_num[0])
+
             # generate particles
-            ori_copies = np.repeat(
-                x_ori[np.newaxis, :], self._pop_size, axis=0)
+            ori_copies = np.repeat(x_ori[np.newaxis, :], self._pop_size, axis=0)
             # initial perturbations
-            cur_pert = np.clip(np.random.random(ori_copies.shape)*self._step_size,
-                               (0 - self._per_bounds),
-                               self._per_bounds)
+            cur_pert = np.clip(np.random.random(ori_copies.shape)*self._step_size*pixel_deep,
+                               (0 - self._per_bounds)*pixel_deep,
+                               self._per_bounds*pixel_deep)
+
             query_times = 0
+            iters = 0
             while iters < self._max_steps:
                 iters += 1
                 cur_pop = np.clip(
                     ori_copies + cur_pert, self._bounds[0], self._bounds[1])
-                pop_preds = self._model.predict(cur_pop)
-                query_times += cur_pop.shape[0]
-                all_preds = np.argmax(pop_preds, axis=1)
-                success_pop = np.equal(target_label, all_preds).astype(np.int32)
-                success = max(success_pop)
-                if success == 1:
-                    is_success = True
-                    adv = cur_pop[np.argmax(success_pop)]
+
+                if self._model_type == 'classification':
+                    pop_preds = self._model.predict(cur_pop)
+                    query_times += cur_pop.shape[0]
+                    all_preds = np.argmax(pop_preds, axis=1)
+                    if self._targeted:
+                        success_pop = np.equal(label_i, all_preds).astype(np.int32)
+                    else:
+                        success_pop = np.not_equal(label_i, all_preds).astype(np.int32)
+                    is_success = max(success_pop)
+                    best_idx = np.argmax(success_pop)
+                    target_preds = pop_preds[:, label_i]
+                    others_preds_sum = np.sum(pop_preds, axis=1) - target_preds
+                    if self._targeted:
+                        fit_vals = target_preds - others_preds_sum
+                    else:
+                        fit_vals = others_preds_sum - target_preds
+
+                elif self._model_type == 'detection':
+                    confi_adv, correct_nums_adv = self._detection_scores(
+                        (cur_pop,) + auxiliary_input_i, gt_boxes_i, gt_labels_i, model=self._model)
+                    LOGGER.info(TAG, 'The number of correctly detected objects in adversarial image is %s',
+                                np.min(correct_nums_adv))
+                    query_times += self._pop_size
+                    fit_vals = abs(
+                        confi_ori - confi_adv) - self._c / self._pop_size * np.linalg.norm(
+                            (cur_pop - x_ori).reshape(cur_pop.shape[0], -1), axis=1)
+                    if np.max(fit_vals) < 0:
+                        self._c /= 2
+
+                    if np.min(correct_nums_adv) <= int(gt_object_num*self._reserve_ratio):
+                        is_success = True
+                        best_idx = np.argmin(correct_nums_adv)
+
+                if is_success:
+                    LOGGER.debug(TAG, 'successfully find one adversarial sample '
+                                      'and start Reduction process.')
+                    final_adv = cur_pop[best_idx]
+                    if self._model_type == 'classification':
+                        final_adv, query_times = self._reduction(x_ori, query_times, label_i, final_adv,
+                                                                 model=self._model, targeted_attack=self._targeted)
                     break
-                target_preds = pop_preds[:, target_label]
-                others_preds_sum = np.sum(pop_preds, axis=1) - target_preds
-                fit_vals = target_preds - others_preds_sum
-                best_fit = max(target_preds - np.max(pop_preds))
+
+                best_fit = max(fit_vals)
                 if best_fit > self._best_fit:
                     self._best_fit = best_fit
                     self._plateau_times = 0
@@ -206,17 +275,19 @@ class GeneticAttack(Attack):
                 cross_probs = (np.random.random(parent1.shape) >
                                parent2_probs).astype(np.int32)
                 childs = parent1*cross_probs + parent2*(1 - cross_probs)
-                mutated_childs = _mutation(
+                mutated_childs = self._mutation(
                     childs, step_noise=self._per_bounds*step_noise,
                     prob=step_p)
                 cur_pert = np.concatenate((mutated_childs, elite[np.newaxis, :]))
-            if is_success:
-                LOGGER.debug(TAG, 'successfully find one adversarial sample '
-                                  'and start Reduction process.')
-                adv_list.append(adv)
-            else:
+
+            if not is_success:
                 LOGGER.debug(TAG, 'fail to find adversarial sample.')
-                adv_list.append(elite + x_ori)
+                final_adv = elite + x_ori
+            if self._model_type == 'detection':
+                final_adv, query_times = self._fast_reduction(
+                    x_ori, final_adv, query_times, auxiliary_input_i, gt_boxes_i, gt_labels_i, model=self._model)
+            adv_list.append(final_adv)
+
             LOGGER.debug(TAG,
                          'iteration times is: %d and query times is: %d',
                          iters,

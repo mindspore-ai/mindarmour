@@ -267,3 +267,61 @@ def normalize_value(value, norm_level):
         LOGGER.error(TAG, msg)
         raise NotImplementedError(msg)
     return norm_value.reshape(ori_shape)
+
+
+def check_detection_inputs(inputs, labels):
+    """
+    Check the inputs for detection model attacks.
+
+    Args:
+        inputs (Union[numpy.ndarray, tuple]): Images and other auxiliary inputs for detection model.
+        labels (tuple): Ground-truth boxes and ground-truth labels of inputs.
+
+    Returns:
+        - numpy.ndarray, images data.
+
+        - tuple, auxiliary inputs, such as image shape.
+
+        - numpy.ndarray, ground-truth boxes.
+
+        - numpy.ndarray, ground-truth labels.
+    """
+    if isinstance(inputs, tuple):
+        has_images = False
+        auxiliary_inputs = tuple()
+        for item in inputs:
+            check_numpy_param('item', item)
+            if len(item.shape) == 4:
+                images = item
+                has_images = True
+            else:
+                auxiliary_inputs += (item,)
+        if not has_images:
+            msg = 'Inputs should contain images whose dimension is 4.'
+            LOGGER.error(TAG, msg)
+            raise ValueError(msg)
+    else:
+        check_numpy_param('inputs', inputs)
+
+    check_param_type('labels', labels, tuple)
+    if len(labels) != 2:
+        msg = 'Labels should contain two arrays (boxes-confidences array and ground-truth labels array), ' \
+              'but got {} arrays.'.format(len(labels))
+        LOGGER.error(TAG, msg)
+        raise ValueError(msg)
+    has_boxes = False
+    has_labels = False
+    for item in labels:
+        check_numpy_param('item', item)
+        if len(item.shape) == 3 and item.shape[2] == 5:
+            gt_boxes = item
+            has_boxes = True
+        elif len(item.shape) == 2:
+            gt_labels = item
+            has_labels = True
+    if (not has_boxes) or (not has_labels):
+        msg = 'The shape of boxes array and ground-truth labels array should be (N, M, 5) and (N, M), respectively. ' \
+              'But got {} and {}.'.format(labels[0].shape, labels[1].shape)
+        LOGGER.error(TAG, msg)
+        raise ValueError(msg)
+    return images, auxiliary_inputs, gt_boxes, gt_labels
