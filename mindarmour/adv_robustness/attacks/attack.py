@@ -183,12 +183,12 @@ class Attack:
         x_ori, best_position = check_equal_shape('x_ori', x_ori, 'best_position', best_position)
         x_shape = best_position.shape
         reduction_iters = 10000  # recover 0.01% each step
-        _, original_num = self.detection_scores((best_position,) + auxiliary_inputs, gt_boxes, gt_labels, model)
+        _, original_num = self._detection_scores((best_position,) + auxiliary_inputs, gt_boxes, gt_labels, model)
         for _ in range(reduction_iters):
             diff = x_ori - best_position
             res = 0.5*diff*(np.random.random(x_shape) < 0.0001)
             best_position += res
-            _, correct_num = self.detection_scores((best_position,) + auxiliary_inputs, gt_boxes, gt_labels, model)
+            _, correct_num = self._detection_scores((best_position,) + auxiliary_inputs, gt_boxes, gt_labels, model)
             q_times += 1
             if correct_num > original_num:
                 best_position -= res
