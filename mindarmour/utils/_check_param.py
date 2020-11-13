@@ -313,15 +313,15 @@ def check_detection_inputs(inputs, labels):
     has_labels = False
     for item in labels:
         check_numpy_param('item', item)
-        if len(item.shape) == 3 and item.shape[2] == 5:
+        if len(item.shape) == 3:
             gt_boxes = item
             has_boxes = True
         elif len(item.shape) == 2:
             gt_labels = item
             has_labels = True
     if (not has_boxes) or (not has_labels):
-        msg = 'The shape of boxes array and ground-truth labels array should be (N, M, 5) and (N, M), respectively. ' \
-              'But got {} and {}.'.format(labels[0].shape, labels[1].shape)
+        msg = 'The shape of boxes array should be (N, M, 5) or (N, M, 4), and the shape of ground-truth' \
+              'labels array should be (N, M). But got {} and {}.'.format(labels[0].shape, labels[1].shape)
         LOGGER.error(TAG, msg)
         raise ValueError(msg)
     return images, auxiliary_inputs, gt_boxes, gt_labels
