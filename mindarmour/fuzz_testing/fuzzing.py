@@ -351,8 +351,8 @@ class Fuzzer:
                 for param_name in selected_param:
                     transform.__setattr__('_' + str(param_name),
                                           selected_param[param_name])
-                mutate_sample = transform.generate([seed[0].astype(np.float32)],
-                                                   [seed[1]])[0]
+                mutate_sample = transform.generate(np.array([seed[0].astype(np.float32)]),
+                                                   np.array([seed[1]]))[0]
             if method not in self._pixel_value_trans_list:
                 only_pixel_trans = 1
             mutate_sample = [mutate_sample, seed[1], only_pixel_trans]

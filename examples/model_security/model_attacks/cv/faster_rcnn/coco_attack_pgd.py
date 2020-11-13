@@ -33,7 +33,6 @@ from src.dataset import data_to_mindrecord_byte_image, create_fasterrcnn_dataset
 set_seed(1)
 
 parser = argparse.ArgumentParser(description='FasterRCNN attack')
-parser.add_argument('--ann_file', type=str, required=True, help='Ann file path.')
 parser.add_argument('--pre_trained', type=str, required=True, help='pre-trained ckpt file path for target model.')
 parser.add_argument('--device_id', type=int, default=0, help='Device id, default is 0.')
 parser.add_argument('--num', type=int, default=5, help='Number of adversarial examples.')
@@ -55,7 +54,7 @@ class WithLossCell(Cell):
         self._backbone = backbone
         self._loss_fn = loss_fn
 
-    def construct(self, img_data, img_metas, gt_bboxes, gt_labels, gt_num):
+    def construct(self, img_data, img_metas, gt_bboxes, gt_labels, gt_num, *labels):
         loss1, loss2, loss3, loss4, loss5, loss6 = self._backbone(img_data, img_metas, gt_bboxes, gt_labels, gt_num)
         return self._loss_fn(loss1, loss2, loss3, loss4, loss5, loss6)
 
@@ -74,8 +73,8 @@ class GradWrapWithLoss(Cell):
         self._grad_all = GradOperation(get_all=True, sens_param=False)
         self._network = network
 
-    def construct(self, img_data, img_metas, gt_bboxes, gt_labels, gt_num):
-        gout = self._grad_all(self._network)(img_data, img_metas, gt_bboxes, gt_labels, gt_num)
+    def construct(self, *inputs):
+        gout = self._grad_all(self._network)(*inputs)
         return gout[0]
 
 
@@ -84,7 +83,6 @@ if __name__ == '__main__':
     mindrecord_dir = config.mindrecord_dir
     mindrecord_file = os.path.join(mindrecord_dir, prefix)
     pre_trained = args.pre_trained
-    ann_file = args.ann_file
 
     print("CHECKING MINDRECORD FILES ...")
     if not os.path.exists(mindrecord_file):
@@ -116,7 +114,7 @@ if __name__ == '__main__':
     num = args.num
     num_batches = num // config.test_batch_size
     channel = 3
-    adv_samples = [0] * (num_batches * config.test_batch_size)
+    adv_samples = [0]*(num_batches*config.test_batch_size)
     adv_id = 0
     for data in ds.create_dict_iterator(num_epochs=num_batches):
         img_data = data['image']
@@ -125,11 +123,13 @@ if __name__ == '__main__':
         gt_labels = data['label']
         gt_num = data['valid_num']
 
-        adv_img = attack.generate(img_data.asnumpy(), \
-            (img_metas.asnumpy(), gt_bboxes.asnumpy(), gt_labels.asnumpy(), gt_num.asnumpy()))
+        adv_img = attack.generate((img_data.asnumpy(), \
+            img_metas.asnumpy(), gt_bboxes.asnumpy(), gt_labels.asnumpy(), gt_num.asnumpy()), gt_labels.asnumpy())
         for item in adv_img:
             adv_samples[adv_id] = item
             adv_id += 1
+        if adv_id >= num_batches*config.test_batch_size:
+            break
 
     pickle.dump(adv_samples, open('adv_samples.pkl', 'wb'))
     print('Generate adversarial samples complete.')

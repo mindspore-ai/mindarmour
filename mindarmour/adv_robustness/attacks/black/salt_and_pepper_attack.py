@@ -78,8 +78,7 @@ class SaltAndPepperNoiseAttack(Attack):
         Examples:
             >>> adv_list = attack.generate(([[0.1, 0.2, 0.6],
             >>>                              [0.3, 0, 0.4]],
-            >>>                             [[0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-            >>>                              [0, , 0, 1, 0, 0, 0, 0, 0, 0, 0]])
+            >>>                             [1, 2])
         """
         arr_x, arr_y = check_pair_numpy_param('inputs', inputs, 'labels',
                                               labels)

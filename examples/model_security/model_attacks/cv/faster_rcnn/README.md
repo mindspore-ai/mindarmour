@@ -42,6 +42,6 @@ Dataset used: [COCO2017](<https://cocodataset.org/>)
 # Quick start
 You can download the pre-trained model checkpoint file [here](<https://www.mindspore.cn/resources/hub/details?2505/MindSpore/ascend/0.7/fasterrcnn_v1.0_coco2017>).
 ```
-python coco_attack_pgd.py --ann_file [VAL_JSON_FILE] --pre_trained [PRETRAINED_CHECKPOINT_FILE] 
+python coco_attack_pgd.py --pre_trained [PRETRAINED_CHECKPOINT_FILE] 
 ```
 > Adversarial samples will be generated and saved as pickle file.

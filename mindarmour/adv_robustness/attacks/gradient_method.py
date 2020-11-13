@@ -83,7 +83,7 @@ class GradientMethod(Attack):
         Generate adversarial examples based on input samples and original/target labels.
 
         Args:
-            inputs (numpy.ndarray): Benign input samples used as references to create
+            inputs (Union[numpy.ndarray, tuple]): Benign input samples used as references to create
                     adversarial examples.
             labels (Union[numpy.ndarray, tuple]): Original/target labels. \
                 For each input if it has more than one label, it is wrapped in a tuple.
@@ -91,14 +91,19 @@ class GradientMethod(Attack):
         Returns:
             numpy.ndarray, generated adversarial examples.
         """
+        inputs_image = inputs[0] if isinstance(inputs, tuple) else inputs
+        if isinstance(inputs, tuple):
+            for i, inputs_item in enumerate(inputs):
+                _ = check_pair_numpy_param('inputs_image', inputs_image, \
+                    'inputs[{}]'.format(i), inputs_item)
         if isinstance(labels, tuple):
             for i, labels_item in enumerate(labels):
-                inputs, _ = check_pair_numpy_param('inputs', inputs, \
+                _ = check_pair_numpy_param('inputs_image', inputs_image, \
                     'labels[{}]'.format(i), labels_item)
         else:
-            inputs, _ = check_pair_numpy_param('inputs', inputs, \
+            _ = check_pair_numpy_param('inputs', inputs_image, \
                 'labels', labels)
-        self._dtype = inputs.dtype
+        self._dtype = inputs_image.dtype
         gradient = self._gradient(inputs, labels)
         # use random method or not
         if self._alpha is not None:
@@ -111,10 +116,10 @@ class GradientMethod(Attack):
         if self._bounds is not None:
             clip_min, clip_max = self._bounds
             perturbation = perturbation*(clip_max - clip_min)
-            adv_x = inputs + perturbation
+            adv_x = inputs_image + perturbation
             adv_x = np.clip(adv_x, clip_min, clip_max)
         else:
-            adv_x = inputs + perturbation
+            adv_x = inputs_image + perturbation
         return adv_x
 
     @abstractmethod
@@ -123,7 +128,7 @@ class GradientMethod(Attack):
         Calculate gradients based on input samples and original/target labels.
 
         Args:
-            inputs (numpy.ndarray): Benign input samples used as references to
+            inputs (Union[numpy.ndarray, tuple]): Benign input samples used as references to
                 create adversarial examples.
             labels (Union[numpy.ndarray, tuple]): Original/target labels. \
                 For each input if it has more than one label, it is wrapped in a tuple.
@@ -184,20 +189,26 @@ class FastGradientMethod(GradientMethod):
         Calculate gradients based on input samples and original/target labels.
 
         Args:
-            inputs (numpy.ndarray): Input sample.
+            inputs (Union[numpy.ndarray, tuple]): Input sample.
             labels (Union[numpy.ndarray, tuple]): Original/target labels. \
                 For each input if it has more than one label, it is wrapped in a tuple.
 
         Returns:
             numpy.ndarray, gradient of inputs.
         """
+        if isinstance(inputs, tuple):
+            inputs_tensor = tuple()
+            for item in inputs:
+                inputs_tensor += (Tensor(item),)
+        else:
+            inputs_tensor = (Tensor(inputs),)
         if isinstance(labels, tuple):
             labels_tensor = tuple()
             for item in labels:
                 labels_tensor += (Tensor(item),)
         else:
             labels_tensor = (Tensor(labels),)
-        out_grad = self._grad_all(Tensor(inputs), *labels_tensor)
+        out_grad = self._grad_all(*inputs_tensor, *labels_tensor)
         if isinstance(out_grad, tuple):
             out_grad = out_grad[0]
         gradient = out_grad.asnumpy()
@@ -297,20 +308,26 @@ class FastGradientSignMethod(GradientMethod):
         labels.
 
         Args:
-            inputs (numpy.ndarray): Input samples.
-            labels (union[numpy.ndarray, tuple]): original/target labels. \
+            inputs (Union[numpy.ndarray, tuple]): Input samples.
+            labels (Union[numpy.ndarray, tuple]): original/target labels. \
                 for each input if it has more than one label, it is wrapped in a tuple.
 
         Returns:
             numpy.ndarray, gradient of inputs.
         """
+        if isinstance(inputs, tuple):
+            inputs_tensor = tuple()
+            for item in inputs:
+                inputs_tensor += (Tensor(item),)
+        else:
+            inputs_tensor = (Tensor(inputs),)
         if isinstance(labels, tuple):
             labels_tensor = tuple()
             for item in labels:
                 labels_tensor += (Tensor(item),)
         else:
             labels_tensor = (Tensor(labels),)
-        out_grad = self._grad_all(Tensor(inputs), *labels_tensor)
+        out_grad = self._grad_all(*inputs_tensor, *labels_tensor)
         if isinstance(out_grad, tuple):
             out_grad = out_grad[0]
         gradient = out_grad.asnumpy()

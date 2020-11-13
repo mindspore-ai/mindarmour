@@ -72,7 +72,15 @@ class Net2(Cell):
     def construct(self, inputs1, inputs2):
         out1 = self._relu(inputs1)
         out2 = self._relu(inputs2)
-        return out1 + out2
+        return out1 + out2, out1 - out2
+
+
+class LossNet(Cell):
+    """
+    Loss function for test.
+    """
+    def construct(self, loss1, loss2, labels1, labels2):
+        return loss1 + loss2 - labels1 - labels2
 
 
 class WithLossCell(Cell):
@@ -82,9 +90,9 @@ class WithLossCell(Cell):
         self._backbone = backbone
         self._loss_fn = loss_fn
 
-    def construct(self, inputs1, inputs2, labels):
+    def construct(self, inputs1, inputs2, labels1, labels2):
         out = self._backbone(inputs1, inputs2)
-        return self._loss_fn(out, labels)
+        return self._loss_fn(*out, labels1, labels2)
 
 
 class GradWrapWithLoss(Cell):
@@ -98,8 +106,8 @@ class GradWrapWithLoss(Cell):
         self._grad_all = GradOperation(get_all=True, sens_param=False)
         self._network = network
 
-    def construct(self, inputs1, inputs2, labels):
-        gout = self._grad_all(self._network)(inputs1, inputs2, labels)
+    def construct(self, *inputs):
+        gout = self._grad_all(self._network)(*inputs)
         return gout[0]
 
 
@@ -285,18 +293,17 @@ def test_fast_gradient_method_multi_inputs():
     Fast gradient method unit test.
     """
     context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
-    input_np = np.asarray([[0.1, 0.2, 0.7]]).astype(np.float32)
-    anno_np = np.asarray([[0.4, 0.8, 0.5]]).astype(np.float32)
-    label = np.asarray([2], np.int32)
-    label = np.eye(3)[label].astype(np.float32)
+    inputs1 = np.asarray([[0.1, 0.2, 0.7]]).astype(np.float32)
+    inputs2 = np.asarray([[0.4, 0.8, 0.5]]).astype(np.float32)
+    labels1 = np.expand_dims(np.eye(3)[1].astype(np.float32), axis=0)
+    labels2 = np.expand_dims(np.eye(3)[2].astype(np.float32), axis=0)
 
-    loss_fn = SoftmaxCrossEntropyWithLogits(sparse=False)
-    with_loss_cell = WithLossCell(Net2(), loss_fn)
+    with_loss_cell = WithLossCell(Net2(), LossNet())
     grad_with_loss_net = GradWrapWithLoss(with_loss_cell)
     attack = FastGradientMethod(grad_with_loss_net)
-    ms_adv_x = attack.generate(input_np, (anno_np, label))
+    ms_adv_x = attack.generate((inputs1, inputs2), (labels1, labels2))
 
-    assert np.any(ms_adv_x != input_np), 'Fast gradient method: generate value' \
+    assert np.any(ms_adv_x != inputs1), 'Fast gradient method: generate value' \
                                          ' must not be equal to original value.'
 
 
@@ -332,18 +339,17 @@ def test_batch_generate_multi_inputs():
     Fast gradient method unit test.
     """
     context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
-    input_np = np.random.random([10, 3]).astype(np.float32)
-    anno_np = np.random.random([10, 3]).astype(np.float32)
-    label = np.random.randint(0, 3, [10])
-    label = np.eye(3)[label].astype(np.float32)
+    inputs1 = np.asarray([[0.1, 0.2, 0.7]]).astype(np.float32)
+    inputs2 = np.asarray([[0.4, 0.8, 0.5]]).astype(np.float32)
+    labels1 = np.expand_dims(np.eye(3)[1].astype(np.float32), axis=0)
+    labels2 = np.expand_dims(np.eye(3)[2].astype(np.float32), axis=0)
 
-    loss_fn = SoftmaxCrossEntropyWithLogits(sparse=False)
-    with_loss_cell = WithLossCell(Net2(), loss_fn)
+    with_loss_cell = WithLossCell(Net2(), LossNet())
     grad_with_loss_net = GradWrapWithLoss(with_loss_cell)
     attack = FastGradientMethod(grad_with_loss_net)
-    ms_adv_x = attack.generate(input_np, (anno_np, label))
+    ms_adv_x = attack.generate((inputs1, inputs2), (labels1, labels2))
 
-    assert np.any(ms_adv_x != input_np), 'Fast gradient method: generate value' \
+    assert np.any(ms_adv_x != inputs1), 'Fast gradient method: generate value' \
                                          ' must not be equal to original value.'
 
 
