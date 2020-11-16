@@ -41,17 +41,17 @@ class PSOAttack(Attack):
 
     Args:
         model (BlackModel): Target model.
-        step_size (float): Attack step size. Default: 0.5.
-        per_bounds (float): Relative variation range of perturbations. Default: 0.6.
-        c1 (float): Weight coefficient. Default: 2.
-        c2 (float): Weight coefficient. Default: 2.
-        c (float): Weight of perturbation loss. Default: 2.
+        step_size (Union[int, float]): Attack step size. Default: 0.5.
+        per_bounds (Union[int, float]): Relative variation range of perturbations. Default: 0.6.
+        c1 (Union[int, float]): Weight coefficient. Default: 2.
+        c2 (Union[int, float]): Weight coefficient. Default: 2.
+        c (Union[int, float]): Weight of perturbation loss. Default: 2.
         pop_size (int): The number of particles, which should be greater
             than zero. Default: 6.
         t_max (int): The maximum round of iteration for each adversarial example,
             which should be greater than zero. Default: 1000.
-        pm (float): The probability of mutations. Default: 0.5.
-        bounds (tuple): Upper and lower bounds of data. In form of (clip_min,
+        pm (Union[int, float]): The probability of mutations. Default: 0.5.
+        bounds (Union[list, tuple, None]): Upper and lower bounds of data. In form of (clip_min,
             clip_max). Default: None.
         targeted (bool): If True, turns on the targeted attack. If False,
             turns on untargeted attack. It should be noted that only untargeted attack
@@ -60,8 +60,8 @@ class PSOAttack(Attack):
             input labels are one-hot-encoded. Default: True.
         model_type (str): The type of targeted model. 'classification' and 'detection' are supported now.
             default: 'classification'.
-        reserve_ratio (float): The percentage of objects that can be detected after attacks, specifically for
-            model_type='detection'. Default: 0.3.
+        reserve_ratio (Union[int, float]): The percentage of objects that can be detected after attacks,
+            specifically for model_type='detection'. Default: 0.3.
 
     Examples:
         >>> attack = PSOAttack(model)
@@ -161,7 +161,7 @@ class PSOAttack(Attack):
         pixel_deep = self._bounds[1] - self._bounds[0]
         cur_pop = check_numpy_param('cur_pop', cur_pop)
         perturb_noise = (np.random.random(cur_pop.shape) - 0.5)*pixel_deep
-        mutated_pop = perturb_noise + cur_pop
+        mutated_pop = perturb_noise*(np.random.random(cur_pop.shape) < self._pm) + cur_pop
         if self._model_type == 'classification':
             mutated_pop = np.clip(np.clip(mutated_pop, cur_pop - self._per_bounds*np.abs(cur_pop),
                                           cur_pop + self._per_bounds*np.abs(cur_pop)),
@@ -194,7 +194,14 @@ class PSOAttack(Attack):
         if self._model_type == 'classification':
             inputs, labels = check_pair_numpy_param('inputs', inputs,
                                                     'labels', labels)
-            if not self._sparse:
+            if self._sparse:
+                label_squ = np.squeeze(labels)
+                if len(label_squ.shape) >= 2 or label_squ.shape[0] != inputs.shape[0]:
+                    msg = "The parameter 'sparse' of PSOAttack is True, but the input labels is not sparse style and " \
+                          "got its shape as {}.".format(labels.shape)
+                    LOGGER.error(TAG, msg)
+                    raise ValueError
+            else:
                 labels = np.argmax(labels, axis=1)
             images = inputs
         elif self._model_type == 'detection':

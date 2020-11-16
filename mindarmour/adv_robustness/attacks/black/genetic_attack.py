@@ -46,16 +46,16 @@ class GeneticAttack(Attack):
         targeted (bool): If True, turns on the targeted attack. If False,
             turns on untargeted attack. It should be noted that only untargeted attack
             is supproted for model_type='detection', Default: False.
-        reserve_ratio (float): The percentage of objects that can be detected after attacks, specifically for
-            model_type='detection'. Default: 0.3.
+        reserve_ratio (Union[int, float]): The percentage of objects that can be detected after attacks,
+            specifically for model_type='detection'. Default: 0.3.
         pop_size (int): The number of particles, which should be greater than
             zero. Default: 6.
-        mutation_rate (float): The probability of mutations. Default: 0.005.
-        per_bounds (float): Maximum L_inf distance.
+        mutation_rate (Union[int, float]): The probability of mutations. Default: 0.005.
+        per_bounds (Union[int, float]): Maximum L_inf distance.
         max_steps (int): The maximum round of iteration for each adversarial
             example. Default: 1000.
-        step_size (float): Attack step size. Default: 0.2.
-        temp (float): Sampling temperature for selection. Default: 0.3.
+        step_size (Union[int, float]): Attack step size. Default: 0.2.
+        temp (Union[int, float]): Sampling temperature for selection. Default: 0.3.
             The greater the temp, the greater the differences between individuals'
             selecting probabilities.
         bounds (Union[tuple, list, None]): Upper and lower bounds of data. In form
@@ -65,7 +65,7 @@ class GeneticAttack(Attack):
             Default: False.
         sparse (bool): If True, input labels are sparse-encoded. If False,
             input labels are one-hot-encoded. Default: True.
-        c (float): Weight of perturbation loss. Default: 0.1.
+        c (Union[int, float]): Weight of perturbation loss. Default: 0.1.
 
     Examples:
         >>> attack = GeneticAttack(model)
@@ -76,6 +76,10 @@ class GeneticAttack(Attack):
         super(GeneticAttack, self).__init__()
         self._model = check_model('model', model, BlackModel)
         self._model_type = check_param_type('model_type', model_type, str)
+        if self._model_type not in ('classification', 'detection'):
+            msg = "Only 'classification' or 'detection' is supported now, but got {}.".format(self._model_type)
+            LOGGER.error(TAG, msg)
+            raise ValueError(msg)
         self._targeted = check_param_type('targeted', targeted, bool)
         self._reserve_ratio = check_value_non_negative('reserve_ratio', reserve_ratio)
         if self._reserve_ratio > 1:
@@ -153,10 +157,14 @@ class GeneticAttack(Attack):
         if self._model_type == 'classification':
             inputs, labels = check_pair_numpy_param('inputs', inputs,
                                                     'labels', labels)
-            if not self._sparse:
-                if labels.ndim != 2:
-                    raise ValueError('labels must be 2 dims, '
-                                     'but got {} dims.'.format(labels.ndim))
+            if self._sparse:
+                label_squ = np.squeeze(labels)
+                if len(label_squ.shape) >= 2 or label_squ.shape[0] != inputs.shape[0]:
+                    msg = "The parameter 'sparse' of GeneticAttack is True, but the input labels is not sparse style " \
+                          "and got its shape as {}.".format(labels.shape)
+                    LOGGER.error(TAG, msg)
+                    raise ValueError
+            else:
                 labels = np.argmax(labels, axis=1)
             images = inputs
         elif self._model_type == 'detection':

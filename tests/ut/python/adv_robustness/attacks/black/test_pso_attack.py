@@ -43,6 +43,28 @@ class ModelToBeAttacked(BlackModel):
         return result.asnumpy()
 
 
+class DetectionModel(BlackModel):
+    """model to be attack"""
+
+    def predict(self, inputs):
+        """predict"""
+        # Adapt to the input shape requirements of the target network if inputs is only one image.
+        if len(inputs.shape) == 3:
+            inputs_num = 1
+        else:
+            inputs_num = inputs.shape[0]
+        box_and_confi = []
+        pred_labels = []
+        gt_number = np.random.randint(1, 128)
+
+        for _ in range(inputs_num):
+            boxes_i = np.random.random((gt_number, 5))
+            labels_i = np.random.randint(0, 10, gt_number)
+            box_and_confi.append(boxes_i)
+            pred_labels.append(labels_i)
+        return np.array(box_and_confi), np.array(pred_labels)
+
+
 class SimpleNet(Cell):
     """
     Construct the network of target model.
@@ -167,3 +189,27 @@ def test_pso_attack_cpu():
     attack = PSOAttack(model, bounds=(0.0, 1.0), pm=0.5, sparse=False)
     _, adv_data, _ = attack.generate(inputs, labels)
     assert np.any(inputs != adv_data)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_cpu
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_pso_attack_detection_cpu():
+    """
+    PSO_Attack test
+    """
+    context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
+    batch_size = 2
+    inputs = np.random.random((batch_size, 3, 28, 28))
+    model = DetectionModel()
+    attack = PSOAttack(model, t_max=30, pm=0.5, model_type='detection', reserve_ratio=0.5)
+
+    # generate adversarial samples
+    adv_imgs = []
+    for i in range(batch_size):
+        img_data = np.expand_dims(inputs[i], axis=0)
+        pre_gt_boxes, pre_gt_labels = model.predict(inputs)
+        _, adv_img, _ = attack.generate(img_data, (pre_gt_boxes, pre_gt_labels))
+        adv_imgs.append(adv_img)
+    assert np.any(inputs != np.array(adv_imgs))
