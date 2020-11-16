@@ -24,8 +24,6 @@ from mindspore.nn import Cell
 from mindarmour import BlackModel
 from mindarmour.adv_robustness.attacks import GeneticAttack
 
-context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
-
 
 # for user
 class ModelToBeAttacked(BlackModel):
@@ -39,6 +37,28 @@ class ModelToBeAttacked(BlackModel):
         """predict"""
         result = self._network(Tensor(inputs.astype(np.float32)))
         return result.asnumpy()
+
+
+class DetectionModel(BlackModel):
+    """model to be attack"""
+
+    def predict(self, inputs):
+        """predict"""
+        # Adapt to the input shape requirements of the target network if inputs is only one image.
+        if len(inputs.shape) == 3:
+            inputs_num = 1
+        else:
+            inputs_num = inputs.shape[0]
+        box_and_confi = []
+        pred_labels = []
+        gt_number = np.random.randint(1, 128)
+
+        for _ in range(inputs_num):
+            boxes_i = np.random.random((gt_number, 5))
+            labels_i = np.random.randint(0, 10, gt_number)
+            box_and_confi.append(boxes_i)
+            pred_labels.append(labels_i)
+        return np.array(box_and_confi), np.array(pred_labels)
 
 
 class SimpleNet(Cell):
@@ -76,6 +96,7 @@ def test_genetic_attack():
     """
     Genetic_Attack test
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     batch_size = 6
 
     net = SimpleNet()
@@ -98,6 +119,7 @@ def test_genetic_attack():
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
 def test_supplement():
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     batch_size = 6
 
     net = SimpleNet()
@@ -123,6 +145,7 @@ def test_supplement():
 @pytest.mark.component_mindarmour
 def test_value_error():
     """test that exception is raised for invalid labels"""
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     batch_size = 6
 
     net = SimpleNet()
@@ -140,3 +163,29 @@ def test_value_error():
     # raise error
     with pytest.raises(ValueError):
         assert attack.generate(inputs, labels)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_cpu
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_genetic_attack_detection_cpu():
+    """
+    Genetic_Attack test
+    """
+    context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
+    batch_size = 2
+    inputs = np.random.random((batch_size, 3, 28, 28))
+    model = DetectionModel()
+    attack = GeneticAttack(model, model_type='detection', pop_size=6, mutation_rate=0.05,
+                           per_bounds=0.1, step_size=0.25, temp=0.1,
+                           sparse=False, max_steps=50)
+
+    # generate adversarial samples
+    adv_imgs = []
+    for i in range(batch_size):
+        img_data = np.expand_dims(inputs[i], axis=0)
+        pre_gt_boxes, pre_gt_labels = model.predict(inputs)
+        _, adv_img, _ = attack.generate(img_data, (pre_gt_boxes, pre_gt_labels))
+        adv_imgs.append(adv_img)
+    assert np.any(inputs != np.array(adv_imgs))

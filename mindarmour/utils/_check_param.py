@@ -302,6 +302,8 @@ def check_detection_inputs(inputs, labels):
             raise ValueError(msg)
     else:
         check_numpy_param('inputs', inputs)
+        images = inputs
+        auxiliary_inputs = ()
 
     check_param_type('labels', labels, tuple)
     if len(labels) != 2:
