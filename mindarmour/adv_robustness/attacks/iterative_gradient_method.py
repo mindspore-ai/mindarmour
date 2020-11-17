@@ -141,7 +141,7 @@ class IterativeGradientMethod(Attack):
         Generate adversarial examples based on input samples and original/target labels.
 
         Args:
-            inputs (numpy.ndarray): Benign input samples used as references to create
+            inputs (Union[numpy.ndarray, tuple]): Benign input samples used as references to create
                 adversarial examples.
             labels (Union[numpy.ndarray, tuple]): Original/target labels. \
                 For each input if it has more than one label, it is wrapped in a tuple.
@@ -210,7 +210,7 @@ class BasicIterativeMethod(IterativeGradientMethod):
         Simple iterative FGSM method to generate adversarial examples.
 
         Args:
-            inputs (numpy.ndarray): Benign input samples used as references to
+            inputs (Union[numpy.ndarray, tuple]): Benign input samples used as references to
                 create adversarial examples.
             labels (Union[numpy.ndarray, tuple]): Original/target labels. \
                 For each input if it has more than one label, it is wrapped in a tuple.
@@ -223,36 +223,45 @@ class BasicIterativeMethod(IterativeGradientMethod):
             >>>                         [[0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
             >>>                          [0, 0, 0, 0, 0, 0, 1, 0, 0, 0]])
         """
+        inputs_image = inputs[0] if isinstance(inputs, tuple) else inputs
+        if isinstance(inputs, tuple):
+            for i, inputs_item in enumerate(inputs):
+                _ = check_pair_numpy_param('inputs_image', inputs_image, \
+                    'inputs[{}]'.format(i), inputs_item)
         if isinstance(labels, tuple):
             for i, labels_item in enumerate(labels):
-                inputs, _ = check_pair_numpy_param('inputs', inputs, \
+                _ = check_pair_numpy_param('inputs_image', inputs_image, \
                     'labels[{}]'.format(i), labels_item)
         else:
-            inputs, _ = check_pair_numpy_param('inputs', inputs, \
+            _ = check_pair_numpy_param('inputs', inputs_image, \
                 'labels', labels)
-        arr_x = inputs
+        arr_x = inputs_image
         if self._bounds is not None:
             clip_min, clip_max = self._bounds
             clip_diff = clip_max - clip_min
             for _ in range(self._nb_iter):
                 if 'self._prob' in globals():
-                    d_inputs = _transform_inputs(inputs, self._prob)
+                    d_inputs = _transform_inputs(inputs_image, self._prob)
                 else:
-                    d_inputs = inputs
+                    d_inputs = inputs_image
+                if isinstance(inputs, tuple):
+                    d_inputs = (d_inputs,) + inputs[1:]
                 adv_x = self._attack.generate(d_inputs, labels)
                 perturs = np.clip(adv_x - arr_x, (0 - self._eps)*clip_diff,
                                   self._eps*clip_diff)
                 adv_x = arr_x + perturs
-                inputs = adv_x
+                inputs_image = adv_x
         else:
             for _ in range(self._nb_iter):
                 if 'self._prob' in globals():
-                    d_inputs = _transform_inputs(inputs, self._prob)
+                    d_inputs = _transform_inputs(inputs_image, self._prob)
                 else:
-                    d_inputs = inputs
+                    d_inputs = inputs_image
+                if isinstance(inputs, tuple):
+                    d_inputs = (inputs_image,) + inputs[1:]
                 adv_x = self._attack.generate(d_inputs, labels)
                 adv_x = np.clip(adv_x, arr_x - self._eps, arr_x + self._eps)
-                inputs = adv_x
+                inputs_image = adv_x
         return adv_x
 
 
@@ -299,7 +308,7 @@ class MomentumIterativeMethod(IterativeGradientMethod):
         Generate adversarial examples based on input data and origin/target labels.
 
         Args:
-            inputs (numpy.ndarray): Benign input samples used as references to
+            inputs (Union[numpy.ndarray, tuple]): Benign input samples used as references to
                 create adversarial examples.
             labels (Union[numpy.ndarray, tuple]): Original/target labels. \
                 For each input if it has more than one label, it is wrapped in a tuple.
@@ -313,42 +322,57 @@ class MomentumIterativeMethod(IterativeGradientMethod):
             >>>                         [[0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
             >>>                          [0, 0, 0, 0, 0, 1, 0, 0, 0, 0]])
         """
+        inputs_image = inputs[0] if isinstance(inputs, tuple) else inputs
+        if isinstance(inputs, tuple):
+            for i, inputs_item in enumerate(inputs):
+                _ = check_pair_numpy_param('inputs_image', inputs_image, \
+                    'inputs[{}]'.format(i), inputs_item)
         if isinstance(labels, tuple):
             for i, labels_item in enumerate(labels):
-                inputs, _ = check_pair_numpy_param('inputs', inputs, \
+                _ = check_pair_numpy_param('inputs_image', inputs_image, \
                     'labels[{}]'.format(i), labels_item)
         else:
-            inputs, _ = check_pair_numpy_param('inputs', inputs, \
+            _ = check_pair_numpy_param('inputs', inputs_image, \
                 'labels', labels)
-        arr_x = inputs
+        arr_x = inputs_image
         momentum = 0
         if self._bounds is not None:
             clip_min, clip_max = self._bounds
             clip_diff = clip_max - clip_min
             for _ in range(self._nb_iter):
                 if 'self._prob' in globals():
-                    d_inputs = _transform_inputs(inputs, self._prob)
+                    d_inputs = _transform_inputs(inputs_image, self._prob)
                 else:
-                    d_inputs = inputs
+                    d_inputs = inputs_image
+                if isinstance(inputs, tuple):
+                    d_inputs = (d_inputs,) + inputs[1:]
                 gradient = self._gradient(d_inputs, labels)
                 momentum = self._decay_factor*momentum + gradient
-                adv_x = d_inputs + self._eps_iter*np.sign(momentum)
+                if isinstance(d_inputs, tuple):
+                    adv_x = d_inputs[0] + self._eps_iter*np.sign(momentum)
+                else:
+                    adv_x = d_inputs + self._eps_iter*np.sign(momentum)
                 perturs = np.clip(adv_x - arr_x, (0 - self._eps)*clip_diff,
                                   self._eps*clip_diff)
                 adv_x = arr_x + perturs
                 adv_x = np.clip(adv_x, clip_min, clip_max)
-                inputs = adv_x
+                inputs_image = adv_x
         else:
             for _ in range(self._nb_iter):
                 if 'self._prob' in globals():
-                    d_inputs = _transform_inputs(inputs, self._prob)
+                    d_inputs = _transform_inputs(inputs_image, self._prob)
                 else:
-                    d_inputs = inputs
+                    d_inputs = inputs_image
+                if isinstance(inputs, tuple):
+                    d_inputs = (d_inputs,) + inputs[1:]
                 gradient = self._gradient(d_inputs, labels)
                 momentum = self._decay_factor*momentum + gradient
-                adv_x = d_inputs + self._eps_iter*np.sign(momentum)
+                if isinstance(d_inputs, tuple):
+                    adv_x = d_inputs[0] + self._eps_iter*np.sign(momentum)
+                else:
+                    adv_x = d_inputs + self._eps_iter*np.sign(momentum)
                 adv_x = np.clip(adv_x, arr_x - self._eps, arr_x + self._eps)
-                inputs = adv_x
+                inputs_image = adv_x
         return adv_x
 
     def _gradient(self, inputs, labels):
@@ -356,7 +380,7 @@ class MomentumIterativeMethod(IterativeGradientMethod):
         Calculate the gradient of input samples.
 
         Args:
-            inputs (numpy.ndarray): Input samples.
+            inputs (Union[numpy.ndarray, tuple]): Input samples.
             labels (Union[numpy.ndarray, tuple]): Original/target labels. \
                 For each input if it has more than one label, it is wrapped in a tuple.
 
@@ -368,13 +392,19 @@ class MomentumIterativeMethod(IterativeGradientMethod):
             >>>                       [[0, 0, 0, 1, 0, 0, 0, 0, 0, 0])
         """
         # get grad of loss over x
+        if isinstance(inputs, tuple):
+            inputs_tensor = tuple()
+            for item in inputs:
+                inputs_tensor += (Tensor(item),)
+        else:
+            inputs_tensor = (Tensor(inputs),)
         if isinstance(labels, tuple):
             labels_tensor = tuple()
             for item in labels:
                 labels_tensor += (Tensor(item),)
         else:
             labels_tensor = (Tensor(labels),)
-        out_grad = self._loss_grad(Tensor(inputs), *labels_tensor)
+        out_grad = self._loss_grad(*inputs_tensor, *labels_tensor)
         if isinstance(out_grad, tuple):
             out_grad = out_grad[0]
         gradient = out_grad.asnumpy()
@@ -429,7 +459,7 @@ class ProjectedGradientDescent(BasicIterativeMethod):
         perturbation is normalized by projected method with parameter norm_level .
 
         Args:
-            inputs (numpy.ndarray): Benign input samples used as references to
+            inputs (Union[numpy.ndarray, tuple]): Benign input samples used as references to
                 create adversarial examples.
             labels (Union[numpy.ndarray, tuple]): Original/target labels. \
                 For each input if it has more than one label, it is wrapped in a tuple.
@@ -443,14 +473,19 @@ class ProjectedGradientDescent(BasicIterativeMethod):
             >>>                         [[0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
             >>>                          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
         """
+        inputs_image = inputs[0] if isinstance(inputs, tuple) else inputs
+        if isinstance(inputs, tuple):
+            for i, inputs_item in enumerate(inputs):
+                _ = check_pair_numpy_param('inputs_image', inputs_image, \
+                    'inputs[{}]'.format(i), inputs_item)
         if isinstance(labels, tuple):
             for i, labels_item in enumerate(labels):
-                inputs, _ = check_pair_numpy_param('inputs', inputs, \
+                _ = check_pair_numpy_param('inputs_image', inputs_image, \
                     'labels[{}]'.format(i), labels_item)
         else:
-            inputs, _ = check_pair_numpy_param('inputs', inputs, \
+            _ = check_pair_numpy_param('inputs', inputs_image, \
                 'labels', labels)
-        arr_x = inputs
+        arr_x = inputs_image
         if self._bounds is not None:
             clip_min, clip_max = self._bounds
             clip_diff = clip_max - clip_min
@@ -462,7 +497,10 @@ class ProjectedGradientDescent(BasicIterativeMethod):
                 perturs = np.clip(perturs, (0 - self._eps)*clip_diff,
                                   self._eps*clip_diff)
                 adv_x = arr_x + perturs
-                inputs = adv_x
+                if isinstance(inputs, tuple):
+                    inputs = (adv_x,) + inputs[1:]
+                else:
+                    inputs = adv_x
         else:
             for _ in range(self._nb_iter):
                 adv_x = self._attack.generate(inputs, labels)
@@ -471,7 +509,10 @@ class ProjectedGradientDescent(BasicIterativeMethod):
                                       norm_level=self._norm_level)
                 adv_x = arr_x + perturs
                 adv_x = np.clip(adv_x, arr_x - self._eps, arr_x + self._eps)
-                inputs = adv_x
+                if isinstance(inputs, tuple):
+                    inputs = (adv_x,) + inputs[1:]
+                else:
+                    inputs = adv_x
         return adv_x
 
 
@@ -580,7 +621,7 @@ def _transform_inputs(inputs, prob, low=29, high=33, full_aug=False):
         tran_outputs.append(np.array(p_sample).astype(np.float) / 255)
     if full_aug:
         # gaussian noise
-        tran_outputs = np.random.normal(tran_outputs.shape) + tran_outputs
+        tran_outputs = np.random.normal(np.array(tran_outputs).shape) + tran_outputs
     tran_outputs.extend(raw_inputs)
     if not np.any(tran_outputs-raw_inputs):
         LOGGER.error(TAG, 'the transform function does not take effect.')
