@@ -222,21 +222,25 @@ class Attack:
             - numpy.ndarray, the number of objects that are correctly detected.
         """
         model = check_model('model', model, BlackModel)
-        box_and_confi, pred_labels = model.predict(*inputs)
+        boxes_and_confi, pred_labels = model.predict(*inputs)
         det_scores = []
         correct_labels_num = []
-        gt_boxes_num = gt_boxes.shape[0]
+        # repeat gt_boxes and gt_labels for all particles cloned from the same sample in PSOAttack/GeneticAttack
+        if gt_boxes.shape[0] == 1 and boxes_and_confi.shape[0] > 1:
+            gt_boxes = np.repeat(gt_boxes, boxes_and_confi.shape[0], axis=0)
+            gt_labels = np.repeat(gt_labels, boxes_and_confi.shape[0], axis=0)
         iou_thres = 0.5
-        for boxes, labels in zip(box_and_confi, pred_labels):
+        for boxes, labels, gt_box, gt_label in zip(boxes_and_confi, pred_labels, gt_boxes, gt_labels):
+            gt_box_num = gt_box.shape[0]
             score = 0
             box_num = boxes.shape[0]
-            correct_label_flag = np.zeros(gt_labels.shape)
+            correct_label_flag = np.zeros(gt_label.shape)
             for i in range(box_num):
                 pred_box = boxes[i]
                 max_iou_confi = 0
-                for j in range(gt_boxes_num):
-                    iou = calculate_iou(pred_box[:4], gt_boxes[j][:4])
-                    if labels[i] == gt_labels[j] and iou > iou_thres:
+                for j in range(gt_box_num):
+                    iou = calculate_iou(pred_box[:4], gt_box[j][:4])
+                    if labels[i] == gt_label[j] and iou > iou_thres:
                         max_iou_confi = max(max_iou_confi, pred_box[-1] + iou)
                         correct_label_flag[j] = 1
                 score += max_iou_confi

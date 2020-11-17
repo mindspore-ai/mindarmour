@@ -50,7 +50,7 @@ class PSOAttack(Attack):
             than zero. Default: 6.
         t_max (int): The maximum round of iteration for each adversarial example,
             which should be greater than zero. Default: 1000.
-        pm (Union[int, float]): The probability of mutations. Default: 0.5.
+        pm (Union[int, float]): The probability of mutations, which should be in the range of (0, 1). Default: 0.5.
         bounds (Union[list, tuple, None]): Upper and lower bounds of data. In form of (clip_min,
             clip_max). Default: None.
         targeted (bool): If True, turns on the targeted attack. If False,
@@ -61,7 +61,7 @@ class PSOAttack(Attack):
         model_type (str): The type of targeted model. 'classification' and 'detection' are supported now.
             default: 'classification'.
         reserve_ratio (Union[int, float]): The percentage of objects that can be detected after attacks,
-            specifically for model_type='detection'. Default: 0.3.
+            specifically for model_type='detection'. Reserve_ratio should be in the range of (0, 1). Default: 0.3.
 
     Examples:
         >>> attack = PSOAttack(model)
@@ -77,7 +77,11 @@ class PSOAttack(Attack):
         self._c2 = check_value_positive('c2', c2)
         self._c = check_value_positive('c', c)
         self._pop_size = check_int_positive('pop_size', pop_size)
-        self._pm = check_value_positive('pm', pm)
+        self._pm = check_value_non_negative('pm', pm)
+        if self._pm > 1:
+            msg = "pm should not be greater than 1.0, but got {}.".format(self._pm)
+            LOGGER.error(TAG, msg)
+            raise ValueError(msg)
         self._bounds = bounds
         if self._bounds is not None:
             self._bounds = check_param_multi_types('bounds', bounds, [list, tuple])
@@ -93,7 +97,7 @@ class PSOAttack(Attack):
             raise ValueError(msg)
         self._reserve_ratio = check_value_non_negative('reserve_ratio', reserve_ratio)
         if self._reserve_ratio > 1:
-            msg = "reserve_ratio should be less than 1.0, but got {}.".format(self._reserve_ratio)
+            msg = "reserve_ratio should not be greater than 1.0, but got {}.".format(self._reserve_ratio)
             LOGGER.error(TAG, msg)
             raise ValueError(msg)
 
@@ -200,7 +204,7 @@ class PSOAttack(Attack):
                     msg = "The parameter 'sparse' of PSOAttack is True, but the input labels is not sparse style and " \
                           "got its shape as {}.".format(labels.shape)
                     LOGGER.error(TAG, msg)
-                    raise ValueError
+                    raise ValueError(msg)
             else:
                 labels = np.argmax(labels, axis=1)
             images = inputs
@@ -227,7 +231,7 @@ class PSOAttack(Attack):
                 auxiliary_input_i = tuple()
                 for item in auxiliary_inputs:
                     auxiliary_input_i += (np.expand_dims(item[i], axis=0),)
-                gt_boxes_i, gt_labels_i = gt_boxes[i], gt_labels[i]
+                gt_boxes_i, gt_labels_i = np.expand_dims(gt_boxes[i], axis=0), np.expand_dims(gt_labels[i], axis=0)
                 inputs_i = (images[i],) + auxiliary_input_i
                 confi_ori, gt_object_num = self._detection_scores(inputs_i, gt_boxes_i, gt_labels_i, self._model)
                 LOGGER.info(TAG, 'The number of ground-truth objects is %s', gt_object_num[0])
