@@ -47,10 +47,11 @@ class GeneticAttack(Attack):
             turns on untargeted attack. It should be noted that only untargeted attack
             is supproted for model_type='detection', Default: False.
         reserve_ratio (Union[int, float]): The percentage of objects that can be detected after attacks,
-            specifically for model_type='detection'. Default: 0.3.
+            specifically for model_type='detection'. Reserve_ratio should be in the range of (0, 1). Default: 0.3.
         pop_size (int): The number of particles, which should be greater than
             zero. Default: 6.
-        mutation_rate (Union[int, float]): The probability of mutations. Default: 0.005.
+        mutation_rate (Union[int, float]): The probability of mutations, which should be in the range of (0, 1).
+            Default: 0.005.
         per_bounds (Union[int, float]): Maximum L_inf distance.
         max_steps (int): The maximum round of iteration for each adversarial
             example. Default: 1000.
@@ -83,7 +84,7 @@ class GeneticAttack(Attack):
         self._targeted = check_param_type('targeted', targeted, bool)
         self._reserve_ratio = check_value_non_negative('reserve_ratio', reserve_ratio)
         if self._reserve_ratio > 1:
-            msg = "reserve_ratio should be less than 1.0, but got {}.".format(self._reserve_ratio)
+            msg = "reserve_ratio should not be greater than 1.0, but got {}.".format(self._reserve_ratio)
             LOGGER.error(TAG, msg)
             raise ValueError(msg)
         self._sparse = check_param_type('sparse', sparse, bool)
@@ -92,8 +93,11 @@ class GeneticAttack(Attack):
         self._step_size = check_value_positive('step_size', step_size)
         self._temp = check_value_positive('temp', temp)
         self._max_steps = check_int_positive('max_steps', max_steps)
-        self._mutation_rate = check_value_positive('mutation_rate',
-                                                   mutation_rate)
+        self._mutation_rate = check_value_non_negative('mutation_rate', mutation_rate)
+        if self._mutation_rate > 1:
+            msg = "mutation_rate should not be greater than 1.0, but got {}.".format(self._mutation_rate)
+            LOGGER.error(TAG, msg)
+            raise ValueError(msg)
         self._adaptive = check_param_type('adaptive', adaptive, bool)
         # initial global optimum fitness value
         self._best_fit = -np.inf
@@ -163,7 +167,7 @@ class GeneticAttack(Attack):
                     msg = "The parameter 'sparse' of GeneticAttack is True, but the input labels is not sparse style " \
                           "and got its shape as {}.".format(labels.shape)
                     LOGGER.error(TAG, msg)
-                    raise ValueError
+                    raise ValueError(msg)
             else:
                 labels = np.argmax(labels, axis=1)
             images = inputs
@@ -186,7 +190,7 @@ class GeneticAttack(Attack):
                 auxiliary_input_i = tuple()
                 for item in auxiliary_inputs:
                     auxiliary_input_i += (np.expand_dims(item[i], axis=0),)
-                gt_boxes_i, gt_labels_i = gt_boxes[i], gt_labels[i]
+                gt_boxes_i, gt_labels_i = np.expand_dims(gt_boxes[i], axis=0), np.expand_dims(gt_labels[i], axis=0)
                 inputs_i = (images[i],) + auxiliary_input_i
                 confi_ori, gt_object_num = self._detection_scores(inputs_i, gt_boxes_i, gt_labels_i, model=self._model)
                 LOGGER.info(TAG, 'The number of ground-truth objects is %s', gt_object_num[0])
