@@ -17,7 +17,7 @@ from mindspore import Tensor
 from mindspore.nn import Cell
 from mindspore.ops.composite import GradOperation
 
-from mindarmour.utils._check_param import check_numpy_param
+from mindarmour.utils._check_param import check_numpy_param, check_param_multi_types
 
 from .logger import LogUtil
 
@@ -50,6 +50,44 @@ def jacobian_matrix(grad_wrap_net, inputs, num_classes):
         sens = np.zeros((inputs.shape[0], num_classes)).astype(np.float32)
         sens[:, idx] = 1.0
         grads = grad_wrap_net(Tensor(inputs), Tensor(sens))
+        grads_matrix.append(grads.asnumpy())
+    return np.asarray(grads_matrix)
+
+
+def jacobian_matrix_for_detection(grad_wrap_net, inputs, num_boxes, num_classes):
+    """
+    Calculate the Jacobian matrix for inputs, specifically for object detection model.
+
+    Args:
+        grad_wrap_net (Cell): A network wrapped by GradWrap.
+        inputs (numpy.ndarray): Input samples.
+        num_boxes (int): Number of boxes infered by each image.
+        num_classes (int): Number of labels of model output.
+
+    Returns:
+        numpy.ndarray, the Jacobian matrix of inputs. (labels, batch_size, ...)
+
+    Raises:
+        ValueError: If grad_wrap_net is not a instance of class `GradWrap`.
+    """
+    if not isinstance(grad_wrap_net, GradWrap):
+        msg = 'grad_wrap_net be and instance of class `GradWrap`.'
+        LOGGER.error(TAG, msg)
+        raise ValueError(msg)
+    grad_wrap_net.set_train()
+    grads_matrix = []
+    inputs_tensor = tuple()
+    if isinstance(inputs, tuple):
+        for item in inputs:
+            inputs_tensor += (Tensor(item),)
+    else:
+        inputs_tensor += (Tensor(inputs),)
+    for idx in range(num_classes):
+        batch_size = inputs[0].shape[0] if isinstance(inputs, tuple) else inputs.shape[0]
+        sens = np.zeros((batch_size, num_boxes, num_classes)).astype(np.float32)
+        sens[:, :, idx] = 1.0
+
+        grads = grad_wrap_net(*(inputs_tensor), Tensor(sens))
         grads_matrix.append(grads.asnumpy())
     return np.asarray(grads_matrix)
 
@@ -152,19 +190,19 @@ class GradWrap(Cell):
         self.grad = GradOperation(get_all=False, sens_param=True)
         self.network = network
 
-    def construct(self, inputs, weight):
+    def construct(self, *data):
         """
         Compute jacobian matrix.
 
         Args:
-            inputs (Tensor): Inputs of network.
-            weight (Tensor): Weight of each gradient, `weight` has the same
-                shape with labels.
+            data (Tensor): Data consists of inputs and weight. \
+                - inputs: Inputs of network. \
+                - weight: Weight of each gradient, 'weight' has the same shape with labels.
 
         Returns:
             Tensor, Jacobian matrix.
         """
-        gout = self.grad(self.network)(inputs, weight)
+        gout = self.grad(self.network)(*data)
         return gout
 
 
@@ -199,3 +237,15 @@ def calculate_iou(box_i, box_j):
         return 0
     inner_area = (inner_right_line - inner_left_line)*(inner_top_line - inner_bottom_line)
     return inner_area / (s_i + s_j - inner_area)
+
+
+def to_tensor_tuple(inputs_ori):
+    """Transfer inputs data into tensor type."""
+    inputs_ori = check_param_multi_types('inputs_ori', inputs_ori, [np.ndarray, tuple])
+    if isinstance(inputs_ori, tuple):
+        inputs_tensor = tuple()
+        for item in inputs_ori:
+            inputs_tensor += (Tensor(item),)
+    else:
+        inputs_tensor = (Tensor(inputs_ori),)
+    return inputs_tensor
