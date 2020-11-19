@@ -18,7 +18,7 @@ from abc import abstractmethod
 
 import numpy as np
 
-from mindarmour.utils._check_param import check_pair_numpy_param, \
+from mindarmour.utils._check_param import check_inputs_labels, \
     check_int_positive, check_equal_shape, check_numpy_param, check_model
 from mindarmour.utils.util import calculate_iou
 from mindarmour.utils.logger import LogUtil
@@ -55,18 +55,7 @@ class Attack:
             >>> labels = np.array([3, 0])
             >>> advs = attack.batch_generate(inputs, labels, batch_size=2)
         """
-        inputs_image = inputs[0] if isinstance(inputs, tuple) else inputs
-        if isinstance(inputs, tuple):
-            for i, inputs_item in enumerate(inputs):
-                _ = check_pair_numpy_param('inputs_image', inputs_image, \
-                    'inputs[{}]'.format(i), inputs_item)
-        if isinstance(labels, tuple):
-            for i, labels_item in enumerate(labels):
-                _ = check_pair_numpy_param('inputs_image', inputs_image, \
-                    'labels[{}]'.format(i), labels_item)
-        else:
-            _ = check_pair_numpy_param('inputs', inputs_image, \
-                'labels', labels)
+        inputs_image, inputs, labels = check_inputs_labels(inputs, labels)
         arr_x = inputs
         arr_y = labels
         len_x = inputs_image.shape[0]

@@ -18,12 +18,11 @@ from abc import abstractmethod
 
 import numpy as np
 
-from mindspore import Tensor
 from mindspore.nn import Cell
 
-from mindarmour.utils.util import WithLossCell, GradWrapWithLoss
+from mindarmour.utils.util import WithLossCell, GradWrapWithLoss, to_tensor_tuple
 from mindarmour.utils.logger import LogUtil
-from mindarmour.utils._check_param import check_pair_numpy_param, check_model, \
+from mindarmour.utils._check_param import check_model, check_inputs_labels, \
     normalize_value, check_value_positive, check_param_multi_types, \
     check_norm_level, check_param_type
 from .attack import Attack
@@ -91,18 +90,7 @@ class GradientMethod(Attack):
         Returns:
             numpy.ndarray, generated adversarial examples.
         """
-        inputs_image = inputs[0] if isinstance(inputs, tuple) else inputs
-        if isinstance(inputs, tuple):
-            for i, inputs_item in enumerate(inputs):
-                _ = check_pair_numpy_param('inputs_image', inputs_image, \
-                    'inputs[{}]'.format(i), inputs_item)
-        if isinstance(labels, tuple):
-            for i, labels_item in enumerate(labels):
-                _ = check_pair_numpy_param('inputs_image', inputs_image, \
-                    'labels[{}]'.format(i), labels_item)
-        else:
-            _ = check_pair_numpy_param('inputs', inputs_image, \
-                'labels', labels)
+        inputs_image, inputs, labels = check_inputs_labels(inputs, labels)
         self._dtype = inputs_image.dtype
         gradient = self._gradient(inputs, labels)
         # use random method or not
@@ -196,18 +184,8 @@ class FastGradientMethod(GradientMethod):
         Returns:
             numpy.ndarray, gradient of inputs.
         """
-        if isinstance(inputs, tuple):
-            inputs_tensor = tuple()
-            for item in inputs:
-                inputs_tensor += (Tensor(item),)
-        else:
-            inputs_tensor = (Tensor(inputs),)
-        if isinstance(labels, tuple):
-            labels_tensor = tuple()
-            for item in labels:
-                labels_tensor += (Tensor(item),)
-        else:
-            labels_tensor = (Tensor(labels),)
+        inputs_tensor = to_tensor_tuple(inputs)
+        labels_tensor = to_tensor_tuple(labels)
         out_grad = self._grad_all(*inputs_tensor, *labels_tensor)
         if isinstance(out_grad, tuple):
             out_grad = out_grad[0]
@@ -315,18 +293,8 @@ class FastGradientSignMethod(GradientMethod):
         Returns:
             numpy.ndarray, gradient of inputs.
         """
-        if isinstance(inputs, tuple):
-            inputs_tensor = tuple()
-            for item in inputs:
-                inputs_tensor += (Tensor(item),)
-        else:
-            inputs_tensor = (Tensor(inputs),)
-        if isinstance(labels, tuple):
-            labels_tensor = tuple()
-            for item in labels:
-                labels_tensor += (Tensor(item),)
-        else:
-            labels_tensor = (Tensor(labels),)
+        inputs_tensor = to_tensor_tuple(inputs)
+        labels_tensor = to_tensor_tuple(labels)
         out_grad = self._grad_all(*inputs_tensor, *labels_tensor)
         if isinstance(out_grad, tuple):
             out_grad = out_grad[0]

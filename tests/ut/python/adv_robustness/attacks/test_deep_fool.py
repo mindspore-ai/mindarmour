@@ -54,6 +54,23 @@ class Net(Cell):
         return out
 
 
+class Net2(Cell):
+    """
+    Construct the network of target model, specifically for detection model test case.
+
+    Examples:
+        >>> net = Net2()
+    """
+    def __init__(self):
+        super(Net2, self).__init__()
+        self._softmax = P.Softmax()
+
+    def construct(self, inputs1, inputs2):
+        out1 = self._softmax(inputs2)
+        out2 = self._softmax(inputs1)
+        return out1, out2
+
+
 @pytest.mark.level0
 @pytest.mark.platform_arm_ascend_training
 @pytest.mark.platform_x86_ascend_training
@@ -77,6 +94,27 @@ def test_deepfool_attack():
                                 0.40406296]])
     assert np.allclose(adv_data, expect_value), 'mindspore deepfool_method' \
         ' implementation error, ms_adv_x != expect_value'
+
+
+@pytest.mark.level0
+@pytest.mark.platform_arm_ascend_training
+@pytest.mark.platform_x86_ascend_training
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_deepfool_attack_detection():
+    """
+    Deepfool-Attack test
+    """
+    net = Net2()
+    inputs1_np = np.random.random((2, 10, 10)).astype(np.float32)
+    inputs2_np = np.random.random((2, 10, 5)).astype(np.float32)
+    gt_boxes = inputs1_np[:, :, 0: 5]
+    gt_labels = np.argmax(inputs1_np, axis=2)
+    num_classes = 10
+
+    attack = DeepFool(net, num_classes, model_type='detection', reserve_ratio=0.3,
+                      bounds=(0.0, 1.0))
+    _ = attack.generate((inputs1_np, inputs2_np), (gt_boxes, gt_labels))
 
 
 @pytest.mark.level0

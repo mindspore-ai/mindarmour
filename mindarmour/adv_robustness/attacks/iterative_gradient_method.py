@@ -18,11 +18,10 @@ import numpy as np
 from PIL import Image, ImageOps
 
 from mindspore.nn import Cell
-from mindspore import Tensor
 
 from mindarmour.utils.logger import LogUtil
-from mindarmour.utils.util import WithLossCell, GradWrapWithLoss
-from mindarmour.utils._check_param import check_pair_numpy_param, \
+from mindarmour.utils.util import WithLossCell, GradWrapWithLoss, to_tensor_tuple
+from mindarmour.utils._check_param import check_inputs_labels, \
     normalize_value, check_model, check_value_positive, check_int_positive, \
     check_param_type, check_norm_level, check_param_multi_types
 from .attack import Attack
@@ -223,18 +222,7 @@ class BasicIterativeMethod(IterativeGradientMethod):
             >>>                         [[0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
             >>>                          [0, 0, 0, 0, 0, 0, 1, 0, 0, 0]])
         """
-        inputs_image = inputs[0] if isinstance(inputs, tuple) else inputs
-        if isinstance(inputs, tuple):
-            for i, inputs_item in enumerate(inputs):
-                _ = check_pair_numpy_param('inputs_image', inputs_image, \
-                    'inputs[{}]'.format(i), inputs_item)
-        if isinstance(labels, tuple):
-            for i, labels_item in enumerate(labels):
-                _ = check_pair_numpy_param('inputs_image', inputs_image, \
-                    'labels[{}]'.format(i), labels_item)
-        else:
-            _ = check_pair_numpy_param('inputs', inputs_image, \
-                'labels', labels)
+        inputs_image, inputs, labels = check_inputs_labels(inputs, labels)
         arr_x = inputs_image
         if self._bounds is not None:
             clip_min, clip_max = self._bounds
@@ -322,18 +310,7 @@ class MomentumIterativeMethod(IterativeGradientMethod):
             >>>                         [[0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
             >>>                          [0, 0, 0, 0, 0, 1, 0, 0, 0, 0]])
         """
-        inputs_image = inputs[0] if isinstance(inputs, tuple) else inputs
-        if isinstance(inputs, tuple):
-            for i, inputs_item in enumerate(inputs):
-                _ = check_pair_numpy_param('inputs_image', inputs_image, \
-                    'inputs[{}]'.format(i), inputs_item)
-        if isinstance(labels, tuple):
-            for i, labels_item in enumerate(labels):
-                _ = check_pair_numpy_param('inputs_image', inputs_image, \
-                    'labels[{}]'.format(i), labels_item)
-        else:
-            _ = check_pair_numpy_param('inputs', inputs_image, \
-                'labels', labels)
+        inputs_image, inputs, labels = check_inputs_labels(inputs, labels)
         arr_x = inputs_image
         momentum = 0
         if self._bounds is not None:
@@ -392,18 +369,8 @@ class MomentumIterativeMethod(IterativeGradientMethod):
             >>>                       [[0, 0, 0, 1, 0, 0, 0, 0, 0, 0])
         """
         # get grad of loss over x
-        if isinstance(inputs, tuple):
-            inputs_tensor = tuple()
-            for item in inputs:
-                inputs_tensor += (Tensor(item),)
-        else:
-            inputs_tensor = (Tensor(inputs),)
-        if isinstance(labels, tuple):
-            labels_tensor = tuple()
-            for item in labels:
-                labels_tensor += (Tensor(item),)
-        else:
-            labels_tensor = (Tensor(labels),)
+        inputs_tensor = to_tensor_tuple(inputs)
+        labels_tensor = to_tensor_tuple(labels)
         out_grad = self._loss_grad(*inputs_tensor, *labels_tensor)
         if isinstance(out_grad, tuple):
             out_grad = out_grad[0]
@@ -473,18 +440,7 @@ class ProjectedGradientDescent(BasicIterativeMethod):
             >>>                         [[0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
             >>>                          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
         """
-        inputs_image = inputs[0] if isinstance(inputs, tuple) else inputs
-        if isinstance(inputs, tuple):
-            for i, inputs_item in enumerate(inputs):
-                _ = check_pair_numpy_param('inputs_image', inputs_image, \
-                    'inputs[{}]'.format(i), inputs_item)
-        if isinstance(labels, tuple):
-            for i, labels_item in enumerate(labels):
-                _ = check_pair_numpy_param('inputs_image', inputs_image, \
-                    'labels[{}]'.format(i), labels_item)
-        else:
-            _ = check_pair_numpy_param('inputs', inputs_image, \
-                'labels', labels)
+        inputs_image, inputs, labels = check_inputs_labels(inputs, labels)
         arr_x = inputs_image
         if self._bounds is not None:
             clip_min, clip_max = self._bounds

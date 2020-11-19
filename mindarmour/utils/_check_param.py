@@ -327,3 +327,22 @@ def check_detection_inputs(inputs, labels):
         LOGGER.error(TAG, msg)
         raise ValueError(msg)
     return images, auxiliary_inputs, gt_boxes, gt_labels
+
+
+def check_inputs_labels(inputs, labels):
+    """check inputs and labels is valid for white box method."""
+    _ = check_param_multi_types('inputs', inputs, (tuple, np.ndarray))
+    _ = check_param_multi_types('labels', labels, (tuple, np.ndarray))
+    inputs_image = inputs[0] if isinstance(inputs, tuple) else inputs
+    if isinstance(inputs, tuple):
+        for i, inputs_item in enumerate(inputs):
+            _ = check_pair_numpy_param('inputs_image', inputs_image, \
+                'inputs[{}]'.format(i), inputs_item)
+    if isinstance(labels, tuple):
+        for i, labels_item in enumerate(labels):
+            _ = check_pair_numpy_param('inputs', inputs_image, \
+                'labels[{}]'.format(i), labels_item)
+    else:
+        _ = check_pair_numpy_param('inputs', inputs_image, \
+            'labels', labels)
+    return inputs_image, inputs, labels
