@@ -147,7 +147,7 @@ def nes_mnist_attack(scene, top_k):
                                             target_class)
 
         nes_instance.set_target_images(target_image)
-        tag, adv, queries = nes_instance.generate(initial_img, target_class)
+        tag, adv, queries = nes_instance.generate(np.array(initial_img), np.array(target_class))
         if tag[0]:
             success += 1
         queries_num += queries[0]

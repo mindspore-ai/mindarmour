@@ -105,9 +105,9 @@ class DeepFool(Attack):
         max_iters (int): Max iterations, which should be
             greater than zero. Default: 50.
         overshoot (float): Overshoot parameter. Default: 0.02.
-        norm_level (int): Order of the vector norm. Possible values: np.inf
+        norm_level (Union[int, str]): Order of the vector norm. Possible values: np.inf
             or 2. Default: 2.
-        bounds (tuple): Upper and lower bounds of data range. In form of (clip_min,
+        bounds (Union[tuple, list]): Upper and lower bounds of data range. In form of (clip_min,
             clip_max). Default: None.
         sparse (bool): If True, input labels are sparse-coded. If False,
             input labels are onehot-coded. Default: True.
