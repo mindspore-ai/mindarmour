@@ -101,11 +101,11 @@ setup(
         'bdist_wheel': bdist_wheel
     },
     install_requires=[
-        'scipy >= 1.3.3',
+        'scipy >= 1.5.3',
         'numpy >= 1.17.0',
         'matplotlib >= 3.2.1',
         'Pillow >= 2.0.0',
-        'scikit-learn >= 0.21.2'
+        'scikit-learn >= 0.23.1'
     ],
     classifiers=[
         'License :: OSI Approved :: Apache Software License'
