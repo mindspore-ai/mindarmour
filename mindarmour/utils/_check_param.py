@@ -149,13 +149,11 @@ def check_numpy_param(arg_name, arg_value):
         ValueError: If value type is not in (list, tuple, numpy.ndarray).
     """
     _ = _check_array_not_empty(arg_name, arg_value)
-    if isinstance(arg_value, (list, tuple)):
-        arg_value = np.asarray(arg_value)
-    elif isinstance(arg_value, np.ndarray):
+    if isinstance(arg_value, np.ndarray):
         arg_value = np.copy(arg_value)
     else:
-        msg = 'type of {} must be in (list, tuple, numpy.ndarray)'.format(
-            arg_name)
+        msg = 'type of {} must be numpy.ndarray, but got {}'.format(
+            arg_name, type(arg_value))
         LOGGER.error(TAG, msg)
         raise TypeError(msg)
     return arg_value
@@ -220,6 +218,8 @@ def check_norm_level(norm_level):
     """
     check norm_level of regularization.
     """
+    if not isinstance(norm_level, (int, str)):
+        msg = 'Type of norm_level must be in [int, str], but got {}'.format(type(norm_level))
     accept_norm = [1, 2, '1', '2', 'l1', 'l2', 'inf', 'linf', np.inf]
     if norm_level not in accept_norm:
         msg = 'norm_level must be in {}, but got {}'.format(accept_norm,

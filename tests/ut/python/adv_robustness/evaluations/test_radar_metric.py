@@ -14,6 +14,7 @@
 """
 Radar map test.
 """
+import numpy as np
 import pytest
 from mindarmour.adv_robustness.evaluations import RadarMetric
 
@@ -28,7 +29,7 @@ def test_radar_metric():
     metrics_name = ['MR', 'ACAC', 'ASS', 'NTE', 'RGB']
     def_metrics = [0.9, 0.85, 0.6, 0.7, 0.8]
     raw_metrics = [0.5, 0.3, 0.55, 0.65, 0.7]
-    metrics_data = [def_metrics, raw_metrics]
+    metrics_data = np.array([def_metrics, raw_metrics])
     metrics_labels = ['before', 'after']
 
     # create obj
@@ -46,7 +47,7 @@ def test_value_error():
     metrics_name = ['MR', 'ACAC', 'ASS', 'NTE', 'RGB']
     def_metrics = [0.9, 0.85, 0.6, 0.7, 0.8]
     raw_metrics = [0.5, 0.3, 0.55, 0.65, 0.7]
-    metrics_data = [def_metrics, raw_metrics]
+    metrics_data = np.array([def_metrics, raw_metrics])
     metrics_labels = ['before', 'after']
 
     with pytest.raises(ValueError):

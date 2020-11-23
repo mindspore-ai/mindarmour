@@ -312,52 +312,6 @@ def test_fast_gradient_method_multi_inputs():
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_batch_generate():
-    """
-    Fast gradient method unit test.
-    """
-    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
-    input_np = np.random.random([10, 3]).astype(np.float32)
-    label = np.random.randint(0, 3, [10])
-    label = np.eye(3)[label].astype(np.float32)
-
-    loss_fn = SoftmaxCrossEntropyWithLogits(sparse=False)
-    attack = FastGradientMethod(Net(), loss_fn=loss_fn)
-    ms_adv_x = attack.batch_generate(input_np, label, 4)
-
-    assert np.any(ms_adv_x != input_np), 'Fast gradient method: generate value' \
-                                         ' must not be equal to original value.'
-
-
-@pytest.mark.level0
-@pytest.mark.platform_arm_ascend_training
-@pytest.mark.platform_x86_ascend_training
-@pytest.mark.env_card
-@pytest.mark.component_mindarmour
-def test_batch_generate_multi_inputs():
-    """
-    Fast gradient method unit test.
-    """
-    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
-    inputs1 = np.asarray([[0.1, 0.2, 0.7]]).astype(np.float32)
-    inputs2 = np.asarray([[0.4, 0.8, 0.5]]).astype(np.float32)
-    labels1 = np.expand_dims(np.eye(3)[1].astype(np.float32), axis=0)
-    labels2 = np.expand_dims(np.eye(3)[2].astype(np.float32), axis=0)
-
-    with_loss_cell = WithLossCell(Net2(), LossNet())
-    grad_with_loss_net = GradWrapWithLoss(with_loss_cell)
-    attack = FastGradientMethod(grad_with_loss_net)
-    ms_adv_x = attack.generate((inputs1, inputs2), (labels1, labels2))
-
-    assert np.any(ms_adv_x != inputs1), 'Fast gradient method: generate value' \
-                                         ' must not be equal to original value.'
-
-
-@pytest.mark.level0
-@pytest.mark.platform_arm_ascend_training
-@pytest.mark.platform_x86_ascend_training
-@pytest.mark.env_card
-@pytest.mark.component_mindarmour
 def test_assert_error():
     """
     Random least likely class method unit test.
