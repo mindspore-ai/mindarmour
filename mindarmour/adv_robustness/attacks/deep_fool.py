@@ -63,14 +63,14 @@ def _deepfool_detection_scores(inputs, gt_boxes, gt_labels, network):
     pred_labels = np.argmax(pred_logits, axis=2)
     det_scores = []
     correct_labels_num = []
-    gt_boxes_num = gt_boxes.shape[0]
+    gt_boxes_num = gt_boxes.shape[1]
     iou_thres = 0.5
     for idx, (boxes, labels) in enumerate(zip(box_and_confi, pred_labels)):
         score = 0
         box_num = boxes.shape[0]
-        correct_label_flag = np.zeros(gt_labels.shape)
         gt_boxes_idx = gt_boxes[idx]
         gt_labels_idx = gt_labels[idx]
+        correct_label_flag = np.zeros(gt_labels_idx.shape)
         for i in range(box_num):
             pred_box = boxes[i]
             max_iou_confi = 0
@@ -102,6 +102,10 @@ class DeepFool(Attack):
         network (Cell): Target model.
         num_classes (int): Number of labels of model output, which should be
             greater than zero.
+        model_type (str): Tye type of targeted model. 'classification' and 'detection' are supported now.
+            default: 'classification'.
+        reserve_ratio (Union[int, float]): The percentage of objects that can be detected after attaks,
+            specifically for model_type='detection'. Reserve_ratio should be in the range of (0, 1). Default: 0.3.
         max_iters (int): Max iterations, which should be
             greater than zero. Default: 50.
         overshoot (float): Overshoot parameter. Default: 0.02.

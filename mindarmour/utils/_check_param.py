@@ -138,7 +138,7 @@ def check_numpy_param(arg_name, arg_value):
 
     Args:
         arg_name (str): Name of parameter.
-        arg_value (Union[list, tuple, numpy.ndarray]): Value for check.
+        arg_value (numpy.ndarray): Value for check.
 
     Returns:
         numpy.ndarray, if `value` is not empty, return `value` with type of
@@ -146,7 +146,7 @@ def check_numpy_param(arg_name, arg_value):
 
     Raises:
         ValueError: If value is empty.
-        ValueError: If value type is not in (list, tuple, numpy.ndarray).
+        ValueError: If value type is not numpy.ndarray.
     """
     _ = _check_array_not_empty(arg_name, arg_value)
     if isinstance(arg_value, np.ndarray):
@@ -165,15 +165,15 @@ def check_pair_numpy_param(inputs_name, inputs, labels_name, labels):
 
     Args:
         inputs_name (str): Name of inputs.
-        inputs (Union[list, tuple, numpy.ndarray]): Inputs.
+        inputs (numpy.ndarray): Inputs.
         labels_name (str): Name of labels.
-        labels (Union[list, tuple, numpy.ndarray]): Labels of `inputs`.
+        labels (numpy.ndarray): Labels of `inputs`.
 
     Returns:
-        - Union[list, tuple, numpy.ndarray], if `inputs` 's dimension equals to
+        - numpy.ndarray, if `inputs` 's dimension equals to
           `labels`, return inputs with type of numpy.ndarray.
 
-        - Union[list, tuple, numpy.ndarray], if `inputs` 's dimension equals to
+        - numpy.ndarray, if `inputs` 's dimension equals to
           `labels` , return labels with type of numpy.ndarray.
 
     Raises:

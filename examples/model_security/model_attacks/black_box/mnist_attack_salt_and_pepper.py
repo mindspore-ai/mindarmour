@@ -108,6 +108,7 @@ def test_salt_and_pepper_attack_on_mnist():
         # rescale predict confidences into (0, 1).
         pred_logits_adv = softmax(pred_logits_adv, axis=1)
         adv_preds.extend(pred_logits_adv)
+    adv_preds = np.array(adv_preds)
     accuracy_adv = np.mean(np.equal(np.max(adv_preds, axis=1), true_labels))
     LOGGER.info(TAG, "prediction accuracy after attacking is : %g",
                 accuracy_adv)
