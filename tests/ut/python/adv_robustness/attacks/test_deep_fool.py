@@ -66,9 +66,9 @@ class Net2(Cell):
         self._softmax = P.Softmax()
 
     def construct(self, inputs1, inputs2):
-        out1 = self._softmax(inputs2)
-        out2 = self._softmax(inputs1)
-        return out1, out2
+        out1 = self._softmax(inputs1)
+        out2 = self._softmax(inputs2)
+        return out2, out1
 
 
 @pytest.mark.level0
@@ -108,13 +108,15 @@ def test_deepfool_attack_detection():
     net = Net2()
     inputs1_np = np.random.random((2, 10, 10)).astype(np.float32)
     inputs2_np = np.random.random((2, 10, 5)).astype(np.float32)
-    gt_boxes = inputs1_np[:, :, 0: 5]
-    gt_labels = np.argmax(inputs1_np, axis=2)
+    gt_boxes, gt_logits = net(Tensor(inputs1_np), Tensor(inputs2_np))
+    gt_boxes, gt_logits = gt_boxes.asnumpy(), gt_logits.asnumpy()
+    gt_labels = np.argmax(gt_logits, axis=2)
     num_classes = 10
 
     attack = DeepFool(net, num_classes, model_type='detection', reserve_ratio=0.3,
                       bounds=(0.0, 1.0))
-    _ = attack.generate((inputs1_np, inputs2_np), (gt_boxes, gt_labels))
+    adv_data = attack.generate((inputs1_np, inputs2_np), (gt_boxes, gt_labels))
+    assert np.any(adv_data != inputs1_np)
 
 
 @pytest.mark.level0
