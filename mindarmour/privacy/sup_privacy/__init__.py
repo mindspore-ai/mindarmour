@@ -12,6 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-This package includes unit tests for differential-privacy training,
- suppress-privacy training and privacy breach estimation.
+This module provides Suppress Privacy feature to protect user privacy.
 """
+from .mask_monitor.masker import SuppressMasker
+from .train.model import SuppressModel
+from .sup_ctrl.conctrl import SuppressPrivacyFactory
+from .sup_ctrl.conctrl import SuppressCtrl
+from .sup_ctrl.conctrl import MaskLayerDes
+
+__all__ = ['SuppressMasker',
+           'SuppressModel',
+           'SuppressPrivacyFactory',
+           'SuppressCtrl',
+           'MaskLayerDes']

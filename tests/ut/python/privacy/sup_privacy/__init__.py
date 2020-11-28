@@ -12,6 +12,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-This package includes unit tests for differential-privacy training,
- suppress-privacy training and privacy breach estimation.
+This package includes unit tests for suppress-privacy training.
 """
