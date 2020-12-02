@@ -284,6 +284,21 @@ class NoiseAdaGaussianRandom(NoiseGaussianRandom):
                             "get {}".format(decay_policy))
         self._decay_policy = decay_policy
 
+    def construct(self, gradients):
+        """
+        Generated Adaptive Gaussian noise.
+
+        Args:
+            gradients(Tensor): The gradients.
+
+        Returns:
+            Tensor, generated noise with shape like given gradients.
+        """
+        shape = P.Shape()(gradients)
+        stddev = P.Mul()(self._norm_bound, self._noise_multiplier)
+        noise = normal(shape, self._mean, stddev, self._seed)
+        return noise
+
 
 class _MechanismsParamsUpdater(Cell):
     """

@@ -515,7 +515,7 @@ class _TrainOneStepWithLossScaleCell(Cell):
         if self._noise_mech is not None:
             grad_noise_tuple = ()
             for grad_item in grads:
-                grad_noise = self._mech(grad_item)
+                grad_noise = self._noise_mech(grad_item)
                 grad_noise_tuple = grad_noise_tuple + (grad_noise,)
             grads = self._tuple_add(grads, grad_noise_tuple)
             grads = self._hyper_map(F.partial(_grad_scale, self._micro_float),
