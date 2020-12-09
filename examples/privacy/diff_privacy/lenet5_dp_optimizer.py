@@ -103,8 +103,7 @@ if __name__ == "__main__":
     if cfg.micro_batches and cfg.batch_size % cfg.micro_batches != 0:
         raise ValueError("Number of micro_batches should divide evenly batch_size")
     # Create a factory class of DP mechanisms, this method is adding noise in gradients while training.
-    # Initial_noise_multiplier is suggested to be greater than 1.0, otherwise the privacy budget would be huge, which
-    # means that the privacy protection effect is weak. Mechanisms can be 'Gaussian' or 'AdaGaussian', in which noise
+    # Mechanisms can be 'Gaussian' or 'AdaGaussian', in which noise
     # would be decayed with 'AdaGaussian' mechanism while be constant with 'Gaussian' mechanism.
     dp_opt = DPOptimizerClassFactory(micro_batches=cfg.micro_batches)
     dp_opt.set_mechanisms(cfg.noise_mechanisms,

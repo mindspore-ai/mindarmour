@@ -161,15 +161,12 @@ class PSOAttack(Attack):
         Returns:
             numpy.ndarray, mutational inputs.
         """
-        # LOGGER.info(TAG, 'Mutation happens...')
+        LOGGER.info(TAG, 'Mutation happens...')
         pixel_deep = self._bounds[1] - self._bounds[0]
         cur_pop = check_numpy_param('cur_pop', cur_pop)
         perturb_noise = (np.random.random(cur_pop.shape) - 0.5)*pixel_deep
-        mutated_pop = perturb_noise*(np.random.random(cur_pop.shape) < self._pm) + cur_pop
-        if self._model_type == 'classification':
-            mutated_pop = np.clip(np.clip(mutated_pop, cur_pop - self._per_bounds*np.abs(cur_pop),
-                                          cur_pop + self._per_bounds*np.abs(cur_pop)),
-                                  self._bounds[0], self._bounds[1])
+        mutated_pop = np.clip(perturb_noise*(np.random.random(cur_pop.shape) < self._pm) + cur_pop, self._bounds[0],
+                              self._bounds[1])
         return mutated_pop
 
     def generate(self, inputs, labels):
@@ -199,7 +196,10 @@ class PSOAttack(Attack):
             inputs, labels = check_pair_numpy_param('inputs', inputs,
                                                     'labels', labels)
             if self._sparse:
-                label_squ = np.squeeze(labels)
+                if labels.size > 1:
+                    label_squ = np.squeeze(labels)
+                else:
+                    label_squ = labels
                 if len(label_squ.shape) >= 2 or label_squ.shape[0] != inputs.shape[0]:
                     msg = "The parameter 'sparse' of PSOAttack is True, but the input labels is not sparse style and " \
                           "got its shape as {}.".format(labels.shape)
@@ -242,12 +242,12 @@ class PSOAttack(Attack):
             # initial global optimum position
             best_position = x_ori
             x_copies = np.repeat(x_ori[np.newaxis, :], self._pop_size, axis=0)
-            cur_noise = np.clip((np.random.random(x_copies.shape) - 0.5)*pixel_deep*self._step_size,
+            cur_noise = np.clip(np.random.random(x_copies.shape)*pixel_deep,
                                 (0 - self._per_bounds)*(np.abs(x_copies) + 0.1),
                                 self._per_bounds*(np.abs(x_copies) + 0.1))
-            par = np.clip(x_copies + cur_noise, self._bounds[0], self._bounds[1])
+
             # initial advs
-            par_ori = np.copy(par)
+            par = np.clip(x_copies + cur_noise, self._bounds[0], self._bounds[1])
             # initial optimum positions for particles
             par_best_poi = np.copy(par)
             # initial optimum fitness values
@@ -264,12 +264,17 @@ class PSOAttack(Attack):
                 v_particles = self._step_size*(
                     v_particles + self._c1*ran_1*(best_position - par)) \
                               + self._c2*ran_2*(par_best_poi - par)
-                par = np.clip(np.clip(par + v_particles,
-                                      par_ori - (np.abs(par_ori) + 0.1*pixel_deep)*self._per_bounds,
-                                      par_ori + (np.abs(par_ori) + 0.1*pixel_deep)*self._per_bounds),
-                              self._bounds[0], self._bounds[1])
-                if iters > 20 and is_mutation:
+
+                par += v_particles
+
+                if iters > 6 and is_mutation:
                     par = self._mutation_op(par)
+
+                par = np.clip(np.clip(par,
+                                      x_copies - (np.abs(x_copies) + 0.1*pixel_deep)*self._per_bounds,
+                                      x_copies + (np.abs(x_copies) + 0.1*pixel_deep)*self._per_bounds),
+                              self._bounds[0], self._bounds[1])
+
                 if self._model_type == 'classification':
                     confi_adv = self._confidence_cla(par, label_i)
                 elif self._model_type == 'detection':
@@ -283,8 +288,14 @@ class PSOAttack(Attack):
                         par_best_poi[k] = par[k]
                     if fit_value[k] > best_fitness:
                         best_fitness = fit_value[k]
-                        best_position = par[k]
+                        best_position = par[k].copy()
                 iters += 1
+                if best_fitness < -2:
+                    LOGGER.debug(TAG, 'best fitness value is %s, which is too small. We recommend that you decrease '
+                                      'the value of the initialization parameter c.', best_fitness)
+                if iters < 3 and best_fitness > 100:
+                    LOGGER.debug(TAG, 'best fitness value is %s, which is too large. We recommend that you increase '
+                                      'the value of the initialization parameter c.', best_fitness)
                 is_mutation = False
                 if (best_fitness - last_best_fit) < last_best_fit*0.05:
                     is_mutation = True
@@ -324,7 +335,7 @@ class PSOAttack(Attack):
             adv_list.append(best_position)
             success_list.append(is_success)
             query_times_list.append(q_times)
-            del x_copies, cur_noise, par, par_ori, par_best_poi
+            del x_copies, cur_noise, par, par_best_poi
         return np.asarray(success_list), \
                np.asarray(adv_list), \
                np.asarray(query_times_list)

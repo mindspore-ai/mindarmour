@@ -115,7 +115,7 @@ def test_jsma_attack_gpu():
     """
     JSMA-Attack test
     """
-    context.set_context(device_target="GPU")
+    context.set_context(mode=context.GRAPH_MODE, device_target="GPU")
     net = Net()
     input_shape = (1, 5)
     batch_size, classes = input_shape

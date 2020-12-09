@@ -179,19 +179,27 @@ class Attack:
         LOGGER.info(TAG, 'Reduction begins...')
         model = check_model('model', model, BlackModel)
         x_ori = check_numpy_param('x_ori', x_ori)
+        _, gt_num = self._detection_scores((x_ori,) + auxiliary_inputs, gt_boxes, gt_labels, model)
         best_position = check_numpy_param('best_position', best_position)
         x_ori, best_position = check_equal_shape('x_ori', x_ori, 'best_position', best_position)
-        x_shape = best_position.shape
-        reduction_iters = 1000  # recover 0.1% each step
         _, original_num = self._detection_scores((best_position,) + auxiliary_inputs, gt_boxes, gt_labels, model)
-        for _ in range(reduction_iters):
-            diff = x_ori - best_position
-            res = 0.5*diff*(np.random.random(x_shape) < 0.001)
-            best_position += res
-            _, correct_num = self._detection_scores((best_position,) + auxiliary_inputs, gt_boxes, gt_labels, model)
-            q_times += 1
-            if correct_num > original_num:
-                best_position -= res
+        # pylint: disable=invalid-name
+        REDUCTION_ITERS = 6  # recover 10% difference each time and recover 60% totally.
+        for _ in range(REDUCTION_ITERS):
+            BLOCK_NUM = 30  # divide the image into 30 segments
+            block_width = best_position.shape[0] // BLOCK_NUM
+            if block_width > 0:
+                for i in range(BLOCK_NUM):
+                    diff = x_ori[i*block_width: (i+1)*block_width, :, :]\
+                           - best_position[i*block_width:(i+1)*block_width, :, :]
+                    if np.max(np.abs(diff)) >= 0.1*(self._bounds[1] - self._bounds[0]):
+                        res = diff*0.1
+                        best_position[i*block_width: (i+1)*block_width, :, :] += res
+                        _, correct_num = self._detection_scores((best_position,) + auxiliary_inputs, gt_boxes,
+                                                                gt_labels, model)
+                        q_times += 1
+                        if correct_num[0] > max(original_num[0], gt_num[0]*self._reserve_ratio):
+                            best_position[i*block_width:(i+1)*block_width, :, :] -= res
         return best_position, q_times
 
     @staticmethod
@@ -229,7 +237,7 @@ class Attack:
                 max_iou_confi = 0
                 for j in range(gt_box_num):
                     iou = calculate_iou(pred_box[:4], gt_box[j][:4])
-                    if labels[i] == gt_label[j] and iou > iou_thres:
+                    if labels[i] == gt_label[j] and iou > iou_thres and correct_label_flag[j] == 0:
                         max_iou_confi = max(max_iou_confi, pred_box[-1] + iou)
                         correct_label_flag[j] = 1
                 score += max_iou_confi

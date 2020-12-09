@@ -162,7 +162,10 @@ class GeneticAttack(Attack):
             inputs, labels = check_pair_numpy_param('inputs', inputs,
                                                     'labels', labels)
             if self._sparse:
-                label_squ = np.squeeze(labels)
+                if labels.size > 1:
+                    label_squ = np.squeeze(labels)
+                else:
+                    label_squ = labels
                 if len(label_squ.shape) >= 2 or label_squ.shape[0] != inputs.shape[0]:
                     msg = "The parameter 'sparse' of GeneticAttack is True, but the input labels is not sparse style " \
                           "and got its shape as {}.".format(labels.shape)
@@ -198,16 +201,17 @@ class GeneticAttack(Attack):
             # generate particles
             ori_copies = np.repeat(x_ori[np.newaxis, :], self._pop_size, axis=0)
             # initial perturbations
-            cur_pert = np.clip(np.random.random(ori_copies.shape)*self._step_size*pixel_deep,
-                               (0 - self._per_bounds)*pixel_deep,
-                               self._per_bounds*pixel_deep)
-
+            cur_pert = np.random.uniform(self._bounds[0], self._bounds[1], ori_copies.shape)
+            cur_pop = ori_copies + cur_pert
             query_times = 0
             iters = 0
+
             while iters < self._max_steps:
                 iters += 1
-                cur_pop = np.clip(
-                    ori_copies + cur_pert, self._bounds[0], self._bounds[1])
+                cur_pop = np.clip(np.clip(cur_pop,
+                                          ori_copies - pixel_deep*self._per_bounds,
+                                          ori_copies + pixel_deep*self._per_bounds),
+                                  self._bounds[0], self._bounds[1])
 
                 if self._model_type == 'classification':
                     pop_preds = self._model.predict(cur_pop)
@@ -235,8 +239,18 @@ class GeneticAttack(Attack):
                     fit_vals = abs(
                         confi_ori - confi_adv) - self._c / self._pop_size * np.linalg.norm(
                             (cur_pop - x_ori).reshape(cur_pop.shape[0], -1), axis=1)
+
                     if np.max(fit_vals) < 0:
                         self._c /= 2
+
+                    if np.max(fit_vals) < -2:
+                        LOGGER.debug(TAG,
+                                     'best fitness value is %s, which is too small. We recommend that you decrease '
+                                     'the value of the initialization parameter c.', np.max(fit_vals))
+                    if iters < 3 and np.max(fit_vals) > 100:
+                        LOGGER.debug(TAG,
+                                     'best fitness value is %s, which is too large. We recommend that you increase '
+                                     'the value of the initialization parameter c.', np.max(fit_vals))
 
                     if np.min(correct_nums_adv) <= int(gt_object_num*self._reserve_ratio):
                         is_success = True
@@ -252,6 +266,7 @@ class GeneticAttack(Attack):
                     break
 
                 best_fit = max(fit_vals)
+
                 if best_fit > self._best_fit:
                     self._best_fit = best_fit
                     self._plateau_times = 0
@@ -263,19 +278,19 @@ class GeneticAttack(Attack):
                     self._plateau_times = 0
                 if self._adaptive:
                     step_noise = max(self._step_size, 0.4*(0.9**self._adap_times))
-                    step_p = max(self._step_size, 0.5*(0.9**self._adap_times))
+                    step_p = max(self._mutation_rate, 0.5*(0.9**self._adap_times))
                 else:
                     step_noise = self._step_size
                     step_p = self._mutation_rate
                 step_temp = self._temp
-                elite = cur_pert[np.argmax(fit_vals)]
+                elite = cur_pop[np.argmax(fit_vals)]
                 select_probs = softmax(fit_vals/step_temp)
                 select_args = np.arange(self._pop_size)
                 parents_arg = np.random.choice(
                     a=select_args, size=2*(self._pop_size - 1),
                     replace=True, p=select_probs)
-                parent1 = cur_pert[parents_arg[:self._pop_size - 1]]
-                parent2 = cur_pert[parents_arg[self._pop_size - 1:]]
+                parent1 = cur_pop[parents_arg[:self._pop_size - 1]]
+                parent2 = cur_pop[parents_arg[self._pop_size - 1:]]
                 parent1_probs = select_probs[parents_arg[:self._pop_size - 1]]
                 parent2_probs = select_probs[parents_arg[self._pop_size - 1:]]
                 parent2_probs = parent2_probs / (parent1_probs + parent2_probs)
@@ -290,11 +305,11 @@ class GeneticAttack(Attack):
                 mutated_childs = self._mutation(
                     childs, step_noise=self._per_bounds*step_noise,
                     prob=step_p)
-                cur_pert = np.concatenate((mutated_childs, elite[np.newaxis, :]))
+                cur_pop = np.concatenate((mutated_childs, elite[np.newaxis, :]))
 
             if not is_success:
                 LOGGER.debug(TAG, 'fail to find adversarial sample.')
-                final_adv = elite + x_ori
+                final_adv = elite
             if self._model_type == 'detection':
                 final_adv, query_times = self._fast_reduction(
                     x_ori, final_adv, query_times, auxiliary_input_i, gt_boxes_i, gt_labels_i, model=self._model)

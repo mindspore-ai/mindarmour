@@ -201,7 +201,7 @@ def test_pso_attack_detection_cpu():
     """
     context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
     batch_size = 2
-    inputs = np.random.random((batch_size, 3, 28, 28))
+    inputs = np.random.random((batch_size, 100, 100, 3))
     model = DetectionModel()
     attack = PSOAttack(model, t_max=30, pm=0.5, model_type='detection', reserve_ratio=0.5)
 

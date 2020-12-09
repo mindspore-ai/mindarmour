@@ -87,7 +87,7 @@ def test_genetic_attack_on_mnist():
 
     # attacking
     attack = GeneticAttack(model=model, pop_size=6, mutation_rate=0.05,
-                           per_bounds=0.1, step_size=0.25, temp=0.1,
+                           per_bounds=0.4, step_size=0.25, temp=0.1,
                            sparse=True)
     targeted_labels = np.random.randint(0, 10, size=len(true_labels))
     for i, true_l in enumerate(true_labels):
