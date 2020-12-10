@@ -175,7 +175,7 @@ def test_genetic_attack_detection_cpu():
     """
     context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
     batch_size = 2
-    inputs = np.random.random((batch_size, 3, 28, 28))
+    inputs = np.random.random((batch_size, 100, 100, 3))
     model = DetectionModel()
     attack = GeneticAttack(model, model_type='detection', pop_size=6, mutation_rate=0.05,
                            per_bounds=0.1, step_size=0.25, temp=0.1,
