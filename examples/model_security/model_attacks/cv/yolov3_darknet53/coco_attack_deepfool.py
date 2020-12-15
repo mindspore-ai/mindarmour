@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ============================================================================
-"""generate adversarial example for yolov3_darknet53 by DeepFool"""
+"""Generate adversarial example for yolov3_darknet53 by DeepFool"""
 import os
 import argparse
 import datetime
@@ -39,9 +39,6 @@ def parse_args():
     parser = argparse.ArgumentParser('mindspore coco testing')
 
     # device related
-    parser.add_argument('--device_target', type=str, default='Ascend', choices=['Ascend', 'GPU'],
-                        help='device where the code will be implemented. (Default: Ascend)')
-
     parser.add_argument('--data_dir', type=str, default='', help='train data dir')
     parser.add_argument('--pretrained', default='', type=str, help='model_path, local pretrained model to load')
     parser.add_argument('--samples_num', default=1, type=int, help='Number of sample to be generated.')
@@ -83,7 +80,7 @@ def test():
     args = parse_args()
 
     devid = int(os.getenv('DEVICE_ID')) if os.getenv('DEVICE_ID') else 0
-    context.set_context(mode=context.GRAPH_MODE, device_target=args.device_target, save_graphs=True, device_id=devid)
+    context.set_context(mode=context.GRAPH_MODE, device_target='Ascend', save_graphs=True, device_id=devid)
 
     # logger
     args.outputs_dir = os.path.join(args.log_path,
