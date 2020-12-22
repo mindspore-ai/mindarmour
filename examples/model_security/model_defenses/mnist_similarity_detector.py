@@ -49,7 +49,13 @@ class ModelToBeAttacked(BlackModel):
         """
         query_num = inputs.shape[0]
         for i in range(query_num):
-            self._queries.append(inputs[i].astype(np.float32))
+            if len(inputs[i].shape) == 2:
+                temp = np.expand_dims(inputs[i], axis=0)
+            else:
+                temp = inputs[i]
+            self._queries.append(temp.astype(np.float32))
+        if len(inputs.shape) == 3:
+            inputs = np.expand_dims(inputs, axis=0)
         result = self._network(Tensor(inputs.astype(np.float32)))
         return result.asnumpy()
 
@@ -160,7 +166,7 @@ def test_similarity_detector():
 
     # test attack queries
     detector.clear_buffer()
-    detector.detect(suspicious_queries)
+    detector.detect(np.array(suspicious_queries))
     LOGGER.info(TAG, 'Number of detected attack queries is : %s',
                 len(detector.get_detected_queries()))
     LOGGER.info(TAG, 'The detected attack query indexes are : %s',

@@ -45,7 +45,7 @@ class GeneticAttack(Attack):
             default: 'classification'.
         targeted (bool): If True, turns on the targeted attack. If False,
             turns on untargeted attack. It should be noted that only untargeted attack
-            is supproted for model_type='detection', Default: False.
+            is supproted for model_type='detection', Default: True.
         reserve_ratio (Union[int, float]): The percentage of objects that can be detected after attacks,
             specifically for model_type='detection'. Reserve_ratio should be in the range of (0, 1). Default: 0.3.
         pop_size (int): The number of particles, which should be greater than
@@ -141,10 +141,12 @@ class GeneticAttack(Attack):
         labels (or ground_truth labels).
 
         Args:
-            inputs (Union[numpy.ndarray, tuple]): Input samples. The format of inputs can be (input1, input2, ...)
-                or only one array if model_type='detection'.
-            labels (Union[numpy.ndarray, tuple]): Targeted labels or ground-truth labels. The format of labels
-                should be (gt_boxes, gt_labels) if model_type='detection'.
+            inputs (Union[numpy.ndarray, tuple]): Input samples. The format of inputs should be numpy.ndarray if
+                model_type='classification'. The format of inputs can be (input1, input2, ...) or only one array if
+                model_type='detection'.
+            labels (Union[numpy.ndarray, tuple]): Targeted labels or ground-truth labels. The format of labels should
+                be numpy.ndarray if model_type='classification'. The format of labels should be (gt_boxes, gt_labels)
+                if model_type='detection'.
 
         Returns:
             - numpy.ndarray, bool values for each attack result.
