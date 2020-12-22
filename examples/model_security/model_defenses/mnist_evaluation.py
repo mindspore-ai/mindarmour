@@ -105,7 +105,7 @@ class ModelToBeAttacked(BlackModel):
                 query = np.expand_dims(inputs[i].astype(np.float32), axis=0)
                 result = self._network(Tensor(query)).asnumpy()
                 det_num = len(self._detector.get_detected_queries())
-                self._detector.detect([query])
+                self._detector.detect(np.array([query]))
                 new_det_num = len(self._detector.get_detected_queries())
                 # If attack query detected, return random predict result
                 if new_det_num > det_num:
@@ -116,6 +116,8 @@ class ModelToBeAttacked(BlackModel):
                     self._detected_res.append(False)
             results = np.concatenate(results)
         else:
+            if len(inputs.shape) == 3:
+                inputs = np.expand_dims(inputs, axis=0)
             results = self._network(Tensor(inputs.astype(np.float32))).asnumpy()
         return results
 
