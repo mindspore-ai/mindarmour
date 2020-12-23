@@ -74,10 +74,10 @@ def test_projected_gradient_descent_method():
     # attacking
     loss = SoftmaxCrossEntropyWithLogits(sparse=True)
     attack = ProjectedGradientDescent(net, eps=0.3, loss_fn=loss)
-    start_time = time.clock()
+    start_time = time.process_time()
     adv_data = attack.batch_generate(np.concatenate(test_images),
                                      true_labels, batch_size=32)
-    stop_time = time.clock()
+    stop_time = time.process_time()
     np.save('./adv_data', adv_data)
     pred_logits_adv = model.predict(Tensor(adv_data)).asnumpy()
     # rescale predict confidences into (0, 1).
