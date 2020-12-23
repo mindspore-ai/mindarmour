@@ -152,10 +152,12 @@ class DeepFool(Attack):
         Generate adversarial examples based on input samples and original labels.
 
         Args:
-            inputs (Union[numpy.ndarray, tuple]): Input samples. The format of inputs can be (inputs1, input2, ...) \
-                or only one array if model_type='detection'
-            labels (Union[numpy.ndarray, tuple]): Original labels. The format of labels should be \
-                (gt_boxes, gt_labels) if model_type='detection'.
+            inputs (Union[numpy.ndarray, tuple]): Input samples. The format of inputs should be numpy.ndarray if
+                model_type='classification'. The format of inputs can be (input1, input2, ...) or only one array if
+                model_type='detection'.
+            labels (Union[numpy.ndarray, tuple]): Targeted labels or ground-truth labels. The format of labels should
+                be numpy.ndarray if model_type='classification'. The format of labels should be (gt_boxes, gt_labels)
+                if model_type='detection'.
 
         Returns:
             numpy.ndarray, adversarial examples.

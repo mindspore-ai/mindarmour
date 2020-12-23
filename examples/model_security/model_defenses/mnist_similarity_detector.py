@@ -30,6 +30,7 @@ from examples.common.dataset.data_processing import generate_mnist_dataset
 from examples.common.networks.lenet5.lenet5_net import LeNet5
 
 LOGGER = LogUtil.get_instance()
+LOGGER.set_level('INFO')
 TAG = 'Similarity Detector test'
 
 

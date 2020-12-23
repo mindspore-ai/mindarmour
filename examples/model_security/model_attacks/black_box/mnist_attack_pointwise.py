@@ -110,7 +110,7 @@ def test_pointwise_attack_on_mnist():
     test_labels_onehot = np.eye(10)[true_labels]
     attack_evaluate = AttackEvaluate(np.concatenate(test_images),
                                      test_labels_onehot, adv_data,
-                                     adv_preds, targeted=is_target,
+                                     np.array(adv_preds), targeted=is_target,
                                      target_label=targeted_labels)
     LOGGER.info(TAG, 'mis-classification rate of adversaries is : %s',
                 attack_evaluate.mis_classification_rate())
