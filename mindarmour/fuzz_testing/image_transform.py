@@ -19,7 +19,7 @@ from PIL import Image, ImageEnhance, ImageFilter
 
 from mindspore.dataset.vision.py_transforms_util import is_numpy, \
     to_pil, hwc_to_chw
-from mindarmour.utils._check_param import check_param_multi_types
+from mindarmour.utils._check_param import check_param_multi_types, check_param_in_range
 from mindarmour.utils.logger import LogUtil
 
 LOGGER = LogUtil.get_instance()
@@ -365,10 +365,12 @@ class Translate(ImageTransform):
         Set translate parameters.
 
         Args:
-            x_bias (Union[float, int]): X-direction translation. Default: 0.
-            y_bias (Union[float, int]): Y-direction translation. Default: 0.
+            x_bias (Union[float, int]): X-direction translation, and x_bias should be in range of (-1, 1). Default: 0.
+            y_bias (Union[float, int]): Y-direction translation, and y_bias should be in range of (-1, 1). Default: 0.
             auto_param (bool): True if auto generate parameters. Default: False.
         """
+        x_bias = check_param_in_range('x_bias', x_bias, -1, 1)
+        y_bias = check_param_in_range('y_bias', y_bias, -1, 1)
         self.auto_param = auto_param
         if auto_param:
             self.x_bias = np.random.uniform(-0.3, 0.3)
@@ -391,10 +393,9 @@ class Translate(ImageTransform):
         """
         _, chw, normalized, gray3dim, image = self._check(image)
         img = to_pil(image)
-        if self.auto_param:
-            image_shape = np.shape(image)
-            self.x_bias = image_shape[0]*self.x_bias
-            self.y_bias = image_shape[1]*self.y_bias
+        image_shape = np.shape(image)
+        self.x_bias = image_shape[1]*self.x_bias
+        self.y_bias = image_shape[0]*self.y_bias
         trans_image = img.transform(img.size, Image.AFFINE,
                                     (1, 0, self.x_bias, 0, 1, self.y_bias))
         trans_image = self._original_format(trans_image, chw, normalized,
