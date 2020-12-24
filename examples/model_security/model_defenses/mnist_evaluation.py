@@ -99,6 +99,8 @@ class ModelToBeAttacked(BlackModel):
         """
         predict function
         """
+        if len(inputs.shape) == 3:
+            inputs = np.expand_dims(inputs, axis=0)
         query_num = inputs.shape[0]
         results = []
         if self._detector:
@@ -225,7 +227,7 @@ def test_defense_evaluation():
     load_param_into_net(bb_net, load_dict)
     bb_model = ModelToBeAttacked(bb_net, defense=False)
     attack_rm = GeneticAttack(model=bb_model, pop_size=6, mutation_rate=0.05,
-                              per_bounds=0.1, step_size=0.25, temp=0.1,
+                              per_bounds=0.5, step_size=0.25, temp=0.1,
                               sparse=False)
     attack_target_label = target_label[:attacked_size]
     true_label = labels[:attacked_size + benign_size]
@@ -263,7 +265,7 @@ def test_defense_evaluation():
     # attack defensed model
     attack_dm = GeneticAttack(model=bb_def_model, pop_size=6,
                               mutation_rate=0.05,
-                              per_bounds=0.1, step_size=0.25, temp=0.1,
+                              per_bounds=0.5, step_size=0.25, temp=0.1,
                               sparse=False)
     for idx in range(attacked_size):
         def_st = time.time()
