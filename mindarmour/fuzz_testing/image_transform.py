@@ -19,7 +19,7 @@ from PIL import Image, ImageEnhance, ImageFilter
 
 from mindspore.dataset.vision.py_transforms_util import is_numpy, \
     to_pil, hwc_to_chw
-from mindarmour.utils._check_param import check_param_multi_types, check_param_in_range
+from mindarmour.utils._check_param import check_param_multi_types, check_param_in_range, check_numpy_param
 from mindarmour.utils.logger import LogUtil
 
 LOGGER = LogUtil.get_instance()
@@ -143,8 +143,8 @@ class ImageTransform:
             else:
                 image = image
         if normalized:
-            image = np.uint8(image*255)
-        return rgb, chw, normalized, gray3dim, image
+            image = image*255
+        return rgb, chw, normalized, gray3dim, np.uint8(image)
 
     def _original_format(self, image, chw, normalized, gray3dim):
         """ Return transformed image with original format. """
@@ -199,6 +199,8 @@ class Contrast(ImageTransform):
         Returns:
             numpy.ndarray, transformed image.
         """
+        image = check_numpy_param('image', image)
+        ori_dtype = image.dtype
         _, chw, normalized, gray3dim, image = self._check(image)
         image = to_pil(image)
         img_contrast = ImageEnhance.Contrast(image)
@@ -206,7 +208,7 @@ class Contrast(ImageTransform):
         trans_image = self._original_format(trans_image, chw, normalized,
                                             gray3dim)
 
-        return trans_image
+        return trans_image.astype(ori_dtype)
 
 
 class Brightness(ImageTransform):
@@ -246,13 +248,15 @@ class Brightness(ImageTransform):
         Returns:
             numpy.ndarray, transformed image.
         """
+        image = check_numpy_param('image', image)
+        ori_dtype = image.dtype
         _, chw, normalized, gray3dim, image = self._check(image)
         image = to_pil(image)
         img_contrast = ImageEnhance.Brightness(image)
         trans_image = img_contrast.enhance(self.factor)
         trans_image = self._original_format(trans_image, chw, normalized,
                                             gray3dim)
-        return trans_image
+        return trans_image.astype(ori_dtype)
 
 
 class Blur(ImageTransform):
@@ -290,12 +294,14 @@ class Blur(ImageTransform):
         Returns:
             numpy.ndarray, transformed image.
         """
+        image = check_numpy_param('image', image)
+        ori_dtype = image.dtype
         _, chw, normalized, gray3dim, image = self._check(image)
         image = to_pil(image)
         trans_image = image.filter(ImageFilter.GaussianBlur(radius=self.radius))
         trans_image = self._original_format(trans_image, chw, normalized,
                                             gray3dim)
-        return trans_image
+        return trans_image.astype(ori_dtype)
 
 
 class Noise(ImageTransform):
@@ -303,7 +309,7 @@ class Noise(ImageTransform):
     Add noise of an image.
 
     Args:
-        factor (float): 1 - factor is the ratio of pixels to add noise.
+        factor (float): factor is the ratio of pixels to add noise.
             If 0 gives the original image. Default 0.
     """
 
@@ -316,12 +322,12 @@ class Noise(ImageTransform):
         Set noise parameters.
 
         Args:
-            factor (Union[float, int]): 1 - factor is the ratio of pixels to
+            factor (Union[float, int]): factor is the ratio of pixels to
                 add noise. If 0 gives the original image. Default 0.
             auto_param (bool): True if auto generate parameters. Default: False.
         """
         if auto_param:
-            self.factor = np.random.uniform(0.7, 1)
+            self.factor = np.random.uniform(0, 1)
         else:
             self.factor = check_param_multi_types('factor', factor, [int, float])
 
@@ -335,14 +341,17 @@ class Noise(ImageTransform):
         Returns:
             numpy.ndarray, transformed image.
         """
+        image = check_numpy_param('image', image)
+        ori_dtype = image.dtype
         _, chw, normalized, gray3dim, image = self._check(image)
         noise = np.random.uniform(low=-1, high=1, size=np.shape(image))
         trans_image = np.copy(image)
-        trans_image[noise < -self.factor] = 0
-        trans_image[noise > self.factor] = 1
+        threshold = 1 - self.factor
+        trans_image[noise < -threshold] = 0
+        trans_image[noise > threshold] = 1
         trans_image = self._original_format(trans_image, chw, normalized,
                                             gray3dim)
-        return trans_image
+        return trans_image.astype(ori_dtype)
 
 
 class Translate(ImageTransform):
@@ -391,6 +400,8 @@ class Translate(ImageTransform):
         Returns:
             numpy.ndarray, transformed image.
         """
+        image = check_numpy_param('image', image)
+        ori_dtype = image.dtype
         _, chw, normalized, gray3dim, image = self._check(image)
         img = to_pil(image)
         image_shape = np.shape(image)
@@ -400,7 +411,7 @@ class Translate(ImageTransform):
                                     (1, 0, self.x_bias, 0, 1, self.y_bias))
         trans_image = self._original_format(trans_image, chw, normalized,
                                             gray3dim)
-        return trans_image
+        return trans_image.astype(ori_dtype)
 
 
 class Scale(ImageTransform):
@@ -449,6 +460,8 @@ class Scale(ImageTransform):
         Returns:
             numpy.ndarray, transformed image.
         """
+        image = check_numpy_param('image', image)
+        ori_dtype = image.dtype
         rgb, chw, normalized, gray3dim, image = self._check(image)
         if rgb:
             h, w, _ = np.shape(image)
@@ -462,7 +475,7 @@ class Scale(ImageTransform):
                                      0, self.factor_y, move_y_centor))
         trans_image = self._original_format(trans_image, chw, normalized,
                                             gray3dim)
-        return trans_image
+        return trans_image.astype(ori_dtype)
 
 
 class Shear(ImageTransform):
@@ -521,6 +534,8 @@ class Shear(ImageTransform):
         Returns:
             numpy.ndarray, transformed image.
         """
+        image = check_numpy_param('image', image)
+        ori_dtype = image.dtype
         rgb, chw, normalized, gray3dim, image = self._check(image)
         img = to_pil(image)
         if rgb:
@@ -546,7 +561,7 @@ class Shear(ImageTransform):
                                      scale*self.factor_y, scale, move_y_cen))
         trans_image = self._original_format(trans_image, chw, normalized,
                                             gray3dim)
-        return trans_image
+        return trans_image.astype(ori_dtype)
 
 
 class Rotate(ImageTransform):
@@ -584,9 +599,11 @@ class Rotate(ImageTransform):
         Returns:
             numpy.ndarray, transformed image.
         """
+        image = check_numpy_param('image', image)
+        ori_dtype = image.dtype
         _, chw, normalized, gray3dim, image = self._check(image)
         img = to_pil(image)
         trans_image = img.rotate(self.angle, expand=False)
         trans_image = self._original_format(trans_image, chw, normalized,
                                             gray3dim)
-        return trans_image
+        return trans_image.astype(ori_dtype)

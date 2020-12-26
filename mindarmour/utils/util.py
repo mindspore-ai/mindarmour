@@ -195,8 +195,10 @@ class GradWrap(Cell):
         Compute jacobian matrix.
 
         Args:
-            data (Tensor): Data consists of inputs and weight. \
-                - inputs: Inputs of network. \
+            data (Tensor): Data consists of inputs and weight.
+
+                - inputs: Inputs of network.
+
                 - weight: Weight of each gradient, 'weight' has the same shape with labels.
 
         Returns:
@@ -214,7 +216,7 @@ def calculate_iou(box_i, box_j):
         box_i (numpy.ndarray): Coordinates of the first box, with the format as (x1, y1, x2, y2).
             (x1, y1) and (x2, y2) are coordinates of the lower left corner and the upper right corner,
             respectively.
-        box_j: (numpy.ndarray): Coordinates of the second box, with the format as (x1, y1, x2, y2).
+        box_j (numpy.ndarray): Coordinates of the second box, with the format as (x1, y1, x2, y2).
 
     Returns:
         float, iou of two input boxes.
