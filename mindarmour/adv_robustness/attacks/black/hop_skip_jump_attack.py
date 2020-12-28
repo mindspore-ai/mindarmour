@@ -55,8 +55,8 @@ class HopSkipJumpAttack(Attack):
             values are 'geometric_progression', 'grid_search', 'geometric_progression'.
         num_iterations (int): The number of iterations. Default: 64.
         gamma (float): Used to set binary search threshold theta. Default: 1.0.
-            For l2 attack the binary search threshold `theta` is:
-            math:`gamma / d^{3/2}`. For linf attack is math:`gamma / d^2`.
+            For l2 attack the binary search threshold `theta` is
+            :math:`gamma / d^{3/2}`. For linf attack is :math:`gamma / d^2`.
         constraint (str): The norm distance to optimize. Possible values are 'l2',
             'linf'. Default: l2.
         batch_size (int): Batch size. Default: 32.
