@@ -13,11 +13,13 @@
 # limitations under the License.
 """ Util for MindArmour. """
 import numpy as np
+from scipy.ndimage.filters import convolve
+
 from mindspore import Tensor
 from mindspore.nn import Cell
 from mindspore.ops.composite import GradOperation
 
-from mindarmour.utils._check_param import check_numpy_param, check_param_multi_types
+from mindarmour.utils._check_param import check_numpy_param, check_param_multi_types, check_equal_shape
 
 from .logger import LogUtil
 
@@ -61,7 +63,7 @@ def jacobian_matrix_for_detection(grad_wrap_net, inputs, num_boxes, num_classes)
     Args:
         grad_wrap_net (Cell): A network wrapped by GradWrap.
         inputs (numpy.ndarray): Input samples.
-        num_boxes (int): Number of boxes infered by each image.
+        num_boxes (int): Number of boxes inferred by each image.
         num_classes (int): Number of labels of model output.
 
     Returns:
@@ -251,3 +253,109 @@ def to_tensor_tuple(inputs_ori):
     else:
         inputs_tensor = (Tensor(inputs_ori),)
     return inputs_tensor
+
+
+def calculate_lp_distance(original_image, compared_image):
+    """
+    Calculate l0, l2 and linf distance for two images with the same shape.
+
+    Args:
+        original_image (np.ndarray): Original image.
+        compared_image (np.ndarray): Another image for comparison.
+
+    Returns:
+        tuple, (l0, l2 and linf) distances between two images.
+
+    Raises:
+        TypeError: If type of original_image or type of compared_image is not numpy.ndarray.
+        ValueError: If the shape of original_image and compared_image are not the same.
+    """
+    check_numpy_param('original_image', original_image)
+    check_numpy_param('compared_image', compared_image)
+    check_equal_shape('original_image', original_image, 'compared_image', compared_image)
+    avoid_zero_div = 1e-14
+    diff = (original_image - compared_image).flatten()
+    data = original_image.flatten()
+    l0_dist = np.linalg.norm(diff, ord=0) \
+               / (np.linalg.norm(data, ord=0) + avoid_zero_div)
+    l2_dist = np.linalg.norm(diff, ord=2) \
+               / (np.linalg.norm(data, ord=2) + avoid_zero_div)
+    linf_dist = np.linalg.norm(diff, ord=np.inf) \
+                 / (np.linalg.norm(data, ord=np.inf) + avoid_zero_div)
+    return l0_dist, l2_dist, linf_dist
+
+
+def compute_ssim(img_1, img_2, kernel_sigma=1.5, kernel_width=11):
+    """
+    compute structural similarity between two images.
+
+    Args:
+        img_1 (numpy.ndarray): The first image to be compared. The shape of img_1 should be (img_width, img_height,
+            channels).
+        img_2 (numpy.ndarray): The second image to be compared. The shape of img_2 should be (img_width, img_height,
+            channels).
+        kernel_sigma (float): Gassian kernel param. Default: 1.5.
+        kernel_width (int): Another Gassian kernel param. Default: 11.
+
+    Returns:
+        float, structural similarity.
+    """
+    img_1, img_2 = check_equal_shape('images_1', img_1, 'images_2', img_2)
+    if len(img_1.shape) > 2:
+        if (len(img_1.shape) != 3) or (img_1.shape[2] != 1 and img_1.shape[2] != 3):
+            msg = 'The shape format of img_1 and img_2 should be (img_width, img_height, channels),' \
+                  ' but got {} and {}'.format(img_1.shape, img_2.shape)
+            raise ValueError(msg)
+
+    if len(img_1.shape) > 2:
+        total_ssim = 0
+        for i in range(img_1.shape[2]):
+            total_ssim += compute_ssim(img_1[:, :, i], img_2[:, :, i])
+        return total_ssim / 3
+
+    # Create gaussian kernel
+    gaussian_kernel = np.zeros((kernel_width, kernel_width))
+    for i in range(kernel_width):
+        for j in range(kernel_width):
+            gaussian_kernel[i, j] = (1 / (2*np.pi*(kernel_sigma**2)))*np.exp(
+                - (((i - 5)**2) + ((j - 5)**2)) / (2*(kernel_sigma**2)))
+
+    img_1 = img_1.astype(np.float32)
+    img_2 = img_2.astype(np.float32)
+
+    img_sq_1 = img_1**2
+    img_sq_2 = img_2**2
+    img_12 = img_1*img_2
+
+    # Mean
+    img_mu_1 = convolve(img_1, gaussian_kernel)
+    img_mu_2 = convolve(img_2, gaussian_kernel)
+
+    # Mean square
+    img_mu_sq_1 = img_mu_1**2
+    img_mu_sq_2 = img_mu_2**2
+    img_mu_12 = img_mu_1*img_mu_2
+
+    # Variances
+    img_sigma_sq_1 = convolve(img_sq_1, gaussian_kernel)
+    img_sigma_sq_2 = convolve(img_sq_2, gaussian_kernel)
+
+    # Covariance
+    img_sigma_12 = convolve(img_12, gaussian_kernel)
+
+    # Centered squares of variances
+    img_sigma_sq_1 = img_sigma_sq_1 - img_mu_sq_1
+    img_sigma_sq_2 = img_sigma_sq_2 - img_mu_sq_2
+    img_sigma_12 = img_sigma_12 - img_mu_12
+
+    k_1 = 0.01
+    k_2 = 0.03
+    c_1 = (k_1*255)**2
+    c_2 = (k_2*255)**2
+
+    # Calculate ssim
+    num_ssim = (2*img_mu_12 + c_1)*(2*img_sigma_12 + c_2)
+    den_ssim = (img_mu_sq_1 + img_mu_sq_2 + c_1)*(img_sigma_sq_1
+                                                  + img_sigma_sq_2 + c_2)
+    res = np.average(num_ssim / den_ssim)
+    return res

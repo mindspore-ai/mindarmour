@@ -17,82 +17,13 @@ Attack evaluation.
 
 import numpy as np
 
-from scipy.ndimage.filters import convolve
-
 from mindarmour.utils.logger import LogUtil
 from mindarmour.utils._check_param import check_pair_numpy_param, \
-    check_param_type, check_numpy_param, check_equal_shape
+    check_param_type, check_numpy_param
+from mindarmour.utils.util import calculate_lp_distance, compute_ssim
 
 LOGGER = LogUtil.get_instance()
 TAG = 'AttackEvaluate'
-
-
-def _compute_ssim(img_1, img_2, kernel_sigma=1.5, kernel_width=11):
-    """
-    compute structural similarity.
-    Args:
-        img_1 (numpy.ndarray): The first image to be compared.
-        img_2 (numpy.ndarray): The second image to be compared.
-        kernel_sigma (float): Gassian kernel param. Default: 1.5.
-        kernel_width (int): Another Gassian kernel param. Default: 11.
-
-    Returns:
-        float, structural similarity.
-    """
-    img_1, img_2 = check_equal_shape('images_1', img_1, 'images_2', img_2)
-
-    if len(img_1.shape) > 2:
-        total_ssim = 0
-        for i in range(img_1.shape[2]):
-            total_ssim += _compute_ssim(img_1[:, :, i], img_2[:, :, i])
-        return total_ssim / 3
-
-    # Create gaussian kernel
-    gaussian_kernel = np.zeros((kernel_width, kernel_width))
-    for i in range(kernel_width):
-        for j in range(kernel_width):
-            gaussian_kernel[i, j] = (1 / (2*np.pi*(kernel_sigma**2)))*np.exp(
-                - (((i - 5)**2) + ((j - 5)**2)) / (2*(kernel_sigma**2)))
-
-    img_1 = img_1.astype(np.float32)
-    img_2 = img_2.astype(np.float32)
-
-    img_sq_1 = img_1**2
-    img_sq_2 = img_2**2
-    img_12 = img_1*img_2
-
-    # Mean
-    img_mu_1 = convolve(img_1, gaussian_kernel)
-    img_mu_2 = convolve(img_2, gaussian_kernel)
-
-    # Mean square
-    img_mu_sq_1 = img_mu_1**2
-    img_mu_sq_2 = img_mu_2**2
-    img_mu_12 = img_mu_1*img_mu_2
-
-    # Variances
-    img_sigma_sq_1 = convolve(img_sq_1, gaussian_kernel)
-    img_sigma_sq_2 = convolve(img_sq_2, gaussian_kernel)
-
-    # Covariance
-    img_sigma_12 = convolve(img_12, gaussian_kernel)
-
-    # Centered squares of variances
-    img_sigma_sq_1 = img_sigma_sq_1 - img_mu_sq_1
-    img_sigma_sq_2 = img_sigma_sq_2 - img_mu_sq_2
-    img_sigma_12 = img_sigma_12 - img_mu_12
-
-    k_1 = 0.01
-    k_2 = 0.03
-    c_1 = (k_1*255)**2
-    c_2 = (k_2*255)**2
-
-    # Calculate ssim
-    num_ssim = (2*img_mu_12 + c_1)*(2*img_sigma_12 + c_2)
-    den_ssim = (img_mu_sq_1 + img_mu_sq_2 + c_1)*(img_sigma_sq_1
-                                                  + img_sigma_sq_2 + c_2)
-    res = np.average(num_ssim / den_ssim)
-    return res
 
 
 class AttackEvaluate:
@@ -217,16 +148,11 @@ class AttackEvaluate:
         l0_dist = 0
         l2_dist = 0
         linf_dist = 0
-        avoid_zero_div = 1e-14
         for i in idxes:
-            diff = (self._adv_inputs[i] - self._inputs[i]).flatten()
-            data = self._inputs[i].flatten()
-            l0_dist += np.linalg.norm(diff, ord=0) \
-                       / (np.linalg.norm(data, ord=0) + avoid_zero_div)
-            l2_dist += np.linalg.norm(diff, ord=2) \
-                       / (np.linalg.norm(data, ord=2) + avoid_zero_div)
-            linf_dist += np.linalg.norm(diff, ord=np.inf) \
-                         / (np.linalg.norm(data, ord=np.inf) + avoid_zero_div)
+            l0_dist_i, l2_dist_i, linf_dist_i = calculate_lp_distance(self._inputs[i], self._adv_inputs[i])
+            l0_dist += l0_dist_i
+            l2_dist += l2_dist_i
+            linf_dist += linf_dist_i
 
         return l0_dist / success_num, l2_dist / success_num, \
                linf_dist / success_num
@@ -249,7 +175,7 @@ class AttackEvaluate:
 
         total_ssim = 0.0
         for _, i in enumerate(self._success_idxes):
-            total_ssim += _compute_ssim(self._adv_inputs[i], self._inputs[i])
+            total_ssim += compute_ssim(self._adv_inputs[i], self._inputs[i])
 
         return total_ssim / success_num
 

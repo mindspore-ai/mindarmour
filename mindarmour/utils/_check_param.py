@@ -61,6 +61,11 @@ def check_param_multi_types(arg_name, arg_value, valid_types):
 
 def check_int_positive(arg_name, arg_value):
     """Check positive integer."""
+    # 'True' is treated as int(1) in python, which is a bug.
+    if isinstance(arg_value, bool):
+        msg = '{} should not be bool value, but got {}'.format(arg_name, arg_value)
+        LOGGER.error(TAG, msg)
+        raise ValueError(msg)
     arg_value = check_param_type(arg_name, arg_value, int)
     if arg_value <= 0:
         msg = '{} must be greater than 0, but got {}'.format(arg_name,
