@@ -325,7 +325,7 @@ class _MechanismsParamsUpdater(Cell):
         self._init_noise_multiplier = init_noise_multiplier
 
         self._div = P.Div()
-        self._add = P.TensorAdd()
+        self._add = P.Add()
         self._assign = P.Assign()
         self._sub = P.Sub()
         self._one = Tensor(1, mstype.float32)
@@ -414,7 +414,7 @@ class AdaClippingWithGaussianRandom(Cell):
                                                  mstype.float32)
 
         self._zero = Tensor(0, mstype.float32)
-        self._add = P.TensorAdd()
+        self._add = P.Add()
         self._sub = P.Sub()
         self._mul = P.Mul()
         self._exp = P.Exp()
