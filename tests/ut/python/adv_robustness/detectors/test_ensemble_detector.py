@@ -18,7 +18,7 @@ import numpy as np
 import pytest
 
 from mindspore.nn import Cell
-from mindspore.ops.operations import TensorAdd
+from mindspore.ops.operations import Add
 from mindspore.train.model import Model
 from mindspore import context
 
@@ -35,7 +35,7 @@ class Net(Cell):
     """
     def __init__(self):
         super(Net, self).__init__()
-        self.add = TensorAdd()
+        self.add = Add()
 
     def construct(self, inputs):
         """
@@ -53,7 +53,7 @@ class AutoNet(Cell):
     """
     def __init__(self):
         super(AutoNet, self).__init__()
-        self.add = TensorAdd()
+        self.add = Add()
 
     def construct(self, inputs):
         """

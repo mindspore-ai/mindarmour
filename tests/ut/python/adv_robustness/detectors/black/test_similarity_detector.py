@@ -20,7 +20,7 @@ import pytest
 from mindspore.nn import Cell
 from mindspore import Model
 from mindspore import context
-from mindspore.ops.operations import TensorAdd
+from mindspore.ops.operations import Add
 
 from mindarmour.adv_robustness.detectors import SimilarityDetector
 
@@ -35,7 +35,7 @@ class EncoderNet(Cell):
     def __init__(self, encode_dim):
         super(EncoderNet, self).__init__()
         self._encode_dim = encode_dim
-        self.add = TensorAdd()
+        self.add = Add()
 
     def construct(self, inputs):
         """

@@ -29,8 +29,10 @@ from mindarmour.privacy.diff_privacy import DPOptimizerClassFactory
 from ut.python.utils.mock_net import Net
 
 
-def dataset_generator(batch_size, batches):
+def dataset_generator():
     """mock training data."""
+    batch_size = 32
+    batches = 128
     data = np.random.random((batches*batch_size, 1, 32, 32)).astype(
         np.float32)
     label = np.random.randint(0, 10, batches*batch_size).astype(np.int32)
@@ -49,8 +51,6 @@ def test_dp_model_with_pynative_mode():
     norm_bound = 1.0
     initial_noise_multiplier = 0.01
     network = Net()
-    batch_size = 32
-    batches = 128
     epochs = 1
     micro_batches = 2
     loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True)
@@ -73,7 +73,7 @@ def test_dp_model_with_pynative_mode():
                     loss_fn=loss,
                     optimizer=net_opt,
                     metrics=None)
-    ms_ds = ds.GeneratorDataset(dataset_generator(batch_size, batches),
+    ms_ds = ds.GeneratorDataset(dataset_generator,
                                 ['data', 'label'])
     model.train(epochs, ms_ds, dataset_sink_mode=False)
 
@@ -88,8 +88,6 @@ def test_dp_model_with_graph_mode():
     norm_bound = 1.0
     initial_noise_multiplier = 0.01
     network = Net()
-    batch_size = 32
-    batches = 128
     epochs = 1
     loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True)
     noise_mech = NoiseMechanismsFactory().create('Gaussian',
@@ -110,7 +108,7 @@ def test_dp_model_with_graph_mode():
                     loss_fn=loss,
                     optimizer=net_opt,
                     metrics=None)
-    ms_ds = ds.GeneratorDataset(dataset_generator(batch_size, batches),
+    ms_ds = ds.GeneratorDataset(dataset_generator,
                                 ['data', 'label'])
     model.train(epochs, ms_ds, dataset_sink_mode=False)
 
@@ -125,8 +123,6 @@ def test_dp_model_with_graph_mode_ada_gaussian():
     norm_bound = 1.0
     initial_noise_multiplier = 0.01
     network = Net()
-    batch_size = 32
-    batches = 128
     epochs = 1
     alpha = 0.8
     loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True)
@@ -146,6 +142,6 @@ def test_dp_model_with_graph_mode_ada_gaussian():
                     loss_fn=loss,
                     optimizer=net_opt,
                     metrics=None)
-    ms_ds = ds.GeneratorDataset(dataset_generator(batch_size, batches),
+    ms_ds = ds.GeneratorDataset(dataset_generator,
                                 ['data', 'label'])
     model.train(epochs, ms_ds, dataset_sink_mode=False)

@@ -31,8 +31,10 @@ from ut.python.utils.mock_net import Net
 context.set_context(mode=context.GRAPH_MODE)
 
 
-def dataset_generator(batch_size, batches):
+def dataset_generator():
     """mock training data."""
+    batch_size = 16
+    batches = 1
     data = np.random.randn(batches*batch_size, 1, 32, 32).astype(
         np.float32)
     label = np.random.randint(0, 10, batches*batch_size).astype(np.int32)
@@ -74,11 +76,9 @@ def test_membership_inference_object_train():
             "n_neighbors": [3, 5, 7],
         }
     }]
-    batch_size = 16
-    batches = 1
-    ds_train = ds.GeneratorDataset(dataset_generator(batch_size, batches),
+    ds_train = ds.GeneratorDataset(dataset_generator,
                                    ["image", "label"])
-    ds_test = ds.GeneratorDataset(dataset_generator(batch_size, batches),
+    ds_test = ds.GeneratorDataset(dataset_generator,
                                   ["image", "label"])
     inference_model.train(ds_train, ds_test, config)
 
@@ -96,11 +96,9 @@ def test_membership_inference_eval():
     inference_model = MembershipInference(model, -1)
     assert isinstance(inference_model, MembershipInference)
 
-    batch_size = 16
-    batches = 1
-    eval_train = ds.GeneratorDataset(dataset_generator(batch_size, batches),
+    eval_train = ds.GeneratorDataset(dataset_generator,
                                      ["image", "label"])
-    eval_test = ds.GeneratorDataset(dataset_generator(batch_size, batches),
+    eval_test = ds.GeneratorDataset(dataset_generator,
                                     ["image", "label"])
 
     metrics = ["precision", "accuracy", "recall"]
