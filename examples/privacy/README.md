@@ -42,7 +42,7 @@ python train.py --data_path home_path_to_cifar100 --ckpt_path ./
 python example_vgg_cifar.py --data_path home_path_to_cifar100 --pre_trained 0-100_781.ckpt
 ```
 
-## 4. suppress privacy training
+## 4. Suppress privacy training
 
 With suppress privacy mechanism, the values of some trainable parameters  (such as conv layers and fully connected
  layers) are set to zero as the training step grows, which can
@@ -51,4 +51,16 @@ With suppress privacy mechanism, the values of some trainable parameters  (such 
 ```sh
 cd examples/privacy/sup_privacy
 python sup_privacy.py
+```
+
+## 5. Image inversion attack
+
+Inversion attack means reconstructing an image based on its deep representations. For example,
+reconstruct a MNIST image based on its output through LeNet5. The mechanism behind it is that well-trained
+model can "remember" those training dataset. Therefore, inversion attack can be used to estimate the privacy
+leakage of training tasks.
+
+```sh
+cd examples/privacy/inversion_attack
+python mnist_inversion_attack.py
 ```
