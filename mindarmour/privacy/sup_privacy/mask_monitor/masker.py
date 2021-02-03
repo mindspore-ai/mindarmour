@@ -34,37 +34,37 @@ class SuppressMasker(Callback):
         suppress_ctrl (SuppressCtrl): SuppressCtrl instance.
 
     Examples:
-        networks_l5 = LeNet5()
-        masklayers = []
-        masklayers.append(MaskLayerDes("conv1.weight", 0, False, True, 10))
-        suppress_ctrl_instance = SuppressPrivacyFactory().create(policy="local_train",
-                                                            end_epoch=10,
-                                                            batch_num=(int)(10000/cfg.batch_size),
-                                                            start_epoch=3,
-                                                            mask_times=100,
-                                                            networks=networks_l5,
-                                                            lr=lr,
-                                                            sparse_end=0.90,
-                                                            sparse_start=0.0,
-                                                            mask_layers=masklayers)
-        net_loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True, reduction="mean")
-        net_opt = nn.Momentum(params=networks_l5.trainable_params(), learning_rate=lr, momentum=0.0)
-        config_ck = CheckpointConfig(save_checkpoint_steps=(int)(samples/cfg.batch_size),  keep_checkpoint_max=10)
-        model_instance = SuppressModel(network=networks_l5,
-                                   loss_fn=net_loss,
-                                   optimizer=net_opt,
-                                   metrics={"Accuracy": Accuracy()})
-        model_instance.link_suppress_ctrl(suppress_ctrl_instance)
-        ds_train = generate_mnist_dataset("./MNIST_unzip/train",
-                                        batch_size=cfg.batch_size, repeat_size=1, samples=samples)
-        ckpoint_cb = ModelCheckpoint(prefix="checkpoint_lenet",
-                                 directory="./trained_ckpt_file/",
-                                 config=config_ck)
-        model_instance.train(epoch_size, ds_train, callbacks=[ckpoint_cb, LossMonitor(), suppress_masker],
-                         dataset_sink_mode=False)
+        >>> networks_l5 = LeNet5()
+        >>> masklayers = []
+        >>> masklayers.append(MaskLayerDes("conv1.weight", 0, False, True, 10))
+        >>> suppress_ctrl_instance = SuppressPrivacyFactory().create(networks=networks_l5,
+        >>>                                                     mask_layers=masklayers,
+        >>>                                                     policy="local_train",
+        >>>                                                     end_epoch=10,
+        >>>                                                     batch_num=(int)(10000/cfg.batch_size),
+        >>>                                                     start_epoch=3,
+        >>>                                                     mask_times=1000,
+        >>>                                                     lr=lr,
+        >>>                                                     sparse_end=0.90,
+        >>>                                                     sparse_start=0.0)
+        >>> net_loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True, reduction="mean")
+        >>> net_opt = nn.Momentum(params=networks_l5.trainable_params(), learning_rate=lr, momentum=0.0)
+        >>> config_ck = CheckpointConfig(save_checkpoint_steps=(int)(samples/cfg.batch_size),  keep_checkpoint_max=10)
+        >>> model_instance = SuppressModel(network=networks_l5,
+        >>>                            loss_fn=net_loss,
+        >>>                            optimizer=net_opt,
+        >>>                            metrics={"Accuracy": Accuracy()})
+        >>> model_instance.link_suppress_ctrl(suppress_ctrl_instance)
+        >>> ds_train = generate_mnist_dataset("./MNIST_unzip/train",
+        >>>                                 batch_size=cfg.batch_size, repeat_size=1, samples=samples)
+        >>> ckpoint_cb = ModelCheckpoint(prefix="checkpoint_lenet",
+        >>>                          directory="./trained_ckpt_file/",
+        >>>                          config=config_ck)
+        >>> model_instance.train(epoch_size, ds_train, callbacks=[ckpoint_cb, LossMonitor(), suppress_masker],
+        >>>                  dataset_sink_mode=False)
     """
 
-    def __init__(self, model=None, suppress_ctrl=None):
+    def __init__(self, model, suppress_ctrl):
 
         super(SuppressMasker, self).__init__()
 

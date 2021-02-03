@@ -20,13 +20,9 @@ from easydict import EasyDict as edict
 
 mnist_cfg = edict({
     'num_classes': 10,  # the number of classes of model's output
-    'epoch_size': 10,  # training epochs
     'batch_size': 32,  # batch size for training
     'image_height': 32,  # the height of training samples
     'image_width': 32,  # the width of training samples
-    'save_checkpoint_steps': 1875,  # the interval steps for saving checkpoint file of the model
     'keep_checkpoint_max': 10,  # the maximum number of checkpoint files would be saved
     'device_target': 'Ascend',  # device used
-    'data_path': './MNIST_unzip',  # the path of training and testing data set
-    'dataset_sink_mode': False,  # whether deliver all training data to device one time
 })
