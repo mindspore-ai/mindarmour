@@ -96,7 +96,7 @@ class SuppressModel(Model):
     """
 
     def __init__(self,
-                 network=None,
+                 network,
                  **kwargs):
 
         check_param_type('networks', network, Cell)

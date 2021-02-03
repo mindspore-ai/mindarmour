@@ -56,16 +56,16 @@ def test_suppress_model_with_pynative_mode():
     lr = 0.01
     masklayers_lenet5 = []
     masklayers_lenet5.append(MaskLayerDes("conv1.weight", False, False, -1))
-    suppress_ctrl_instance = SuppressPrivacyFactory().create(policy="local_train",
+    suppress_ctrl_instance = SuppressPrivacyFactory().create(networks_l5,
+                                                             masklayers_lenet5,
+                                                             policy="local_train",
                                                              end_epoch=epochs,
                                                              batch_num=batch_num,
                                                              start_epoch=1,
                                                              mask_times=mask_times,
-                                                             networks=networks_l5,
                                                              lr=lr,
                                                              sparse_end=0.50,
-                                                             sparse_start=0.0,
-                                                             mask_layers=masklayers_lenet5)
+                                                             sparse_start=0.0)
     net_loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True, reduction="mean")
     net_opt = nn.SGD(networks_l5.trainable_params(), lr)
     model_instance = SuppressModel(

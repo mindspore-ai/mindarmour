@@ -20,7 +20,7 @@ from easydict import EasyDict as edict
 
 mnist_cfg = edict({
     'num_classes': 10,  # the number of classes of model's output
-    'epoch_size': 1,  # training epochs
+    'epoch_size': 10,  # training epochs
     'batch_size': 32,  # batch size for training
     'image_height': 32,  # the height of training samples
     'image_width': 32,  # the width of training samples
