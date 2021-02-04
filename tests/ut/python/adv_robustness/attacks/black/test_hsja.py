@@ -23,7 +23,7 @@ from mindarmour import BlackModel
 from mindarmour.adv_robustness.attacks import HopSkipJumpAttack
 from mindarmour.utils.logger import LogUtil
 
-from ut.python.utils.mock_net import Net
+from tests.ut.python.utils.mock_net import Net
 
 context.set_context(mode=context.GRAPH_MODE)
 context.set_context(device_target="Ascend")

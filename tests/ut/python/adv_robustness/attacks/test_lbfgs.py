@@ -24,7 +24,7 @@ from mindspore.train.serialization import load_checkpoint, load_param_into_net
 from mindarmour.adv_robustness.attacks import LBFGS
 from mindarmour.utils.logger import LogUtil
 
-from ut.python.utils.mock_net import Net
+from tests.ut.python.utils.mock_net import Net
 
 context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
 

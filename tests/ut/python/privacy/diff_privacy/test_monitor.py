@@ -25,13 +25,16 @@ import mindspore.context as context
 from mindarmour.privacy.diff_privacy import PrivacyMonitorFactory
 from mindarmour.utils.logger import LogUtil
 
-from ut.python.utils.mock_net import Net
+from tests.ut.python.utils.mock_net import Net
 
 LOGGER = LogUtil.get_instance()
 TAG = 'DP-Monitor Test'
 
 
-def dataset_generator(batch_size, batches):
+def dataset_generator():
+    batch_size = 16
+    batches = 128
+
     data = np.random.random((batches * batch_size, 1, 32, 32)).astype(
         np.float32)
     label = np.random.randint(0, 10, batches * batch_size).astype(np.int32)
@@ -48,7 +51,6 @@ def dataset_generator(batch_size, batches):
 def test_dp_monitor():
     context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     batch_size = 16
-    batches = 128
     epochs = 1
     rdp = PrivacyMonitorFactory.create(policy='rdp', num_samples=60000,
                                        batch_size=batch_size,
@@ -64,19 +66,18 @@ def test_dp_monitor():
     model = Model(network, net_loss, net_opt)
 
     LOGGER.info(TAG, "============== Starting Training ==============")
-    ds1 = ds.GeneratorDataset(dataset_generator(batch_size, batches),
+    ds1 = ds.GeneratorDataset(dataset_generator,
                               ["data", "label"])
     model.train(epochs, ds1, callbacks=[rdp], dataset_sink_mode=False)
 
 
 @pytest.mark.level0
-@pytest.mark.platform_x86_gpu_inference
+@pytest.mark.platform_x86_gpu_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
 def test_dp_monitor_gpu():
     context.set_context(mode=context.GRAPH_MODE, device_target="GPU")
     batch_size = 16
-    batches = 128
     epochs = 1
     rdp = PrivacyMonitorFactory.create(policy='rdp', num_samples=60000,
                                        batch_size=batch_size,
@@ -92,7 +93,7 @@ def test_dp_monitor_gpu():
     model = Model(network, net_loss, net_opt)
 
     LOGGER.info(TAG, "============== Starting Training ==============")
-    ds1 = ds.GeneratorDataset(dataset_generator(batch_size, batches),
+    ds1 = ds.GeneratorDataset(dataset_generator,
                               ["data", "label"])
     model.train(epochs, ds1, callbacks=[rdp], dataset_sink_mode=False)
 
@@ -104,7 +105,6 @@ def test_dp_monitor_gpu():
 def test_dp_monitor_cpu():
     context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
     batch_size = 16
-    batches = 128
     epochs = 1
     rdp = PrivacyMonitorFactory.create(policy='rdp', num_samples=60000,
                                        batch_size=batch_size,
@@ -120,7 +120,7 @@ def test_dp_monitor_cpu():
     model = Model(network, net_loss, net_opt)
 
     LOGGER.info(TAG, "============== Starting Training ==============")
-    ds1 = ds.GeneratorDataset(dataset_generator(batch_size, batches),
+    ds1 = ds.GeneratorDataset(dataset_generator,
                               ["data", "label"])
     model.train(epochs, ds1, callbacks=[rdp], dataset_sink_mode=False)
 
@@ -133,7 +133,6 @@ def test_dp_monitor_cpu():
 def test_dp_monitor_zcdp():
     context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     batch_size = 16
-    batches = 128
     epochs = 1
     zcdp = PrivacyMonitorFactory.create(policy='zcdp', num_samples=60000,
                                         batch_size=batch_size,
@@ -149,19 +148,18 @@ def test_dp_monitor_zcdp():
     model = Model(network, net_loss, net_opt)
 
     LOGGER.info(TAG, "============== Starting Training ==============")
-    ds1 = ds.GeneratorDataset(dataset_generator(batch_size, batches),
+    ds1 = ds.GeneratorDataset(dataset_generator,
                               ["data", "label"])
     model.train(epochs, ds1, callbacks=[zcdp], dataset_sink_mode=False)
 
 
 @pytest.mark.level0
-@pytest.mark.platform_x86_gpu_inference
+@pytest.mark.platform_x86_gpu_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
 def test_dp_monitor_zcdp_gpu():
     context.set_context(mode=context.GRAPH_MODE, device_target="GPU")
     batch_size = 16
-    batches = 128
     epochs = 1
     zcdp = PrivacyMonitorFactory.create(policy='zcdp', num_samples=60000,
                                         batch_size=batch_size,
@@ -177,7 +175,7 @@ def test_dp_monitor_zcdp_gpu():
     model = Model(network, net_loss, net_opt)
 
     LOGGER.info(TAG, "============== Starting Training ==============")
-    ds1 = ds.GeneratorDataset(dataset_generator(batch_size, batches),
+    ds1 = ds.GeneratorDataset(dataset_generator,
                               ["data", "label"])
     model.train(epochs, ds1, callbacks=[zcdp], dataset_sink_mode=False)
 
@@ -189,7 +187,6 @@ def test_dp_monitor_zcdp_gpu():
 def test_dp_monitor_zcdp_cpu():
     context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
     batch_size = 16
-    batches = 128
     epochs = 1
     zcdp = PrivacyMonitorFactory.create(policy='zcdp', num_samples=60000,
                                         batch_size=batch_size,
@@ -205,6 +202,6 @@ def test_dp_monitor_zcdp_cpu():
     model = Model(network, net_loss, net_opt)
 
     LOGGER.info(TAG, "============== Starting Training ==============")
-    ds1 = ds.GeneratorDataset(dataset_generator(batch_size, batches),
+    ds1 = ds.GeneratorDataset(dataset_generator,
                               ["data", "label"])
     model.train(epochs, ds1, callbacks=[zcdp], dataset_sink_mode=False)

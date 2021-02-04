@@ -112,7 +112,7 @@ class DPModel(Model):
         >>>                 loss_fn=loss,
         >>>                 optimizer=net_opt,
         >>>                 metrics=None)
-        >>> ms_ds = ds.GeneratorDataset(dataset_generator(batch_size, batches),
+        >>> ms_ds = ds.GeneratorDataset(dataset_generator,
         >>>                             ['data', 'label'])
         >>> model.train(epochs, ms_ds, dataset_sink_mode=False)
     """
@@ -133,7 +133,7 @@ class DPModel(Model):
         opt_name = opt.__class__.__name__
         # Check whether noise_mech and DPOptimizer are both None or not None, if so, raise ValueError.
         # And check whether noise_mech or DPOtimizer's mech method is adaptive while clip_mech is not None,
-        # if so, rasie ValuerError too.
+        # if so, raise ValuerError too.
         if noise_mech is not None and "DPOptimizer" in opt_name:
             msg = 'DPOptimizer is not supported while noise_mech is not None'
             LOGGER.error(TAG, msg)
@@ -323,7 +323,7 @@ class _ClipGradients(nn.Cell):
 class _TupleAdd(nn.Cell):
     def __init__(self):
         super(_TupleAdd, self).__init__()
-        self.add = P.TensorAdd()
+        self.add = P.Add()
         self.hyper_map = C.HyperMap()
 
     def construct(self, input1, input2):
@@ -422,7 +422,7 @@ class _TrainOneStepWithLossScaleCell(Cell):
         self._clip_by_global_norm = _ClipGradients()
         self._noise_mech = noise_mech
         self._clip_mech = clip_mech
-        self._add = P.TensorAdd()
+        self._add = P.Add()
         self._norm = nn.Norm()
         self._tuple_add = _TupleAdd()
         self._hyper_map = C.HyperMap()
@@ -508,7 +508,7 @@ class _TrainOneStepWithLossScaleCell(Cell):
                                                     GRADIENT_CLIP_TYPE,
                                                     self._norm_bound)
             grads = self._tuple_add(grads, record_grad)
-            total_loss = P.TensorAdd()(total_loss, loss)
+            total_loss = P.Add()(total_loss, loss)
         loss = P.Div()(total_loss, self._micro_float)
         beta = self._div(beta, self._micro_batches)
 
@@ -626,7 +626,7 @@ class _TrainOneStepCell(Cell):
         self._noise_mech = noise_mech
         self._clip_mech = clip_mech
         self._tuple_add = _TupleAdd()
-        self._add = P.TensorAdd()
+        self._add = P.Add()
         self._norm = nn.Norm()
         self._hyper_map = C.HyperMap()
         self._zero = Tensor(0, mstype.float32)
@@ -698,7 +698,7 @@ class _TrainOneStepCell(Cell):
                                                     GRADIENT_CLIP_TYPE,
                                                     self._norm_bound)
             grads = self._tuple_add(grads, record_grad)
-            total_loss = P.TensorAdd()(total_loss, loss)
+            total_loss = P.Add()(total_loss, loss)
         loss = self._div(total_loss, self._micro_float)
 
         if self._noise_mech is not None:

@@ -144,7 +144,7 @@ def test_pso_attack_targeted():
 
 
 @pytest.mark.level0
-@pytest.mark.platform_x86_gpu_inference
+@pytest.mark.platform_x86_gpu_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
 def test_pso_attack_gpu():

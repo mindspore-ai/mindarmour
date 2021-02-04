@@ -22,7 +22,7 @@ from mindspore import context
 from mindspore import nn
 from mindspore.nn import Cell
 from mindspore.nn import SoftmaxCrossEntropyWithLogits
-from mindspore.ops.operations import TensorAdd
+from mindspore.ops.operations import Add
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 from scipy.special import softmax
 
@@ -58,7 +58,7 @@ class EncoderNet(Cell):
     def __init__(self, encode_dim):
         super(EncoderNet, self).__init__()
         self._encode_dim = encode_dim
-        self.add = TensorAdd()
+        self.add = Add()
 
     def construct(self, inputs):
         """

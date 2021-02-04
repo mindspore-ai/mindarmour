@@ -22,7 +22,7 @@ import mindspore.context as context
 
 from mindarmour.privacy.evaluation.inversion_attack import ImageInversionAttack
 
-from ut.python.utils.mock_net import Net
+from tests.ut.python.utils.mock_net import Net
 
 
 context.set_context(mode=context.GRAPH_MODE)

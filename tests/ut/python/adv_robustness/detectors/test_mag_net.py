@@ -19,7 +19,7 @@ import pytest
 
 import mindspore.ops.operations as P
 from mindspore.nn import Cell
-from mindspore.ops.operations import TensorAdd
+from mindspore.ops.operations import Add
 from mindspore import Model
 from mindspore import context
 
@@ -36,7 +36,7 @@ class Net(Cell):
 
     def __init__(self):
         super(Net, self).__init__()
-        self.add = TensorAdd()
+        self.add = Add()
 
     def construct(self, inputs):
         """

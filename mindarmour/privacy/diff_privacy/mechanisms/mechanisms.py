@@ -142,7 +142,7 @@ class NoiseMechanismsFactory:
             >>>                 loss_fn=loss,
             >>>                 optimizer=net_opt,
             >>>                 metrics=None)
-            >>> ms_ds = ds.GeneratorDataset(dataset_generator(batch_size, batches),
+            >>> ms_ds = ds.GeneratorDataset(dataset_generator,
             >>>                            ['data', 'label'])
             >>> model.train(epochs, ms_ds, dataset_sink_mode=False)
         """
@@ -325,7 +325,7 @@ class _MechanismsParamsUpdater(Cell):
         self._init_noise_multiplier = init_noise_multiplier
 
         self._div = P.Div()
-        self._add = P.TensorAdd()
+        self._add = P.Add()
         self._assign = P.Assign()
         self._sub = P.Sub()
         self._one = Tensor(1, mstype.float32)
@@ -414,7 +414,7 @@ class AdaClippingWithGaussianRandom(Cell):
                                                  mstype.float32)
 
         self._zero = Tensor(0, mstype.float32)
-        self._add = P.TensorAdd()
+        self._add = P.Add()
         self._sub = P.Sub()
         self._mul = P.Mul()
         self._exp = P.Exp()

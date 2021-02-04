@@ -206,7 +206,7 @@ class _TupleAdd(nn.Cell):
     """
     def __init__(self):
         super(_TupleAdd, self).__init__()
-        self.add = P.TensorAdd()
+        self.add = P.Add()
         self.hyper_map = C.HyperMap()
 
     def construct(self, input1, input2):
