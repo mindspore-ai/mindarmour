@@ -21,7 +21,6 @@ from mindspore.train.callback import ModelCheckpoint
 from mindspore.train.callback import CheckpointConfig
 from mindspore.train.callback import LossMonitor
 from mindspore.nn.metrics import Accuracy
-from mindspore.train.serialization import load_checkpoint, load_param_into_net
 import mindspore.dataset as ds
 import mindspore.dataset.vision.c_transforms as CV
 import mindspore.dataset.transforms.c_transforms as C
@@ -91,16 +90,16 @@ def mnist_suppress_train(epoch_size=10, start_epoch=3, lr=0.05, samples=10000, m
     """
 
     networks_l5 = LeNet5()
-    suppress_ctrl_instance = SuppressPrivacyFactory().create(policy="local_train",
+    suppress_ctrl_instance = SuppressPrivacyFactory().create(networks_l5,
+                                                             masklayers,
+                                                             policy="local_train",
                                                              end_epoch=epoch_size,
                                                              batch_num=(int)(samples/cfg.batch_size),
                                                              start_epoch=start_epoch,
                                                              mask_times=mask_times,
-                                                             networks=networks_l5,
                                                              lr=lr,
                                                              sparse_end=sparse_thd,
-                                                             sparse_start=sparse_start,
-                                                             mask_layers=masklayers)
+                                                             sparse_start=sparse_start)
     net_loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True, reduction="mean")
     net_opt = nn.SGD(networks_l5.trainable_params(), lr)
     config_ck = CheckpointConfig(save_checkpoint_steps=(int)(samples/cfg.batch_size),
@@ -130,9 +129,6 @@ def mnist_suppress_train(epoch_size=10, start_epoch=3, lr=0.05, samples=10000, m
                          dataset_sink_mode=False)
 
     print("============== Starting SUPP Testing ==============")
-    ckpt_file_name = 'trained_ckpt_file/checkpoint_lenet-10_1875.ckpt'
-    param_dict = load_checkpoint(ckpt_file_name)
-    load_param_into_net(networks_l5, param_dict)
     ds_eval = generate_mnist_dataset(os.path.join(mnist_path, 'test'),
                                      batch_size=cfg.batch_size)
     acc = model_instance.eval(ds_eval, dataset_sink_mode=False)
