@@ -18,7 +18,7 @@ from mindspore import Model
 from mindspore import Tensor
 from mindspore import context
 from mindspore.nn import Cell
-from mindspore.ops.operations import TensorAdd
+from mindspore.ops.operations import Add
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 
 from mindarmour import BlackModel
@@ -72,7 +72,7 @@ class EncoderNet(Cell):
     def __init__(self, encode_dim):
         super(EncoderNet, self).__init__()
         self._encode_dim = encode_dim
-        self.add = TensorAdd()
+        self.add = Add()
 
     def construct(self, inputs):
         """

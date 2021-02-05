@@ -26,7 +26,7 @@ from mindspore.nn.optim.momentum import Momentum
 from mindarmour.adv_robustness.defenses import AdversarialDefense
 from mindarmour.utils.logger import LogUtil
 
-from ut.python.utils.mock_net import Net
+from tests.ut.python.utils.mock_net import Net
 
 LOGGER = LogUtil.get_instance()
 TAG = 'Ad_Test'

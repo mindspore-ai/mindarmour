@@ -26,7 +26,7 @@ from mindarmour import BlackModel
 from mindarmour.adv_robustness.attacks import PointWiseAttack
 from mindarmour.utils.logger import LogUtil
 
-from ut.python.utils.mock_net import Net
+from tests.ut.python.utils.mock_net import Net
 
 context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
 

@@ -19,7 +19,7 @@ from mindspore.train.model import Model
 
 from mindarmour.privacy.diff_privacy import DPOptimizerClassFactory
 
-from ut.python.utils.mock_net import Net
+from tests.ut.python.utils.mock_net import Net
 
 
 @pytest.mark.level0
@@ -42,7 +42,7 @@ def test_optimizer():
 
 
 @pytest.mark.level0
-@pytest.mark.platform_x86_gpu_inference
+@pytest.mark.platform_x86_gpu_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
 def test_optimizer_gpu():

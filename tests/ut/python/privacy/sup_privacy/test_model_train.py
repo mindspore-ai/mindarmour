@@ -25,15 +25,18 @@ from mindspore.train.callback import LossMonitor
 from mindspore.nn.metrics import Accuracy
 import mindspore.dataset as ds
 
-from ut.python.utils.mock_net import Net as LeNet5
-
 from mindarmour.privacy.sup_privacy import SuppressModel
 from mindarmour.privacy.sup_privacy import SuppressMasker
 from mindarmour.privacy.sup_privacy import SuppressPrivacyFactory
 from mindarmour.privacy.sup_privacy import MaskLayerDes
 
-def dataset_generator(batch_size, batches):
+from tests.ut.python.utils.mock_net import Net as LeNet5
+
+
+def dataset_generator():
     """mock training data."""
+    batches = 10
+    batch_size = 32
     data = np.random.random((batches*batch_size, 1, 32, 32)).astype(
         np.float32)
     label = np.random.randint(0, 10, batches*batch_size).astype(np.int32)
@@ -51,7 +54,6 @@ def test_suppress_model_with_pynative_mode():
     networks_l5 = LeNet5()
     epochs = 5
     batch_num = 10
-    batch_size = 32
     mask_times = 10
     lr = 0.01
     masklayers_lenet5 = []
@@ -79,7 +81,7 @@ def test_suppress_model_with_pynative_mode():
     ckpoint_cb = ModelCheckpoint(prefix="checkpoint_lenet",
                                  directory="./trained_ckpt_file/",
                                  config=config_ck)
-    ds_train = ds.GeneratorDataset(dataset_generator(batch_size, batch_num), ['data', 'label'])
+    ds_train = ds.GeneratorDataset(dataset_generator, ['data', 'label'])
 
     model_instance.train(epochs, ds_train, callbacks=[ckpoint_cb, LossMonitor(), suppress_masker],
                          dataset_sink_mode=False)

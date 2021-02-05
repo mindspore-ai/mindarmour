@@ -28,7 +28,7 @@ from mindarmour.adv_robustness.attacks import \
 from mindarmour.adv_robustness.defenses import EnsembleAdversarialDefense
 from mindarmour.utils.logger import LogUtil
 
-from ut.python.utils.mock_net import Net
+from tests.ut.python.utils.mock_net import Net
 
 LOGGER = LogUtil.get_instance()
 TAG = 'Ead_Test'
