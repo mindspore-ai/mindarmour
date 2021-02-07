@@ -13,7 +13,7 @@
 # limitations under the License.
 """ Util for MindArmour. """
 import numpy as np
-from scipy.ndimage.filters import convolve
+from scipy.ndimage import uniform_filter
 
 from mindspore import Tensor
 from mindspore.nn import Cell
@@ -285,77 +285,107 @@ def calculate_lp_distance(original_image, compared_image):
     return l0_dist, l2_dist, linf_dist
 
 
-def compute_ssim(img_1, img_2, kernel_sigma=1.5, kernel_width=11):
+def _crop(arr, crop_width):
+    """Crop arr by crop_width along each dimension."""
+    arr = np.array(arr, copy=False)
+
+    if isinstance(crop_width, int):
+        crops = [[crop_width, crop_width]]*arr.ndim
+    elif isinstance(crop_width[0], int):
+        if len(crop_width) == 1:
+            crops = [[crop_width[0], crop_width[0]]]*arr.ndim
+        else:
+            crops = [crop_width]*arr.ndim
+    elif len(crop_width) == 1:
+        crops = [crop_width[0]]*arr.ndim
+    elif len(crop_width) == arr.ndim:
+        crops = crop_width
+    else:
+        msg = 'crop_width should be a sequence of N pairs, ' \
+              'a single pair, or a single integer'
+        LOGGER.error(TAG, msg)
+        raise ValueError(msg)
+
+    slices = tuple(slice(a, arr.shape[i] - b) for i, (a, b) in enumerate(crops))
+
+    cropped = arr[slices]
+    return cropped
+
+
+def compute_ssim(image1, image2):
     """
     compute structural similarity between two images.
 
     Args:
-        img_1 (numpy.ndarray): The first image to be compared. The shape of img_1 should be (img_width, img_height,
+        image1 (numpy.ndarray): The first image to be compared.
+        image2 (numpy.ndarray): The second image to be compared.
             channels).
-        img_2 (numpy.ndarray): The second image to be compared. The shape of img_2 should be (img_width, img_height,
-            channels).
-        kernel_sigma (float): Gassian kernel param. Default: 1.5.
-        kernel_width (int): Another Gassian kernel param. Default: 11.
 
     Returns:
         float, structural similarity.
     """
-    img_1, img_2 = check_equal_shape('images_1', img_1, 'images_2', img_2)
-    if len(img_1.shape) > 2:
-        if (len(img_1.shape) != 3) or (img_1.shape[2] != 1 and img_1.shape[2] != 3):
-            msg = 'The shape format of img_1 and img_2 should be (img_width, img_height, channels),' \
-                  ' but got {} and {}'.format(img_1.shape, img_2.shape)
-            raise ValueError(msg)
+    if not image1.shape == image2.shape:
+        msg = 'Input images must have the same dimensions, but got ' \
+              'image1.shape: {} and image2.shape: {}' \
+            .format(image1.shape, image2.shape)
+        LOGGER.error(TAG, msg)
+        raise ValueError()
+    if len(image1.shape) == 3:  # rgb mode
+        if image1.shape[0] in [1, 3]:  # from nhw to hwn
+            image1 = np.array(image1).transpose(1, 2, 0)
+            image2 = np.array(image2).transpose(1, 2, 0)
+        # loop over channels
+        n_channels = image1.shape[-1]
+        total_ssim = np.empty(n_channels)
+        for ch in range(n_channels):
+            ch_result = compute_ssim(image1[..., ch], image2[..., ch])
+            total_ssim[..., ch] = ch_result
+        return total_ssim.mean()
 
-    if len(img_1.shape) > 2:
-        total_ssim = 0
-        for i in range(img_1.shape[2]):
-            total_ssim += compute_ssim(img_1[:, :, i], img_2[:, :, i])
-        return total_ssim / 3
+    k1 = 0.01
+    k2 = 0.03
+    win_size = 7
 
-    # Create gaussian kernel
-    gaussian_kernel = np.zeros((kernel_width, kernel_width))
-    for i in range(kernel_width):
-        for j in range(kernel_width):
-            gaussian_kernel[i, j] = (1 / (2*np.pi*(kernel_sigma**2)))*np.exp(
-                - (((i - 5)**2) + ((j - 5)**2)) / (2*(kernel_sigma**2)))
+    if np.any((np.asarray(image1.shape) - win_size) < 0):
+        msg = 'Size of each dimension must be larger win_size:7, ' \
+              'but got image.shape:{}.' \
+            .format(image1.shape)
+        LOGGER.error(TAG, msg)
+        raise ValueError(msg)
 
-    img_1 = img_1.astype(np.float32)
-    img_2 = img_2.astype(np.float32)
+    image1 = image1.astype(np.float64)
+    image2 = image2.astype(np.float64)
 
-    img_sq_1 = img_1**2
-    img_sq_2 = img_2**2
-    img_12 = img_1*img_2
+    ndim = image1.ndim
+    tmp = win_size ** ndim
+    cov_norm = tmp / (tmp - 1)
 
-    # Mean
-    img_mu_1 = convolve(img_1, gaussian_kernel)
-    img_mu_2 = convolve(img_2, gaussian_kernel)
+    # compute means
+    ux = uniform_filter(image1, size=win_size)
+    uy = uniform_filter(image2, size=win_size)
 
-    # Mean square
-    img_mu_sq_1 = img_mu_1**2
-    img_mu_sq_2 = img_mu_2**2
-    img_mu_12 = img_mu_1*img_mu_2
+    # compute variances and covariances
+    uxx = uniform_filter(image1*image1, size=win_size)
+    uyy = uniform_filter(image2*image2, size=win_size)
+    uxy = uniform_filter(image1*image2, size=win_size)
 
-    # Variances
-    img_sigma_sq_1 = convolve(img_sq_1, gaussian_kernel)
-    img_sigma_sq_2 = convolve(img_sq_2, gaussian_kernel)
+    vx = cov_norm*(uxx - ux*ux)
+    vy = cov_norm*(uyy - uy*uy)
+    vxy = cov_norm*(uxy - ux*uy)
 
-    # Covariance
-    img_sigma_12 = convolve(img_12, gaussian_kernel)
+    data_range = 2
+    c1 = (k1*data_range)**2
+    c2 = (k2*data_range)**2
 
-    # Centered squares of variances
-    img_sigma_sq_1 = img_sigma_sq_1 - img_mu_sq_1
-    img_sigma_sq_2 = img_sigma_sq_2 - img_mu_sq_2
-    img_sigma_12 = img_sigma_12 - img_mu_12
+    a1 = 2*ux*uy + c1
+    a2 = 2*vxy + c2
+    b1 = ux**2 + uy**2 + c1
+    b2 = vx + vy + c2
 
-    k_1 = 0.01
-    k_2 = 0.03
-    c_1 = (k_1*255)**2
-    c_2 = (k_2*255)**2
+    d = b1*b2
+    s = (a1*a2) / d
 
-    # Calculate ssim
-    num_ssim = (2*img_mu_12 + c_1)*(2*img_sigma_12 + c_2)
-    den_ssim = (img_mu_sq_1 + img_mu_sq_2 + c_1)*(img_sigma_sq_1
-                                                  + img_sigma_sq_2 + c_2)
-    res = np.average(num_ssim / den_ssim)
-    return res
+    # padding
+    pad = (win_size - 1) // 2
+    mean_ssim = _crop(s, pad).mean()
+    return mean_ssim
