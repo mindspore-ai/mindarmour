@@ -134,6 +134,7 @@ def mnist_suppress_train(epoch_size=10, start_epoch=3, lr=0.05, samples=10000, m
     acc = model_instance.eval(ds_eval, dataset_sink_mode=False)
     print("============== SUPP Accuracy: %s  ==============", acc)
 
+    suppress_ctrl_instance.print_paras()
 if __name__ == "__main__":
     # This configure can run in pynative mode
     context.set_context(mode=context.PYNATIVE_MODE, device_target=cfg.device_target)
