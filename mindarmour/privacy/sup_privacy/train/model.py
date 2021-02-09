@@ -113,11 +113,7 @@ class SuppressModel(Model):
         Args:
             suppress_pri_ctrl (SuppressCtrl): SuppressCtrl instance.
         """
-        check_param_type('suppress_pri_ctrl', suppress_pri_ctrl, Cell)
-        if not isinstance(suppress_pri_ctrl, SuppressCtrl):
-            msg = "SuppressCtrl instance error!"
-            LOGGER.error(TAG, msg)
-            raise ValueError(msg)
+        check_param_type('suppress_pri_ctrl', suppress_pri_ctrl, SuppressCtrl)
 
         suppress_pri_ctrl.model = self
         if self._train_one_step is not None:
@@ -214,7 +210,6 @@ class _TupleAdd(nn.Cell):
         out = self.hyper_map(self.add, input1, input2)
         return out
 
-
 class _TupleMul(nn.Cell):
     """
     Mul two tuple of data.
@@ -258,7 +253,7 @@ class TrainOneStepCell(Cell):
         self.network.add_flags(defer_inline=True)
         self.weights = optimizer.parameters
         self.optimizer = optimizer
-        self.grad = C.GradOperation(get_by_list=True, sens_param=True)   # for mindspore 0.7x
+        self.grad = C.GradOperation(get_by_list=True, sens_param=True)
         self.sens = sens
         self.reducer_flag = False
         self.grad_reducer = None
@@ -268,7 +263,7 @@ class TrainOneStepCell(Cell):
         if parallel_mode in (ParallelMode.DATA_PARALLEL, ParallelMode.HYBRID_PARALLEL):
             self.reducer_flag = True
         if self.reducer_flag:
-            mean = _get_gradients_mean()  # for mindspore 0.7x
+            mean = _get_gradients_mean()
             degree = _get_device_num()
             self.grad_reducer = DistributedGradReducer(optimizer.parameters, mean, degree)
 
