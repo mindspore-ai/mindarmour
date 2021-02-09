@@ -42,3 +42,20 @@ def test_inversion_attack():
     avg_ssim = inversion_attack.evaluate(original_images, inversion_images)
     assert 0 < avg_ssim[1] < 1
     assert target_features.shape[0] == inversion_images.shape[0]
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_ascend_training
+@pytest.mark.platform_arm_ascend_training
+@pytest.mark.env_onecard
+@pytest.mark.component_mindarmour
+def test_inversion_attack2():
+    net = Net()
+    original_images = np.random.random((2, 1, 32, 32)).astype(np.float32)
+    target_features = np.random.random((2, 10)).astype(np.float32)
+    inversion_attack = ImageInversionAttack(net, input_shape=(1, 32, 32), input_bound=(0, 1), loss_weights=[1, 0.2, 5])
+    inversion_images = inversion_attack.generate(target_features, iters=10)
+    true_labels = np.array([1, 2])
+    new_net = Net()
+    indexes = inversion_attack.evaluate(original_images, inversion_images, true_labels, new_net)
+    assert len(indexes) == 3

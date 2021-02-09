@@ -67,36 +67,55 @@ def mnist_inversion_attack(net):
     load_dict = load_checkpoint(ckpt_path)
     load_param_into_net(net, load_dict)
 
-    # get test data
-    data_list = "../../common/dataset/MNIST/test"
+    # get original data and their inferred fearures
+    data_list = "../../common/dataset/MNIST/train"
     batch_size = 32
     ds = generate_mnist_dataset(data_list, batch_size)
-
-    inversion_attack = ImageInversionAttack(net, input_shape=(1, 32, 32), input_bound=(0, 1), loss_weights=[1, 0.2, 5])
-
     i = 0
     batch_num = 1
-    sample_num = 10
+    sample_num = 30
     for data in ds.create_tuple_iterator(output_numpy=True):
         i += 1
         images = data[0].astype(np.float32)
-        target_features = net(Tensor(images)).asnumpy()
+        true_labels = data[1][: sample_num]
+        target_features = net(Tensor(images)).asnumpy()[:sample_num]
         original_images = images[: sample_num]
-        inversion_images = inversion_attack.generate(target_features[:sample_num], iters=100)
-        for n in range(1, sample_num+1):
-            plt.subplot(2, sample_num, n)
-            plt.gray()
-            plt.imshow(images[n - 1].reshape(32, 32))
-            plt.subplot(2, sample_num, n + sample_num)
-            plt.gray()
-            plt.imshow(inversion_images[n - 1].reshape(32, 32))
-        plt.show()
         if i >= batch_num:
             break
-    # evaluate the similarity between inversion images and original images
-    avg_l2_dis, avg_ssim = inversion_attack.evaluate(original_images, inversion_images)
-    LOGGER.info(TAG, 'The average L2 distance between original images and inversion images is: {}'.format(avg_l2_dis))
-    LOGGER.info(TAG, 'The average ssim value between original images and inversion images is: {}'.format(avg_ssim))
+
+    # run attacking
+    inversion_attack = ImageInversionAttack(net, input_shape=(1, 32, 32), input_bound=(0, 1), loss_weights=[1, 0.1, 5])
+    inversion_images = inversion_attack.generate(target_features, iters=100)
+
+    # get the predict results of inversion images on a new trained model
+    net2 = LeNet5()
+    new_ckpt_path = '../../common/networks/lenet5/new_trained_ckpt_file/checkpoint_lenet-10_1875.ckpt'
+    new_load_dict = load_checkpoint(new_ckpt_path)
+    load_param_into_net(net2, new_load_dict)
+    pred_labels = np.argmax(net2(Tensor(inversion_images).astype(np.float32)).asnumpy(), axis=1)
+
+    # evaluate the quality of inversion images
+    avg_l2_dis, avg_ssim, avg_confi = inversion_attack.evaluate(original_images, inversion_images, true_labels, net2)
+    LOGGER.info(TAG, 'The average L2 distance between original images and inverted images is: {}'.format(avg_l2_dis))
+    LOGGER.info(TAG, 'The average ssim value between original images and inverted images is: {}'.format(avg_ssim))
+    LOGGER.info(TAG, 'The average prediction confidence on true labels of inverted images is: {}'.format(avg_confi))
+    LOGGER.info(TAG, 'True labels of original images are:      %s' % true_labels)
+    LOGGER.info(TAG, 'Predicted labels of inverted images are: %s' % pred_labels)
+
+    # plot 10 images
+    plot_num = min(sample_num, 10)
+    for n in range(1, plot_num+1):
+        plt.subplot(2, plot_num, n)
+        if n == 1:
+            plt.title('Original images', fontsize=16, loc='left')
+        plt.gray()
+        plt.imshow(images[n - 1].reshape(32, 32))
+        plt.subplot(2, plot_num, n + plot_num)
+        if n == 1:
+            plt.title('Inverted images', fontsize=16, loc='left')
+        plt.gray()
+        plt.imshow(inversion_images[n - 1].reshape(32, 32))
+    plt.show()
 
 
 if __name__ == '__main__':

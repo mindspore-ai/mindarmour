@@ -15,6 +15,7 @@
 Inversion Attack
 """
 import numpy as np
+from scipy.special import softmax
 
 from mindspore.nn import Cell, MSELoss
 from mindspore import Tensor
@@ -166,18 +167,24 @@ class ImageInversionAttack:
             inversion_images.append(inversion_image_n)
         return np.concatenate(np.array(inversion_images))
 
-    def evaluate(self, original_images, inversion_images):
+    def evaluate(self, original_images, inversion_images, labels=None, new_network=None):
         """
-        Compute the average L2 distance and SSIM value between original images and inversion images.
+        Evaluate the quality of inverted images by three index: the average L2 distance and SSIM value between
+        original images and inversion images, and the average of inverted images' confidence on true labels of inverted
+        inferred by a new trained network.
 
         Args:
             original_images (numpy.ndarray): Original images, whose shape should be (img_num, channels, img_width,
                 img_height).
             inversion_images (numpy.ndarray): Inversion images, whose shape should be (img_num, channels, img_width,
                 img_height).
+            labels (numpy.ndarray): Ground truth labels of original images. Default: None.
+            new_network (Cell): A network whose structure contains all parts of self._network, but loaded with different
+                checkpoint file. Default: None.
 
         Returns:
-            tuple, the average l2 distance and average ssim value between original images and inversion images.
+            tuple, average l2 distance, average ssim value and average confidence (if labels or new_network is None,
+            then average confidence would be None).
 
         Examples:
             >>> net = LeNet5()
@@ -188,15 +195,31 @@ class ImageInversionAttack:
             >>> ori_images = np.random.random((2, 1, 32, 32))
             >>> result = inversion_attack.evaluate(ori_images, inver_images)
             >>> print(len(result))
-            2
+            3
         """
         check_numpy_param('original_images', original_images)
         check_numpy_param('inversion_images', inversion_images)
+        if labels is not None:
+            check_numpy_param('labels', labels)
+            true_labels = np.squeeze(labels)
+            if len(true_labels.shape) > 1:
+                msg = 'Shape of true_labels should be (1, n) or (n,), but got {}'.format(true_labels.shape)
+                raise ValueError(msg)
+            if true_labels.size != original_images.shape[0]:
+                msg = 'The size of true_labels should equal the number of images, but got {} and {}'.format(
+                    true_labels.size, original_images.shape[0])
+                raise ValueError(msg)
+        if new_network is not None:
+            check_param_type('new_network', new_network, Cell)
+            LOGGER.info(TAG, 'Please make sure that the network you pass is loaded with different checkpoint files '
+                             'compared with that of self._network.')
+
         img_1, img_2 = check_equal_shape('original_images', original_images, 'inversion_images', inversion_images)
         if (len(img_1.shape) != 4) or (img_1.shape[1] != 1 and img_1.shape[1] != 3):
             msg = 'The shape format of img_1 and img_2 should be (img_num, channels, img_width, img_height),' \
                   ' but got {} and {}'.format(img_1.shape, img_2.shape)
             raise ValueError(msg)
+
         total_l2_distance = 0
         total_ssim = 0
         img_1 = img_1.transpose(0, 2, 3, 1)
@@ -207,4 +230,9 @@ class ImageInversionAttack:
             total_ssim += compute_ssim(img_1[i], img_2[i])
         avg_l2_dis = total_l2_distance / img_1.shape[0]
         avg_ssim = total_ssim / img_1.shape[0]
-        return avg_l2_dis, avg_ssim
+        avg_confi = None
+        if (new_network is not None) and (labels is not None):
+            pred_logits = new_network(Tensor(inversion_images.astype(np.float32))).asnumpy()
+            logits_softmax = softmax(pred_logits, axis=1)
+            avg_confi = np.mean(logits_softmax[np.arange(img_1.shape[0]), true_labels])
+        return avg_l2_dis, avg_ssim, avg_confi
