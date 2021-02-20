@@ -111,6 +111,12 @@ class ImageInversionAttack:
         for shape_dim in input_shape:
             check_int_positive('shape_dim', shape_dim)
         self._input_bound = check_param_multi_types('input_bound', input_bound, [list, tuple])
+        for value_bound in self._input_bound:
+            check_param_multi_types('value_bound', value_bound, [float, int])
+        if self._input_bound[0] > self._input_bound[1]:
+            msg = 'input_bound[0] should not be larger than input_bound[1], but got them as {} and {}'.format(
+                self._input_bound[0], self._input_bound[1])
+            raise ValueError(msg)
 
     def generate(self, target_features, iters=100):
         """
