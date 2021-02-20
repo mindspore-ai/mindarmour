@@ -141,11 +141,11 @@ if __name__ == "__main__":
 
     masklayers_lenet5 = []  # determine which layer should be masked
 
-    masklayers_lenet5.append(MaskLayerDes("conv1.weight", False, True, 10))
-    masklayers_lenet5.append(MaskLayerDes("conv2.weight", False, True, 150))
-    masklayers_lenet5.append(MaskLayerDes("fc1.weight", True, False, -1))
-    masklayers_lenet5.append(MaskLayerDes("fc2.weight", True, False, -1))
-    masklayers_lenet5.append(MaskLayerDes("fc3.weight", True, False, 50))
+    masklayers_lenet5.append(MaskLayerDes("conv1.weight", 0, False, True, 10))
+    masklayers_lenet5.append(MaskLayerDes("conv2.weight", 1, False, True, 150))
+    masklayers_lenet5.append(MaskLayerDes("fc1.weight", 2, True, False, -1))
+    masklayers_lenet5.append(MaskLayerDes("fc2.weight", 4, True, False, -1))
+    masklayers_lenet5.append(MaskLayerDes("fc3.weight", 6, True, False, 50))
 
     # do suppreess privacy train, with stronger privacy protection and better performance than Differential Privacy
     mnist_suppress_train(10, 3, 0.10, 60000, 1000, 0.95, 0.0, masklayers=masklayers_lenet5)  # used

@@ -184,16 +184,32 @@ class SuppressCtrl(Cell):
                 layer_name = one_mask_layer.layer_name
                 mask_layer_id2 = 0
                 for one_mask_layer_2 in mask_layers:
-                    if mask_layer_id != mask_layer_id2 and layer_name in one_mask_layer_2.layer_name:
-                        msg = "mask_layers repeat item : {} in {} and {}".format(layer_name,
-                                                                                 mask_layer_id,
-                                                                                 mask_layer_id2)
+                    if mask_layer_id != mask_layer_id2 and layer_name == one_mask_layer_2.layer_name:
+                        msg = "Mask layer name should be unique, but got duplicate name: {} in mask_layer {} and {}".\
+                            format(layer_name, mask_layer_id, mask_layer_id2)
+                        LOGGER.error(TAG, msg)
+                        raise ValueError(msg)
+                    if mask_layer_id != mask_layer_id2 and one_mask_layer.grad_idx == one_mask_layer_2.grad_idx:
+                        msg = "Grad_idx should be unique, but got duplicate idx: {} in mask_layer {} and {}".\
+                            format(layer_name, one_mask_layer_2.layer_name, one_mask_layer.grad_idx)
                         LOGGER.error(TAG, msg)
                         raise ValueError(msg)
                     mask_layer_id2 = mask_layer_id2 + 1
                 mask_layer_id = mask_layer_id + 1
 
         if networks is not None:
+            for layer in networks.get_parameters(expand=True):
+                shape = np.shape([1])
+                mul_mask_array = np.ones(shape, dtype=np.float32)
+                grad_mask_cell = GradMaskInCell(mul_mask_array, False, False, -1)
+                grad_mask_cell.mask_able = False
+                self.grads_mask_list.append(grad_mask_cell)
+
+                add_mask_array = np.zeros(shape, dtype=np.float32)
+                de_weight_cell = DeWeightInCell(add_mask_array)
+                de_weight_cell.mask_able = False
+                self.de_weight_mask_list.append(de_weight_cell)
+
             m = 0
             for layer in networks.get_parameters(expand=True):
                 one_mask_layer = None
@@ -209,29 +225,18 @@ class SuppressCtrl(Cell):
                                                     one_mask_layer.min_num,
                                                     one_mask_layer.upper_bound)
                     grad_mask_cell.mask_able = True
-                    self.grads_mask_list.append(grad_mask_cell)
-                    add_mask_array = np.zeros(shape, dtype=np.float32)
+                    self.grads_mask_list[one_mask_layer.grad_idx] = grad_mask_cell
 
+                    add_mask_array = np.zeros(shape, dtype=np.float32)
                     de_weight_cell = DeWeightInCell(add_mask_array)
                     de_weight_cell.mask_able = True
-                    self.de_weight_mask_list.append(de_weight_cell)
-                    msg = "do mask {}, {}".format(m, one_mask_layer.layer_name)
+                    self.de_weight_mask_list[one_mask_layer.grad_idx] = de_weight_cell
+                    msg = "do mask {}, {}, {}".format(m, one_mask_layer.layer_name, one_mask_layer.grad_idx)
                     LOGGER.info(TAG, msg)
                 elif one_mask_layer is not None and one_mask_layer.inited:
                     msg = "repeated match masked setting {}=>{}.".format(one_mask_layer.layer_name, layer.name)
                     LOGGER.error(TAG, msg)
                     raise ValueError(msg)
-                else:
-                    shape = np.shape([1])
-                    mul_mask_array = np.ones(shape, dtype=np.float32)
-                    grad_mask_cell = GradMaskInCell(mul_mask_array, False, False, -1)
-                    grad_mask_cell.mask_able = False
-
-                    self.grads_mask_list.append(grad_mask_cell)
-                    add_mask_array = np.zeros(shape, dtype=np.float32)
-                    de_weight_cell = DeWeightInCell(add_mask_array)
-                    de_weight_cell.mask_able = False
-                    self.de_weight_mask_list.append(de_weight_cell)
                 m += 1
             self.mask_initialized = True
             msg = "init SuppressCtrl by networks"
@@ -555,7 +560,7 @@ def get_one_mask_layer(mask_layers, layer_name):
         Union[MaskLayerDes, None], the layer definitions that need to be suppressed.
     """
     for each_mask_layer in mask_layers:
-        if each_mask_layer.layer_name in layer_name:
+        if each_mask_layer.layer_name in layer_name and not each_mask_layer.inited:
             return each_mask_layer
     return None
 
@@ -567,15 +572,21 @@ class MaskLayerDes:
         layer_name (str): Layer name, get the name of one layer as following:
             for layer in networks.get_parameters(expand=True):
                 if layer.name == "conv": ...
+        grad_idx (int): Grad layer index, get mask layer's index in grad tuple.You can refer to the construct function
+            of TrainOneStepCell in mindarmour/privacy/sup_privacy/train/model.py to get the index of some specified
+            grad layers (print in PYNATIVE_MODE).
         is_add_noise (bool): If True, the weight of this layer can add noise.
             If False, the weight of this layer can not add noise.
         is_lower_clip (bool): If true, the weights of this layer would be clipped to greater than an lower bound value.
             If False, the weights of this layer won't be clipped.
-        min_num (int): The number of weights left that not be suppressed, which need to be greater than 0.
-        upper_bound (float): max value of weight in this layer, default value is 1.20 .
+        min_num (int): The number of weights left that not be suppressed.
+            If min_num is smaller than (parameter num*SupperssCtrl.sparse_end), min_num has not effect.
+        upper_bound (Union[float, int]): max abs value of weight in this layer, default: 1.20.
     """
-    def __init__(self, layer_name, is_add_noise, is_lower_clip, min_num, upper_bound=1.20):
+    def __init__(self, layer_name, grad_idx, is_add_noise, is_lower_clip, min_num, upper_bound=1.20):
         self.layer_name = check_param_type('layer_name', layer_name, str)
+        check_param_type('grad_idx', grad_idx, int)
+        self.grad_idx = check_value_non_negative('grad_idx', grad_idx)
         self.is_add_noise = check_param_type('is_add_noise', is_add_noise, bool)
         self.is_lower_clip = check_param_type('is_lower_clip', is_lower_clip, bool)
         self.min_num = check_param_type('min_num', min_num, int)
@@ -592,8 +603,9 @@ class GradMaskInCell(Cell):
             If False, the weight of this layer can not add noise.
         is_lower_clip (bool): If true, the weights of this layer would be clipped to greater than an lower bound value.
             If False, the weights of this layer won't be clipped.
-        min_num (int): The number of weights left that not be suppressed, which need to be greater than 0.
-        upper_bound (float): max value of weight in this layer, default value is 1.20
+        min_num (int): The number of weights left that not be suppressed.
+            If min_num is smaller than (parameter num*SupperssCtrl.sparse_end), min_num has not effect.
+        upper_bound ([float, int]): max abs value of weight in this layer, default: 1.20.
     """
     def __init__(self, array, is_add_noise, is_lower_clip, min_num, upper_bound=1.20):
         super(GradMaskInCell, self).__init__()

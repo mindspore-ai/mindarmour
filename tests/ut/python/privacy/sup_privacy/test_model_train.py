@@ -57,7 +57,7 @@ def test_suppress_model_with_pynative_mode():
     mask_times = 10
     lr = 0.01
     masklayers_lenet5 = []
-    masklayers_lenet5.append(MaskLayerDes("conv1.weight", False, False, -1))
+    masklayers_lenet5.append(MaskLayerDes("conv1.weight", 0, False, False, -1))
     suppress_ctrl_instance = SuppressPrivacyFactory().create(networks_l5,
                                                              masklayers_lenet5,
                                                              policy="local_train",
