@@ -17,5 +17,6 @@ given model.
 """
 
 from .membership_inference import MembershipInference
+from .inversion_attack import ImageInversionAttack
 
-__all__ = ['MembershipInference']
+__all__ = ['MembershipInference', 'ImageInversionAttack']
