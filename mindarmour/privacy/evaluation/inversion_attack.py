@@ -107,7 +107,7 @@ class ImageInversionAttack:
         for sub_loss_weight in loss_weights:
             check_value_positive('sub_loss_weight', sub_loss_weight)
         self._loss = InversionLoss(self._network, loss_weights)
-        self._input_shape = check_param_multi_types('input_shape', input_shape, [list, tuple])
+        self._input_shape = check_param_type('input_shape', input_shape, tuple)
         for shape_dim in input_shape:
             check_int_positive('shape_dim', shape_dim)
         self._input_bound = check_param_multi_types('input_bound', input_bound, [list, tuple])
