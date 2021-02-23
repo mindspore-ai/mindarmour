@@ -300,6 +300,7 @@ class SuppressCtrl(Cell):
         for layer in networks.get_parameters(expand=True):
             grad_idx = self.grad_idx_map[m]
             if grad_idx < 0:
+                m = m + 1
                 continue
             if self.grads_mask_list[grad_idx].mask_able:
                 weight_array = layer.data.asnumpy()
