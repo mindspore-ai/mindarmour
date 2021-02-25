@@ -212,8 +212,8 @@ def check_equal_shape(para_name1, value1, para_name2, value2):
     if value1.shape != value2.shape:
         msg = 'The shape of {0} must equal to the ' \
               '{1}, but got {0} is {2}, ' \
-              '{1} is {3}'.format(para_name1, para_name2, value1.shape[0],
-                                  value2.shape[0])
+              '{1} is {3}'.format(para_name1, para_name2, value1.shape,
+                                  value2.shape)
         LOGGER.error(TAG, msg)
         raise ValueError(msg)
     return value1, value2
