@@ -121,7 +121,7 @@ class SuppressCtrl(Cell):
         self.sparse_vibra = 0.02  # the sparsity may have certain range of variations
         self.sparse_valid_max_weight = 0.20  # if max network weight is less than this value, suppress operation stop temporarily
         self.add_noise_thd = 0.50  # if network weight is more than this value, noise is forced
-        self.noise_volume = 0.01  # noise volume 0.01
+        self.noise_volume = 0.1  # noise volume 0.1
         self.base_ground_thd = 0.0000001  # if network weight is less than this value, will be considered as 0
         self.model = None  # SuppressModel instance
         self.grads_mask_list = []  # list for Grad Mask Matrix tensor
