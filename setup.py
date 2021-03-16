@@ -13,6 +13,8 @@
 # limitations under the License.
 import os
 import stat
+import shlex
+import subprocess
 from setuptools import find_packages
 from setuptools import setup
 from setuptools.command.egg_info import egg_info
@@ -64,6 +66,28 @@ def update_permissions(path):
             os.chmod(file_fullpath, stat.S_IREAD)
 
 
+def get_description():
+    """
+    Get description.
+
+    Returns:
+        str, wheel package description.
+    """
+    cmd = "git log --format='[sha1]:%h, [branch]:%d' -1"
+    process = subprocess.Popen(
+        shlex.split(cmd),
+        shell=False,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+    )
+    stdout, _ = process.communicate()
+    if not process.returncode:
+        git_version = stdout.decode().strip()
+        return "A smart AI security and trustworthy tool box. Git version: %s" % (git_version)
+    return "A smart AI security and trustworthy tool box."
+
+
 class EggInfo(egg_info):
     """Egg info."""
     def run(self):
@@ -91,7 +115,7 @@ setup(
         'Sources': 'https://gitee.com/mindspore/mindarmour',
         'Issue Tracker': 'https://gitee.com/mindspore/mindarmour/issues',
     },
-    description="A smart AI security and trustworthy tool box.",
+    description=get_description(),
     license='Apache 2.0',
     packages=find_packages(),
     include_package_data=True,
