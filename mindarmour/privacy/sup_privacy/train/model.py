@@ -35,6 +35,7 @@ from mindspore.parallel._utils import _get_gradients_mean
 from mindspore.parallel._utils import _get_device_num
 from mindspore.nn.wrap.grad_reducer import DistributedGradReducer
 from mindspore.nn import Cell
+from mindspore.nn.optim import SGD
 from mindarmour.utils._check_param import check_param_type
 from mindarmour.utils.logger import LogUtil
 from mindarmour.privacy.sup_privacy.sup_ctrl.conctrl import SuppressCtrl
@@ -97,14 +98,17 @@ class SuppressModel(Model):
 
     def __init__(self,
                  network,
+                 loss_fn,
+                 optimizer,
                  **kwargs):
 
         check_param_type('network', network, Cell)
+        check_param_type('optimizer', optimizer, SGD)
 
         self.network_end = None
         self._train_one_step = None
 
-        super(SuppressModel, self).__init__(network, **kwargs)
+        super(SuppressModel, self).__init__(network, loss_fn, optimizer, **kwargs)
 
     def link_suppress_ctrl(self, suppress_pri_ctrl):
         """
