@@ -183,8 +183,8 @@ class NoiseGaussianRandom(_Mechanisms):
         initial_noise_multiplier(float): Ratio of the standard deviation of
             Gaussian noise divided by the norm_bound, which will be used to
             calculate privacy spent. Default: 1.0.
-        seed(int): Original random seed, if seed=0 random normal will use secure
-            random number. IF seed!=0 random normal will generate values using
+        seed(int): Original random seed, if seed=0, random normal will use secure
+            random number. If seed!=0, random normal will generate values using
             given seed. Default: 0.
         decay_policy(str): Mechanisms parameters update policy. Default: None.
 
