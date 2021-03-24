@@ -38,7 +38,6 @@ from mindspore.ops.operations import NPUAllocFloatStatus
 from mindspore.ops.operations import NPUClearFloatStatus
 from mindspore.ops.operations import ReduceSum
 from mindspore.ops.operations import LessEqual
-from mindspore.ops.operations import ControlDepend
 from mindspore.parallel._utils import _get_gradients_mean
 from mindspore.parallel._utils import _get_device_num
 from mindspore.nn.wrap.grad_reducer import DistributedGradReducer
@@ -395,7 +394,6 @@ class _TrainOneStepWithLossScaleCell(Cell):
         self.reduce_sum = ReduceSum(keep_dims=False)
         self.base = Tensor(1, mstype.float32)
         self.less_equal = LessEqual()
-        self.depend_parameter_use = ControlDepend(depend_mode=1)
         self.allreduce = P.AllReduce()
         self.parallel_mode = _get_parallel_mode()
         self.grad_reducer = F.identity
