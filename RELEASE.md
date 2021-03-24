@@ -1,3 +1,44 @@
+# MindSpore 1.2.0 Release Notes
+
+## MindArmour
+
+### Contributors
+
+Thanks goes to these wonderful people:
+
+han.yin
+
+### Major Features and Improvements
+
+#### Privacy
+
+* [STABLE]Tailored-based privacy protection technology (Pynative)
+* [STABLE]Model Inversion. Reverse analysis technology of privacy information
+
+### API Change
+
+#### Backwards Incompatible Change
+
+##### C++ API
+
+[Modify] ...
+[Add] ...
+[Delete] ...
+
+##### Java API
+
+[Add] ...
+
+#### Deprecations
+
+##### C++ API
+
+##### Java API
+
+### Bug fixes
+
+[BUGFIX] ...
+
 # MindArmour 1.1.0 Release Notes
 
 ## MindArmour
