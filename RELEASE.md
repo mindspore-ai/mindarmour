@@ -1,12 +1,6 @@
-# MindSpore 1.2.0 Release Notes
+# MindArmour 1.2.0-rc1
 
-## MindArmour
-
-### Contributors
-
-Thanks goes to these wonderful people:
-
-han.yin
+## MindArmour 1.2.0 Release Notes
 
 ### Major Features and Improvements
 
@@ -38,6 +32,12 @@ han.yin
 ### Bug fixes
 
 [BUGFIX] ...
+
+### Contributors
+
+Thanks goes to these wonderful people:
+
+han.yin
 
 # MindArmour 1.1.0 Release Notes
 
