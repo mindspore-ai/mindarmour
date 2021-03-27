@@ -106,7 +106,7 @@ class DefenseEvaluate:
         Returns:
             - float, the lower, the more successful the defense is.
 
-                - If return value == -1, len(idxes) == 0.
+            - If return value == -1, len(idxes) == 0.
         """
         idxes = np.arange(self._num_samples)
         cond1 = np.argmax(self._def_preds, axis=1) == self._true_labels
