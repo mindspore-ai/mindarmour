@@ -136,10 +136,10 @@ class AttackEvaluate:
             - float, return average l0, l2, or linf distance of all success
               adversarial examples, return value includes following cases.
 
-                - If return value :math:`>=` 0, average lp distance. The lower,
-                  the more successful the attack is.
+            - If return value :math:`>=` 0, average lp distance. The lower,
+              the more successful the attack is.
 
-                - If return value is -1, there is no success adversarial examples.
+            - If return value is -1, there is no success adversarial examples.
         """
         idxes = self._success_idxes
         success_num = idxes.shape[0]
@@ -164,10 +164,10 @@ class AttackEvaluate:
         Returns:
             - float, average structural similarity.
 
-                - If return value ranges between (0, 1), the higher, the more
-                  successful the attack is.
+            - If return value ranges between (0, 1), the higher, the more
+              successful the attack is.
 
-                - If return value is -1: there is no success adversarial examples.
+            - If return value is -1: there is no success adversarial examples.
         """
         success_num = self._success_idxes.shape[0]
         if success_num == 0:

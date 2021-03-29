@@ -95,7 +95,7 @@ def _softmax_cross_entropy(logits, labels):
 class MembershipInference:
     """
     Evaluation proposed by Shokri, Stronati, Song and Shmatikov is a grey-box attack.
-    The attack requires obtain loss or logits results of training samples.
+    The attack requires loss or logits results of training samples.
 
     References: `Reza Shokri, Marco Stronati, Congzheng Song, Vitaly Shmatikov.
     Membership Inference Attacks against Machine Learning Models. 2017.
