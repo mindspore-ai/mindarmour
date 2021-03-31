@@ -165,7 +165,7 @@ class AttackEvaluate:
             - float, average structural similarity.
 
               - If return value ranges between (0, 1), the higher, the more
-              successful the attack is.
+                successful the attack is.
 
               - If return value is -1: there is no success adversarial examples.
         """
