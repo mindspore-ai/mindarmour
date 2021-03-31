@@ -137,7 +137,7 @@ class AttackEvaluate:
               adversarial examples, return value includes following cases.
 
               - If return value :math:`>=` 0, average lp distance. The lower,
-              the more successful the attack is.
+                the more successful the attack is.
 
               - If return value is -1, there is no success adversarial examples.
         """
