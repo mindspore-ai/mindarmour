@@ -25,7 +25,21 @@ from mindarmour.privacy.evaluation.inversion_attack import ImageInversionAttack
 from tests.ut.python.utils.mock_net import Net
 
 
-context.set_context(mode=context.GRAPH_MODE)
+@pytest.mark.level0
+@pytest.mark.platform_x86_ascend_training
+@pytest.mark.platform_arm_ascend_training
+@pytest.mark.env_onecard
+@pytest.mark.component_mindarmour
+def test_inversion_attack_graph():
+    context.set_context(mode=context.GRAPH_MODE)
+    net = Net()
+    original_images = np.random.random((2, 1, 32, 32)).astype(np.float32)
+    target_features = np.random.random((2, 10)).astype(np.float32)
+    inversion_attack = ImageInversionAttack(net, input_shape=(1, 32, 32), input_bound=(0, 1), loss_weights=[1, 0.2, 5])
+    inversion_images = inversion_attack.generate(target_features, iters=10)
+    avg_ssim = inversion_attack.evaluate(original_images, inversion_images)
+    assert 0 < avg_ssim[1] < 1
+    assert target_features.shape[0] == inversion_images.shape[0]
 
 
 @pytest.mark.level0
@@ -33,7 +47,8 @@ context.set_context(mode=context.GRAPH_MODE)
 @pytest.mark.platform_arm_ascend_training
 @pytest.mark.env_onecard
 @pytest.mark.component_mindarmour
-def test_inversion_attack():
+def test_inversion_attack_pynative():
+    context.set_context(mode=context.PYNATIVE_MODE)
     net = Net()
     original_images = np.random.random((2, 1, 32, 32)).astype(np.float32)
     target_features = np.random.random((2, 10)).astype(np.float32)
