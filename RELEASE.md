@@ -1,4 +1,4 @@
-# MindArmour 1.2.0-rc1
+# MindArmour 1.2.0
 
 ## MindArmour 1.2.0 Release Notes
 
