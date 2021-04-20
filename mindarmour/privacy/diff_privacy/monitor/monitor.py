@@ -377,7 +377,7 @@ class ZCDPMonitor(Callback):
     conventional differential privacy (ε, δ) as below:
 
     .. math::
-        (ρ+２\sqrt{ρlog(1/δ)}, δ)
+        (ρ+２\sqrt{ρ*log(1/δ)}, δ)
 
     It should be noted that ZCDPMonitor is not suitable for subsampling
     noise mechanisms(such as NoiseAdaGaussianRandom and NoiseGaussianRandom).
