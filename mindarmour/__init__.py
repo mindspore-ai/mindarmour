@@ -13,6 +13,7 @@ from .privacy.sup_privacy.sup_ctrl.conctrl import SuppressCtrl
 from .privacy.sup_privacy.train.model import SuppressModel
 from .privacy.sup_privacy.mask_monitor.masker import SuppressMasker
 from .privacy.evaluation.inversion_attack import ImageInversionAttack
+from .reliability.concept_drift.concept_drift_check_time_series import ConceptDriftCheckTimeSeries
 
 __all__ = ['Attack',
            'BlackModel',
@@ -24,4 +25,5 @@ __all__ = ['Attack',
            'SuppressModel',
            'SuppressCtrl',
            'SuppressMasker',
-           'ImageInversionAttack']
+           'ImageInversionAttack',
+           'ConceptDriftCheckTimeSeries']
