@@ -83,16 +83,15 @@ class SuppressMasker(Callback):
         cur_step_in_epoch = (cb_params.cur_step_num - 1) % cb_params.batch_num + 1
 
         if self._suppress_ctrl is not None and self._model.network_end is not None:
-            self._suppress_ctrl.update_status(cb_params.cur_epoch_num, cur_step, cur_step_in_epoch)
-
             if not self._suppress_ctrl.mask_initialized:
                 raise ValueError("Not initialize network!")
+            if cur_step_in_epoch % 100 == 1:
+                self._suppress_ctrl.calc_theoretical_sparse_for_conv()
+                _, _, _ = self._suppress_ctrl.calc_actual_sparse_for_conv(
+                    self._suppress_ctrl.networks)
+            self._suppress_ctrl.update_status(cb_params.cur_epoch_num, cur_step, cur_step_in_epoch)
             if self._suppress_ctrl.to_do_mask:
                 self._suppress_ctrl.update_mask(self._suppress_ctrl.networks, cur_step)
                 LOGGER.info(TAG, "suppress update")
             elif not self._suppress_ctrl.to_do_mask and self._suppress_ctrl.mask_started:
                 self._suppress_ctrl.reset_zeros()
-            if cur_step_in_epoch % 100 == 1:
-                self._suppress_ctrl.calc_theoretical_sparse_for_conv()
-                _, _, _ = self._suppress_ctrl.calc_actual_sparse_for_conv(
-                    self._suppress_ctrl.networks)

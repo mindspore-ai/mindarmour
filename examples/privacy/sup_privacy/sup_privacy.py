@@ -148,4 +148,4 @@ if __name__ == "__main__":
     masklayers_lenet5.append(MaskLayerDes("fc3.weight", 6, True, False, 50))
 
     # do suppreess privacy train, with stronger privacy protection and better performance than Differential Privacy
-    mnist_suppress_train(10, 3, 0.05, 60000, 1000, 0.95, 0.0, masklayers=masklayers_lenet5)  # used
+    mnist_suppress_train(10, 3, 0.10, 60000, 1000, 0.95, 0.0, masklayers=masklayers_lenet5)  # used
