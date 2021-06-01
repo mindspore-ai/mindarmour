@@ -24,17 +24,6 @@ version = '1.2.0'
 cur_dir = os.path.dirname(os.path.realpath(__file__))
 pkg_dir = os.path.join(cur_dir, 'build')
 
-try:
-    from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
-
-
-    class bdist_wheel(_bdist_wheel):
-        def finalize_options(self):
-            _bdist_wheel.finalize_options(self)
-            self.root_is_pure = False
-except ImportError:
-    bdist_wheel = None
-
 
 def write_version(file):
     file.write("__version__ = '{}'\n".format(version))
@@ -122,7 +111,6 @@ setup(
     cmdclass={
         'egg_info': EggInfo,
         'build_py': BuildPy,
-        'bdist_wheel': bdist_wheel
     },
     install_requires=[
         'scipy >= 1.5.3',

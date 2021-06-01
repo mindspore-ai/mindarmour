@@ -34,7 +34,6 @@ Please choose one column or multiple columns.
 import numpy as np
 from mindarmour import ConceptDriftCheckTimeSeries
 
-
 # input data
 DATA_FILE = r'archive/individual_stocks_5yr/individual_stocks_5yr/AEE_data.csv'
 data = np.loadtxt(DATA_FILE, str, delimiter=",")
