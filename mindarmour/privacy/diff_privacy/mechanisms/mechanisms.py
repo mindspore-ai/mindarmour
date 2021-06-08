@@ -66,9 +66,9 @@ class ClipMechanismsFactory:
             >>> decay_policy = 'Linear'
             >>> beta = Tensor(0.5, mstype.float32)
             >>> norm_bound = Tensor(1.0, mstype.float32)
-            >>> beta_stddev = 0.1
-            >>> learning_rate = 0.1
-            >>> target_unclipped_quantile = 0.3
+            >>> beta_stddev = 0.01
+            >>> learning_rate = 0.001
+            >>> target_unclipped_quantile = 0.9
             >>> clip_mechanism = ClipMechanismsFactory()
             >>> ada_clip = clip_mechanism.create('Gaussian',
             >>>                          decay_policy=decay_policy,
@@ -107,7 +107,7 @@ class NoiseMechanismsFactory:
                 random number. IF seed!=0 random normal will generate values using
                 given seed. Default: 0.
             noise_decay_rate(float): Hyper parameter for controlling the noise decay. Default: 6e-6.
-            decay_policy(str): Mechanisms parameters update policy. Default: None, no
+            decay_policy(str): Mechanisms parameters update policy. If decay_policy is None, no
                 parameters need update. Default: None.
 
         Raises:
@@ -118,7 +118,7 @@ class NoiseMechanismsFactory:
 
         Examples:
             >>> norm_bound = 1.0
-            >>> initial_noise_multiplier = 0.01
+            >>> initial_noise_multiplier = 1.0
             >>> network = LeNet5()
             >>> batch_size = 32
             >>> batches = 128
@@ -129,7 +129,7 @@ class NoiseMechanismsFactory:
             >>>                                              initial_noise_multiplier=initial_noise_multiplier)
             >>> clip_mech = ClipMechanismsFactory().create('Gaussian',
             >>>                                            decay_policy='Linear',
-            >>>                                            learning_rate=0.01,
+            >>>                                            learning_rate=0.001,
             >>>                                            target_unclipped_quantile=0.9,
             >>>                                            fraction_stddev=0.01)
             >>> net_opt = nn.Momentum(network.trainable_params(), learning_rate=0.1,
@@ -193,8 +193,8 @@ class NoiseGaussianRandom(_Mechanisms):
 
     Examples:
         >>> gradients = Tensor([0.2, 0.9], mstype.float32)
-        >>> norm_bound = 0.5
-        >>> initial_noise_multiplier = 1.5
+        >>> norm_bound = 0.1
+        >>> initial_noise_multiplier = 1.0
         >>> seed = 0
         >>> decay_policy = None
         >>> net = NoiseGaussianRandom(norm_bound, initial_noise_multiplier, seed, decay_policy)
@@ -261,9 +261,9 @@ class NoiseAdaGaussianRandom(NoiseGaussianRandom):
     Examples:
         >>> gradients = Tensor([0.2, 0.9], mstype.float32)
         >>> norm_bound = 1.0
-        >>> initial_noise_multiplier = 1.5
+        >>> initial_noise_multiplier = 1.0
         >>> seed = 0
-        >>> noise_decay_rate = 6e-4
+        >>> noise_decay_rate = 6e-6
         >>> decay_policy = "Exp"
         >>> net = NoiseAdaGaussianRandom(norm_bound, initial_noise_multiplier, seed, noise_decay_rate, decay_policy)
         >>> res = net(gradients)
@@ -365,7 +365,7 @@ class AdaClippingWithGaussianRandom(Cell):
 
     Args:
         decay_policy(str): Decay policy of adaptive clipping, decay_policy must
-            be in ['Linear', 'Geometric']. Default: Linear.
+            be in ['Linear', 'Geometric']. Default: 'Linear'.
         learning_rate(float): Learning rate of update norm clip. Default: 0.001.
         target_unclipped_quantile(float): Target quantile of norm clip. Default: 0.9.
         fraction_stddev(float): The stddev of Gaussian normal which used in
