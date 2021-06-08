@@ -22,7 +22,7 @@ from mindarmour.fuzz_testing import ModelCoverageMetrics
 from mindarmour.utils.logger import LogUtil
 
 from examples.common.dataset.data_processing import generate_mnist_dataset
-from examples.common.networks.lenet5.lenet5_net import LeNet5
+from examples.common.networks.lenet5.lenet5_net_for_fuzzing import LeNet5
 
 LOGGER = LogUtil.get_instance()
 TAG = 'Neuron coverage test'
@@ -46,9 +46,13 @@ def test_lenet_mnist_coverage():
         images = data[0].astype(np.float32)
         train_images.append(images)
     train_images = np.concatenate(train_images, axis=0)
+    neuron_num = 10
+    segmented_num = 1000
+    top_k = 3
+    threshold = 0.1
 
     # initialize fuzz test with training dataset
-    model_fuzz_test = ModelCoverageMetrics(model, 10, 1000, train_images)
+    model_fuzz_test = ModelCoverageMetrics(model, neuron_num, segmented_num, train_images)
 
     # fuzz test with original test data
     # get test data
@@ -69,6 +73,10 @@ def test_lenet_mnist_coverage():
     LOGGER.info(TAG, 'NBC of this test is : %s', model_fuzz_test.get_nbc())
     LOGGER.info(TAG, 'SNAC of this test is : %s', model_fuzz_test.get_snac())
 
+    model_fuzz_test.calculate_effective_coverage(test_images, top_k, threshold)
+    LOGGER.info(TAG, 'NC of this test is : %s', model_fuzz_test.get_nc())
+    LOGGER.info(TAG, 'Effective_NC of this test is : %s', model_fuzz_test.get_effective_nc())
+
     # generate adv_data
     loss = SoftmaxCrossEntropyWithLogits(sparse=True)
     attack = FastGradientSignMethod(net, eps=0.3, loss_fn=loss)
@@ -77,6 +85,10 @@ def test_lenet_mnist_coverage():
     LOGGER.info(TAG, 'KMNC of this adv data is : %s', model_fuzz_test.get_kmnc())
     LOGGER.info(TAG, 'NBC of this adv data is : %s', model_fuzz_test.get_nbc())
     LOGGER.info(TAG, 'SNAC of this adv data is : %s', model_fuzz_test.get_snac())
+
+    model_fuzz_test.calculate_effective_coverage(adv_data, top_k, threshold)
+    LOGGER.info(TAG, 'NC of this test is : %s', model_fuzz_test.get_nc())
+    LOGGER.info(TAG, 'Effective_NC of this test is : %s', model_fuzz_test.get_effective_nc())
 
 
 if __name__ == '__main__':

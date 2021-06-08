@@ -21,7 +21,7 @@ from mindarmour.fuzz_testing import ModelCoverageMetrics
 from mindarmour.utils.logger import LogUtil
 
 from examples.common.dataset.data_processing import generate_mnist_dataset
-from examples.common.networks.lenet5.lenet5_net import LeNet5
+from examples.common.networks.lenet5.lenet5_net_for_fuzzing import LeNet5
 
 LOGGER = LogUtil.get_instance()
 TAG = 'Fuzz_test'
