@@ -53,11 +53,11 @@ concept = ConceptDriftCheckTimeSeries(window_size=100, rolling_window=10, step=1
                                       need_label=False)
 ```
 
->window_size(int): Size of a concept window, belongs to [10, 1/3*len(input data)]. If the data is periodic, usually window_size equals 2-5 periods, such as, for monthly/weekly data, the data volume of 30/7 days is a period. Default: 100.  
+>window_size(int): Size of a concept window, no less than 10. If given the input data, window_size belongs to [10, 1/3*len(input data)]. If the data is periodic, usually window_size equals 2-5 periods, such as, for monthly/weekly data, the data volume of 30/7 days is a period. Default: 100.
 rolling_window(int): Smoothing window size, belongs to [1, window_size]. Default:10.  
 step(int): The jump length of the sliding window, belongs to [1,window_size]. Default:10.  
-threshold_index(float): The threshold index, (-∞,+∞), Default: 1.5.  
-need_label(bool）: False or True. If need_label=True, concept drift labels are needed. Default: False.  
+threshold_index(float): The threshold index. Default: 1.5.  
+need_label(bool): False or True. If need_label=True, concept drift labels are needed. Default: False.  
 
 ### Data
 
@@ -74,19 +74,22 @@ data = data[1:, 2].astype('float64')  # here we choose one column or multiple co
 
 ```python
 drift_score, threshold, concept_drift_location = concept.concept_check(data)
+# the result is saved as pdf named 'concept_drift_check.pdf'
 ```
 
 >drift_score(numpy.ndarray): The concept drift score of the example series.  
 threshold(float): The threshold to judge concept drift.  
-concept_drift_location(list): The location of the concept drift.
+concept_drift_location(list): The location of the concept drift.  
+
 
 ## Script Description
 
-```python
+```bash
 ├── mindarmour
   ├── reliability     # descriptions about GhostNet   # shell script for evaluation with CPU, GPU or Ascend
     ├──concept_drift
-        ├──concept_drift.py
-        ├──readme.md
+        ├──__init__.py
+        ├──concept_drift_check_time_series.py
+        ├──README.md
 ```
 
