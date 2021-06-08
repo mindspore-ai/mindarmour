@@ -1,5 +1,5 @@
 numpy >= 1.17.0
-scipy >= 1.5.3
+scipy >= 1.5.2
 matplotlib >= 3.2.1
 Pillow >= 2.0.0
 pytest >= 4.3.1
