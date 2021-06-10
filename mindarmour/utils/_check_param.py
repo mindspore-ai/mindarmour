@@ -49,7 +49,7 @@ def check_param_type(arg_name, arg_value, valid_type):
 
 
 def check_param_multi_types(arg_name, arg_value, valid_types):
-    """Check parameter type."""
+    """Check parameter multi types."""
     if not isinstance(arg_value, tuple(valid_types)):
         msg = 'type of {} must be in {}, but got {}' \
             .format(arg_name, valid_types, type(arg_value).__name__)
@@ -196,7 +196,7 @@ def check_pair_numpy_param(inputs_name, inputs, labels_name, labels):
 
 
 def check_equal_length(para_name1, value1, para_name2, value2):
-    """check weather the two parameters have equal length."""
+    """Check weather the two parameters have equal length."""
     if len(value1) != len(value2):
         msg = 'The dimension of {0} must equal to the ' \
               '{1}, but got {0} is {2}, ' \
@@ -208,7 +208,7 @@ def check_equal_length(para_name1, value1, para_name2, value2):
 
 
 def check_equal_shape(para_name1, value1, para_name2, value2):
-    """check weather the two parameters have equal shape."""
+    """Check weather the two parameters have equal shape."""
     if value1.shape != value2.shape:
         msg = 'The shape of {0} must equal to the ' \
               '{1}, but got {0} is {2}, ' \
@@ -220,9 +220,7 @@ def check_equal_shape(para_name1, value1, para_name2, value2):
 
 
 def check_norm_level(norm_level):
-    """
-    check norm_level of regularization.
-    """
+    """Check norm_level of regularization."""
     if not isinstance(norm_level, (int, str)):
         msg = 'Type of norm_level must be in [int, str], but got {}'.format(type(norm_level))
     accept_norm = [1, 2, '1', '2', 'l1', 'l2', 'inf', 'linf', np.inf]
@@ -240,7 +238,7 @@ def normalize_value(value, norm_level):
 
     Args:
         value (numpy.ndarray): Inputs.
-        norm_level (Union[int, str]): Normalized level.
+        norm_level (Union[int, str]): Normalized level. Option: [1, 2, np.inf, '1', '2', 'inf', 'l1', 'l2']
 
     Returns:
         numpy.ndarray, normalized value.
@@ -335,7 +333,7 @@ def check_detection_inputs(inputs, labels):
 
 
 def check_inputs_labels(inputs, labels):
-    """check inputs and labels is valid for white box method."""
+    """Check inputs and labels is valid for white box method."""
     _ = check_param_multi_types('inputs', inputs, (tuple, np.ndarray))
     _ = check_param_multi_types('labels', labels, (tuple, np.ndarray))
     inputs_image = inputs[0] if isinstance(inputs, tuple) else inputs

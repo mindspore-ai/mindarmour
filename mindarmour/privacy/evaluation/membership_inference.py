@@ -237,6 +237,7 @@ class MembershipInference:
         Returns:
             - numpy.ndarray, loss_logits features for each sample. Shape is (N, C).
                 N is the number of sample. C = 1 + dim(logits).
+
             - numpy.ndarray, labels for each sample, Shape is (N,).
         """
         loss_logits = np.array([])

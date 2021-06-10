@@ -198,8 +198,11 @@ class ImageInversionAttack:
                 checkpoint file. Default: None.
 
         Returns:
-            tuple, average l2 distance, average ssim value and average confidence (if labels or new_network is None,
-            then average confidence would be None).
+            - float, l2 distance.
+
+            - float, average ssim value.
+
+            - Union[float, None], average confidence. It would be None if labels or new_network is None.
 
         Examples:
             >>> net = LeNet5()
@@ -210,7 +213,6 @@ class ImageInversionAttack:
             >>> ori_images = np.random.random((2, 1, 32, 32))
             >>> result = inversion_attack.evaluate(ori_images, inver_images)
             >>> print(len(result))
-            3
         """
         check_numpy_param('original_images', original_images)
         check_numpy_param('inversion_images', inversion_images)

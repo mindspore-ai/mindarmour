@@ -264,7 +264,11 @@ def calculate_lp_distance(original_image, compared_image):
         compared_image (np.ndarray): Another image for comparison.
 
     Returns:
-        tuple, (l0, l2 and linf) distances between two images.
+        - float, l0 distances between two images.
+
+        - float, l2 distances between two images.
+
+        - float, linf distances between two images.
 
     Raises:
         TypeError: If type of original_image or type of compared_image is not numpy.ndarray.
@@ -319,7 +323,6 @@ def compute_ssim(image1, image2):
     Args:
         image1 (numpy.ndarray): The first image to be compared.
         image2 (numpy.ndarray): The second image to be compared.
-            channels).
 
     Returns:
         float, structural similarity.
