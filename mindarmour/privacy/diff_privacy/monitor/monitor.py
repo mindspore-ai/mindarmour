@@ -45,7 +45,7 @@ class PrivacyMonitorFactory:
                 privacy theory; If policy is 'zcdp', the monitor will compute
                 the privacy budget of DP training based on zero-concentrated
                 differential privacy theory. It's worth noting that 'zcdp'
-                is not suitable for subsampling nosie mechanism.
+                is not suitable for subsampling noise mechanism.
             args (Union[int, float, numpy.ndarray, list, str]): Parameters
                 used for creating a privacy monitor.
             kwargs (Union[int, float, numpy.ndarray, list, str]): Keyword

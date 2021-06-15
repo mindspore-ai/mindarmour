@@ -579,6 +579,8 @@ class _TrainOneStepCell(Cell):
             original data. Default: 1.0.
         noise_mech (Mechanisms): The object can generate the different type
             of noise. Default: None.
+        clip_mech (Mechanisms): The object is used to update the adaptive clip.
+            Default: None.
 
     Inputs:
         - **data** (Tensor) - Tensor of shape :math:`(N, \ldots)`.
