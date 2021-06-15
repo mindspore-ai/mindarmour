@@ -63,9 +63,11 @@ def test_lenet_mnist_fuzzing():
         images = data[0].astype(np.float32)
         train_images.append(images)
     train_images = np.concatenate(train_images, axis=0)
+    neuron_num = 10
+    segmented_num = 1000
 
     # initialize fuzz test with training dataset
-    model_coverage_test = ModelCoverageMetrics(model, 10, 1000, train_images)
+    model_coverage_test = ModelCoverageMetrics(model, neuron_num, segmented_num, train_images)
 
     # fuzz test with original test data
     # get test data
@@ -93,9 +95,8 @@ def test_lenet_mnist_fuzzing():
     LOGGER.info(TAG, 'KMNC of this test is : %s',
                 model_coverage_test.get_kmnc())
 
-    model_fuzz_test = Fuzzer(model, train_images, 10, 1000)
-    _, _, _, _, metrics = model_fuzz_test.fuzzing(mutate_config, initial_seeds,
-                                                  eval_metrics='auto')
+    model_fuzz_test = Fuzzer(model, train_images, neuron_num, segmented_num)
+    _, _, _, _, metrics = model_fuzz_test.fuzzing(mutate_config, initial_seeds, eval_metrics='auto')
     if metrics:
         for key in metrics:
             LOGGER.info(TAG, key + ': %s', metrics[key])

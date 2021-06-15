@@ -44,14 +44,15 @@ def _select_next(initial_seeds):
 
 
 def _coverage_gains(coverages):
-    """ Calculate the coverage gains of mutated samples. """
+    """ Calculate the coverage gains of mutated samples."""
     gains = [0] + coverages[:-1]
     gains = np.array(coverages) - np.array(gains)
     return gains
 
 
 def _is_trans_valid(seed, mutate_sample):
-    """ Check a mutated sample is valid. If the number of changed pixels in
+    """
+    Check a mutated sample is valid. If the number of changed pixels in
     a seed is less than pixels_change_rate*size(seed), this mutate is valid.
     Else check the infinite norm of seed changes, if the value of the
     infinite norm less than pixel_value_change_rate*255, this mutate is
@@ -80,21 +81,18 @@ def _check_eval_metrics(eval_metrics):
         available_metrics = ['accuracy', 'attack_success_rate', 'kmnc', 'nbc', 'snac']
         for elem in eval_metrics:
             if elem not in available_metrics:
-                msg = 'metric in list `eval_metrics` must be in {}, but ' \
-                      'got {}.'.format(available_metrics, elem)
+                msg = 'metric in list `eval_metrics` must be in {}, but got {}.'.format(available_metrics, elem)
                 LOGGER.error(TAG, msg)
                 raise ValueError(msg)
             eval_metrics_.append(elem.lower())
     elif isinstance(eval_metrics, str):
         if eval_metrics != 'auto':
-            msg = "the value of `eval_metrics` must be 'auto' if it's type " \
-                  "is str, but got {}.".format(eval_metrics)
+            msg = "the value of `eval_metrics` must be 'auto' if it's type is str, but got {}.".format(eval_metrics)
             LOGGER.error(TAG, msg)
             raise ValueError(msg)
         eval_metrics_ = 'auto'
     else:
-        msg = "the type of `eval_metrics` must be str, list or tuple, " \
-              "but got {}.".format(type(eval_metrics))
+        msg = "the type of `eval_metrics` must be str, list or tuple, but got {}.".format(type(eval_metrics))
         LOGGER.error(TAG, msg)
         raise TypeError(msg)
     return eval_metrics_
@@ -109,11 +107,9 @@ class Fuzzer:
 
     Args:
         target_model (Model): Target fuzz model.
-        train_dataset (numpy.ndarray): Training dataset used for determining
-            the neurons' output boundaries.
+        train_dataset (numpy.ndarray): Training dataset used for determining the neurons' output boundaries.
         neuron_num (int): The number of testing neurons.
-        segmented_num (int): The number of segmented sections of neurons'
-            output intervals. Default: 1000.
+        segmented_num (int): The number of segmented sections of neurons' output intervals. Default: 1000.
 
     Examples:
         >>> net = Net()
@@ -126,7 +122,9 @@ class Fuzzer:
         >>>                  {'method': 'FGSM',
         >>>                   'params': {'eps': [0.1, 0.2, 0.3], 'alpha': [0.1]}}]
         >>> train_images = np.random.rand(32, 1, 32, 32).astype(np.float32)
-        >>> model_fuzz_test = Fuzzer(model, train_images, 10, 1000)
+        >>> neuron_num = 10
+        >>> segmented_num = 1000
+        >>> model_fuzz_test = Fuzzer(model, train_images, neuron_num, segmented_num)
         >>> samples, labels, preds, strategies, report = model_fuzz_test.fuzz_testing(mutate_config, initial_seeds)
     """
 
@@ -134,10 +132,7 @@ class Fuzzer:
                  segmented_num=1000):
         self._target_model = check_model('model', target_model, Model)
         train_dataset = check_numpy_param('train_dataset', train_dataset)
-        self._coverage_metrics = ModelCoverageMetrics(target_model,
-                                                      neuron_num,
-                                                      segmented_num,
-                                                      train_dataset)
+        self._coverage_metrics = ModelCoverageMetrics(target_model, neuron_num, segmented_num, train_dataset)
         # Allowed mutate strategies so far.
         self._strategies = {'Contrast': Contrast,
                             'Brightness': Brightness,
@@ -151,30 +146,19 @@ class Fuzzer:
                             'PGD': ProjectedGradientDescent,
                             'MDIIM': MomentumDiverseInputIterativeMethod}
         self._affine_trans_list = ['Translate', 'Scale', 'Shear', 'Rotate']
-        self._pixel_value_trans_list = ['Contrast', 'Brightness', 'Blur',
-                                        'Noise']
+        self._pixel_value_trans_list = ['Contrast', 'Brightness', 'Blur', 'Noise']
         self._attacks_list = ['FGSM', 'PGD', 'MDIIM']
         self._attack_param_checklists = {
-            'FGSM': {'eps': {'dtype': [float],
-                             'range': [0, 1]},
-                     'alpha': {'dtype': [float],
-                               'range': [0, 1]},
+            'FGSM': {'eps': {'dtype': [float], 'range': [0, 1]},
+                     'alpha': {'dtype': [float], 'range': [0, 1]},
                      'bounds': {'dtype': [tuple]}},
-            'PGD': {'eps': {'dtype': [float],
-                            'range': [0, 1]},
-                    'eps_iter': {
-                        'dtype': [float],
-                        'range': [0, 1]},
-                    'nb_iter': {'dtype': [int],
-                                'range': [0, 100000]},
+            'PGD': {'eps': {'dtype': [float], 'range': [0, 1]},
+                    'eps_iter': {'dtype': [float], 'range': [0, 1]},
+                    'nb_iter': {'dtype': [int], 'range': [0, 100000]},
                     'bounds': {'dtype': [tuple]}},
-            'MDIIM': {'eps': {'dtype': [float],
-                              'range': [0, 1]},
-                      'norm_level': {'dtype': [str, int],
-                                     'range': [1, 2, '1', '2', 'l1', 'l2',
-                                               'inf', 'np.inf']},
-                      'prob': {'dtype': [float],
-                               'range': [0, 1]},
+            'MDIIM': {'eps': {'dtype': [float], 'range': [0, 1]},
+                      'norm_level': {'dtype': [str, int], 'range': [1, 2, '1', '2', 'l1', 'l2', 'inf', 'np.inf']},
+                      'prob': {'dtype': [float], 'range': [0, 1]},
                       'bounds': {'dtype': [tuple]}}}
 
     def fuzzing(self, mutate_config, initial_seeds, coverage_metric='KMNC',
@@ -239,13 +223,11 @@ class Fuzzer:
         # Check parameters.
         eval_metrics_ = _check_eval_metrics(eval_metrics)
         if coverage_metric not in ['KMNC', 'NBC', 'SNAC']:
-            msg = "coverage_metric must be in ['KMNC', 'NBC', 'SNAC'], " \
-                  "but got {}.".format(coverage_metric)
+            msg = "coverage_metric must be in ['KMNC', 'NBC', 'SNAC'], but got {}.".format(coverage_metric)
             LOGGER.error(TAG, msg)
             raise ValueError(msg)
         max_iters = check_int_positive('max_iters', max_iters)
-        mutate_num_per_seed = check_int_positive('mutate_num_per_seed',
-                                                 mutate_num_per_seed)
+        mutate_num_per_seed = check_int_positive('mutate_num_per_seed', mutate_num_per_seed)
         mutate_config = self._check_mutate_config(mutate_config)
         mutates = self._init_mutates(mutate_config)
 
@@ -276,39 +258,30 @@ class Fuzzer:
                                                                          mutate_config,
                                                                          mutate_num_per_seed)
             # Calculate the coverages and predictions of generated samples.
-            coverages, predicts = self._get_coverages_and_predict(mutate_samples,
-                                                                  coverage_metric)
+            coverages, predicts = self._get_coverages_and_predict(mutate_samples, coverage_metric)
             coverage_gains = _coverage_gains(coverages)
-            for mutate, cov, pred, strategy in zip(mutate_samples,
-                                                   coverage_gains,
-                                                   predicts, mutate_strategies):
+            for mutate, cov, pred, strategy in zip(mutate_samples, coverage_gains, predicts, mutate_strategies):
                 fuzz_samples.append(mutate[0])
                 true_labels.append(mutate[1])
                 fuzz_preds.append(pred)
                 fuzz_strategies.append(strategy)
                 # if the mutate samples has coverage gains add this samples in
-                # the initial seeds to guide new mutates.
+                # the initial_seeds to guide new mutates.
                 if cov > 0:
                     initial_seeds.append(mutate)
             seed, initial_seeds = _select_next(initial_seeds)
             iter_num += 1
         metrics_report = None
         if eval_metrics_ is not None:
-            metrics_report = self._evaluate(fuzz_samples,
-                                            true_labels,
-                                            fuzz_preds,
-                                            fuzz_strategies,
-                                            eval_metrics_)
+            metrics_report = self._evaluate(fuzz_samples, true_labels, fuzz_preds, fuzz_strategies, eval_metrics_)
         return fuzz_samples, true_labels, fuzz_preds, fuzz_strategies, metrics_report
 
-    def _get_coverages_and_predict(self, mutate_samples,
-                                   coverage_metric="KNMC"):
+    def _get_coverages_and_predict(self, mutate_samples, coverage_metric="KNMC"):
         """ Calculate the coverages and predictions of generated samples."""
         samples = [s[0] for s in mutate_samples]
         samples = np.array(samples)
         coverages = []
-        predictions = self._target_model.predict(
-            Tensor(samples.astype(np.float32)))
+        predictions = self._target_model.predict(Tensor(samples.astype(np.float32)))
         predictions = predictions.asnumpy()
         for index in range(len(samples)):
             mutate = samples[:index + 1]
@@ -349,10 +322,8 @@ class Fuzzer:
                 mutate_sample = transform.transform(seed[0])
             else:
                 for param_name in selected_param:
-                    transform.__setattr__('_' + str(param_name),
-                                          selected_param[param_name])
-                mutate_sample = transform.generate(np.array([seed[0].astype(np.float32)]),
-                                                   np.array([seed[1]]))[0]
+                    transform.__setattr__('_' + str(param_name), selected_param[param_name])
+                mutate_sample = transform.generate(np.array([seed[0].astype(np.float32)]), np.array([seed[1]]))[0]
             if method not in self._pixel_value_trans_list:
                 only_pixel_trans = 1
             mutate_sample = [mutate_sample, seed[1], only_pixel_trans]
@@ -372,8 +343,7 @@ class Fuzzer:
         for config in mutate_config:
             check_param_type("config", config, dict)
             if set(config.keys()) != {'method', 'params'}:
-                msg = "The key of each config must be in ('method', 'params'), " \
-                      "but got {}.".format(set(config.keys()))
+                msg = "The key of each config must be in ('method', 'params'), but got {}.".format(set(config.keys()))
                 LOGGER.error(TAG, msg)
                 raise KeyError(msg)
 
@@ -382,8 +352,7 @@ class Fuzzer:
 
             # Method must be in the optional range.
             if method not in self._strategies.keys():
-                msg = "Config methods must be in {}, but got {}." \
-                    .format(self._strategies.keys(), method)
+                msg = "Config methods must be in {}, but got {}.".format(self._strategies.keys(), method)
                 LOGGER.error(TAG, msg)
                 raise ValueError(msg)
 
@@ -401,8 +370,7 @@ class Fuzzer:
         # Methods in `metate_config` should at least have one in the type of
         # pixel value based transform methods.
         if not has_pixel_trans:
-            msg = "mutate methods in mutate_config should at least have one " \
-                  "in {}".format(self._pixel_value_trans_list)
+            msg = "mutate methods in mutate_config should at least have one in {}".format(self._pixel_value_trans_list)
             raise ValueError(msg)
 
         return mutate_config
@@ -424,11 +392,9 @@ class Fuzzer:
                               'but got its length as{}'.format(len(bounds))
                         raise ValueError(msg)
                     for bound_value in bounds:
-                        _ = check_param_multi_types('bound', bound_value,
-                                                    [int, float])
+                        _ = check_param_multi_types('bound', bound_value, [int, float])
                     if bounds[0] >= bounds[1]:
-                        msg = "upper bound must more than lower bound, " \
-                              "but upper bound got {}, lower bound " \
+                        msg = "upper bound must more than lower bound, but upper bound got {}, lower bound " \
                               "got {}".format(bounds[0], bounds[1])
                         raise ValueError(msg)
                 elif param_name == 'norm_level':
@@ -437,10 +403,7 @@ class Fuzzer:
                     allow_type = self._attack_param_checklists[method][param_name]['dtype']
                     allow_range = self._attack_param_checklists[method][param_name]['range']
                     _ = check_param_multi_types(str(param_name), param_value, allow_type)
-                    _ = check_param_in_range(str(param_name),
-                                             param_value,
-                                             allow_range[0],
-                                             allow_range[1])
+                    _ = check_param_in_range(str(param_name), param_value, allow_range[0], allow_range[1])
 
     def _init_mutates(self, mutate_config):
         """ Check whether the mutate_config meet the specification."""
@@ -454,8 +417,7 @@ class Fuzzer:
                 loss_fn = self._target_model._loss_fn
                 if loss_fn is None:
                     loss_fn = nn.SoftmaxCrossEntropyWithLogits(sparse=False)
-                mutates[method] = self._strategies[method](network,
-                                                           loss_fn=loss_fn)
+                mutates[method] = self._strategies[method](network, loss_fn=loss_fn)
         return mutates
 
     def _evaluate(self, fuzz_samples, true_labels, fuzz_preds,
@@ -497,8 +459,7 @@ class Fuzzer:
             metrics_report['Attack_success_rate'] = attack_success_rate
 
         if metrics == 'auto' or 'kmnc' in metrics or 'nbc' in metrics or 'snac' in metrics:
-            self._coverage_metrics.calculate_coverage(
-                np.array(fuzz_samples).astype(np.float32))
+            self._coverage_metrics.calculate_coverage(np.array(fuzz_samples).astype(np.float32))
 
         if metrics == 'auto' or 'kmnc' in metrics:
             kmnc = self._coverage_metrics.get_kmnc()

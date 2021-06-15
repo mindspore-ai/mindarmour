@@ -101,8 +101,10 @@ def test_fuzzing_ascend():
                       'params': {'eps': [0.1, 0.2, 0.3], 'alpha': [0.1]}}
                      ]
     # initialize fuzz test with training dataset
+    neuron_num = 10
+    segmented_num = 1000
     train_images = np.random.rand(32, 1, 32, 32).astype(np.float32)
-    model_coverage_test = ModelCoverageMetrics(model, 10, 1000, train_images)
+    model_coverage_test = ModelCoverageMetrics(model, neuron_num, segmented_num, train_images)
 
     # fuzz test with original test data
     # get test data
@@ -121,7 +123,7 @@ def test_fuzzing_ascend():
     LOGGER.info(TAG, 'KMNC of this test is : %s',
                 model_coverage_test.get_kmnc())
 
-    model_fuzz_test = Fuzzer(model, train_images, 10, 1000)
+    model_fuzz_test = Fuzzer(model, train_images, neuron_num, segmented_num)
     _, _, _, _, metrics = model_fuzz_test.fuzzing(mutate_config, initial_seeds)
     print(metrics)
 
@@ -137,6 +139,8 @@ def test_fuzzing_cpu():
     model = Model(net)
     batch_size = 8
     num_classe = 10
+    neuron_num = 10
+    segmented_num = 1000
     mutate_config = [{'method': 'Blur',
                       'params': {'auto_param': [True]}},
                      {'method': 'Contrast',
@@ -148,7 +152,7 @@ def test_fuzzing_cpu():
                      ]
     # initialize fuzz test with training dataset
     train_images = np.random.rand(32, 1, 32, 32).astype(np.float32)
-    model_coverage_test = ModelCoverageMetrics(model, 10, 1000, train_images)
+    model_coverage_test = ModelCoverageMetrics(model, neuron_num, segmented_num, train_images)
 
     # fuzz test with original test data
     # get test data
@@ -167,6 +171,6 @@ def test_fuzzing_cpu():
     LOGGER.info(TAG, 'KMNC of this test is : %s',
                 model_coverage_test.get_kmnc())
 
-    model_fuzz_test = Fuzzer(model, train_images, 10, 1000)
+    model_fuzz_test = Fuzzer(model, train_images, neuron_num, segmented_num)
     _, _, _, _, metrics = model_fuzz_test.fuzzing(mutate_config, initial_seeds)
     print(metrics)

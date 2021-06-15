@@ -56,7 +56,9 @@ class ModelCoverageMetrics:
         >>> train_images = np.random.random((10000, 1, 32, 32)).astype(np.float32)
         >>> test_images = np.random.random((5000, 1, 32, 32)).astype(np.float32)
         >>> model = Model(net)
-        >>> model_fuzz_test = ModelCoverageMetrics(model, 10, 1000, train_images)
+        >>> neuron_num = 10
+        >>> segmented_num = 1000
+        >>> model_fuzz_test = ModelCoverageMetrics(model, neuron_num, segmented_num, train_images)
         >>> model_fuzz_test.calculate_coverage(test_images)
         >>> print('KMNC of this test is : %s', model_fuzz_test.get_kmnc())
         >>> print('NBC of this test is : %s', model_fuzz_test.get_nbc())
@@ -68,16 +70,14 @@ class ModelCoverageMetrics:
         self._segmented_num = check_int_positive('segmented_num', segmented_num)
         self._neuron_num = check_int_positive('neuron_num', neuron_num)
         if self._neuron_num > 1e+9:
-            msg = 'neuron_num should be less than 1e+10, otherwise a MemoryError' \
-                  'would occur'
+            msg = 'neuron_num should be less than 1e+10, otherwise a MemoryError would occur'
             LOGGER.error(TAG, msg)
             raise ValueError(msg)
         train_dataset = check_numpy_param('train_dataset', train_dataset)
         self._lower_bounds = [np.inf]*self._neuron_num
         self._upper_bounds = [-np.inf]*self._neuron_num
         self._var = [0]*self._neuron_num
-        self._main_section_hits = [[0 for _ in range(self._segmented_num)] for _ in
-                                   range(self._neuron_num)]
+        self._main_section_hits = [[0 for _ in range(self._segmented_num)] for _ in range(self._neuron_num)]
         self._lower_corner_hits = [0]*self._neuron_num
         self._upper_corner_hits = [0]*self._neuron_num
         self._bounds_get(train_dataset)
@@ -99,19 +99,16 @@ class ModelCoverageMetrics:
             inputs = train_dataset[i*batch_size: (i + 1)*batch_size]
             output = self._model.predict(Tensor(inputs)).asnumpy()
             output_mat.append(output)
-            lower_compare_array = np.concatenate(
-                [output, np.array([self._lower_bounds])], axis=0)
+            lower_compare_array = np.concatenate([output, np.array([self._lower_bounds])], axis=0)
             self._lower_bounds = np.min(lower_compare_array, axis=0)
-            upper_compare_array = np.concatenate(
-                [output, np.array([self._upper_bounds])], axis=0)
+            upper_compare_array = np.concatenate([output, np.array([self._upper_bounds])], axis=0)
             self._upper_bounds = np.max(upper_compare_array, axis=0)
         if batches == 0:
             output = self._model.predict(Tensor(train_dataset)).asnumpy()
             self._lower_bounds = np.min(output, axis=0)
             self._upper_bounds = np.max(output, axis=0)
             output_mat.append(output)
-        self._var = np.std(np.concatenate(np.array(output_mat), axis=0),
-                           axis=0)
+        self._var = np.std(np.concatenate(np.array(output_mat), axis=0), axis=0)
 
     def _sections_hits_count(self, dataset, intervals):
         """
@@ -119,8 +116,7 @@ class ModelCoverageMetrics:
 
         Args:
             dataset (numpy.ndarray): Testing data.
-            intervals (list[float]): Segmentation intervals of neurons'
-                outputs.
+            intervals (list[float]): Segmentation intervals of neurons' outputs.
         """
         dataset = check_numpy_param('dataset', dataset)
         batch_output = self._model.predict(Tensor(dataset)).asnumpy()
@@ -142,11 +138,12 @@ class ModelCoverageMetrics:
             dataset (numpy.ndarray): Data for fuzz test.
             bias_coefficient (Union[int, float]): The coefficient used
                 for changing the neurons' output boundaries. Default: 0.
-            batch_size (int): The number of samples in a predict batch.
-                Default: 32.
+            batch_size (int): The number of samples in a predict batch. Default: 32.
 
         Examples:
-            >>> model_fuzz_test = ModelCoverageMetrics(model, 10000, 10, train_images)
+            >>> neuron_num = 10
+            >>> segmented_num = 1000
+            >>> model_fuzz_test = ModelCoverageMetrics(model, neuron_num, segmented_num, train_images)
             >>> model_fuzz_test.calculate_coverage(test_images)
         """
 
@@ -158,12 +155,13 @@ class ModelCoverageMetrics:
         intervals = (self._upper_bounds - self._lower_bounds) / self._segmented_num
         batches = dataset.shape[0] // batch_size
         for i in range(batches):
-            self._sections_hits_count(
-                dataset[i*batch_size: (i + 1)*batch_size], intervals)
+            self._sections_hits_count(dataset[i*batch_size: (i + 1)*batch_size], intervals)
 
     def get_kmnc(self):
         """
-        Get the metric of 'k-multisection neuron coverage'.
+        Get the metric of 'k-multisection neuron coverage'. KMNC measures how
+        thoroughly the given set of test inputs covers the range of neurons
+        output values derived from training dataset.
 
         Returns:
             float, the metric of 'k-multisection neuron coverage'.
@@ -176,7 +174,11 @@ class ModelCoverageMetrics:
 
     def get_nbc(self):
         """
-        Get the metric of 'neuron boundary coverage'.
+        Get the metric of 'neuron boundary coverage' :math` NBC =（|UpperCornerNeuron|
+        + |LowerCornerNeuron|）/(2*|N|)`, where :math`|N|` is the number of neurons,
+        NBC refers to the proportion of neurons whose neurons output value in
+        the test dataset exceeds the upper and lower bounds of the corresponding
+        neurons output value in the training dataset.
 
         Returns:
             float, the metric of 'neuron boundary coverage'.
@@ -184,13 +186,15 @@ class ModelCoverageMetrics:
         Examples:
             >>> model_fuzz_test.get_nbc()
         """
-        nbc = (np.sum(self._lower_corner_hits) + np.sum(
-            self._upper_corner_hits)) / (2*self._neuron_num)
+        nbc = (np.sum(self._lower_corner_hits) + np.sum(self._upper_corner_hits)) / (2*self._neuron_num)
         return nbc
 
     def get_snac(self):
         """
         Get the metric of 'strong neuron activation coverage'.
+         :math` SNAC =|UpperCornerNeuron| / |N|`. SNAC refers to the proportion
+        of neurons whose neurons output value in the test set exceeds the upper
+        bounds of the corresponding neurons output value in the training set.
 
         Returns:
             float, the metric of 'strong neuron activation coverage'.
