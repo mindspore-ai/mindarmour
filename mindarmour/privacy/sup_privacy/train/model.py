@@ -67,10 +67,10 @@ class SuppressModel(Model):
 
     Examples:
         >>> networks_l5 = LeNet5()
-        >>> masklayers = []
-        >>> masklayers.append(MaskLayerDes("conv1.weight", 0, False, True, 10))
+        >>> mask_layers = []
+        >>> mask_layers.append(MaskLayerDes("conv1.weight", 0, False, True, 10))
         >>> suppress_ctrl_instance = SuppressPrivacyFactory().create(networks=networks_l5,
-        >>>                                                     mask_layers=masklayers,
+        >>>                                                     mask_layers=mask_layers,
         >>>                                                     policy="local_train",
         >>>                                                     end_epoch=10,
         >>>                                                     batch_num=(int)(10000/cfg.batch_size),

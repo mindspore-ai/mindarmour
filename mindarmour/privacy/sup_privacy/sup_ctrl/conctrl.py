@@ -58,10 +58,10 @@ class SuppressPrivacyFactory:
 
         Examples:
             >>> networks_l5 = LeNet5()
-            >>> masklayers = []
-            >>> masklayers.append(MaskLayerDes("conv1.weight", 0, False, True, 10))
+            >>> mask_layers = []
+            >>> mask_layers.append(MaskLayerDes("conv1.weight", 0, False, True, 10))
             >>> suppress_ctrl_instance = SuppressPrivacyFactory().create(networks=networks_l5,
-            >>>                                                 mask_layers=masklayers,
+            >>>                                                 mask_layers=mask_layers,
             >>>                                                 policy="local_train",
             >>>                                                 end_epoch=10,
             >>>                                                 batch_num=(int)(10000/cfg.batch_size),
@@ -735,14 +735,14 @@ class MaskLayerDes:
             grad layers (print in PYNATIVE_MODE).
         is_add_noise (bool): If True, the weight of this layer can add noise.
             If False, the weight of this layer can not add noise.
-            If parameter num is greater than 100000, is_add_noise has not effect.
-        is_lower_clip (bool): If true, the weights of this layer would be clipped to greater than an lower bound value.
+            If parameter num is greater than 100000, is_add_noise has no effect.
+        is_lower_clip (bool): If True, the weights of this layer would be clipped to greater than an lower bound value.
             If False, the weights of this layer won't be clipped.
-            If parameter num is greater than 100000, is_lower_clip has not effect.
+            If parameter num is greater than 100000, is_lower_clip has no effect.
         min_num (int): The number of weights left that not be suppressed.
-            If min_num is smaller than (parameter num*SupperssCtrl.sparse_end), min_num has not effect.
-        upper_bound (Union[float, int]): max abs value of weight in this layer, default: 1.20.
-            If parameter num is greater than 100000, upper_bound has not effect.
+            If min_num is smaller than (parameter num*SupperssCtrl.sparse_end), min_num has no effect.
+        upper_bound (Union[float, int]): Max abs value of weight in this layer, default: 1.20.
+            If parameter num is greater than 100000, upper_bound has no effect.
     """
     def __init__(self, layer_name, grad_idx, is_add_noise, is_lower_clip, min_num, upper_bound=1.20):
         self.layer_name = check_param_type('layer_name', layer_name, str)
@@ -762,10 +762,10 @@ class GradMaskInCell(Cell):
         array (numpy.ndarray): The mask array.
         is_add_noise (bool): If True, the weight of this layer can add noise.
             If False, the weight of this layer can not add noise.
-        is_lower_clip (bool): If true, the weights of this layer would be clipped to greater than an lower bound value.
+        is_lower_clip (bool): If True, the weights of this layer would be clipped to greater than an lower bound value.
             If False, the weights of this layer won't be clipped.
         min_num (int): The number of weights left that not be suppressed.
-            If min_num is smaller than (parameter num*SupperssCtrl.sparse_end), min_num has not effect.
+            If min_num is smaller than (parameter num*SupperssCtrl.sparse_end), min_num has no effect.
         upper_bound ([float, int]): max abs value of weight in this layer, default: 1.20.
     """
     def __init__(self, array, is_add_noise, is_lower_clip, min_num, upper_bound=1.20):
