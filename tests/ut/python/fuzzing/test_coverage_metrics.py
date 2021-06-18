@@ -69,8 +69,10 @@ def test_lenet_mnist_coverage_cpu():
     model = Model(net)
 
     # initialize fuzz test with training dataset
+    neuron_num = 10
+    segmented_num = 1000
     training_data = (np.random.random((10000, 10))*20).astype(np.float32)
-    model_fuzz_test = ModelCoverageMetrics(model, 10, 1000, training_data)
+    model_fuzz_test = ModelCoverageMetrics(model, neuron_num, segmented_num, training_data)
 
     # fuzz test with original test data
     # get test data
@@ -103,8 +105,11 @@ def test_lenet_mnist_coverage_ascend():
     model = Model(net)
 
     # initialize fuzz test with training dataset
+    neuron_num = 10
+    segmented_num = 1000
     training_data = (np.random.random((10000, 10))*20).astype(np.float32)
-    model_fuzz_test = ModelCoverageMetrics(model, 10, 1000, training_data)
+
+    model_fuzz_test = ModelCoverageMetrics(model, neuron_num, segmented_num, training_data,)
 
     # fuzz test with original test data
     # get test data
