@@ -86,9 +86,8 @@ def jacobian_matrix_for_detection(grad_wrap_net, inputs, num_boxes, num_classes)
         inputs_tensor += (Tensor(inputs),)
     for idx in range(num_classes):
         batch_size = inputs[0].shape[0] if isinstance(inputs, tuple) else inputs.shape[0]
-        sens = np.zeros((batch_size, num_boxes, num_classes)).astype(np.float32)
+        sens = np.zeros((batch_size, num_boxes, num_classes), np.float32)
         sens[:, :, idx] = 1.0
-
         grads = grad_wrap_net(*(inputs_tensor), Tensor(sens))
         grads_matrix.append(grads.asnumpy())
     return np.asarray(grads_matrix)
