@@ -69,7 +69,7 @@ def test_membership_inference_object_train():
     loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True)
     opt = nn.Momentum(params=net.trainable_params(), learning_rate=0.1, momentum=0.9)
     model = Model(network=net, loss_fn=loss, optimizer=opt)
-    inference_model = MembershipInference(model, -1)
+    inference_model = MembershipInference(model, 2)
     assert isinstance(inference_model, MembershipInference)
 
     config = [{
