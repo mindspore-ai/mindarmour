@@ -55,21 +55,21 @@ class NES(Attack):
     Args:
         model (BlackModel): Target model to be attacked.
         scene (str): Scene in 'Label_Only', 'Partial_Info' or 'Query_Limit'.
-        max_queries (int): Maximum query numbers to generate an adversarial example. Default: 500000.
+        max_queries (int): Maximum query numbers to generate an adversarial example. Default: 10000.
         top_k (int): For Partial-Info or Label-Only setting, indicating how much (Top-k) information is
             available for the attacker. For Query-Limited setting, this input should be set as -1. Default: -1.
         num_class (int): Number of classes in dataset. Default: 10.
-        batch_size (int): Batch size. Default: 96.
+        batch_size (int): Batch size. Default: 128.
         epsilon (float): Maximum perturbation allowed in attack. Default: 0.3.
-        samples_per_draw (int): Number of samples draw in antithetic sampling. Default: 96.
+        samples_per_draw (int): Number of samples draw in antithetic sampling. Default: 128.
         momentum (float): Momentum. Default: 0.9.
-        learning_rate (float): Learning rate. Default: 1e-2.
-        max_lr (float): Max Learning rate. Default: 1e-2.
-        min_lr (float): Min Learning rate. Default: 5e-5.
+        learning_rate (float): Learning rate. Default: 1e-3.
+        max_lr (float): Max Learning rate. Default: 5e-2.
+        min_lr (float): Min Learning rate. Default: 5e-4.
         sigma (float): Step size of random noise. Default: 1e-3.
         plateau_length (int): Length of plateau used in Annealing algorithm. Default: 20.
         plateau_drop (float): Drop of plateau used in Annealing algorithm. Default: 2.0.
-        adv_thresh (float): Threshold of adversarial. Default: 0.15.
+        adv_thresh (float): Threshold of adversarial. Default: 0.25.
         zero_iters (int): Number of points to use for the proxy score. Default: 10.
         starting_eps (float): Starting epsilon used in Label-Only setting. Default: 1.0.
         starting_delta_eps (float): Delta epsilon used in Label-Only setting. Default: 0.5.

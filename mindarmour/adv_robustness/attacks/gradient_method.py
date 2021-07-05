@@ -213,7 +213,7 @@ class RandomFastGradientMethod(FastGradientMethod):
         bounds (tuple): Upper and lower bounds of data, indicating the data range.
             In form of (clip_min, clip_max). Default: (0.0, 1.0).
         norm_level (Union[int, numpy.inf]): Order of the norm.
-        Possible values: np.inf, 1 or 2. Default: 2.
+            Possible values: np.inf, 1 or 2. Default: 2.
         is_targeted (bool): If True, targeted attack. If False, untargeted
             attack. Default: False.
         loss_fn (Loss): Loss function for optimization. If None, the input network \

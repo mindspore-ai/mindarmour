@@ -141,7 +141,7 @@ class SpatialSmoothing(Detector):
         Set the parameters threshold.
 
         Args:
-            threshold (float): Detection threshold. Default: None.
+            threshold (float): Detection threshold.
         """
         self._threshold = check_value_positive('threshold', threshold)
 

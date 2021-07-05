@@ -182,8 +182,6 @@ class BasicIterativeMethod(IterativeGradientMethod):
         nb_iter (int): Number of iteration. Default: 5.
         loss_fn (Loss): Loss function for optimization. If None, the input network \
             is already equipped with loss function. Default: None.
-        attack (class): The single step gradient method of each iteration. In
-            this class, FGSM is used.
 
     Examples:
         >>> attack = BasicIterativeMethod(network, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))

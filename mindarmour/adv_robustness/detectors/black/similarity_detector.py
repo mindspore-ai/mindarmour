@@ -223,7 +223,7 @@ class SimilarityDetector(Detector):
 
         Args:
             num_of_neighbors (int): Number of the nearest neighbors.
-            threshold (float): Detection threshold. Default: None.
+            threshold (float): Detection threshold.
         """
         self._num_of_neighbors = check_int_positive('num_of_neighbors',
                                                     num_of_neighbors)

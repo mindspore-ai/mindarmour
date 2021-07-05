@@ -73,8 +73,12 @@ class RegionBasedDetector(Detector):
         self._radius = None
 
     def set_radius(self, radius):
-        """Set radius."""
+        """
+        Set radius.
 
+        Args:
+            radius (float): Radius of region.
+        """
         self._radius = check_param_in_range('radius', radius,
                                             self._initial_radius,
                                             self._max_radius)

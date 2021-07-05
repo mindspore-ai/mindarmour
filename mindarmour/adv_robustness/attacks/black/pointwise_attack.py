@@ -39,8 +39,8 @@ class PointWiseAttack(Attack):
 
     Args:
         model (BlackModel): Target model.
-        max_iter (int): Max rounds of iteration to generate adversarial image.
-        search_iter (int): Max rounds of binary search.
+        max_iter (int): Max rounds of iteration to generate adversarial image. Default: 100.
+        search_iter (int): Max rounds of binary search. Default: 10.
         is_targeted (bool): If True, targeted attack. If False, untargeted attack. Default: False.
         init_attack (Attack): Attack used to find a starting point. Default: None.
         sparse (bool): If True, input labels are sparse-encoded. If False, input labels are one-hot-encoded.

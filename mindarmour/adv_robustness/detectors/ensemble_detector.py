@@ -49,7 +49,7 @@ class EnsembleDetector(Detector):
 
         Args:
             inputs (numpy.ndarray): Data to calculate the threshold.
-            labels (numpy.ndarray): Labels of data.
+            labels (numpy.ndarray): Labels of data. Default: None.
 
         Raises:
             NotImplementedError: This function is not available in ensemble.
@@ -115,6 +115,10 @@ class EnsembleDetector(Detector):
         """
         Filter adversarial noises in input samples.
         This method is not available in this class.
+
+        Args:
+            inputs (Union[numpy.ndarray, list, tuple]): Data been used as
+                references to create adversarial examples.
 
         Raises:
             NotImplementedError: This function is not available in ensemble.

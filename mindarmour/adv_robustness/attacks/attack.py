@@ -45,7 +45,7 @@ class Attack:
                 examples are generated.
             labels (Union[numpy.ndarray, tuple]): Original/target labels. \
                 For each input if it has more than one label, it is wrapped in a tuple.
-            batch_size (int): The number of samples in one batch.
+            batch_size (int): The number of samples in one batch. Default: 64.
 
         Returns:
             numpy.ndarray, generated adversarial examples
