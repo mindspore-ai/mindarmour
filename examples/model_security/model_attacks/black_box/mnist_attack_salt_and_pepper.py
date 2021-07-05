@@ -86,9 +86,7 @@ def test_salt_and_pepper_attack_on_mnist():
 
     # attacking
     is_target = False
-    attack = SaltAndPepperNoiseAttack(model=model,
-                                      is_targeted=is_target,
-                                      sparse=True)
+    attack = SaltAndPepperNoiseAttack(model=model, is_targeted=is_target, sparse=True)
     if is_target:
         targeted_labels = np.random.randint(0, 10, size=len(true_labels))
         for i, true_l in enumerate(true_labels):
@@ -97,8 +95,7 @@ def test_salt_and_pepper_attack_on_mnist():
     else:
         targeted_labels = true_labels
     LOGGER.debug(TAG, 'input shape is: {}'.format(np.concatenate(test_images).shape))
-    success_list, adv_data, query_list = attack.generate(
-        np.concatenate(test_images), targeted_labels)
+    success_list, adv_data, query_list = attack.generate(np.concatenate(test_images), targeted_labels)
     success_list = np.arange(success_list.shape[0])[success_list]
     LOGGER.info(TAG, 'success_list: %s', success_list)
     LOGGER.info(TAG, 'average of query times is : %s', np.mean(query_list))
@@ -110,21 +107,16 @@ def test_salt_and_pepper_attack_on_mnist():
         adv_preds.extend(pred_logits_adv)
     adv_preds = np.array(adv_preds)
     accuracy_adv = np.mean(np.equal(np.max(adv_preds, axis=1), true_labels))
-    LOGGER.info(TAG, "prediction accuracy after attacking is : %g",
-                accuracy_adv)
+    LOGGER.info(TAG, "prediction accuracy after attacking is : %g", accuracy_adv)
     test_labels_onehot = np.eye(10)[true_labels]
     attack_evaluate = AttackEvaluate(np.concatenate(test_images),
                                      test_labels_onehot, adv_data,
                                      adv_preds, targeted=is_target,
                                      target_label=targeted_labels)
-    LOGGER.info(TAG, 'mis-classification rate of adversaries is : %s',
-                attack_evaluate.mis_classification_rate())
-    LOGGER.info(TAG, 'The average confidence of adversarial class is : %s',
-                attack_evaluate.avg_conf_adv_class())
-    LOGGER.info(TAG, 'The average confidence of true class is : %s',
-                attack_evaluate.avg_conf_true_class())
-    LOGGER.info(TAG, 'The average distance (l0, l2, linf) between original '
-                     'samples and adversarial samples are: %s',
+    LOGGER.info(TAG, 'mis-classification rate of adversaries is : %s', attack_evaluate.mis_classification_rate())
+    LOGGER.info(TAG, 'The average confidence of adversarial class is : %s', attack_evaluate.avg_conf_adv_class())
+    LOGGER.info(TAG, 'The average confidence of true class is : %s', attack_evaluate.avg_conf_true_class())
+    LOGGER.info(TAG, 'The average distance (l0, l2, linf) between original samples and adversarial samples are: %s',
                 attack_evaluate.avg_lp_distance())
 
 
