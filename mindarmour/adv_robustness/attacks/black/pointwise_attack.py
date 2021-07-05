@@ -29,9 +29,8 @@ TAG = 'PointWiseAttack'
 
 class PointWiseAttack(Attack):
     """
-    The Pointwise Attack make sure use the minimum number of changed pixels
-    to generate adversarial sample for each original sample.Those changed pixels
-    will use binary seach to make sure the distance between adversarial sample
+    The Pointwise Attack make sure use the minimum number of changed pixels to generate adversarial sample for each
+    original sample.Those changed pixels will use binary search to make sure the distance between adversarial sample
     and original sample is as close as possible.
 
     References: `L. Schott, J. Rauber, M. Bethge, W. Brendel: "Towards the
@@ -42,32 +41,23 @@ class PointWiseAttack(Attack):
         model (BlackModel): Target model.
         max_iter (int): Max rounds of iteration to generate adversarial image.
         search_iter (int): Max rounds of binary search.
-        is_targeted (bool): If True, targeted attack. If False, untargeted
-            attack. Default: False.
-        init_attack (Attack): Attack used to find a starting point. Default:
-            None.
-        sparse (bool): If True, input labels are sparse-encoded. If False,
-            input labels are one-hot-encoded. Default: True.
+        is_targeted (bool): If True, targeted attack. If False, untargeted attack. Default: False.
+        init_attack (Attack): Attack used to find a starting point. Default: None.
+        sparse (bool): If True, input labels are sparse-encoded. If False, input labels are one-hot-encoded.
+            Default: True.
 
     Examples:
         >>> attack = PointWiseAttack(model)
     """
 
-    def __init__(self,
-                 model,
-                 max_iter=1000,
-                 search_iter=10,
-                 is_targeted=False,
-                 init_attack=None,
-                 sparse=True):
+    def __init__(self, model, max_iter=1000, search_iter=10, is_targeted=False, init_attack=None, sparse=True):
         super(PointWiseAttack, self).__init__()
         self._model = check_model('model', model, BlackModel)
         self._max_iter = check_int_positive('max_iter', max_iter)
         self._search_iter = check_int_positive('search_iter', search_iter)
         self._is_targeted = check_param_type('is_targeted', is_targeted, bool)
         if init_attack is None:
-            self._init_attack = SaltAndPepperNoiseAttack(model,
-                                                         is_targeted=self._is_targeted)
+            self._init_attack = SaltAndPepperNoiseAttack(model, is_targeted=self._is_targeted)
         else:
             self._init_attack = init_attack
         self._sparse = check_param_type('sparse', sparse, bool)
@@ -77,10 +67,9 @@ class PointWiseAttack(Attack):
         Generate adversarial examples based on input samples and targeted labels.
 
         Args:
-            inputs (numpy.ndarray): Benign input samples used as references to create
-                adversarial examples.
-            labels (numpy.ndarray): For targeted attack, labels are adversarial
-                target labels. For untargeted attack, labels are ground-truth labels.
+            inputs (numpy.ndarray): Benign input samples used as references to create adversarial examples.
+            labels (numpy.ndarray): For targeted attack, labels are adversarial target labels.
+                For untargeted attack, labels are ground-truth labels.
 
         Returns:
             - numpy.ndarray, bool values for each attack result.
@@ -90,38 +79,26 @@ class PointWiseAttack(Attack):
             - numpy.ndarray, query times for each sample.
 
         Examples:
-            >>> is_adv_list, adv_list, query_times_each_adv = attack.generate(
-            >>>     [[0.1, 0.2, 0.6], [0.3, 0, 0.4]],
-            >>>     [2, 3])
+            >>> is_adv_list, adv_list, query_times_each_adv = attack.generate([[0.1, 0.2, 0.6], [0.3, 0, 0.4]], [2, 3])
         """
-        arr_x, arr_y = check_pair_numpy_param('inputs', inputs, 'labels',
-                                              labels)
+        arr_x, arr_y = check_pair_numpy_param('inputs', inputs, 'labels', labels)
         if not self._sparse:
             arr_y = np.argmax(arr_y, axis=1)
-        ini_bool, ini_advs, ini_count = self._initialize_starting_point(arr_x,
-                                                                        arr_y)
+        ini_bool, ini_advs, ini_count = self._initialize_starting_point(arr_x, arr_y)
         is_adv_list = list()
         adv_list = list()
         query_times_each_adv = list()
-        for sample, sample_label, start_adv, ite_bool, ite_c in zip(arr_x,
-                                                                    arr_y,
-                                                                    ini_advs,
-                                                                    ini_bool,
-                                                                    ini_count):
+        for sample, sample_label, start_adv, ite_bool, ite_c in zip(arr_x, arr_y, ini_advs, ini_bool, ini_count):
             if ite_bool:
                 LOGGER.info(TAG, 'Start optimizing.')
-                ori_label = np.argmax(
-                    self._model.predict(np.expand_dims(sample, axis=0))[0])
+                ori_label = np.argmax(self._model.predict(np.expand_dims(sample, axis=0))[0])
                 ini_label = np.argmax(self._model.predict(np.expand_dims(start_adv, axis=0))[0])
-                is_adv, adv_x, query_times = self._decision_optimize(sample,
-                                                                     sample_label,
-                                                                     start_adv)
-                adv_label = np.argmax(
-                    self._model.predict(np.expand_dims(adv_x, axis=0))[0])
-                LOGGER.debug(TAG, 'before ini attack label is :{}'.format(ori_label))
-                LOGGER.debug(TAG, 'after ini attack label is :{}'.format(ini_label))
-                LOGGER.debug(TAG, 'INPUT optimize label is :{}'.format(sample_label))
-                LOGGER.debug(TAG, 'after pointwise attack label is :{}'.format(adv_label))
+                is_adv, adv_x, query_times = self._decision_optimize(sample, sample_label, start_adv)
+                adv_label = np.argmax(self._model.predict(np.expand_dims(adv_x, axis=0))[0])
+                LOGGER.info(TAG, 'before ini attack label is :{}'.format(ori_label))
+                LOGGER.info(TAG, 'after ini attack label is :{}'.format(ini_label))
+                LOGGER.info(TAG, 'INPUT optimize label is :{}'.format(sample_label))
+                LOGGER.info(TAG, 'after pointwise attack label is :{}'.format(adv_label))
                 is_adv_list.append(is_adv)
                 adv_list.append(adv_x)
                 query_times_each_adv.append(query_times + ite_c)
@@ -133,7 +110,7 @@ class PointWiseAttack(Attack):
         is_adv_list = np.array(is_adv_list)
         adv_list = np.array(adv_list)
         query_times_each_adv = np.array(query_times_each_adv)
-        LOGGER.debug(TAG, 'ret list is: {}'.format(adv_list))
+        LOGGER.info(TAG, 'ret list is: {}'.format(adv_list))
         return is_adv_list, adv_list, query_times_each_adv
 
     def _decision_optimize(self, unperturbed_img, input_label, perturbed_img):
@@ -167,8 +144,8 @@ class PointWiseAttack(Attack):
             LOGGER.error(TAG, msg)
             raise ValueError(msg)
         l2_dis = np.linalg.norm(perturbed_img - unperturbed_img)
-        LOGGER.debug(TAG, 'Before optimize, the l2 distance between original '
-                          'sample and adversarial sample is: {}'.format(l2_dis))
+        LOGGER.info(TAG, 'Before optimize, the l2 distance between original ' \
+                         'sample and adversarial sample is: {}'.format(l2_dis))
         # recover pixel if image is adversarial
         for _ in range(self._max_iter):
             is_improve = False
@@ -180,8 +157,7 @@ class PointWiseAttack(Attack):
                 if mask[ite_ind]:
                     recover[ite_ind] = unperturbed_img[ite_ind]
                     query_count += 1
-                    is_adv = self._model.is_adversarial(
-                        recover.reshape(img_shape), input_label, self._is_targeted)
+                    is_adv = self._model.is_adversarial(recover.reshape(img_shape), input_label, self._is_targeted)
                     if is_adv:
                         is_improve = True
                         perturbed_img[ite_ind] = recover[ite_ind]
@@ -189,8 +165,7 @@ class PointWiseAttack(Attack):
                     else:
                         recover[ite_ind] = perturbed_img[ite_ind]
             l2_dis = np.linalg.norm(perturbed_img - unperturbed_img)
-            if not is_improve or (np.square(l2_dis) / np.sqrt(len(pixels_ind))
-                                  <= self._get_threthod()):
+            if not is_improve or (np.square(l2_dis) / np.sqrt(len(pixels_ind)) <= self._get_threthod()):
                 break
         LOGGER.debug(TAG, 'first round: Query count {}'.format(query_count))
         LOGGER.debug(TAG, 'Starting binary searches.')
@@ -205,47 +180,36 @@ class PointWiseAttack(Attack):
                     continue
                 recover[ite_ind] = unperturbed_img[ite_ind]
                 query_count += 1
-                is_adv = self._model.is_adversarial(recover.reshape(img_shape),
-                                                    input_label,
-                                                    self._is_targeted)
+                is_adv = self._model.is_adversarial(recover.reshape(img_shape), input_label, self._is_targeted)
                 if is_adv:
                     is_improve = True
-                    mask[ite_ind] = True
+                    mask[ite_ind] = False
                     perturbed_img[ite_ind] = recover[ite_ind]
                     l2_dis = np.linalg.norm(perturbed_img - unperturbed_img)
-                    LOGGER.debug(TAG,
-                                 'Reset {}th pixel value to original, '
-                                 'l2 distance: {}.'.format(ite_ind, l2_dis))
+                    LOGGER.info(TAG, 'Reset {}th pixel value to original, l2 distance: {}.'.format(ite_ind, l2_dis))
                     break
                 else:
                     # use binary searches
-                    optimized_value, b_query = self._binary_search(
-                        perturbed_img,
-                        unperturbed_img,
-                        ite_ind,
-                        input_label, img_shape)
+                    optimized_value, b_query = self._binary_search(perturbed_img,
+                                                                   unperturbed_img,
+                                                                   ite_ind,
+                                                                   input_label, img_shape)
                     query_count += b_query
                     if optimized_value != perturbed_img[ite_ind]:
                         is_improve = True
-                        mask[ite_ind] = True
                         perturbed_img[ite_ind] = optimized_value
                         l2_dis = np.linalg.norm(perturbed_img - unperturbed_img)
-                        LOGGER.debug(TAG,
-                                     'Reset {}th pixel value to original, '
-                                     'l2 distance: {}.'.format(ite_ind,
-                                                               l2_dis))
+                        LOGGER.info(TAG, 'Reset {}th pixel value to original, l2 distance: {}.'.format(ite_ind, l2_dis))
                         break
             l2_dis = np.linalg.norm(perturbed_img - unperturbed_img)
-            if not is_improve or (np.square(l2_dis) / np.sqrt(len(pixels_ind))
-                                  <= self._get_threthod()):
-                LOGGER.debug(TAG, 'second optimized finish.')
+            if not is_improve or (np.square(l2_dis) / np.sqrt(len(pixels_ind)) <= self._get_threthod()):
+                LOGGER.info(TAG, 'second optimized finish.')
                 break
         LOGGER.info(TAG, 'Optimized finished, query count is {}'.format(query_count))
         # this method use to optimized the adversarial sample
         return True, perturbed_img.reshape(img_shape), query_count
 
-    def _binary_search(self, perturbed_img, unperturbed_img, ite_ind,
-                       input_label, img_shape):
+    def _binary_search(self, perturbed_img, unperturbed_img, ite_ind, input_label, img_shape):
         """
         For original pixel of inputs, use binary search to get the nearest pixel
         value with original value with adversarial feature.
