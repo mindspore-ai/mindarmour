@@ -46,7 +46,7 @@ class JSMAAttack(Attack):
         box_max (float): Upper bound of input of the target model. Default: 1.0.
         theta (float): Change ratio of one pixel (relative to
                input data range). Default: 1.0.
-        max_iteration (int): Maximum round of iteration. Default: 100.
+        max_iteration (int): Maximum round of iteration. Default: 1000.
         max_count (int): Maximum times to change each pixel. Default: 3.
         increase (bool): If True, increase perturbation. If False, decrease
             perturbation. Default: True.

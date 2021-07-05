@@ -39,7 +39,7 @@ class Detector:
 
         Args:
             inputs (numpy.ndarray): The input samples to calculate the threshold.
-            labels (numpy.ndarray): Labels of training data.
+            labels (numpy.ndarray): Labels of training data. Default: None.
 
         Raises:
             NotImplementedError: It is an abstract method.
