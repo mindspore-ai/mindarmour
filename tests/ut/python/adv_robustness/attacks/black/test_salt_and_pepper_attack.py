@@ -14,22 +14,22 @@
 """
 SaltAndPepper Attack Test
 """
+import os
 import numpy as np
 import pytest
 
-import mindspore.ops.operations as M
 from mindspore import Tensor
-from mindspore.nn import Cell
+from mindspore.train.serialization import load_checkpoint, load_param_into_net
 from mindspore import context
 
 from mindarmour import BlackModel
 from mindarmour.adv_robustness.attacks import SaltAndPepperNoiseAttack
+from tests.ut.python.utils.mock_net import Net
 
 context.set_context(mode=context.GRAPH_MODE)
 context.set_context(device_target="Ascend")
 
 
-# for user
 class ModelToBeAttacked(BlackModel):
     """model to be attack"""
 
@@ -43,33 +43,6 @@ class ModelToBeAttacked(BlackModel):
         return result.asnumpy()
 
 
-# for user
-class SimpleNet(Cell):
-    """
-    Construct the network of target model.
-
-    Examples:
-        >>> net = SimpleNet()
-    """
-
-    def __init__(self):
-        """
-        Introduce the layers used for network construction.
-        """
-        super(SimpleNet, self).__init__()
-        self._softmax = M.Softmax()
-
-    def construct(self, inputs):
-        """
-        Construct network.
-
-        Args:
-            inputs (Tensor): Input data.
-        """
-        out = self._softmax(inputs)
-        return out
-
-
 @pytest.mark.level0
 @pytest.mark.platform_arm_ascend_training
 @pytest.mark.platform_x86_ascend_training
@@ -79,44 +52,21 @@ def test_salt_and_pepper_attack_method():
     """
     Salt and pepper attack method unit test.
     """
-    batch_size = 6
     np.random.seed(123)
-    net = SimpleNet()
-    inputs = np.random.rand(batch_size, 10)
+    # upload trained network
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    ckpt_path = os.path.join(current_dir,
+                             '../../../dataset/trained_ckpt_file/checkpoint_lenet-10_1875.ckpt')
+    net = Net()
+    load_dict = load_checkpoint(ckpt_path)
+    load_param_into_net(net, load_dict)
 
+    # get one mnist image
+    inputs = np.load(os.path.join(current_dir, '../../../dataset/test_images.npy'))[:3]
+    labels = np.load(os.path.join(current_dir, '../../../dataset/test_labels.npy'))[:3]
     model = ModelToBeAttacked(net)
-    labels = np.random.randint(low=0, high=10, size=batch_size)
-    labels = np.eye(10)[labels]
-    labels = labels.astype(np.float32)
 
-    attack = SaltAndPepperNoiseAttack(model, sparse=False)
+    attack = SaltAndPepperNoiseAttack(model, sparse=True)
     _, adv_data, _ = attack.generate(inputs, labels)
-    assert np.any(adv_data[0] != inputs[0]), 'Salt and pepper attack method: ' \
-                                             'generate value must not be equal' \
-                                             ' to original value.'
-
-
-@pytest.mark.level0
-@pytest.mark.platform_arm_ascend_training
-@pytest.mark.platform_x86_ascend_training
-@pytest.mark.env_card
-@pytest.mark.component_mindarmour
-def test_salt_and_pepper_attack_in_batch():
-    """
-    Salt and pepper attack method unit test in batch.
-    """
-    batch_size = 32
-    np.random.seed(123)
-    net = SimpleNet()
-    inputs = np.random.rand(batch_size*2, 10)
-
-    model = ModelToBeAttacked(net)
-    labels = np.random.randint(low=0, high=10, size=batch_size*2)
-    labels = np.eye(10)[labels]
-    labels = labels.astype(np.float32)
-
-    attack = SaltAndPepperNoiseAttack(model, sparse=False)
-    adv_data = attack.batch_generate(inputs, labels, batch_size=32)
-    assert np.any(adv_data[0] != inputs[0]), 'Salt and pepper attack method: ' \
-                                             'generate value must not be equal' \
+    assert np.any(adv_data[0] != inputs[0]), 'Salt and pepper attack method:  generate value must not be equal' \
                                              ' to original value.'

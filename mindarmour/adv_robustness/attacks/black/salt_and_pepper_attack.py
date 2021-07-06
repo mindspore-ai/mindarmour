@@ -15,12 +15,10 @@
 SaltAndPepperNoise-Attack.
 """
 import time
-
 import numpy as np
 
 from mindarmour.utils._check_param import check_model, check_pair_numpy_param, \
     check_param_type, check_int_positive, check_param_multi_types
-from mindarmour.utils._check_param import normalize_value
 from mindarmour.utils.logger import LogUtil
 from ..attack import Attack
 from .black_model import BlackModel
@@ -31,26 +29,21 @@ TAG = 'SaltAndPepperNoise-Attack'
 
 class SaltAndPepperNoiseAttack(Attack):
     """
-    Increases the amount of salt and pepper noise  to generate adversarial
-    samples.
+    Increases the amount of salt and pepper noise  to generate adversarial samples.
 
     Args:
         model (BlackModel): Target model.
-        bounds (tuple): Upper and lower bounds of data. In form of (clip_min,
-            clip_max). Default: (0.0, 1.0)
-        max_iter (int): Max iteration to generate an adversarial example.
-            Default: 100
-        is_targeted (bool): If True, targeted attack. If False, untargeted
-            attack. Default: False.
-        sparse (bool): If True, input labels are sparse-encoded. If False,
-            input labels are one-hot-encoded. Default: True.
+        bounds (tuple): Upper and lower bounds of data. In form of (clip_min, clip_max). Default: (0.0, 1.0)
+        max_iter (int): Max iteration to generate an adversarial example. Default: 100
+        is_targeted (bool): If True, targeted attack. If False, untargeted attack. Default: False.
+        sparse (bool): If True, input labels are sparse-encoded. If False, input labels are one-hot-encoded.
+            Default: True.
 
     Examples:
         >>> attack = SaltAndPepperNoiseAttack(model)
     """
 
-    def __init__(self, model, bounds=(0.0, 1.0), max_iter=100,
-                 is_targeted=False, sparse=True):
+    def __init__(self, model, bounds=(0.0, 1.0), max_iter=100, is_targeted=False, sparse=True):
         super(SaltAndPepperNoiseAttack, self).__init__()
         self._model = check_model('model', model, BlackModel)
         self._bounds = check_param_multi_types('bounds', bounds, [tuple, list])
@@ -76,12 +69,9 @@ class SaltAndPepperNoiseAttack(Attack):
             - numpy.ndarray, query times for each sample.
 
         Examples:
-            >>> adv_list = attack.generate(([[0.1, 0.2, 0.6],
-            >>>                              [0.3, 0, 0.4]],
-            >>>                             [1, 2])
+            >>> adv_list = attack.generate(([[0.1, 0.2, 0.6], [0.3, 0, 0.4]], [1, 2])
         """
-        arr_x, arr_y = check_pair_numpy_param('inputs', inputs, 'labels',
-                                              labels)
+        arr_x, arr_y = check_pair_numpy_param('inputs', inputs, 'labels', labels)
         if not self._sparse:
             arr_y = np.argmax(arr_y, axis=1)
 
@@ -94,9 +84,8 @@ class SaltAndPepperNoiseAttack(Attack):
             is_adv_list.append(is_adv)
             adv_list.append(perturbed)
             query_times_each_adv.append(query_times)
-            LOGGER.info(TAG, 'Finished one sample, adversarial is {}, '
-                             'cost time {:.2}s'
-                        .format(is_adv, time.time() - start_t))
+            LOGGER.info(TAG, 'Finished one sample, adversarial is {}, cost time {:.2}s'.format(is_adv,
+                                                                                               time.time() - start_t))
         is_adv_list = np.array(is_adv_list)
         adv_list = np.array(adv_list)
         query_times_each_adv = np.array(query_times_each_adv)
@@ -104,14 +93,12 @@ class SaltAndPepperNoiseAttack(Attack):
 
     def _generate_one(self, one_input, label, epsilons=10):
         """
-        Increases the amount of salt and pepper noise to generate adversarial
-        samples.
+        Increases the amount of salt and pepper noise to generate adversarial samples.
 
         Args:
             one_input (numpy.ndarray): The original, unperturbed input.
             label (numpy.ndarray): The target label.
-            epsilons (int) : Number of steps to try probability between 0
-                and 1. Default: 10
+            epsilons (int) : Number of steps to try probability between 0 and 1. Default: 10
 
         Returns:
             - numpy.ndarray, bool values for result.
@@ -128,9 +115,7 @@ class SaltAndPepperNoiseAttack(Attack):
         high_ = 1.0
         query_count = 0
         input_shape = one_input.shape
-        input_dtype = one_input.dtype
         one_input = one_input.reshape(-1)
-        depth = np.abs(np.subtract(self._bounds[0], self._bounds[1]))
         best_adv = np.copy(one_input)
         best_eps = high_
         find_adv = False
@@ -142,15 +127,11 @@ class SaltAndPepperNoiseAttack(Attack):
                 noise = np.random.uniform(low=low_, high=high_, size=one_input.size)
                 eps = (min_eps + max_eps) / 2
                 # add salt
-                adv[noise < eps] = -depth
+                adv[noise < eps] = self._bounds[0]
                 # add pepper
-                adv[noise >= (high_ - eps)] = depth
-                # normalized sample
-                adv = normalize_value(np.expand_dims(adv, axis=0), 'l2').astype(input_dtype)
+                adv[noise >= (high_ - eps)] = self._bounds[1]
                 query_count += 1
-                ite_bool = self._model.is_adversarial(adv.reshape(input_shape),
-                                                      label,
-                                                      is_targeted=self._is_targeted)
+                ite_bool = self._model.is_adversarial(adv.reshape(input_shape), label, is_targeted=self._is_targeted)
                 if ite_bool:
                     find_adv = True
                     if best_eps > eps:
