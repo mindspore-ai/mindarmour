@@ -26,10 +26,6 @@ TAG = 'suppress masker'
 class SuppressMasker(Callback):
     """
     Args:
-        args (Union[int, float, numpy.ndarray, list, str]): Parameters
-            used for creating a suppress privacy monitor.
-        kwargs (Union[int, float, numpy.ndarray, list, str]): Keyword
-            parameters used for creating a suppress privacy monitor.
         model (SuppressModel):  SuppressModel instance.
         suppress_ctrl (SuppressCtrl): SuppressCtrl instance.
 
