@@ -1,3 +1,23 @@
+# MindArmour 1.3.0-rc1
+
+## MindArmour 1.3.0 Release Notes
+
+### Major Features and Improvements
+
+#### Privacy
+
+* [STABLE] Data Drift Detection for Time Series Data
+
+### Bug fixes
+
+* [BUGFIX] Optimization of API description.
+
+### Contributors
+
+Thanks goes to these wonderful people:
+
+Wu Xiaoyu，Liu Zhidan, Jin Xiulang, Liu Luobin, Liu Liu
+
 # MindArmour 1.2.0
 
 ## MindArmour 1.2.0 Release Notes
