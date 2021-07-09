@@ -14,6 +14,7 @@
 import os
 import stat
 import shlex
+import shutil
 import subprocess
 from setuptools import find_packages
 from setuptools import setup
@@ -23,6 +24,17 @@ from setuptools.command.build_py import build_py
 version = '1.3.0'
 cur_dir = os.path.dirname(os.path.realpath(__file__))
 pkg_dir = os.path.join(cur_dir, 'build')
+
+
+def clean():
+    # pylint: disable=unused-argument
+    def readonly_handler(func, path, execinfo):
+        os.chmod(path, stat.S_IWRITE)
+        func(path)
+    if os.path.exists(os.path.join(cur_dir, 'build')):
+        shutil.rmtree(os.path.join(cur_dir, 'build'), onerror=readonly_handler)
+    if os.path.exists(os.path.join(cur_dir, 'mindarmour.egg-info')):
+        shutil.rmtree(os.path.join(cur_dir, 'mindarmour.egg-info'), onerror=readonly_handler)
 
 
 def write_version(file):
@@ -36,6 +48,7 @@ def build_depends():
         write_version(f)
 
 
+clean()
 build_depends()
 
 
