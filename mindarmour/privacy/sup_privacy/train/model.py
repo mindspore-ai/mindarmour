@@ -62,7 +62,6 @@ class SuppressModel(Model):
         network (Cell): The training network.
         loss_fn (Cell): Computes softmax cross entropy between logits and labels.
         optimizer (Optimizer): optimizer instance.
-        metrics (Union[dict, set]): Calculates the accuracy for classification and multilabel data.
         kwargs: Keyword parameters used for creating a suppress model.
 
     Examples:
