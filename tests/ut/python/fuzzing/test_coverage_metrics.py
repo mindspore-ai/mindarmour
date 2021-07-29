@@ -21,6 +21,7 @@ from mindspore import nn
 from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
 from mindspore.train import Model
 from mindspore import context
+from mindspore.ops import TensorSummary
 
 from mindarmour.adv_robustness.attacks import FastGradientSignMethod
 from mindarmour.utils.logger import LogUtil
@@ -46,6 +47,7 @@ class Net(Cell):
         """
         super(Net, self).__init__()
         self._relu = nn.ReLU()
+        self.summary = TensorSummary()
 
     def construct(self, inputs):
         """
@@ -54,7 +56,10 @@ class Net(Cell):
         Args:
             inputs (Tensor): Input data.
         """
+        self.summary('input', inputs)
+
         out = self._relu(inputs)
+        self.summary('1', out)
         return out
 
 
@@ -71,7 +76,10 @@ def test_lenet_mnist_coverage_cpu():
     # initialize fuzz test with training dataset
     neuron_num = 10
     segmented_num = 1000
+    top_k = 3
+    threshold = 0.1
     training_data = (np.random.random((10000, 10))*20).astype(np.float32)
+
     model_fuzz_test = ModelCoverageMetrics(model, neuron_num, segmented_num, training_data)
 
     # fuzz test with original test data
@@ -83,6 +91,10 @@ def test_lenet_mnist_coverage_cpu():
     LOGGER.info(TAG, 'NBC of this test is : %s', model_fuzz_test.get_nbc())
     LOGGER.info(TAG, 'SNAC of this test is : %s', model_fuzz_test.get_snac())
 
+    model_fuzz_test.calculate_effective_coverage(test_data, top_k, threshold)
+    LOGGER.info(TAG, 'NC of this test is : %s', model_fuzz_test.get_nc())
+    LOGGER.info(TAG, 'Effective_NC of this test is : %s', model_fuzz_test.get_effective_nc())
+
     # generate adv_data
     loss = SoftmaxCrossEntropyWithLogits(sparse=True)
     attack = FastGradientSignMethod(net, eps=0.3, loss_fn=loss)
@@ -92,6 +104,9 @@ def test_lenet_mnist_coverage_cpu():
     LOGGER.info(TAG, 'NBC of this test is : %s', model_fuzz_test.get_nbc())
     LOGGER.info(TAG, 'SNAC of this test is : %s', model_fuzz_test.get_snac())
 
+    model_fuzz_test.calculate_effective_coverage(adv_data, top_k, threshold)
+    LOGGER.info(TAG, 'NC of this test is : %s', model_fuzz_test.get_nc())
+    LOGGER.info(TAG, 'Effective_NC of this test is : %s', model_fuzz_test.get_effective_nc())
 
 @pytest.mark.level0
 @pytest.mark.platform_arm_ascend_training
@@ -107,9 +122,10 @@ def test_lenet_mnist_coverage_ascend():
     # initialize fuzz test with training dataset
     neuron_num = 10
     segmented_num = 1000
+    top_k = 3
+    threshold = 0.1
     training_data = (np.random.random((10000, 10))*20).astype(np.float32)
-
-    model_fuzz_test = ModelCoverageMetrics(model, neuron_num, segmented_num, training_data,)
+    model_fuzz_test = ModelCoverageMetrics(model, neuron_num, segmented_num, training_data)
 
     # fuzz test with original test data
     # get test data
@@ -121,6 +137,10 @@ def test_lenet_mnist_coverage_ascend():
     LOGGER.info(TAG, 'NBC of this test is : %s', model_fuzz_test.get_nbc())
     LOGGER.info(TAG, 'SNAC of this test is : %s', model_fuzz_test.get_snac())
 
+    model_fuzz_test.calculate_effective_coverage(test_data, top_k, threshold)
+    LOGGER.info(TAG, 'NC of this test is : %s', model_fuzz_test.get_nc())
+    LOGGER.info(TAG, 'Effective_NC of this test is : %s', model_fuzz_test.get_effective_nc())
+
     # generate adv_data
     attack = FastGradientSignMethod(net, eps=0.3, loss_fn=nn.SoftmaxCrossEntropyWithLogits(sparse=False))
     adv_data = attack.batch_generate(test_data, test_labels, batch_size=32)
@@ -128,3 +148,7 @@ def test_lenet_mnist_coverage_ascend():
     LOGGER.info(TAG, 'KMNC of this test is : %s', model_fuzz_test.get_kmnc())
     LOGGER.info(TAG, 'NBC of this test is : %s', model_fuzz_test.get_nbc())
     LOGGER.info(TAG, 'SNAC of this test is : %s', model_fuzz_test.get_snac())
+
+    model_fuzz_test.calculate_effective_coverage(adv_data, top_k, threshold)
+    LOGGER.info(TAG, 'NC of this test is : %s', model_fuzz_test.get_nc())
+    LOGGER.info(TAG, 'Effective_NC of this test is : %s', model_fuzz_test.get_effective_nc())

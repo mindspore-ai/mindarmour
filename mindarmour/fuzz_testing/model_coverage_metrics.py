@@ -15,10 +15,12 @@
 Model-Test Coverage Metrics.
 """
 
+from collections import defaultdict
 import numpy as np
 
 from mindspore import Tensor
 from mindspore import Model
+from mindspore.train.summary.summary_record import _get_summary_tensor_data
 
 from mindarmour.utils._check_param import check_model, check_numpy_param, \
     check_int_positive, check_param_multi_types
@@ -63,6 +65,9 @@ class ModelCoverageMetrics:
         >>> print('KMNC of this test is : %s', model_fuzz_test.get_kmnc())
         >>> print('NBC of this test is : %s', model_fuzz_test.get_nbc())
         >>> print('SNAC of this test is : %s', model_fuzz_test.get_snac())
+        >>> model_fuzz_test.calculate_effective_coverage(test_images, top_k, threshold)
+        >>> print('NC of this test is : %s', model_fuzz_test.get_nc())
+        >>> print('Effective_NC of this test is : %s', model_fuzz_test.get_effective_nc())
     """
 
     def __init__(self, model, neuron_num, segmented_num, train_dataset):
@@ -81,6 +86,24 @@ class ModelCoverageMetrics:
         self._lower_corner_hits = [0]*self._neuron_num
         self._upper_corner_hits = [0]*self._neuron_num
         self._bounds_get(train_dataset)
+        self._model_layer_dict = defaultdict(bool)
+        self._effective_model_layer_dict = defaultdict(bool)
+
+    def _set_init_effective_coverage_table(self, dataset):
+        """
+        Initialise the coverage table of each neuron in the model.
+
+        Args:
+            dataset (numpy.ndarray): Dataset used for initialising the coverage table.
+        """
+        self._model.predict(Tensor(dataset[0:1]))
+        tensors = _get_summary_tensor_data()
+        for name, tensor in tensors.items():
+            if 'input' in name:
+                continue
+            for num_neuron in range(tensor.shape[1]):
+                self._model_layer_dict[(name, num_neuron)] = False
+                self._effective_model_layer_dict[(name, num_neuron)] = False
 
     def _bounds_get(self, train_dataset, batch_size=32):
         """
@@ -130,6 +153,27 @@ class ModelCoverageMetrics:
                 else:
                     self._main_section_hits[i][int(section_indexes[i])] = 1
 
+    def _coverage_update(self, name, tensor, scaled_mean, scaled_rank, top_k, threshold):
+        """
+        Update the coverage matrix of neural coverage and effective neural coverage.
+
+        Args:
+            name (string): the name of the tensor.
+            tensor (tensor): the tensor in the network.
+            scaled_mean (numpy.ndarray): feature map of the tensor.
+            scaled_rank (numpy.ndarray): rank of tensor value.
+            top_k (int): neuron is covered when its output has the top k largest value in that hidden layer.
+            threshold (float): neuron is covered when its output is greater than the threshold.
+
+        """
+        for num_neuron in range(tensor.shape[1]):
+            if num_neuron >= (len(scaled_rank) - top_k) and not \
+                    self._effective_model_layer_dict[(name, scaled_rank[num_neuron])]:
+                self._effective_model_layer_dict[(name, scaled_rank[num_neuron])] = True
+            if scaled_mean[num_neuron] > threshold and not \
+                    self._model_layer_dict[(name, num_neuron)]:
+                self._model_layer_dict[(name, num_neuron)] = True
+
     def calculate_coverage(self, dataset, bias_coefficient=0, batch_size=32):
         """
         Calculate the testing adequacy of the given dataset.
@@ -143,8 +187,9 @@ class ModelCoverageMetrics:
         Examples:
             >>> neuron_num = 10
             >>> segmented_num = 1000
+            >>> batch_size = 32
             >>> model_fuzz_test = ModelCoverageMetrics(model, neuron_num, segmented_num, train_images)
-            >>> model_fuzz_test.calculate_coverage(test_images)
+            >>> model_fuzz_test.calculate_coverage(test_images, top_k, threshold, batch_size)
         """
 
         dataset = check_numpy_param('dataset', dataset)
@@ -156,6 +201,79 @@ class ModelCoverageMetrics:
         batches = dataset.shape[0] // batch_size
         for i in range(batches):
             self._sections_hits_count(dataset[i*batch_size: (i + 1)*batch_size], intervals)
+
+
+    def calculate_effective_coverage(self, dataset, top_k=3, threshold=0.1, batch_size=32):
+        """
+        Calculate the effective testing adequacy of the given dataset.
+        In effective neural coverage, neuron is covered when its output has the top k largest value
+        in that hidden layers. In neural coverage, neuron is covered when its output is greater than the
+        threshold. Coverage equals the covered neurons divided by the total neurons in the network.
+
+        Args:
+            threshold (float): neuron is covered when its output is greater than the threshold.
+            top_k (int): neuron is covered when its output has the top k largest value in that hiddern layer.
+            dataset (numpy.ndarray): Data for fuzz test.
+
+        Examples:
+            >>> neuron_num = 10
+            >>> segmented_num = 1000
+            >>> top_k = 3
+            >>> threshold = 0.1
+            >>> model_fuzz_test = ModelCoverageMetrics(model, neuron_num, segmented_num, train_images)
+            >>> model_fuzz_test.calculate_coverage(test_images)
+            >>> model_fuzz_test.calculate_effective_coverage(test_images, top_k, threshold)
+        """
+        top_k = check_int_positive('top_k', top_k)
+        dataset = check_numpy_param('dataset', dataset)
+        batch_size = check_int_positive('batch_size', batch_size)
+        batches = dataset.shape[0] // batch_size
+        self._set_init_effective_coverage_table(dataset)
+        for i in range(batches):
+            inputs = dataset[i*batch_size: (i + 1)*batch_size]
+            self._model.predict(Tensor(inputs)).asnumpy()
+            tensors = _get_summary_tensor_data()
+            for name, tensor in tensors.items():
+                if 'input' in name:
+                    continue
+                scaled = tensor.asnumpy()[-1]
+                if scaled.ndim >= 3:  #
+                    scaled_mean = np.mean(scaled, axis=(1, 2))
+                    scaled_rank = np.argsort(scaled_mean)
+                    self._coverage_update(name, tensor, scaled_mean, scaled_rank, top_k, threshold)
+                else:
+                    scaled_rank = np.argsort(scaled)
+                    self._coverage_update(name, tensor, scaled, scaled_rank, top_k, threshold)
+
+    def get_nc(self):
+        """
+        Get the metric of 'neuron coverage'.
+
+        Returns:
+            float, the metric of 'neuron coverage'.
+
+        Examples:
+            >>> model_fuzz_test.get_nc()
+        """
+        covered_neurons = len([v for v in self._model_layer_dict.values() if v])
+        total_neurons = len(self._model_layer_dict)
+        nc = covered_neurons / float(total_neurons)
+        return nc
+
+    def get_effective_nc(self):
+        """
+        Get the metric of 'effective neuron coverage'.
+
+        Returns:
+            float, the metric of 'the effective neuron coverage'.
+
+        Examples:
+            >>> model_fuzz_test.get_effective_nc()
+        """
+        covered_neurons = len([v for v in self._effective_model_layer_dict.values() if v])
+        total_neurons = len(self._effective_model_layer_dict)
+        effective_nc = covered_neurons / float(total_neurons)
+        return effective_nc
 
     def get_kmnc(self):
         """

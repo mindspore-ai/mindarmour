@@ -31,7 +31,7 @@ from mindarmour.fuzz_testing import ModelCoverageMetrics
 from mindarmour.utils.logger import LogUtil
 
 from examples.common.dataset.data_processing import generate_mnist_dataset
-from examples.common.networks.lenet5.lenet5_net import LeNet5
+from examples.common.networks.lenet5.lenet5_net_for_fuzzing import LeNet5
 
 LOGGER = LogUtil.get_instance()
 TAG = 'Fuzz_testing and enhance model'
@@ -75,9 +75,11 @@ def example_lenet_mnist_fuzzing():
         images = data[0].astype(np.float32)
         train_images.append(images)
     train_images = np.concatenate(train_images, axis=0)
+    neuron_num = 10
+    segmented_num = 1000
 
     # initialize fuzz test with training dataset
-    model_coverage_test = ModelCoverageMetrics(model, 10, 1000, train_images)
+    model_coverage_test = ModelCoverageMetrics(model, neuron_num, segmented_num, train_images)
 
     # fuzz test with original test data
     # get test data
