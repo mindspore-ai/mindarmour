@@ -14,11 +14,11 @@
 import numpy as np
 from mindspore import Model
 from mindspore import context
-from mindspore.train.serialization import load_checkpoint, load_param_into_net
+from mindspore import load_checkpoint, load_param_into_net
 
 from mindarmour.fuzz_testing import Fuzzer
-from mindarmour.fuzz_testing import ModelCoverageMetrics
-from mindarmour.utils.logger import LogUtil
+from mindarmour.fuzz_testing import KMultisectionNeuronCoverage
+from mindarmour.utils import LogUtil
 
 from examples.common.dataset.data_processing import generate_mnist_dataset
 from examples.common.networks.lenet5.lenet5_net_for_fuzzing import LeNet5
@@ -52,7 +52,7 @@ def test_lenet_mnist_fuzzing():
                       'params': {'auto_param': [True]}},
                      {'method': 'FGSM',
                       'params': {'eps': [0.3, 0.2, 0.4], 'alpha': [0.1]}}
-                    ]
+                     ]
 
     # get training data
     data_list = "../common/dataset/MNIST/train"
@@ -63,11 +63,6 @@ def test_lenet_mnist_fuzzing():
         images = data[0].astype(np.float32)
         train_images.append(images)
     train_images = np.concatenate(train_images, axis=0)
-    neuron_num = 10
-    segmented_num = 1000
-
-    # initialize fuzz test with training dataset
-    model_coverage_test = ModelCoverageMetrics(model, neuron_num, segmented_num, train_images)
 
     # fuzz test with original test data
     # get test data
@@ -88,21 +83,20 @@ def test_lenet_mnist_fuzzing():
     # make initial seeds
     for img, label in zip(test_images, test_labels):
         initial_seeds.append([img, label])
-
+    coverage = KMultisectionNeuronCoverage(model, train_images, segmented_num=100, incremental=True)
+    kmnc = coverage.get_metrics(test_images[:100])
+    print('KMNC of initial seeds is: ', kmnc)
     initial_seeds = initial_seeds[:100]
-    model_coverage_test.calculate_coverage(
-        np.array(test_images[:100]).astype(np.float32))
-    LOGGER.info(TAG, 'KMNC of this test is : %s',
-                model_coverage_test.get_kmnc())
+    model_fuzz_test = Fuzzer(model)
+    _, _, _, _, metrics = model_fuzz_test.fuzzing(mutate_config, initial_seeds, coverage, evaluate=True, max_iters=10,
+                                                  mutate_num_per_seed=20)
 
-    model_fuzz_test = Fuzzer(model, train_images, neuron_num, segmented_num)
-    _, _, _, _, metrics = model_fuzz_test.fuzzing(mutate_config, initial_seeds, eval_metrics='auto')
     if metrics:
         for key in metrics:
-            LOGGER.info(TAG, key + ': %s', metrics[key])
+            print(key + ': ', metrics[key])
 
 
 if __name__ == '__main__':
-    # device_target can be "CPU", "GPU" or "Ascend"
-    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+    # device_target can be "CPU"GPU, "" or "Ascend"
+    context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
     test_lenet_mnist_fuzzing()

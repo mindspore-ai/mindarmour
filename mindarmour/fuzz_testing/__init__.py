@@ -16,7 +16,13 @@ This module provides a neuron coverage-gain based fuzz method to evaluate the
 robustness of given model.
 """
 from .fuzzing import Fuzzer
-from .model_coverage_metrics import ModelCoverageMetrics
+from .model_coverage_metrics import CoverageMetrics, NeuronCoverage, TopKNeuronCoverage, NeuronBoundsCoverage, \
+    SuperNeuronActivateCoverage, KMultisectionNeuronCoverage
 
 __all__ = ['Fuzzer',
-           'ModelCoverageMetrics']
+           'CoverageMetrics',
+           'NeuronCoverage',
+           'TopKNeuronCoverage',
+           'NeuronBoundsCoverage',
+           'SuperNeuronActivateCoverage',
+           'KMultisectionNeuronCoverage']

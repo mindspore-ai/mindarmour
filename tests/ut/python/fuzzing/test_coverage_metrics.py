@@ -25,7 +25,8 @@ from mindspore.ops import TensorSummary
 
 from mindarmour.adv_robustness.attacks import FastGradientSignMethod
 from mindarmour.utils.logger import LogUtil
-from mindarmour.fuzz_testing import ModelCoverageMetrics
+from mindarmour.fuzz_testing import NeuronCoverage, TopKNeuronCoverage, SuperNeuronActivateCoverage, \
+    NeuronBoundsCoverage, KMultisectionNeuronCoverage
 
 LOGGER = LogUtil.get_instance()
 TAG = 'Neuron coverage test'
@@ -74,39 +75,48 @@ def test_lenet_mnist_coverage_cpu():
     model = Model(net)
 
     # initialize fuzz test with training dataset
-    neuron_num = 10
-    segmented_num = 1000
-    top_k = 3
-    threshold = 0.1
     training_data = (np.random.random((10000, 10))*20).astype(np.float32)
-
-    model_fuzz_test = ModelCoverageMetrics(model, neuron_num, segmented_num, training_data)
 
     # fuzz test with original test data
     # get test data
     test_data = (np.random.random((2000, 10))*20).astype(np.float32)
     test_labels = np.random.randint(0, 10, 2000).astype(np.int32)
-    model_fuzz_test.calculate_coverage(test_data)
-    LOGGER.info(TAG, 'KMNC of this test is : %s', model_fuzz_test.get_kmnc())
-    LOGGER.info(TAG, 'NBC of this test is : %s', model_fuzz_test.get_nbc())
-    LOGGER.info(TAG, 'SNAC of this test is : %s', model_fuzz_test.get_snac())
 
-    model_fuzz_test.calculate_effective_coverage(test_data, top_k, threshold)
-    LOGGER.info(TAG, 'NC of this test is : %s', model_fuzz_test.get_nc())
-    LOGGER.info(TAG, 'Effective_NC of this test is : %s', model_fuzz_test.get_effective_nc())
+    nc = NeuronCoverage(model, threshold=0.1)
+    nc_metric = nc.get_metrics(test_data)
+
+    tknc = TopKNeuronCoverage(model, top_k=3)
+    tknc_metrics = tknc.get_metrics(test_data)
+
+    snac = SuperNeuronActivateCoverage(model, training_data)
+    snac_metrics = snac.get_metrics(test_data)
+
+    nbc = NeuronBoundsCoverage(model, training_data)
+    nbc_metrics = nbc.get_metrics(test_data)
+
+    kmnc = KMultisectionNeuronCoverage(model, training_data, segmented_num=100)
+    kmnc_metrics = kmnc.get_metrics(test_data)
+
+    print('KMNC of this test is: ', kmnc_metrics)
+    print('NBC of this test is: ', nbc_metrics)
+    print('SNAC of this test is: ', snac_metrics)
+    print('NC of this test is: ', nc_metric)
+    print('TKNC of this test is: ', tknc_metrics)
 
     # generate adv_data
     loss = SoftmaxCrossEntropyWithLogits(sparse=True)
     attack = FastGradientSignMethod(net, eps=0.3, loss_fn=loss)
     adv_data = attack.batch_generate(test_data, test_labels, batch_size=32)
-    model_fuzz_test.calculate_coverage(adv_data, bias_coefficient=0.5)
-    LOGGER.info(TAG, 'KMNC of this test is : %s', model_fuzz_test.get_kmnc())
-    LOGGER.info(TAG, 'NBC of this test is : %s', model_fuzz_test.get_nbc())
-    LOGGER.info(TAG, 'SNAC of this test is : %s', model_fuzz_test.get_snac())
-
-    model_fuzz_test.calculate_effective_coverage(adv_data, top_k, threshold)
-    LOGGER.info(TAG, 'NC of this test is : %s', model_fuzz_test.get_nc())
-    LOGGER.info(TAG, 'Effective_NC of this test is : %s', model_fuzz_test.get_effective_nc())
+    nc_metric = nc.get_metrics(adv_data)
+    tknc_metrics = tknc.get_metrics(adv_data)
+    snac_metrics = snac.get_metrics(adv_data)
+    nbc_metrics = nbc.get_metrics(adv_data)
+    kmnc_metrics = kmnc.get_metrics(adv_data)
+    print('KMNC of adv data is: ', kmnc_metrics)
+    print('NBC of adv data is: ', nbc_metrics)
+    print('SNAC of adv data is: ', snac_metrics)
+    print('NC of adv data is: ', nc_metric)
+    print('TKNC of adv data is: ', tknc_metrics)
 
 @pytest.mark.level0
 @pytest.mark.platform_arm_ascend_training
@@ -120,35 +130,28 @@ def test_lenet_mnist_coverage_ascend():
     model = Model(net)
 
     # initialize fuzz test with training dataset
-    neuron_num = 10
-    segmented_num = 1000
-    top_k = 3
-    threshold = 0.1
     training_data = (np.random.random((10000, 10))*20).astype(np.float32)
-    model_fuzz_test = ModelCoverageMetrics(model, neuron_num, segmented_num, training_data)
 
     # fuzz test with original test data
     # get test data
     test_data = (np.random.random((2000, 10))*20).astype(np.float32)
-    test_labels = np.random.randint(0, 10, 2000)
-    test_labels = (np.eye(10)[test_labels]).astype(np.float32)
-    model_fuzz_test.calculate_coverage(test_data)
-    LOGGER.info(TAG, 'KMNC of this test is : %s', model_fuzz_test.get_kmnc())
-    LOGGER.info(TAG, 'NBC of this test is : %s', model_fuzz_test.get_nbc())
-    LOGGER.info(TAG, 'SNAC of this test is : %s', model_fuzz_test.get_snac())
+    nc = NeuronCoverage(model, threshold=0.1)
+    nc_metric = nc.get_metrics(test_data)
 
-    model_fuzz_test.calculate_effective_coverage(test_data, top_k, threshold)
-    LOGGER.info(TAG, 'NC of this test is : %s', model_fuzz_test.get_nc())
-    LOGGER.info(TAG, 'Effective_NC of this test is : %s', model_fuzz_test.get_effective_nc())
+    tknc = TopKNeuronCoverage(model, top_k=3)
+    tknc_metrics = tknc.get_metrics(test_data)
 
-    # generate adv_data
-    attack = FastGradientSignMethod(net, eps=0.3, loss_fn=nn.SoftmaxCrossEntropyWithLogits(sparse=False))
-    adv_data = attack.batch_generate(test_data, test_labels, batch_size=32)
-    model_fuzz_test.calculate_coverage(adv_data, bias_coefficient=0.5)
-    LOGGER.info(TAG, 'KMNC of this test is : %s', model_fuzz_test.get_kmnc())
-    LOGGER.info(TAG, 'NBC of this test is : %s', model_fuzz_test.get_nbc())
-    LOGGER.info(TAG, 'SNAC of this test is : %s', model_fuzz_test.get_snac())
+    snac = SuperNeuronActivateCoverage(model, training_data)
+    snac_metrics = snac.get_metrics(test_data)
 
-    model_fuzz_test.calculate_effective_coverage(adv_data, top_k, threshold)
-    LOGGER.info(TAG, 'NC of this test is : %s', model_fuzz_test.get_nc())
-    LOGGER.info(TAG, 'Effective_NC of this test is : %s', model_fuzz_test.get_effective_nc())
+    nbc = NeuronBoundsCoverage(model, training_data)
+    nbc_metrics = nbc.get_metrics(test_data)
+
+    kmnc = KMultisectionNeuronCoverage(model, training_data, segmented_num=100)
+    kmnc_metrics = kmnc.get_metrics(test_data)
+
+    print('KMNC of this test is: ', kmnc_metrics)
+    print('NBC of this test is: ', nbc_metrics)
+    print('SNAC of this test is: ', snac_metrics)
+    print('NC of this test is: ', nc_metric)
+    print('TKNC of this test is: ', tknc_metrics)

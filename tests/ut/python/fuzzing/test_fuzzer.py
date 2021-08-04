@@ -21,9 +21,10 @@ from mindspore import nn
 from mindspore.common.initializer import TruncatedNormal
 from mindspore.ops import operations as P
 from mindspore.train import Model
+from mindspore.ops import TensorSummary
 
 from mindarmour.fuzz_testing import Fuzzer
-from mindarmour.fuzz_testing import ModelCoverageMetrics
+from mindarmour.fuzz_testing import KMultisectionNeuronCoverage
 from mindarmour.utils.logger import LogUtil
 
 LOGGER = LogUtil.get_instance()
@@ -52,30 +53,37 @@ class Net(nn.Cell):
     """
     Lenet network
     """
+
     def __init__(self):
         super(Net, self).__init__()
         self.conv1 = conv(1, 6, 5)
         self.conv2 = conv(6, 16, 5)
-        self.fc1 = fc_with_initialize(16*5*5, 120)
+        self.fc1 = fc_with_initialize(16 * 5 * 5, 120)
         self.fc2 = fc_with_initialize(120, 84)
         self.fc3 = fc_with_initialize(84, 10)
         self.relu = nn.ReLU()
         self.max_pool2d = nn.MaxPool2d(kernel_size=2, stride=2)
         self.reshape = P.Reshape()
+        self.summary = TensorSummary()
 
     def construct(self, x):
         x = self.conv1(x)
         x = self.relu(x)
+        self.summary('conv1', x)
         x = self.max_pool2d(x)
         x = self.conv2(x)
         x = self.relu(x)
+        self.summary('conv2', x)
         x = self.max_pool2d(x)
-        x = self.reshape(x, (-1, 16*5*5))
+        x = self.reshape(x, (-1, 16 * 5 * 5))
         x = self.fc1(x)
         x = self.relu(x)
+        self.summary('fc1', x)
         x = self.fc2(x)
         x = self.relu(x)
+        self.summary('fc2', x)
         x = self.fc3(x)
+        self.summary('fc3', x)
         return x
 
 
@@ -100,12 +108,8 @@ def test_fuzzing_ascend():
                      {'method': 'FGSM',
                       'params': {'eps': [0.1, 0.2, 0.3], 'alpha': [0.1]}}
                      ]
-    # initialize fuzz test with training dataset
-    neuron_num = 10
-    segmented_num = 1000
-    train_images = np.random.rand(32, 1, 32, 32).astype(np.float32)
-    model_coverage_test = ModelCoverageMetrics(model, neuron_num, segmented_num, train_images)
 
+    train_images = np.random.rand(32, 1, 32, 32).astype(np.float32)
     # fuzz test with original test data
     # get test data
     test_images = np.random.rand(batch_size, 1, 32, 32).astype(np.float32)
@@ -118,13 +122,12 @@ def test_fuzzing_ascend():
         initial_seeds.append([img, label])
 
     initial_seeds = initial_seeds[:100]
-    model_coverage_test.calculate_coverage(
-        np.array(test_images[:100]).astype(np.float32))
-    LOGGER.info(TAG, 'KMNC of this test is : %s',
-                model_coverage_test.get_kmnc())
 
-    model_fuzz_test = Fuzzer(model, train_images, neuron_num, segmented_num)
-    _, _, _, _, metrics = model_fuzz_test.fuzzing(mutate_config, initial_seeds)
+    nc = KMultisectionNeuronCoverage(model, train_images, segmented_num=100)
+    cn_metrics = nc.get_metrics(test_images[:100])
+    print('neuron coverage of initial seeds is: ', cn_metrics)
+    model_fuzz_test = Fuzzer(model)
+    _, _, _, _, metrics = model_fuzz_test.fuzzing(mutate_config, initial_seeds, nc, max_iters=100)
     print(metrics)
 
 
@@ -139,8 +142,6 @@ def test_fuzzing_cpu():
     model = Model(net)
     batch_size = 8
     num_classe = 10
-    neuron_num = 10
-    segmented_num = 1000
     mutate_config = [{'method': 'Blur',
                       'params': {'auto_param': [True]}},
                      {'method': 'Contrast',
@@ -152,7 +153,6 @@ def test_fuzzing_cpu():
                      ]
     # initialize fuzz test with training dataset
     train_images = np.random.rand(32, 1, 32, 32).astype(np.float32)
-    model_coverage_test = ModelCoverageMetrics(model, neuron_num, segmented_num, train_images)
 
     # fuzz test with original test data
     # get test data
@@ -166,11 +166,9 @@ def test_fuzzing_cpu():
         initial_seeds.append([img, label])
 
     initial_seeds = initial_seeds[:100]
-    model_coverage_test.calculate_coverage(
-        np.array(test_images[:100]).astype(np.float32))
-    LOGGER.info(TAG, 'KMNC of this test is : %s',
-                model_coverage_test.get_kmnc())
-
-    model_fuzz_test = Fuzzer(model, train_images, neuron_num, segmented_num)
-    _, _, _, _, metrics = model_fuzz_test.fuzzing(mutate_config, initial_seeds)
+    nc = KMultisectionNeuronCoverage(model, train_images, segmented_num=100)
+    tknc_metrics = nc.get_metrics(test_images[:100])
+    print('neuron coverage of initial seeds is: ', tknc_metrics)
+    model_fuzz_test = Fuzzer(model)
+    _, _, _, _, metrics = model_fuzz_test.fuzzing(mutate_config, initial_seeds, nc, max_iters=100)
     print(metrics)

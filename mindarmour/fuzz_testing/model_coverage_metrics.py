@@ -14,311 +14,396 @@
 """
 Model-Test Coverage Metrics.
 """
-
+from abc import abstractmethod
 from collections import defaultdict
+import math
 import numpy as np
 
 from mindspore import Tensor
 from mindspore import Model
 from mindspore.train.summary.summary_record import _get_summary_tensor_data
 
-from mindarmour.utils._check_param import check_model, check_numpy_param, \
-    check_int_positive, check_param_multi_types
+from mindarmour.utils._check_param import check_model, check_numpy_param, check_int_positive, \
+    check_param_type, check_value_positive
 from mindarmour.utils.logger import LogUtil
 
 LOGGER = LogUtil.get_instance()
-TAG = 'ModelCoverageMetrics'
+TAG = 'CoverageMetrics'
 
 
-class ModelCoverageMetrics:
+class CoverageMetrics:
     """
-    As we all known, each neuron output of a network will have a output range
-    after training (we call it original range), and test dataset is used to
-    estimate the accuracy of the trained network. However, neurons' output
-    distribution would be different with different test datasets. Therefore,
-    similar to function fuzz, model fuzz means testing those neurons' outputs
-    and estimating the proportion of original range that has emerged with test
+    The abstract base class for Neuron coverage classes calculating coverage metrics.
+
+    As we all known, each neuron output of a network will have a output range after training (we call it original
+    range), and test dataset is used to estimate the accuracy of the trained network. However, neurons' output
+    distribution would be different with different test datasets. Therefore, similar to function fuzz, model fuzz means
+    testing those neurons' outputs and estimating the proportion of original range that has emerged with test
     datasets.
 
-    Reference: `DeepGauge: Multi-Granularity Testing Criteria for Deep
-    Learning Systems <https://arxiv.org/abs/1803.07519>`_
+    Reference: `DeepGauge: Multi-Granularity Testing Criteria for Deep Learning Systems
+    <https://arxiv.org/abs/1803.07519>`_
 
     Args:
         model (Model): The pre-trained model which waiting for testing.
-        neuron_num (int): The number of testing neurons.
-        segmented_num (int): The number of segmented sections of neurons' output intervals.
-        train_dataset (numpy.ndarray): Training dataset used for determine
-            the neurons' output boundaries.
-
-    Raises:
-        ValueError: If neuron_num is too big (for example, bigger than 1e+9).
-
-    Examples:
-        >>> net = LeNet5()
-        >>> train_images = np.random.random((10000, 1, 32, 32)).astype(np.float32)
-        >>> test_images = np.random.random((5000, 1, 32, 32)).astype(np.float32)
-        >>> model = Model(net)
-        >>> neuron_num = 10
-        >>> segmented_num = 1000
-        >>> model_fuzz_test = ModelCoverageMetrics(model, neuron_num, segmented_num, train_images)
-        >>> model_fuzz_test.calculate_coverage(test_images)
-        >>> print('KMNC of this test is : %s', model_fuzz_test.get_kmnc())
-        >>> print('NBC of this test is : %s', model_fuzz_test.get_nbc())
-        >>> print('SNAC of this test is : %s', model_fuzz_test.get_snac())
-        >>> model_fuzz_test.calculate_effective_coverage(test_images, top_k, threshold)
-        >>> print('NC of this test is : %s', model_fuzz_test.get_nc())
-        >>> print('Effective_NC of this test is : %s', model_fuzz_test.get_effective_nc())
+        incremental (bool): Metrics will be calculate in incremental way or not. Default: False.
+        batch_size (int):  The number of samples in a fuzz test batch. Default: 32.
     """
 
-    def __init__(self, model, neuron_num, segmented_num, train_dataset):
+    def __init__(self, model, incremental=False, batch_size=32):
         self._model = check_model('model', model, Model)
-        self._segmented_num = check_int_positive('segmented_num', segmented_num)
-        self._neuron_num = check_int_positive('neuron_num', neuron_num)
-        if self._neuron_num > 1e+9:
-            msg = 'neuron_num should be less than 1e+10, otherwise a MemoryError would occur'
-            LOGGER.error(TAG, msg)
-            raise ValueError(msg)
-        train_dataset = check_numpy_param('train_dataset', train_dataset)
-        self._lower_bounds = [np.inf]*self._neuron_num
-        self._upper_bounds = [-np.inf]*self._neuron_num
-        self._var = [0]*self._neuron_num
-        self._main_section_hits = [[0 for _ in range(self._segmented_num)] for _ in range(self._neuron_num)]
-        self._lower_corner_hits = [0]*self._neuron_num
-        self._upper_corner_hits = [0]*self._neuron_num
-        self._bounds_get(train_dataset)
-        self._model_layer_dict = defaultdict(bool)
-        self._effective_model_layer_dict = defaultdict(bool)
+        self.incremental = check_param_type('incremental', incremental, bool)
+        self.batch_size = check_int_positive('batch_size', batch_size)
+        self._activate_table = defaultdict(list)
 
-    def _set_init_effective_coverage_table(self, dataset):
+    @abstractmethod
+    def get_metrics(self, dataset):
         """
-        Initialise the coverage table of each neuron in the model.
+        Calculate coverage metrics of given dataset.
 
         Args:
-            dataset (numpy.ndarray): Dataset used for initialising the coverage table.
-        """
-        self._model.predict(Tensor(dataset[0:1]))
-        tensors = _get_summary_tensor_data()
-        for name, tensor in tensors.items():
-            if 'input' in name:
-                continue
-            for num_neuron in range(tensor.shape[1]):
-                self._model_layer_dict[(name, num_neuron)] = False
-                self._effective_model_layer_dict[(name, num_neuron)] = False
+            dataset (numpy.ndarray): Dataset used to calculate coverage metrics.
 
-    def _bounds_get(self, train_dataset, batch_size=32):
+        Raises:
+            NotImplementedError: It is an abstract method.
+        """
+        msg = 'The function get_metrics() is an abstract method in class `CoverageMetrics`, and should be' \
+              ' implemented in child class.'
+        LOGGER.error(TAG, msg)
+        raise NotImplementedError(msg)
+
+    def _init_neuron_activate_table(self, data):
+        """
+        Initialise the activate table of each neuron in the model with format:
+        {'layer1': [n1, n2, n3, ..., nn], 'layer2': [n1, n2, n3, ..., nn], ...}
+
+        Args:
+            data (numpy.ndarray): Data used for initialising the activate table.
+
+        Return:
+            dict, return a activate_table.
+        """
+        self._model.predict(Tensor(data))
+        layer_out = _get_summary_tensor_data()
+        if not layer_out:
+            msg = 'User must use TensorSummary() operation to specify the middle layer of the model participating in ' \
+                  'the coverage calculation.'
+            LOGGER.error(TAG, msg)
+            raise ValueError(msg)
+        activate_table = defaultdict()
+        for layer, value in layer_out.items():
+            activate_table[layer] = np.zeros(value.shape[1], np.bool)
+        return activate_table
+
+    def _get_bounds(self, train_dataset):
         """
         Update the lower and upper boundaries of neurons' outputs.
 
         Args:
-            train_dataset (numpy.ndarray): Training dataset used for
-                determine the neurons' output boundaries.
-            batch_size (int): The number of samples in a predict batch.
-                Default: 32.
+            train_dataset (numpy.ndarray): Training dataset used for determine the neurons' output boundaries.
+
+        Return:
+            - numpy.ndarray, upper bounds of neuron' outputs.
+
+            - numpy.ndarray, lower bounds of neuron' outputs.
         """
-        batch_size = check_int_positive('batch_size', batch_size)
-        output_mat = []
-        batches = train_dataset.shape[0] // batch_size
+        upper_bounds = defaultdict(list)
+        lower_bounds = defaultdict(list)
+        batches = math.ceil(train_dataset.shape[0] / self.batch_size)
         for i in range(batches):
-            inputs = train_dataset[i*batch_size: (i + 1)*batch_size]
-            output = self._model.predict(Tensor(inputs)).asnumpy()
-            output_mat.append(output)
-            lower_compare_array = np.concatenate([output, np.array([self._lower_bounds])], axis=0)
-            self._lower_bounds = np.min(lower_compare_array, axis=0)
-            upper_compare_array = np.concatenate([output, np.array([self._upper_bounds])], axis=0)
-            self._upper_bounds = np.max(upper_compare_array, axis=0)
-        if batches == 0:
-            output = self._model.predict(Tensor(train_dataset)).asnumpy()
-            self._lower_bounds = np.min(output, axis=0)
-            self._upper_bounds = np.max(output, axis=0)
-            output_mat.append(output)
-        self._var = np.std(np.concatenate(np.array(output_mat), axis=0), axis=0)
-
-    def _sections_hits_count(self, dataset, intervals):
-        """
-        Update the coverage matrix of neurons' output subsections.
-
-        Args:
-            dataset (numpy.ndarray): Testing data.
-            intervals (list[float]): Segmentation intervals of neurons' outputs.
-        """
-        dataset = check_numpy_param('dataset', dataset)
-        batch_output = self._model.predict(Tensor(dataset)).asnumpy()
-        batch_section_indexes = (batch_output - self._lower_bounds) // intervals
-        for section_indexes in batch_section_indexes:
-            for i in range(self._neuron_num):
-                if section_indexes[i] < 0:
-                    self._lower_corner_hits[i] = 1
-                elif section_indexes[i] >= self._segmented_num:
-                    self._upper_corner_hits[i] = 1
+            inputs = train_dataset[i * self.batch_size: (i + 1) * self.batch_size]
+            self._model.predict(Tensor(inputs))
+            layer_out = _get_summary_tensor_data()
+            for layer, tensor in layer_out.items():
+                value = tensor.asnumpy()
+                value = np.mean(value, axis=tuple([i for i in range(2, len(value.shape))]))
+                min_value = np.min(value, axis=0)
+                max_value = np.max(value, axis=0)
+                if np.any(upper_bounds[layer]):
+                    max_flag = upper_bounds[layer] > max_value
+                    min_flag = lower_bounds[layer] < min_value
+                    upper_bounds[layer] = upper_bounds[layer] * max_flag + max_value * (1 - max_flag)
+                    lower_bounds[layer] = lower_bounds[layer] * min_flag + min_value * (1 - min_flag)
                 else:
-                    self._main_section_hits[i][int(section_indexes[i])] = 1
+                    upper_bounds[layer] = max_value
+                    lower_bounds[layer] = min_value
+        return upper_bounds, lower_bounds
 
-    def _coverage_update(self, name, tensor, scaled_mean, scaled_rank, top_k, threshold):
+    def _activate_rate(self):
         """
-        Update the coverage matrix of neural coverage and effective neural coverage.
+        Calculate the activate rate of neurons.
+        """
+        total_neurons = 0
+        activated_neurons = 0
+        for _, value in self._activate_table.items():
+            activated_neurons += np.sum(value)
+            total_neurons += len(value)
+        activate_rate = activated_neurons / total_neurons
+
+        return activate_rate
+
+
+class NeuronCoverage(CoverageMetrics):
+    """
+    Calculate the neurons activated coverage. Neuron is activated when its output is greater than the threshold.
+    Neuron coverage equals the proportion of activated neurons to total neurons in the network.
+
+    Args:
+        model (Model): The pre-trained model which waiting for testing.
+        threshold (float): Threshold used to determined neurons is activated or not. Default: 0.1.
+        incremental (bool): Metrics will be calculate in incremental way or not. Default: False.
+        batch_size (int):  The number of samples in a fuzz test batch. Default: 32.
+
+    """
+    def __init__(self, model, threshold=0.1, incremental=False, batch_size=32):
+        super(NeuronCoverage, self).__init__(model, incremental, batch_size)
+        self.threshold = check_value_positive('threshold', threshold)
+
+    def get_metrics(self, dataset):
+        """
+        Get the metric of neuron coverage: the proportion of activated neurons to total neurons in the network.
 
         Args:
-            name (string): the name of the tensor.
-            tensor (tensor): the tensor in the network.
-            scaled_mean (numpy.ndarray): feature map of the tensor.
-            scaled_rank (numpy.ndarray): rank of tensor value.
-            top_k (int): neuron is covered when its output has the top k largest value in that hidden layer.
-            threshold (float): neuron is covered when its output is greater than the threshold.
-
-        """
-        for num_neuron in range(tensor.shape[1]):
-            if num_neuron >= (len(scaled_rank) - top_k) and not \
-                    self._effective_model_layer_dict[(name, scaled_rank[num_neuron])]:
-                self._effective_model_layer_dict[(name, scaled_rank[num_neuron])] = True
-            if scaled_mean[num_neuron] > threshold and not \
-                    self._model_layer_dict[(name, num_neuron)]:
-                self._model_layer_dict[(name, num_neuron)] = True
-
-    def calculate_coverage(self, dataset, bias_coefficient=0, batch_size=32):
-        """
-        Calculate the testing adequacy of the given dataset.
-
-        Args:
-            dataset (numpy.ndarray): Data for fuzz test.
-            bias_coefficient (Union[int, float]): The coefficient used
-                for changing the neurons' output boundaries. Default: 0.
-            batch_size (int): The number of samples in a predict batch. Default: 32.
-
-        Examples:
-            >>> neuron_num = 10
-            >>> segmented_num = 1000
-            >>> batch_size = 32
-            >>> model_fuzz_test = ModelCoverageMetrics(model, neuron_num, segmented_num, train_images)
-            >>> model_fuzz_test.calculate_coverage(test_images, top_k, threshold, batch_size)
-        """
-
-        dataset = check_numpy_param('dataset', dataset)
-        batch_size = check_int_positive('batch_size', batch_size)
-        bias_coefficient = check_param_multi_types('bias_coefficient', bias_coefficient, [int, float])
-        self._lower_bounds -= bias_coefficient*self._var
-        self._upper_bounds += bias_coefficient*self._var
-        intervals = (self._upper_bounds - self._lower_bounds) / self._segmented_num
-        batches = dataset.shape[0] // batch_size
-        for i in range(batches):
-            self._sections_hits_count(dataset[i*batch_size: (i + 1)*batch_size], intervals)
-
-
-    def calculate_effective_coverage(self, dataset, top_k=3, threshold=0.1, batch_size=32):
-        """
-        Calculate the effective testing adequacy of the given dataset.
-        In effective neural coverage, neuron is covered when its output has the top k largest value
-        in that hidden layers. In neural coverage, neuron is covered when its output is greater than the
-        threshold. Coverage equals the covered neurons divided by the total neurons in the network.
-
-        Args:
-            threshold (float): neuron is covered when its output is greater than the threshold.
-            top_k (int): neuron is covered when its output has the top k largest value in that hiddern layer.
-            dataset (numpy.ndarray): Data for fuzz test.
-
-        Examples:
-            >>> neuron_num = 10
-            >>> segmented_num = 1000
-            >>> top_k = 3
-            >>> threshold = 0.1
-            >>> model_fuzz_test = ModelCoverageMetrics(model, neuron_num, segmented_num, train_images)
-            >>> model_fuzz_test.calculate_coverage(test_images)
-            >>> model_fuzz_test.calculate_effective_coverage(test_images, top_k, threshold)
-        """
-        top_k = check_int_positive('top_k', top_k)
-        dataset = check_numpy_param('dataset', dataset)
-        batch_size = check_int_positive('batch_size', batch_size)
-        batches = dataset.shape[0] // batch_size
-        self._set_init_effective_coverage_table(dataset)
-        for i in range(batches):
-            inputs = dataset[i*batch_size: (i + 1)*batch_size]
-            self._model.predict(Tensor(inputs)).asnumpy()
-            tensors = _get_summary_tensor_data()
-            for name, tensor in tensors.items():
-                if 'input' in name:
-                    continue
-                scaled = tensor.asnumpy()[-1]
-                if scaled.ndim >= 3:  #
-                    scaled_mean = np.mean(scaled, axis=(1, 2))
-                    scaled_rank = np.argsort(scaled_mean)
-                    self._coverage_update(name, tensor, scaled_mean, scaled_rank, top_k, threshold)
-                else:
-                    scaled_rank = np.argsort(scaled)
-                    self._coverage_update(name, tensor, scaled, scaled_rank, top_k, threshold)
-
-    def get_nc(self):
-        """
-        Get the metric of 'neuron coverage'.
+            dataset (numpy.ndarray): Dataset used to calculate coverage metrics.
 
         Returns:
             float, the metric of 'neuron coverage'.
 
         Examples:
-            >>> model_fuzz_test.get_nc()
+            >>> nc = NeuronCoverage(model, threshold=0.1)
+            >>> nc_metrics = nc.get_metrics(test_data)
         """
-        covered_neurons = len([v for v in self._model_layer_dict.values() if v])
-        total_neurons = len(self._model_layer_dict)
-        nc = covered_neurons / float(total_neurons)
-        return nc
+        dataset = check_numpy_param('dataset', dataset)
+        batches = math.ceil(dataset.shape[0] / self.batch_size)
+        if not self.incremental or not self._activate_table:
+            self._activate_table = self._init_neuron_activate_table(dataset[0:1])
+        for i in range(batches):
+            inputs = dataset[i * self.batch_size: (i + 1) * self.batch_size]
+            self._model.predict(Tensor(inputs))
+            layer_out = _get_summary_tensor_data()
+            for layer, tensor in layer_out.items():
+                value = tensor.asnumpy()
+                value = np.mean(value, axis=tuple([i for i in range(2, len(value.shape))]))
+                activate = np.sum(value > self.threshold, axis=0) > 0
+                self._activate_table[layer] = np.logical_or(self._activate_table[layer], activate)
+        neuron_coverage = self._activate_rate()
+        return neuron_coverage
 
-    def get_effective_nc(self):
+
+class TopKNeuronCoverage(CoverageMetrics):
+    """
+    Calculate the top k activated neurons coverage. Neuron is activated when its output has the top k largest value in
+    that hidden layers. Top k neurons coverage equals the proportion of activated neurons to total neurons in the
+    network.
+
+    Args:
+        model (Model): The pre-trained model which waiting for testing.
+        top_k (int): Neuron is activated when its output has the top k largest value in that hidden layers. Default: 3.
+        incremental (bool): Metrics will be calculate in incremental way or not. Default: False.
+        batch_size (int):  The number of samples in a fuzz test batch. Default: 32.
+    """
+    def __init__(self, model, top_k=3, incremental=False, batch_size=32):
+        super(TopKNeuronCoverage, self).__init__(model, incremental=incremental, batch_size=batch_size)
+        self.top_k = check_int_positive('top_k', top_k)
+
+    def get_metrics(self, dataset):
         """
-        Get the metric of 'effective neuron coverage'.
+        Get the metric of Top K activated neuron coverage.
+
+        Args:
+            dataset (numpy.ndarray): Dataset used to calculate coverage metrics.
 
         Returns:
-            float, the metric of 'the effective neuron coverage'.
+            float, the metrics of 'top k neuron coverage'.
 
         Examples:
-            >>> model_fuzz_test.get_effective_nc()
+            >>> tknc = TopKNeuronCoverage(model, top_k=3)
+            >>> metrics = tknc.get_metrics(test_data)
         """
-        covered_neurons = len([v for v in self._effective_model_layer_dict.values() if v])
-        total_neurons = len(self._effective_model_layer_dict)
-        effective_nc = covered_neurons / float(total_neurons)
-        return effective_nc
+        dataset = check_numpy_param('dataset', dataset)
+        batches = math.ceil(dataset.shape[0] / self.batch_size)
+        if not self.incremental or not self._activate_table:
+            self._activate_table = self._init_neuron_activate_table(dataset[0:1])
+        for i in range(batches):
+            inputs = dataset[i * self.batch_size: (i + 1) * self.batch_size]
+            self._model.predict(Tensor(inputs))
+            layer_out = _get_summary_tensor_data()
+            for layer, tensor in layer_out.items():
+                value = tensor.asnumpy()
+                if len(value.shape) > 2:
+                    value = np.mean(value, axis=tuple([i for i in range(2, len(value.shape))]))
+                top_k_value = np.sort(value)[:, -self.top_k].reshape(value.shape[0], 1)
+                top_k_value = np.sum((value - top_k_value) >= 0, axis=0) > 0
+                self._activate_table[layer] = np.logical_or(self._activate_table[layer], top_k_value)
+        top_k_neuron_coverage = self._activate_rate()
+        return top_k_neuron_coverage
 
-    def get_kmnc(self):
-        """
-        Get the metric of 'k-multisection neuron coverage'. KMNC measures how
-        thoroughly the given set of test inputs covers the range of neurons
-        output values derived from training dataset.
 
-        Returns:
-            float, the metric of 'k-multisection neuron coverage'.
+class SuperNeuronActivateCoverage(CoverageMetrics):
+    """
+    Get the metric of 'super neuron activation coverage'. :math:`SNAC = |UpperCornerNeuron|/|N|`. SNAC refers to the
+    proportion of neurons whose neurons output value in the test set exceeds the upper bounds of the corresponding
+    neurons output value in the training set.
 
-        Examples:
-            >>> model_fuzz_test.get_kmnc()
-        """
-        kmnc = np.sum(self._main_section_hits) / (self._neuron_num*self._segmented_num)
-        return kmnc
+    Args:
+        model (Model): The pre-trained model which waiting for testing.
+        train_dataset (numpy.ndarray): Training dataset used for determine the neurons' output boundaries.
+        incremental (bool): Metrics will be calculate in incremental way or not. Default: False.
+        batch_size (int):  The number of samples in a fuzz test batch. Default: 32.
+    """
+    def __init__(self, model, train_dataset, incremental=False, batch_size=32):
+        super(SuperNeuronActivateCoverage, self).__init__(model, incremental=incremental, batch_size=batch_size)
+        train_dataset = check_numpy_param('train_dataset', train_dataset)
+        self.upper_bounds, self.lower_bounds = self._get_bounds(train_dataset=train_dataset)
 
-    def get_nbc(self):
-        """
-        Get the metric of 'neuron boundary coverage' :math:`NBC = (|UpperCornerNeuron|
-        + |LowerCornerNeuron|)/(2*|N|)`, where :math`|N|` is the number of neurons,
-        NBC refers to the proportion of neurons whose neurons output value in
-        the test dataset exceeds the upper and lower bounds of the corresponding
-        neurons output value in the training dataset.
-
-        Returns:
-            float, the metric of 'neuron boundary coverage'.
-
-        Examples:
-            >>> model_fuzz_test.get_nbc()
-        """
-        nbc = (np.sum(self._lower_corner_hits) + np.sum(self._upper_corner_hits)) / (2*self._neuron_num)
-        return nbc
-
-    def get_snac(self):
+    def get_metrics(self, dataset):
         """
         Get the metric of 'strong neuron activation coverage'.
-        :math:`SNAC = |UpperCornerNeuron|/|N|`. SNAC refers to the proportion
-        of neurons whose neurons output value in the test set exceeds the upper
-        bounds of the corresponding neurons output value in the training set.
+
+        Args:
+            dataset (numpy.ndarray): Dataset used to calculate coverage metrics.
 
         Returns:
             float, the metric of 'strong neuron activation coverage'.
 
         Examples:
-            >>> model_fuzz_test.get_snac()
+            >>> snac = SuperNeuronActivateCoverage(model, train_dataset)
+            >>> metrics = snac.get_metrics(test_data)
         """
-        snac = np.sum(self._upper_corner_hits) / self._neuron_num
+        dataset = check_numpy_param('dataset', dataset)
+        if not self.incremental or not self._activate_table:
+            self._activate_table = self._init_neuron_activate_table(dataset[0:1])
+        batches = math.ceil(dataset.shape[0] / self.batch_size)
+
+        for i in range(batches):
+            inputs = dataset[i * self.batch_size: (i + 1) * self.batch_size]
+            self._model.predict(Tensor(inputs))
+            layer_out = _get_summary_tensor_data()
+            for layer, tensor in layer_out.items():
+                value = tensor.asnumpy()
+                if len(value.shape) > 2:
+                    value = np.mean(value, axis=tuple([i for i in range(2, len(value.shape))]))
+                activate = np.sum(value > self.upper_bounds[layer], axis=0) > 0
+                self._activate_table[layer] = np.logical_or(self._activate_table[layer], activate)
+        snac = self._activate_rate()
         return snac
+
+
+class NeuronBoundsCoverage(SuperNeuronActivateCoverage):
+    """
+    Get the metric of 'neuron boundary coverage' :math:`NBC = (|UpperCornerNeuron| + |LowerCornerNeuron|)/(2*|N|)`,
+    where :math`|N|` is the number of neurons, NBC refers to the proportion of neurons whose neurons output value in
+    the test dataset exceeds the upper and lower bounds of the corresponding neurons output value in the training
+    dataset.
+
+    Args:
+        model (Model): The pre-trained model which waiting for testing.
+        train_dataset (numpy.ndarray): Training dataset used for determine the neurons' output boundaries.
+        incremental (bool): Metrics will be calculate in incremental way or not. Default: False.
+        batch_size (int):  The number of samples in a fuzz test batch. Default: 32.
+    """
+
+    def __init__(self, model, train_dataset, incremental=False, batch_size=32):
+        super(NeuronBoundsCoverage, self).__init__(model, train_dataset, incremental=incremental, batch_size=batch_size)
+
+    def get_metrics(self, dataset):
+        """
+        Get the metric of 'neuron boundary coverage'.
+
+        Args:
+            dataset (numpy.ndarray): Dataset used to calculate coverage metrics.
+
+        Returns:
+            float, the metric of 'neuron boundary coverage'.
+
+        Examples:
+            >>> nbc = NeuronBoundsCoverage(model, train_dataset)
+            >>> metrics = nbc.get_metrics(test_data)
+        """
+        dataset = check_numpy_param('dataset', dataset)
+        if not self.incremental or not self._activate_table:
+            self._activate_table = self._init_neuron_activate_table(dataset[0:1])
+
+        batches = math.ceil(dataset.shape[0] / self.batch_size)
+        for i in range(batches):
+            inputs = dataset[i * self.batch_size: (i + 1) * self.batch_size]
+            self._model.predict(Tensor(inputs))
+            layer_out = _get_summary_tensor_data()
+            for layer, tensor in layer_out.items():
+                value = tensor.asnumpy()
+                if len(value.shape) > 2:
+                    value = np.mean(value, axis=tuple([i for i in range(2, len(value.shape))]))
+                outer = np.logical_or(value > self.upper_bounds[layer], value < self.lower_bounds[layer])
+                activate = np.sum(outer, axis=0) > 0
+                self._activate_table[layer] = np.logical_or(self._activate_table[layer], activate)
+        nbc = self._activate_rate()
+        return nbc
+
+
+class KMultisectionNeuronCoverage(SuperNeuronActivateCoverage):
+    """
+    Get the metric of 'k-multisection neuron coverage'. KMNC measures how thoroughly the given set of test inputs
+    covers the range of neurons output values derived from training dataset.
+
+    Args:
+        model (Model): The pre-trained model which waiting for testing.
+        train_dataset (numpy.ndarray): Training dataset used for determine the neurons' output boundaries.
+        segmented_num (int): The number of segmented sections of neurons' output intervals. Default: 100.
+        incremental (bool): Metrics will be calculate in incremental way or not. Default: False.
+        batch_size (int):  The number of samples in a fuzz test batch. Default: 32.
+    """
+
+    def __init__(self, model, train_dataset, segmented_num=100, incremental=False, batch_size=32):
+        super(KMultisectionNeuronCoverage, self).__init__(model, train_dataset, incremental=incremental,
+                                                          batch_size=batch_size)
+        self.segmented_num = check_int_positive('segmented_num', segmented_num)
+        self.intervals = defaultdict(list)
+        for keys in self.upper_bounds.keys():
+            self.intervals[keys] = (self.upper_bounds[keys] - self.lower_bounds[keys]) / self.segmented_num
+
+    def _init_k_multisection_table(self, data):
+        """ Initial the activate table."""
+        self._model.predict(Tensor(data))
+        layer_out = _get_summary_tensor_data()
+        activate_section_table = defaultdict()
+        for layer, value in layer_out.items():
+            activate_section_table[layer] = np.zeros((value.shape[1], self.segmented_num), np.bool)
+        return activate_section_table
+
+    def get_metrics(self, dataset):
+        """
+        Get the metric of 'k-multisection neuron coverage'.
+
+        Args:
+            dataset (numpy.ndarray): Dataset used to calculate coverage metrics.
+
+        Returns:
+            float, the metric of 'k-multisection neuron coverage'.
+
+        Examples:
+            >>> kmnc = KMultisectionNeuronCoverage(model, train_dataset, segmented_num=100)
+            >>> metrics = kmnc.get_metrics(test_data)
+        """
+
+        dataset = check_numpy_param('dataset', dataset)
+        if not self.incremental or not self._activate_table:
+            self._activate_table = self._init_k_multisection_table(dataset[0:1])
+
+        batches = math.ceil(dataset.shape[0] / self.batch_size)
+        for i in range(batches):
+            inputs = dataset[i * self.batch_size: (i + 1) * self.batch_size]
+            self._model.predict(Tensor(inputs))
+            layer_out = _get_summary_tensor_data()
+            for layer, tensor in layer_out.items():
+                value = tensor.asnumpy()
+                value = np.mean(value, axis=tuple([i for i in range(2, len(value.shape))]))
+                hits = np.floor((value - self.lower_bounds[layer]) / self.intervals[layer]).astype(int)
+                hits = np.transpose(hits, [1, 0])
+                for n in range(len(hits)):
+                    for sec in hits[n]:
+                        if sec >= self.segmented_num or sec < 0:
+                            continue
+                        self._activate_table[layer][n][sec] = True
+
+        kmnc = self._activate_rate() / self.segmented_num
+        return kmnc

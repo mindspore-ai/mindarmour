@@ -14,11 +14,10 @@
 import numpy as np
 from mindspore import Model
 from mindspore import context
-from mindspore.nn import SoftmaxCrossEntropyWithLogits
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 
-from mindarmour.adv_robustness.attacks import FastGradientSignMethod
-from mindarmour.fuzz_testing import ModelCoverageMetrics
+from mindarmour.fuzz_testing.model_coverage_metrics import NeuronCoverage, TopKNeuronCoverage, NeuronBoundsCoverage,\
+    SuperNeuronActivateCoverage, KMultisectionNeuronCoverage
 from mindarmour.utils.logger import LogUtil
 
 from examples.common.dataset.data_processing import generate_mnist_dataset
@@ -46,13 +45,6 @@ def test_lenet_mnist_coverage():
         images = data[0].astype(np.float32)
         train_images.append(images)
     train_images = np.concatenate(train_images, axis=0)
-    neuron_num = 10
-    segmented_num = 1000
-    top_k = 3
-    threshold = 0.1
-
-    # initialize fuzz test with training dataset
-    model_fuzz_test = ModelCoverageMetrics(model, neuron_num, segmented_num, train_images)
 
     # fuzz test with original test data
     # get test data
@@ -67,31 +59,31 @@ def test_lenet_mnist_coverage():
         test_images.append(images)
         test_labels.append(labels)
     test_images = np.concatenate(test_images, axis=0)
-    test_labels = np.concatenate(test_labels, axis=0)
-    model_fuzz_test.calculate_coverage(test_images)
-    LOGGER.info(TAG, 'KMNC of this test is : %s', model_fuzz_test.get_kmnc())
-    LOGGER.info(TAG, 'NBC of this test is : %s', model_fuzz_test.get_nbc())
-    LOGGER.info(TAG, 'SNAC of this test is : %s', model_fuzz_test.get_snac())
 
-    model_fuzz_test.calculate_effective_coverage(test_images, top_k, threshold)
-    LOGGER.info(TAG, 'NC of this test is : %s', model_fuzz_test.get_nc())
-    LOGGER.info(TAG, 'Effective_NC of this test is : %s', model_fuzz_test.get_effective_nc())
+    # initialize fuzz test with training dataset
+    nc = NeuronCoverage(model, threshold=0.1)
+    nc_metric = nc.get_metrics(test_images)
 
-    # generate adv_data
-    loss = SoftmaxCrossEntropyWithLogits(sparse=True)
-    attack = FastGradientSignMethod(net, eps=0.3, loss_fn=loss)
-    adv_data = attack.batch_generate(test_images, test_labels, batch_size=32)
-    model_fuzz_test.calculate_coverage(adv_data, bias_coefficient=0.5)
-    LOGGER.info(TAG, 'KMNC of this adv data is : %s', model_fuzz_test.get_kmnc())
-    LOGGER.info(TAG, 'NBC of this adv data is : %s', model_fuzz_test.get_nbc())
-    LOGGER.info(TAG, 'SNAC of this adv data is : %s', model_fuzz_test.get_snac())
+    tknc = TopKNeuronCoverage(model, top_k=3)
+    tknc_metrics = tknc.get_metrics(test_images)
 
-    model_fuzz_test.calculate_effective_coverage(adv_data, top_k, threshold)
-    LOGGER.info(TAG, 'NC of this test is : %s', model_fuzz_test.get_nc())
-    LOGGER.info(TAG, 'Effective_NC of this test is : %s', model_fuzz_test.get_effective_nc())
+    snac = SuperNeuronActivateCoverage(model, train_images)
+    snac_metrics = snac.get_metrics(test_images)
+
+    nbc = NeuronBoundsCoverage(model, train_images)
+    nbc_metrics = nbc.get_metrics(test_images)
+
+    kmnc = KMultisectionNeuronCoverage(model, train_images, segmented_num=100)
+    kmnc_metrics = kmnc.get_metrics(test_images)
+
+    print('KMNC of this test is: ', kmnc_metrics)
+    print('NBC of this test is: ', nbc_metrics)
+    print('SNAC of this test is: ', snac_metrics)
+    print('NC of this test is: ', nc_metric)
+    print('TKNC of this test is: ', tknc_metrics)
 
 
 if __name__ == '__main__':
     # device_target can be "CPU", "GPU" or "Ascend"
-    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+    context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
     test_lenet_mnist_coverage()
