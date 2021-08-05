@@ -21,7 +21,7 @@ from setuptools import setup
 from setuptools.command.egg_info import egg_info
 from setuptools.command.build_py import build_py
 
-version = '1.3.0'
+version = '1.4.0'
 cur_dir = os.path.dirname(os.path.realpath(__file__))
 pkg_dir = os.path.join(cur_dir, 'build')
 
@@ -129,8 +129,9 @@ setup(
         'scipy >= 1.5.2',
         'numpy >= 1.17.0',
         'matplotlib >= 3.2.1',
-        'Pillow >= 2.0.0',
-        'scikit-learn >= 0.23.1'
+        'pillow >= 6.2.0',
+        'scikit-learn >= 0.23.1',
+        'easydict >= 1.9',
     ],
     classifiers=[
         'License :: OSI Approved :: Apache Software License'
