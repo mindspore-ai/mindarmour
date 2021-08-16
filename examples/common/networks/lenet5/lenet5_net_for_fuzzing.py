@@ -20,19 +20,21 @@ from mindspore.ops import TensorSummary
 
 
 def conv(in_channels, out_channels, kernel_size, stride=1, padding=0):
+    """Wrap conv."""
     weight = weight_variable()
-    return nn.Conv2d(in_channels, out_channels,
-                     kernel_size=kernel_size, stride=stride, padding=padding,
+    return nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size, stride=stride, padding=padding,
                      weight_init=weight, has_bias=False, pad_mode="valid")
 
 
 def fc_with_initialize(input_channels, out_channels):
+    """Wrap initialize method of full connection layer."""
     weight = weight_variable()
     bias = weight_variable()
     return nn.Dense(input_channels, out_channels, weight, bias)
 
 
 def weight_variable():
+    """Wrap initialize variable."""
     return TruncatedNormal(0.05)
 
 
@@ -50,7 +52,6 @@ class LeNet5(nn.Cell):
         self.relu = nn.ReLU()
         self.max_pool2d = nn.MaxPool2d(kernel_size=2, stride=2)
         self.flatten = nn.Flatten()
-
         self.summary = TensorSummary()
 
     def construct(self, x):
@@ -59,8 +60,6 @@ class LeNet5(nn.Cell):
         Returns:
             x (tensor): network output
         """
-        self.summary('input', x)
-
         x = self.conv1(x)
         self.summary('1', x)
 

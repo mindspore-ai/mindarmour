@@ -21,15 +21,14 @@ from mindspore import Model
 from mindspore import Tensor
 from mindspore import nn
 
-from mindarmour.utils._check_param import check_model, check_numpy_param, \
-    check_param_multi_types, check_norm_level, check_param_in_range, \
-    check_param_type, check_int_positive
+from mindarmour.utils._check_param import check_model, check_numpy_param, check_param_multi_types, check_norm_level, \
+    check_param_in_range, check_param_type, check_int_positive, check_param_bounds
 from mindarmour.utils.logger import LogUtil
 from ..adv_robustness.attacks import FastGradientSignMethod, \
     MomentumDiverseInputIterativeMethod, ProjectedGradientDescent
 from .image_transform import Contrast, Brightness, Blur, \
     Noise, Translate, Scale, Shear, Rotate
-from .model_coverage_metrics import ModelCoverageMetrics
+from .model_coverage_metrics import CoverageMetrics, KMultisectionNeuronCoverage
 
 LOGGER = LogUtil.get_instance()
 TAG = 'Fuzzer'
@@ -43,11 +42,22 @@ def _select_next(initial_seeds):
     return seed, initial_seeds
 
 
-def _coverage_gains(coverages):
-    """ Calculate the coverage gains of mutated samples."""
-    gains = [0] + coverages[:-1]
+def _coverage_gains(pre_coverage, coverages):
+    """
+    Calculate the coverage gains of mutated samples.
+
+    Args:
+        pre_coverage (float): Last value of coverages for previous mutated samples.
+        coverages (list): Coverage of mutated samples.
+
+    Returns:
+        - list, coverage gains for mutated samples.
+
+        - float, last value in parameter coverages.
+    """
+    gains = [pre_coverage] + coverages[:-1]
     gains = np.array(coverages) - np.array(gains)
-    return gains
+    return gains, coverages[-1]
 
 
 def _is_trans_valid(seed, mutate_sample):
@@ -65,37 +75,22 @@ def _is_trans_valid(seed, mutate_sample):
     size = np.shape(diff)[0]
     l0_norm = np.linalg.norm(diff, ord=0)
     linf = np.linalg.norm(diff, ord=np.inf)
-    if l0_norm > pixels_change_rate*size:
+    if l0_norm > pixels_change_rate * size:
         if linf < 256:
             is_valid = True
     else:
-        if linf < pixel_value_change_rate*255:
+        if linf < pixel_value_change_rate * 255:
             is_valid = True
     return is_valid
 
 
-def _check_eval_metrics(eval_metrics):
-    """ Check evaluation metrics."""
-    if isinstance(eval_metrics, (list, tuple)):
-        eval_metrics_ = []
-        available_metrics = ['accuracy', 'attack_success_rate', 'kmnc', 'nbc', 'snac']
-        for elem in eval_metrics:
-            if elem not in available_metrics:
-                msg = 'metric in list `eval_metrics` must be in {}, but got {}.'.format(available_metrics, elem)
-                LOGGER.error(TAG, msg)
-                raise ValueError(msg)
-            eval_metrics_.append(elem.lower())
-    elif isinstance(eval_metrics, str):
-        if eval_metrics != 'auto':
-            msg = "the value of `eval_metrics` must be 'auto' if it's type is str, but got {}.".format(eval_metrics)
-            LOGGER.error(TAG, msg)
-            raise ValueError(msg)
-        eval_metrics_ = 'auto'
+def _gain_threshold(coverage):
+    """Get threshold for given neuron coverage class."""
+    if coverage is isinstance(coverage, KMultisectionNeuronCoverage):
+        gain_threshold = 0.1 / coverage.segmented_num
     else:
-        msg = "the type of `eval_metrics` must be str, list or tuple, but got {}.".format(type(eval_metrics))
-        LOGGER.error(TAG, msg)
-        raise TypeError(msg)
-    return eval_metrics_
+        gain_threshold = 0
+    return gain_threshold
 
 
 class Fuzzer:
@@ -113,6 +108,7 @@ class Fuzzer:
 
     Examples:
         >>> net = Net()
+        >>> model = Model(net)
         >>> mutate_config = [{'method': 'Blur',
         >>>                   'params': {'auto_param': [True]}},
         >>>                  {'method': 'Contrast',
@@ -121,18 +117,15 @@ class Fuzzer:
         >>>                   'params': {'x_bias': [0.1, 0.2], 'y_bias': [0.2]}},
         >>>                  {'method': 'FGSM',
         >>>                   'params': {'eps': [0.1, 0.2, 0.3], 'alpha': [0.1]}}]
-        >>> train_images = np.random.rand(32, 1, 32, 32).astype(np.float32)
-        >>> neuron_num = 10
-        >>> segmented_num = 1000
-        >>> model_fuzz_test = Fuzzer(model, train_images, neuron_num, segmented_num)
-        >>> samples, labels, preds, strategies, report = model_fuzz_test.fuzz_testing(mutate_config, initial_seeds)
+        >>> nc = KMultisectionNeuronCoverage(model, train_images, segmented_num=100)
+        >>> model_fuzz_test = Fuzzer(model)
+        >>> samples, gt_labels, preds, strategies, metrics = model_fuzz_test.fuzzing(mutate_config, initial_seeds,
+        >>>                                                                          nc, max_iters=100)
     """
 
-    def __init__(self, target_model, train_dataset, neuron_num,
-                 segmented_num=1000):
+    def __init__(self, target_model):
         self._target_model = check_model('model', target_model, Model)
-        train_dataset = check_numpy_param('train_dataset', train_dataset)
-        self._coverage_metrics = ModelCoverageMetrics(target_model, neuron_num, segmented_num, train_dataset)
+
         # Allowed mutate strategies so far.
         self._strategies = {'Contrast': Contrast,
                             'Brightness': Brightness,
@@ -161,8 +154,7 @@ class Fuzzer:
                       'prob': {'dtype': [float], 'range': [0, 1]},
                       'bounds': {'dtype': [tuple]}}}
 
-    def fuzzing(self, mutate_config, initial_seeds, coverage_metric='KMNC',
-                eval_metrics='auto', max_iters=10000, mutate_num_per_seed=20):
+    def fuzzing(self, mutate_config, initial_seeds, coverage, evaluate=True, max_iters=10000, mutate_num_per_seed=20):
         """
         Fuzzing tests for deep neural networks.
 
@@ -175,32 +167,20 @@ class Fuzzer:
                 {'method': 'FGSM',
                 'params': {'eps': [0.3, 0.2, 0.4], 'alpha': [0.1]}},
                 ...].
-                The supported methods list is in `self._strategies`, and the
-                params of each method must within the range of optional parameters.　
-                Supported methods are grouped in three types:
-                Firstly, pixel value based transform methods include:
-                'Contrast', 'Brightness', 'Blur' and 'Noise'. Secondly, affine
-                transform methods include: 'Translate', 'Scale', 'Shear' and
-                'Rotate'. Thirdly, attack methods include: 'FGSM', 'PGD' and 'MDIIM'.
-                `mutate_config` must have method in the type of pixel value based
-                transform methods. The way of setting parameters for first and
-                second type methods can be seen in 'mindarmour/fuzz_testing/image_transform.py'.
-                For third type methods, the optional parameters refer to
+                The supported methods list is in `self._strategies`, and the params of each method must within the
+                range of optional parameters. Supported methods are grouped in three types: Firstly, pixel value based
+                transform methods include: 'Contrast', 'Brightness', 'Blur' and 'Noise'. Secondly, affine transform
+                methods include: 'Translate', 'Scale', 'Shear' and 'Rotate'. Thirdly, attack methods include: 'FGSM',
+                'PGD' and 'MDIIM'. `mutate_config` must have method in the type of pixel value based transform methods.
+                The way of setting parameters for first and second type methods can be seen in
+                'mindarmour/fuzz_testing/image_transform.py'. For third type methods, the optional parameters refer to
                 `self._attack_param_checklists`.
-            initial_seeds (list[list]): Initial seeds used to generate mutated
-                samples. The format of initial seeds is [[image_data, label],
-                [...], ...] and the label must be one-hot.
-            coverage_metric (str): Model coverage metric of neural networks. All
-                supported metrics are: 'KMNC', 'NBC', 'SNAC'. Default: 'KMNC'.
-            eval_metrics (Union[list, tuple, str]): Evaluation metrics. If the
-                type is 'auto', it will calculate all the metrics, else if the
-                type is list or tuple, it will calculate the metrics specified
-                by user. All supported evaluate methods are 'accuracy',
-                'attack_success_rate', 'kmnc', 'nbc', 'snac'. Default: 'auto'.
-            max_iters (int): Max number of select a seed to mutate.
-                Default: 10000.
-            mutate_num_per_seed (int): The number of mutate times for a seed.
-                Default: 20.
+            initial_seeds (list[list]): Initial seeds used to generate mutated samples. The format of initial seeds is
+                [[image_data, label], [...], ...] and the label must be one-hot.
+            coverage (CoverageMetrics): Class of neuron coverage metrics.
+            evaluate (bool): return evaluate report or not. Default: True.
+            max_iters (int): Max number of select a seed to mutate. Default: 10000.
+            mutate_num_per_seed (int): The number of mutate times for a seed. Default: 20.
 
         Returns:
             - list, mutated samples in fuzz_testing.
@@ -214,18 +194,18 @@ class Fuzzer:
             - dict, metrics report of fuzzer.
 
         Raises:
-            TypeError: If the type of `eval_metrics` is not str, list or tuple.
-            TypeError: If the type of metric in list `eval_metrics` is not str.
-            ValueError: If `eval_metrics` is not equal to 'auto' when it's type is str.
-            ValueError: If metric in list `eval_metrics` is not in ['accuracy',
-                'attack_success_rate', 'kmnc', 'nbc', 'snac'].
+            ValueError, coverage must be subclass of CoverageMetrics.
+
+            ValueError, if initial seeds is empty.
+
+            ValueError, if element of seed is not two in initial seeds.
         """
         # Check parameters.
-        eval_metrics_ = _check_eval_metrics(eval_metrics)
-        if coverage_metric not in ['KMNC', 'NBC', 'SNAC']:
-            msg = "coverage_metric must be in ['KMNC', 'NBC', 'SNAC'], but got {}.".format(coverage_metric)
+        if not isinstance(coverage, CoverageMetrics):
+            msg = 'coverage must be subclass of CoverageMetrics'
             LOGGER.error(TAG, msg)
             raise ValueError(msg)
+        evaluate = check_param_type('evaluate', evaluate, bool)
         max_iters = check_int_positive('max_iters', max_iters)
         mutate_num_per_seed = check_int_positive('mutate_num_per_seed', mutate_num_per_seed)
         mutate_config = self._check_mutate_config(mutate_config)
@@ -235,15 +215,21 @@ class Fuzzer:
         if not initial_seeds:
             msg = 'initial_seeds must not be empty.'
             raise ValueError(msg)
+        initial_samples = []
         for seed in initial_seeds:
             check_param_type('seed', seed, list)
             if len(seed) != 2:
-                msg = 'seed in initial seeds must have two element image and ' \
-                      'label, but got {} element.'.format(len(seed))
+                msg = 'seed in initial seeds must have two element image and label, but got {} element.'.format(
+                    len(seed))
                 raise ValueError(msg)
             check_numpy_param('seed[0]', seed[0])
             check_numpy_param('seed[1]', seed[1])
+            initial_samples.append(seed[0])
             seed.append(0)
+        initial_samples = np.array(initial_samples)
+        # calculate the coverage of initial seeds
+        pre_coverage = coverage.get_metrics(initial_samples)
+        gain_threshold = _gain_threshold(coverage)
 
         seed, initial_seeds = _select_next(initial_seeds)
         fuzz_samples = []
@@ -253,30 +239,27 @@ class Fuzzer:
         iter_num = 0
         while initial_seeds and iter_num < max_iters:
             # Mutate a seed.
-            mutate_samples, mutate_strategies = self._metamorphic_mutate(seed,
-                                                                         mutates,
-                                                                         mutate_config,
+            mutate_samples, mutate_strategies = self._metamorphic_mutate(seed, mutates, mutate_config,
                                                                          mutate_num_per_seed)
             # Calculate the coverages and predictions of generated samples.
-            coverages, predicts = self._get_coverages_and_predict(mutate_samples, coverage_metric)
-            coverage_gains = _coverage_gains(coverages)
+            coverages, predicts = self._get_coverages_and_predict(mutate_samples, coverage)
+            coverage_gains, pre_coverage = _coverage_gains(pre_coverage, coverages)
             for mutate, cov, pred, strategy in zip(mutate_samples, coverage_gains, predicts, mutate_strategies):
                 fuzz_samples.append(mutate[0])
                 true_labels.append(mutate[1])
                 fuzz_preds.append(pred)
                 fuzz_strategies.append(strategy)
-                # if the mutate samples has coverage gains add this samples in
-                # the initial_seeds to guide new mutates.
-                if cov > 0:
+                # if the mutate samples has coverage gains add this samples in the initial_seeds to guide new mutates.
+                if cov > gain_threshold:
                     initial_seeds.append(mutate)
             seed, initial_seeds = _select_next(initial_seeds)
             iter_num += 1
         metrics_report = None
-        if eval_metrics_ is not None:
-            metrics_report = self._evaluate(fuzz_samples, true_labels, fuzz_preds, fuzz_strategies, eval_metrics_)
+        if evaluate:
+            metrics_report = self._evaluate(fuzz_samples, true_labels, fuzz_preds, fuzz_strategies, coverage)
         return fuzz_samples, true_labels, fuzz_preds, fuzz_strategies, metrics_report
 
-    def _get_coverages_and_predict(self, mutate_samples, coverage_metric="KNMC"):
+    def _get_coverages_and_predict(self, mutate_samples, coverage):
         """ Calculate the coverages and predictions of generated samples."""
         samples = [s[0] for s in mutate_samples]
         samples = np.array(samples)
@@ -285,17 +268,10 @@ class Fuzzer:
         predictions = predictions.asnumpy()
         for index in range(len(samples)):
             mutate = samples[:index + 1]
-            self._coverage_metrics.calculate_coverage(mutate.astype(np.float32))
-            if coverage_metric == 'KMNC':
-                coverages.append(self._coverage_metrics.get_kmnc())
-            if coverage_metric == 'NBC':
-                coverages.append(self._coverage_metrics.get_nbc())
-            if coverage_metric == 'SNAC':
-                coverages.append(self._coverage_metrics.get_snac())
+            coverages.append(coverage.get_metrics(mutate))
         return coverages, predictions
 
-    def _metamorphic_mutate(self, seed, mutates, mutate_config,
-                            mutate_num_per_seed):
+    def _metamorphic_mutate(self, seed, mutates, mutate_config, mutate_num_per_seed):
         """Mutate a seed using strategies random selected from mutate_config."""
         mutate_samples = []
         mutate_strategies = []
@@ -310,8 +286,8 @@ class Fuzzer:
             params = strategy['params']
             method = strategy['method']
             selected_param = {}
-            for p in params:
-                selected_param[p] = choice(params[p])
+            for param in params:
+                selected_param[param] = choice(params[param])
 
             if method in list(self._pixel_value_trans_list + self._affine_trans_list):
                 if method == 'Shear':
@@ -367,8 +343,7 @@ class Fuzzer:
             else:
                 for key in params.keys():
                     check_param_type(str(key), params[key], list)
-        # Methods in `metate_config` should at least have one in the type of
-        # pixel value based transform methods.
+        # Methods in `metate_config` should at least have one in the type of pixel value based transform methods.
         if not has_pixel_trans:
             msg = "mutate methods in mutate_config should at least have one in {}".format(self._pixel_value_trans_list)
             raise ValueError(msg)
@@ -386,17 +361,7 @@ class Fuzzer:
             check_param_type(param_name, params[param_name], list)
             for param_value in params[param_name]:
                 if param_name == 'bounds':
-                    bounds = check_param_multi_types('bounds', param_value, [tuple])
-                    if len(bounds) != 2:
-                        msg = 'The format of bounds must be format (lower_bound, upper_bound),' \
-                              'but got its length as{}'.format(len(bounds))
-                        raise ValueError(msg)
-                    for bound_value in bounds:
-                        _ = check_param_multi_types('bound', bound_value, [int, float])
-                    if bounds[0] >= bounds[1]:
-                        msg = "upper bound must more than lower bound, but upper bound got {}, lower bound " \
-                              "got {}".format(bounds[0], bounds[1])
-                        raise ValueError(msg)
+                    _ = check_param_bounds('bounds', param_name)
                 elif param_name == 'norm_level':
                     _ = check_norm_level(param_value)
                 else:
@@ -420,57 +385,40 @@ class Fuzzer:
                 mutates[method] = self._strategies[method](network, loss_fn=loss_fn)
         return mutates
 
-    def _evaluate(self, fuzz_samples, true_labels, fuzz_preds,
-                  fuzz_strategies, metrics):
+    def _evaluate(self, fuzz_samples, true_labels, fuzz_preds, fuzz_strategies, coverage):
         """
-        Evaluate generated fuzz_testing samples in three dimensions: accuracy,
-        attack success rate and neural coverage.
+        Evaluate generated fuzz_testing samples in three dimensions: accuracy, attack success rate and neural coverage.
 
         Args:
-            fuzz_samples ([numpy.ndarray, list]): Generated fuzz_testing samples
-                according to seeds.
+            fuzz_samples ([numpy.ndarray, list]): Generated fuzz_testing samples according to seeds.
             true_labels ([numpy.ndarray, list]): Ground truth labels of seeds.
             fuzz_preds ([numpy.ndarray, list]): Predictions of generated fuzz samples.
             fuzz_strategies ([numpy.ndarray, list]): Mutate strategies of fuzz samples.
-            metrics (Union[list, tuple, str]): evaluation metrics.
+            coverage (CoverageMetrics): Neuron coverage metrics class.
 
         Returns:
-            dict, evaluate metrics include accuracy, attack success rate
-                and neural coverage.
+            dict, evaluate metrics include accuracy, attack success rate and neural coverage.
         """
+        fuzz_samples = np.array(fuzz_samples)
         true_labels = np.asarray(true_labels)
         fuzz_preds = np.asarray(fuzz_preds)
         temp = np.argmax(true_labels, axis=1) == np.argmax(fuzz_preds, axis=1)
         metrics_report = {}
-        if metrics == 'auto' or 'accuracy' in metrics:
-            if temp.any():
-                acc = np.sum(temp) / np.size(temp)
-            else:
-                acc = 0
-            metrics_report['Accuracy'] = acc
 
-        if metrics == 'auto' or 'attack_success_rate' in metrics:
-            cond = [elem in self._attacks_list for elem in fuzz_strategies]
-            temp = temp[cond]
-            if temp.any():
-                attack_success_rate = 1 - np.sum(temp) / np.size(temp)
-            else:
-                attack_success_rate = None
-            metrics_report['Attack_success_rate'] = attack_success_rate
+        if temp.any():
+            acc = np.sum(temp) / np.size(temp)
+        else:
+            acc = 0
+        metrics_report['Accuracy'] = acc
 
-        if metrics == 'auto' or 'kmnc' in metrics or 'nbc' in metrics or 'snac' in metrics:
-            self._coverage_metrics.calculate_coverage(np.array(fuzz_samples).astype(np.float32))
+        cond = [elem in self._attacks_list for elem in fuzz_strategies]
+        temp = temp[cond]
+        if temp.any():
+            attack_success_rate = 1 - np.sum(temp) / np.size(temp)
+        else:
+            attack_success_rate = None
+        metrics_report['Attack_success_rate'] = attack_success_rate
 
-        if metrics == 'auto' or 'kmnc' in metrics:
-            kmnc = self._coverage_metrics.get_kmnc()
-            metrics_report['Neural_coverage_KMNC'] = kmnc
-
-        if metrics == 'auto' or 'nbc' in metrics:
-            nbc = self._coverage_metrics.get_nbc()
-            metrics_report['Neural_coverage_NBC'] = nbc
-
-        if metrics == 'auto' or 'snac' in metrics:
-            snac = self._coverage_metrics.get_snac()
-            metrics_report['Neural_coverage_SNAC'] = snac
+        metrics_report['Coverage_metrics'] = coverage.get_metrics(fuzz_samples)
 
         return metrics_report

@@ -39,9 +39,7 @@ def _check_array_not_empty(arg_name, arg_value):
 def check_param_type(arg_name, arg_value, valid_type):
     """Check parameter type."""
     if not isinstance(arg_value, valid_type):
-        msg = '{} must be {}, but got {}'.format(arg_name,
-                                                 valid_type,
-                                                 type(arg_value).__name__)
+        msg = '{} must be {}, but got {}'.format(arg_name, valid_type, type(arg_value).__name__)
         LOGGER.error(TAG, msg)
         raise TypeError(msg)
 
@@ -51,8 +49,7 @@ def check_param_type(arg_name, arg_value, valid_type):
 def check_param_multi_types(arg_name, arg_value, valid_types):
     """Check parameter multi types."""
     if not isinstance(arg_value, tuple(valid_types)):
-        msg = 'type of {} must be in {}, but got {}' \
-            .format(arg_name, valid_types, type(arg_value).__name__)
+        msg = 'type of {} must be in {}, but got {}'.format(arg_name, valid_types, type(arg_value).__name__)
         LOGGER.error(TAG, msg)
         raise TypeError(msg)
 
@@ -68,8 +65,7 @@ def check_int_positive(arg_name, arg_value):
         raise ValueError(msg)
     arg_value = check_param_type(arg_name, arg_value, int)
     if arg_value <= 0:
-        msg = '{} must be greater than 0, but got {}'.format(arg_name,
-                                                             arg_value)
+        msg = '{} must be greater than 0, but got {}'.format(arg_name, arg_value)
         LOGGER.error(TAG, msg)
         raise ValueError(msg)
     return arg_value
@@ -79,8 +75,7 @@ def check_value_non_negative(arg_name, arg_value):
     """Check non negative value."""
     arg_value = check_param_multi_types(arg_name, arg_value, (int, float))
     if float(arg_value) < 0.0:
-        msg = '{} must not be less than 0, but got {}'.format(arg_name,
-                                                              arg_value)
+        msg = '{} must not be less than 0, but got {}'.format(arg_name, arg_value)
         LOGGER.error(TAG, msg)
         raise ValueError(msg)
     return arg_value
@@ -90,8 +85,7 @@ def check_value_positive(arg_name, arg_value):
     """Check positive value."""
     arg_value = check_param_multi_types(arg_name, arg_value, (int, float))
     if float(arg_value) <= 0.0:
-        msg = '{} must be greater than zero, but got {}'.format(arg_name,
-                                                                arg_value)
+        msg = '{} must be greater than zero, but got {}'.format(arg_name, arg_value)
         LOGGER.error(TAG, msg)
         raise ValueError(msg)
     return arg_value
@@ -102,10 +96,7 @@ def check_param_in_range(arg_name, arg_value, lower, upper):
     Check range of parameter.
     """
     if arg_value <= lower or arg_value >= upper:
-        msg = '{} must be between {} and {}, but got {}'.format(arg_name,
-                                                                lower,
-                                                                upper,
-                                                                arg_value)
+        msg = '{} must be between {} and {}, but got {}'.format(arg_name, lower, upper, arg_value)
         LOGGER.error(TAG, msg)
         raise ValueError(msg)
 
@@ -129,10 +120,7 @@ def check_model(model_name, model, model_type):
     """
     if isinstance(model, model_type):
         return model
-    msg = '{} should be an instance of {}, but got {}' \
-        .format(model_name,
-                model_type,
-                type(model).__name__)
+    msg = '{} should be an instance of {}, but got {}'.format(model_name, model_type, type(model).__name__)
     LOGGER.error(TAG, msg)
     raise TypeError(msg)
 
@@ -175,11 +163,9 @@ def check_pair_numpy_param(inputs_name, inputs, labels_name, labels):
         labels (numpy.ndarray): Labels of `inputs`.
 
     Returns:
-        - numpy.ndarray, if `inputs` 's dimension equals to
-          `labels`, return inputs with type of numpy.ndarray.
+        - numpy.ndarray, if `inputs` 's dimension equals to `labels`, return inputs with type of numpy.ndarray.
 
-        - numpy.ndarray, if `inputs` 's dimension equals to
-          `labels` , return labels with type of numpy.ndarray.
+        - numpy.ndarray, if `inputs` 's dimension equals to `labels` , return labels with type of numpy.ndarray.
 
     Raises:
         ValueError: If inputs.shape[0] is not equal to labels.shape[0].
@@ -188,8 +174,7 @@ def check_pair_numpy_param(inputs_name, inputs, labels_name, labels):
     labels = check_numpy_param(labels_name, labels)
     if inputs.shape[0] != labels.shape[0]:
         msg = '{} shape[0] must equal {} shape[0], bot got shape of ' \
-              'inputs {}, shape of labels {}'.format(inputs_name, labels_name,
-                                                     inputs.shape, labels.shape)
+              'inputs {}, shape of labels {}'.format(inputs_name, labels_name, inputs.shape, labels.shape)
         LOGGER.error(TAG, msg)
         raise ValueError(msg)
     return inputs, labels
@@ -198,10 +183,8 @@ def check_pair_numpy_param(inputs_name, inputs, labels_name, labels):
 def check_equal_length(para_name1, value1, para_name2, value2):
     """Check weather the two parameters have equal length."""
     if len(value1) != len(value2):
-        msg = 'The dimension of {0} must equal to the ' \
-              '{1}, but got {0} is {2}, ' \
-              '{1} is {3}'.format(para_name1, para_name2, len(value1),
-                                  len(value2))
+        msg = 'The dimension of {0} must equal to the {1}, but got {0} is {2}, {1} is {3}'\
+            .format(para_name1, para_name2, len(value1), len(value2))
         LOGGER.error(TAG, msg)
         raise ValueError(msg)
     return value1, value2
@@ -210,10 +193,8 @@ def check_equal_length(para_name1, value1, para_name2, value2):
 def check_equal_shape(para_name1, value1, para_name2, value2):
     """Check weather the two parameters have equal shape."""
     if value1.shape != value2.shape:
-        msg = 'The shape of {0} must equal to the ' \
-              '{1}, but got {0} is {2}, ' \
-              '{1} is {3}'.format(para_name1, para_name2, value1.shape,
-                                  value2.shape)
+        msg = 'The shape of {0} must equal to the {1}, but got {0} is {2},  {1} is {3}'.\
+            format(para_name1, para_name2, value1.shape, value2.shape)
         LOGGER.error(TAG, msg)
         raise ValueError(msg)
     return value1, value2
@@ -225,8 +206,7 @@ def check_norm_level(norm_level):
         msg = 'Type of norm_level must be in [int, str], but got {}'.format(type(norm_level))
     accept_norm = [1, 2, '1', '2', 'l1', 'l2', 'inf', 'linf', np.inf]
     if norm_level not in accept_norm:
-        msg = 'norm_level must be in {}, but got {}'.format(accept_norm,
-                                                            norm_level)
+        msg = 'norm_level must be in {}, but got {}'.format(accept_norm, norm_level)
         LOGGER.error(TAG, msg)
         raise ValueError(msg)
     return norm_level
@@ -252,20 +232,16 @@ def normalize_value(value, norm_level):
     value_reshape = value.reshape((value.shape[0], -1))
     avoid_zero_div = 1e-12
     if norm_level in (1, '1', 'l1'):
-        norm = np.linalg.norm(value_reshape, ord=1, axis=1, keepdims=True) + \
-               avoid_zero_div
+        norm = np.linalg.norm(value_reshape, ord=1, axis=1, keepdims=True) + avoid_zero_div
         norm_value = value_reshape / norm
     elif norm_level in (2, '2', 'l2'):
-        norm = np.linalg.norm(value_reshape, ord=2, axis=1, keepdims=True) + \
-               avoid_zero_div
+        norm = np.linalg.norm(value_reshape, ord=2, axis=1, keepdims=True) + avoid_zero_div
         norm_value = value_reshape / norm
     elif norm_level in (np.inf, 'inf'):
-        norm = np.max(abs(value_reshape), axis=1, keepdims=True) + \
-               avoid_zero_div
+        norm = np.max(abs(value_reshape), axis=1, keepdims=True) + avoid_zero_div
         norm_value = value_reshape / norm
     else:
-        msg = 'Values of `norm_level` different from 1, 2 and ' \
-              '`np.inf` are currently not supported, but got {}.' \
+        msg = 'Values of `norm_level` different from 1, 2 and `np.inf` are currently not supported, but got {}.' \
             .format(norm_level)
         LOGGER.error(TAG, msg)
         raise NotImplementedError(msg)
@@ -339,13 +315,30 @@ def check_inputs_labels(inputs, labels):
     inputs_image = inputs[0] if isinstance(inputs, tuple) else inputs
     if isinstance(inputs, tuple):
         for i, inputs_item in enumerate(inputs):
-            _ = check_pair_numpy_param('inputs_image', inputs_image, \
-                'inputs[{}]'.format(i), inputs_item)
+            _ = check_pair_numpy_param('inputs_image', inputs_image, 'inputs[{}]'.format(i), inputs_item)
     if isinstance(labels, tuple):
         for i, labels_item in enumerate(labels):
-            _ = check_pair_numpy_param('inputs', inputs_image, \
-                'labels[{}]'.format(i), labels_item)
+            _ = check_pair_numpy_param('inputs', inputs_image, 'labels[{}]'.format(i), labels_item)
     else:
-        _ = check_pair_numpy_param('inputs', inputs_image, \
-            'labels', labels)
+        _ = check_pair_numpy_param('inputs', inputs_image, 'labels', labels)
     return inputs_image, inputs, labels
+
+
+def check_param_bounds(arg_name, arg_value):
+    """Check bounds is valid"""
+    arg_value = check_param_multi_types(arg_name, arg_value, [tuple, list])
+    if len(arg_value) != 2:
+        msg = 'length of {0} must be 2, but got length of {0} is {1}'.format(arg_name, len(arg_value))
+        LOGGER.error(TAG, msg)
+        raise ValueError(msg)
+    for i, b in enumerate(arg_value):
+        if not isinstance(b, (float, int)):
+            msg = 'each value in {} must be int or float, but got the {}th value is {}'.format(arg_name, i, b)
+            LOGGER.error(TAG, msg)
+            raise ValueError(msg)
+    if arg_value[0] > arg_value[1]:
+        msg = "lower boundary cannot be greater than upper boundary, corresponding values in {} are {} and {}". \
+            format(arg_name, arg_value[0], arg_value[1])
+        LOGGER.error(TAG, msg)
+        raise ValueError(msg)
+    return arg_value
