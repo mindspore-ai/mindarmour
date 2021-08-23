@@ -102,9 +102,6 @@ class Fuzzer:
 
     Args:
         target_model (Model): Target fuzz model.
-        train_dataset (numpy.ndarray): Training dataset used for determining the neurons' output boundaries.
-        neuron_num (int): The number of testing neurons.
-        segmented_num (int): The number of segmented sections of neurons' output intervals. Default: 1000.
 
     Examples:
         >>> net = Net()
@@ -195,9 +192,7 @@ class Fuzzer:
 
         Raises:
             ValueError, coverage must be subclass of CoverageMetrics.
-
             ValueError, if initial seeds is empty.
-
             ValueError, if element of seed is not two in initial seeds.
         """
         # Check parameters.
