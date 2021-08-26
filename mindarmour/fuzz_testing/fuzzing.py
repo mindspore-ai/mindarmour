@@ -191,9 +191,9 @@ class Fuzzer:
             - dict, metrics report of fuzzer.
 
         Raises:
-            ValueError, coverage must be subclass of CoverageMetrics.
-            ValueError, if initial seeds is empty.
-            ValueError, if element of seed is not two in initial seeds.
+            ValueError: Coverage must be subclass of CoverageMetrics.
+            ValueError: If initial seeds is empty.
+            ValueError: If element of seed is not two in initial seeds.
         """
         # Check parameters.
         if not isinstance(coverage, CoverageMetrics):
@@ -356,7 +356,7 @@ class Fuzzer:
             check_param_type(param_name, params[param_name], list)
             for param_value in params[param_name]:
                 if param_name == 'bounds':
-                    _ = check_param_bounds('bounds', param_name)
+                    _ = check_param_bounds('bounds', param_value)
                 elif param_name == 'norm_level':
                     _ = check_norm_level(param_value)
                 else:

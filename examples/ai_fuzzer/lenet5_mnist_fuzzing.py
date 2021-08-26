@@ -51,7 +51,7 @@ def test_lenet_mnist_fuzzing():
                      {'method': 'Shear',
                       'params': {'auto_param': [True]}},
                      {'method': 'FGSM',
-                      'params': {'eps': [0.3, 0.2, 0.4], 'alpha': [0.1]}}
+                      'params': {'eps': [0.3, 0.2, 0.4], 'alpha': [0.1], 'bounds': [(0, 1)]}}
                      ]
 
     # get training data
