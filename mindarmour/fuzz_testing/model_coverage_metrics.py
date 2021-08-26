@@ -157,7 +157,9 @@ class NeuronCoverage(CoverageMetrics):
     """
     def __init__(self, model, threshold=0.1, incremental=False, batch_size=32):
         super(NeuronCoverage, self).__init__(model, incremental, batch_size)
+        threshold = check_param_type('threshold', threshold, float)
         self.threshold = check_value_positive('threshold', threshold)
+
 
     def get_metrics(self, dataset):
         """
