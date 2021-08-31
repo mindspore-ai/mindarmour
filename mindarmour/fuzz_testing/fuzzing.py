@@ -15,7 +15,7 @@
 Fuzzing.
 """
 from random import choice
-
+from copy import deepcopy
 import numpy as np
 from mindspore import Model
 from mindspore import Tensor
@@ -141,15 +141,15 @@ class Fuzzer:
         self._attack_param_checklists = {
             'FGSM': {'eps': {'dtype': [float], 'range': [0, 1]},
                      'alpha': {'dtype': [float], 'range': [0, 1]},
-                     'bounds': {'dtype': [tuple]}},
+                     'bounds': {'dtype': [tuple, list]}},
             'PGD': {'eps': {'dtype': [float], 'range': [0, 1]},
                     'eps_iter': {'dtype': [float], 'range': [0, 1]},
                     'nb_iter': {'dtype': [int], 'range': [0, 100000]},
-                    'bounds': {'dtype': [tuple]}},
+                    'bounds': {'dtype': [tuple, list]}},
             'MDIIM': {'eps': {'dtype': [float], 'range': [0, 1]},
                       'norm_level': {'dtype': [str, int], 'range': [1, 2, '1', '2', 'l1', 'l2', 'inf', 'np.inf']},
                       'prob': {'dtype': [float], 'range': [0, 1]},
-                      'bounds': {'dtype': [tuple]}}}
+                      'bounds': {'dtype': [tuple, list]}}}
 
     def fuzzing(self, mutate_config, initial_seeds, coverage, evaluate=True, max_iters=10000, mutate_num_per_seed=20):
         """
@@ -207,11 +207,12 @@ class Fuzzer:
         mutates = self._init_mutates(mutate_config)
 
         initial_seeds = check_param_type('initial_seeds', initial_seeds, list)
-        if not initial_seeds:
+        init_seeds = deepcopy(initial_seeds)
+        if not init_seeds:
             msg = 'initial_seeds must not be empty.'
             raise ValueError(msg)
         initial_samples = []
-        for seed in initial_seeds:
+        for seed in init_seeds:
             check_param_type('seed', seed, list)
             if len(seed) != 2:
                 msg = 'seed in initial seeds must have two element image and label, but got {} element.'.format(
@@ -226,13 +227,13 @@ class Fuzzer:
         pre_coverage = coverage.get_metrics(initial_samples)
         gain_threshold = _gain_threshold(coverage)
 
-        seed, initial_seeds = _select_next(initial_seeds)
+        seed, init_seeds = _select_next(init_seeds)
         fuzz_samples = []
         true_labels = []
         fuzz_preds = []
         fuzz_strategies = []
         iter_num = 0
-        while initial_seeds and iter_num < max_iters:
+        while init_seeds and iter_num < max_iters:
             # Mutate a seed.
             mutate_samples, mutate_strategies = self._metamorphic_mutate(seed, mutates, mutate_config,
                                                                          mutate_num_per_seed)
@@ -246,8 +247,8 @@ class Fuzzer:
                 fuzz_strategies.append(strategy)
                 # if the mutate samples has coverage gains add this samples in the initial_seeds to guide new mutates.
                 if cov > gain_threshold:
-                    initial_seeds.append(mutate)
-            seed, initial_seeds = _select_next(initial_seeds)
+                    init_seeds.append(mutate)
+            seed, init_seeds = _select_next(init_seeds)
             iter_num += 1
         metrics_report = None
         if evaluate:

@@ -336,8 +336,8 @@ def check_param_bounds(arg_name, arg_value):
             msg = 'each value in {} must be int or float, but got the {}th value is {}'.format(arg_name, i, b)
             LOGGER.error(TAG, msg)
             raise ValueError(msg)
-    if arg_value[0] > arg_value[1]:
-        msg = "lower boundary cannot be greater than upper boundary, corresponding values in {} are {} and {}". \
+    if arg_value[0] >= arg_value[1]:
+        msg = "lower boundary must be less than upper boundary, corresponding values in {} are {} and {}". \
             format(arg_name, arg_value[0], arg_value[1])
         LOGGER.error(TAG, msg)
         raise ValueError(msg)
