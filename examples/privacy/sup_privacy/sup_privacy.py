@@ -15,27 +15,28 @@
 Training example of suppress-based privacy.
 """
 import os
+
 import mindspore.nn as nn
 from mindspore import context
 from mindspore.train.callback import ModelCheckpoint
 from mindspore.train.callback import CheckpointConfig
 from mindspore.train.callback import LossMonitor
-from mindspore.nn.metrics import Accuracy
+from mindspore.nn import Accuracy
 import mindspore.dataset as ds
 import mindspore.dataset.vision.c_transforms as CV
 import mindspore.dataset.transforms.c_transforms as C
-from mindspore.dataset.vision.utils import Inter
-import mindspore.common.dtype as mstype
+from mindspore.dataset.vision import Inter
+from mindspore import dtype as mstype
 
-from examples.common.networks.lenet5.lenet5_net import LeNet5
-
-from sup_privacy_config import mnist_cfg as cfg
 from mindarmour.privacy.sup_privacy import SuppressModel
 from mindarmour.privacy.sup_privacy import SuppressMasker
 from mindarmour.privacy.sup_privacy import SuppressPrivacyFactory
 from mindarmour.privacy.sup_privacy import MaskLayerDes
+from mindarmour.utils import LogUtil
 
-from mindarmour.utils.logger import LogUtil
+from examples.common.networks.lenet5.lenet5_net import LeNet5
+from sup_privacy_config import mnist_cfg as cfg
+
 
 LOGGER = LogUtil.get_instance()
 LOGGER.set_level('INFO')

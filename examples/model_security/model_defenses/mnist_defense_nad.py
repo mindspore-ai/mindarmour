@@ -17,14 +17,13 @@ import os
 import numpy as np
 from mindspore import Tensor
 from mindspore import context
-from mindspore import nn
+from mindspore import nn, Model
 from mindspore.nn import SoftmaxCrossEntropyWithLogits
-from mindspore.train import Model
 from mindspore.train.callback import LossMonitor
 
 from mindarmour.adv_robustness.attacks import FastGradientSignMethod
 from mindarmour.adv_robustness.defenses import NaturalAdversarialDefense
-from mindarmour.utils.logger import LogUtil
+from mindarmour.utils import LogUtil
 
 from examples.common.networks.lenet5.lenet5_net import LeNet5
 from examples.common.dataset.data_processing import generate_mnist_dataset
