@@ -16,24 +16,23 @@ Training example of adaClip-mechanism differential privacy.
 """
 import os
 
-import mindspore.nn as nn
+from mindspore import nn
 from mindspore import context
+from mindspore import load_checkpoint, load_param_into_net
+from mindspore import dtype as mstype
 from mindspore.train.callback import ModelCheckpoint
 from mindspore.train.callback import CheckpointConfig
 from mindspore.train.callback import LossMonitor
-from mindspore.nn.metrics import Accuracy
-from mindspore.train.serialization import load_checkpoint, load_param_into_net
+from mindspore.nn import Accuracy
 import mindspore.dataset as ds
 import mindspore.dataset.vision.c_transforms as CV
 import mindspore.dataset.transforms.c_transforms as C
 from mindspore.dataset.vision import Inter
-import mindspore.common.dtype as mstype
-
 from mindarmour.privacy.diff_privacy import DPModel
 from mindarmour.privacy.diff_privacy import PrivacyMonitorFactory
 from mindarmour.privacy.diff_privacy import NoiseMechanismsFactory
 from mindarmour.privacy.diff_privacy import ClipMechanismsFactory
-from mindarmour.utils.logger import LogUtil
+from mindarmour.utils import LogUtil
 from examples.common.networks.lenet5.lenet5_net import LeNet5
 from lenet5_config import mnist_cfg as cfg
 
