@@ -1,4 +1,4 @@
-# Copyright 2019 Huawei Technologies Co., Ltd
+# Copyright 2021 Huawei Technologies Co., Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,8 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import os
+"""data processing"""
 
+import os
 import mindspore.dataset as ds
 import mindspore.dataset.vision.c_transforms as CV
 import mindspore.dataset.transforms.c_transforms as C
@@ -114,3 +115,74 @@ def vgg_create_dataset100(data_home, image_size, batch_size, rank_id=0, rank_siz
     # apply repeat operations
     data_set = data_set.repeat(repeat_num)
     return data_set
+
+
+def create_dataset_imagenet(path, batch_size=32, repeat_size=20, status="train", target="GPU"):
+    image_ds = ds.ImageFolderDataset(path, decode=True)
+    rescale = 1.0 / 255.0
+    shift = 0.0
+    cfg = {'num_classes': 10,
+           'learning_rate': 0.002,
+           'momentum': 0.9,
+           'epoch_size': 30,
+           'batch_size': 32,
+           'buffer_size': 1000,
+           'image_height': 224,
+           'image_width': 224,
+           'save_checkpoint_steps': 1562,
+           'keep_checkpoint_max': 10}
+    resize_op = CV.Resize((cfg['image_height'], cfg['image_width']))
+    rescale_op = CV.Rescale(rescale, shift)
+    normalize_op = CV.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
+
+    random_crop_op = CV.RandomCrop([32, 32], [4, 4, 4, 4])
+    random_horizontal_op = CV.RandomHorizontalFlip()
+    channel_swap_op = CV.HWC2CHW()
+    typecast_op = C.TypeCast(mstype.int32)
+    image_ds = image_ds.map(input_columns="label", operations=typecast_op, num_parallel_workers=6)
+
+    image_ds = image_ds.map(input_columns="image", operations=random_crop_op, num_parallel_workers=6)
+    image_ds = image_ds.map(input_columns="image", operations=random_horizontal_op, num_parallel_workers=6)
+    image_ds = image_ds.map(input_columns="image", operations=resize_op, num_parallel_workers=6)
+    image_ds = image_ds.map(input_columns="image", operations=rescale_op, num_parallel_workers=6)
+    image_ds = image_ds.map(input_columns="image", operations=normalize_op, num_parallel_workers=6)
+    image_ds = image_ds.map(input_columns="image", operations=channel_swap_op, num_parallel_workers=6)
+
+    image_ds = image_ds.shuffle(buffer_size=cfg['buffer_size'])
+    image_ds = image_ds.repeat(repeat_size)
+    return image_ds
+
+
+def create_dataset_cifar(data_path, image_height, image_width, repeat_num=1, training=True):
+    """
+    create data for next use such as training or infering
+    """
+    cifar_ds = ds.Cifar10Dataset(data_path)
+    resize_height = image_height  # 224
+    resize_width = image_width  # 224
+    rescale = 1.0 / 255.0
+    shift = 0.0
+    batch_size = 32
+    # define map operations
+    random_crop_op = CV.RandomCrop((32, 32), (4, 4, 4, 4))  # padding_mode default CONSTANT
+    random_horizontal_op = CV.RandomHorizontalFlip()
+    resize_op = CV.Resize((resize_height, resize_width))  # interpolation default BILINEAR
+    rescale_op = CV.Rescale(rescale, shift)
+    normalize_op = CV.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
+    changeswap_op = CV.HWC2CHW()
+    type_cast_op = C.TypeCast(mstype.int32)
+    c_trans = []
+    if training:
+        c_trans = [random_crop_op, random_horizontal_op]
+    c_trans += [resize_op, rescale_op, normalize_op,
+                changeswap_op]
+    # apply map operations on images
+    cifar_ds = cifar_ds.map(operations=type_cast_op, input_columns="label")
+    cifar_ds = cifar_ds.map(operations=c_trans, input_columns="image")
+    # apply shuffle operations
+    cifar_ds = cifar_ds.shuffle(buffer_size=10)
+    # apply batch operations
+    cifar_ds = cifar_ds.batch(batch_size=batch_size, drop_remainder=True)
+    # apply repeat operations
+    cifar_ds = cifar_ds.repeat(repeat_num)
+    return cifar_ds

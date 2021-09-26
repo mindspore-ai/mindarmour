@@ -1,3 +1,21 @@
+# MindArmour 1.5.0
+
+## MindArmour 1.5.0 Release Notes
+
+### Major Features and Improvements
+
+#### Reliability
+
+* [BETA] Reconstruct AI Fuzz and Neuron Coverage Metrics
+
+### Bug fixes
+
+### Contributors
+
+Thanks goes to these wonderful people:
+
+Wu Xiaoyu，Liu Zhidan, Jin Xiulang, Liu Luobin, Liu Liu
+
 # MindArmour 1.3.0-rc1
 
 ## MindArmour 1.3.0 Release Notes
