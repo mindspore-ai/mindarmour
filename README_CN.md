@@ -90,6 +90,12 @@ Fuzz Testing模块的架构图如下：
     cd mindarmour
     python setup.py install
     ```
+ 
+3. 图片自然扰动算法使用到Perlin-numpy，安装：
+
+    ```bash
+    pip3 install git+https://github.com/pvigier/perlin-numpy
+    ```
 
 #### pip安装
 

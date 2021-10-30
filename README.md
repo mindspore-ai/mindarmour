@@ -93,7 +93,12 @@ The architecture is shown as follow：
     cd mindarmour
     python setup.py install
     ```
+3. Natural Robustness method in MindArmour use third-party package: Perlin-numpy. This package can be installed by command:
 
+    ```bash
+    pip3 install git+https://github.com/pvigier/perlin-numpy
+    ```
+   
 #### Installation by pip
 
 ```bash
