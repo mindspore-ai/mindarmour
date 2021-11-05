@@ -738,7 +738,7 @@ class BackShadow:
         file_path = os.path.join(self.template_path, np.random.choice(file))
         shadow = cv2.imread(file_path)
         shadow = cv2.resize(shadow, (image.shape[1], image.shape[0]))
-        dst = cv2.addWeighted(image, 1 - self.shade, shadow, self.shade, beta=0)
+        dst = cv2.addWeighted(image, 1 - self.shade, shadow, self.shade, 0)
         return dst
 
 
@@ -905,7 +905,6 @@ class BackgroundWord:
             numpy.ndarray, curved image.
         """
         image = check_numpy_param('image', image)
-        beta = 0
         width, height = image.shape[:2]
         x = np.random.randint(0, int(width / 5))
         y = np.random.randint(0, int(height / 5))
@@ -913,5 +912,5 @@ class BackgroundWord:
         affine = cv2.warpAffine(image.copy(), matrix, (height, width))
         back = image.copy()
         back[x:, y:] = affine[x:, y:]
-        dst = cv2.addWeighted(image, 1 - self.shade, back, self.shade, beta)
+        dst = cv2.addWeighted(image, 1 - self.shade, back, self.shade, 0)
         return dst
