@@ -50,6 +50,9 @@ def perturb(perturb_config):
         print('name: ', name)
         image = Image.open(BytesIO(res_img))
         image.save(os.path.join(result_path, name))
+    names_dict = result[0]['names_dict']
+    with open('names_dict.json', 'w') as file:
+        file.write(names_dict)
 
 
 if __name__ == '__main__':

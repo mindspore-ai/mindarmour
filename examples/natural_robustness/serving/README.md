@@ -80,12 +80,12 @@ python add_model.py
 
    ···
 
-   # 客户端可以请求的方法，包含3个返回值："results", "file_names", "file_length"
+   # 客户端可以请求的方法，包含4个返回值："results", "file_names", "file_length", "names_dict"
 
-   @register.register_method(output_names=["results", "file_names", "file_length"])
+   @register.register_method(output_names=["results", "file_names", "file_length", "names_dict"])
    def natural_perturbation(img, perturb_config, methods_number, outputs_number):
        """method natural_perturbation data flow definition, only preprocessing and call model"""
-       res = register.add_stage(perturb, img, perturb_config, methods_number, outputs_number, outputs_count=3)
+       res = register.add_stage(perturb, img, perturb_config, methods_number, outputs_number, outputs_count=4)
        return res
    ```
 
@@ -98,11 +98,23 @@ python add_model.py
    - methods_number：每次扰动随机从配置项中选择方法的个数。
    - outputs_number：对于每张图片，生成的扰动图片数量。
 
-   **输出**res中包含３个参数：
+   **输出**res中包含4个参数：
 
    - results：拼接后的图像bytes；
-   - file_names：图像名，格式为`method1_param1_value1_param2_value2_#···method2_param1_value1_param2_value2_#···.png`，方法之间用`＃`分割，方法名、参数名、参数值之间用`_` 分割。
+
+   - file_names：图像名，格式为`xxx.png`，其中‘xxx’为A-Za-z中随机选择20个字符构成的字符串。
+
    - file_length：每张图片的bytes长度。
+
+   - names_dict: 图片名和图片使用扰动方法构成的字典。格式为：
+
+     ```bash
+     {
+     picture1.png: [[method1, parameters of method1], [method2, parameters of method2], ...]],
+     picture2.png: [[method3, parameters of method3], [method4, parameters of method4], ...]],
+     ...
+     }
+     ```
 
    启动server服务前请将TEMPLATE_LEAF_PATH、TEMPLATE_WINDOW_PATH、TEMPLATE_PERSON_PATH、TEMPLATE_BACKGROUND_PATH的路径换成用户本地模板图片路径。
 
@@ -203,6 +215,10 @@ python add_model.py
            print('name: ', name)
            image = Image.open(BytesIO(res_img))
            image.save(os.path.join(result_path, name))
+
+       names_dict = result[0]['names_dict']
+       with open('names_dict.json', 'w') as file:
+           file.write(names_dict)
    ```
 
    启动client前，需将服务端的IP地址改成部署server的IP地址，图片路径、结果存储路基替换成用户数据路径。
