@@ -133,8 +133,11 @@ from mindarmour.reliability.concept_drift.concept_drift_check_images import OodD
 
 #### Load Classification Model
 
+For convenience, we use a pre-trained model file `checkpoint_lenet-10_1875.ckpt` 
+in 'mindarmour/tests/ut/python/dataset/trained_ckpt_file/checkpoint_lenet-10_1875.ckpt'. 
+
 ```python
-ckpt_path = '../../dataset/trained_ckpt_file/checkpoint_lenet-10_1875.ckpt'
+ckpt_path = 'checkpoint_lenet-10_1875.ckpt'
 net = LeNet5()
 load_dict = load_checkpoint(ckpt_path)
 load_param_into_net(net, load_dict)
@@ -143,21 +146,111 @@ model = Model(net)
 
 >`ckpt_path(str)`: the model path.  
 
+
+We can also use self-constructed model.  
+It is important that we need to name the model layer, and get the layer outputs.  
+Take LeNet as an example.
+Firstly, we import `TensorSummary` module.   
+Secondly, we initialize it as `self.summary = TensorSummary()`.  
+Finally, we add `self.summary('name', x)` after each layer we pay attention to. Here,  `name` of each layer is given by users.  
+After the above process, we can train the model and load it.  
+
+
+```python
+from mindspore import nn
+from mindspore.common.initializer import TruncatedNormal
+from mindspore.ops import TensorSummary
+
+def conv(in_channels, out_channels, kernel_size, stride=1, padding=0):
+    """Wrap conv."""
+    weight = weight_variable()
+    return nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size, stride=stride, padding=padding,
+                     weight_init=weight, has_bias=False, pad_mode="valid")
+
+def fc_with_initialize(input_channels, out_channels):
+    """Wrap initialize method of full connection layer."""
+    weight = weight_variable()
+    bias = weight_variable()
+    return nn.Dense(input_channels, out_channels, weight, bias)
+
+def weight_variable():
+    """Wrap initialize variable."""
+    return TruncatedNormal(0.05)
+
+class LeNet5(nn.Cell):
+    """
+    Lenet network
+    """
+    def __init__(self):
+        super(LeNet5, self).__init__()
+        self.conv1 = conv(1, 6, 5)
+        self.conv2 = conv(6, 16, 5)
+        self.fc1 = fc_with_initialize(16*5*5, 120)
+        self.fc2 = fc_with_initialize(120, 84)
+        self.fc3 = fc_with_initialize(84, 10)
+        self.relu = nn.ReLU()
+        self.max_pool2d = nn.MaxPool2d(kernel_size=2, stride=2)
+        self.flatten = nn.Flatten()
+        self.summary = TensorSummary()
+
+    def construct(self, x):
+        """
+        construct the network architecture
+        Returns:
+            x (tensor): network output
+        """
+        x = self.conv1(x)
+        self.summary('1', x)
+
+        x = self.relu(x)
+        self.summary('2', x)
+
+        x = self.max_pool2d(x)
+        self.summary('3', x)
+
+        x = self.conv2(x)
+        self.summary('4', x)
+
+        x = self.relu(x)
+        self.summary('5', x)
+
+        x = self.max_pool2d(x)
+        self.summary('6', x)
+
+        x = self.flatten(x)
+        self.summary('7', x)
+
+        x = self.fc1(x)
+        self.summary('8', x)
+
+        x = self.relu(x)
+        self.summary('9', x)
+
+        x = self.fc2(x)
+        self.summary('10', x)
+
+        x = self.relu(x)
+        self.summary('11', x)
+
+        x = self.fc3(x)
+        self.summary('output', x)
+        return x
+
+```
 #### Load Data
 
 We prepare three datasets. The training dataset, that is the same as the dataset to train the Lenet. Two testing datasets, the first testing dataset is with OOD label(0 for non-ood, and 1 for ood) for finding an optimal threshold for ood detection.
 The second testing dataset is for ood validation. The first testing dataset is not necessary if we would like to set threshold by ourselves
 
-
 ```python
 ds_train = np.load('../../dataset/concept_train_lenet.npy')
-ds_test1 = np.load('../../dataset/concept_test_lenet1.npy')
-ds_test2 = np.load('../../dataset/concept_test_lenet2.npy')
+ds_eval = np.load('../../dataset/concept_test_lenet1.npy')
+ds_test = np.load('../../dataset/concept_test_lenet2.npy')
 ```
 
 > `ds_train(numpy.ndarray)`: the train data.  
-> `ds_test1(numpy.ndarray)`: the data for finding an optimal threshold. This dataset is not necessary.  
-> `ds_test2(numpy.ndarray)`: the test data for ood detection.  
+> `ds_eval(numpy.ndarray)`: the data for finding an optimal threshold. This dataset is not necessary.  
+> `ds_test(numpy.ndarray)`: the test data for ood detection.  
 
 
 #### OOD detector initialization
@@ -172,30 +265,32 @@ detector = OodDetectorFeatureCluster(model, ds_train, n_cluster=10, layer='outpu
 > `model(Model)`: the model trained by the `ds_train`.  
 > `ds_train(numpy.ndarray)`: the training data.  
 > `n_cluster(int)`: the feature cluster number.  
-> `layer(str)`: the feature extraction layer. In our example, The layer name could be 'output[:Tensor]', '9[:Tensor]', '10[:Tensor]', '11[:Tensor]' for LeNet. 
+> `layer(str)`: the name of the feature extraction layer.
+
+In our example, we input the layer name `output[:Tensor]`, which can also be`9[:Tensor]`, `10[:Tensor]`, `11[:Tensor]` for LeNet. 
 
 
 #### Optimal Threshold
 
-This step is optional. If we have a labeled dataset, named ds_test1, we can use the following code to find the optimal detection threshold.
+This step is optional. If we have a labeled dataset, named `ds_eval`, we can use the following code to find the optimal detection threshold.
 
 ```python
-# get optimal threshold with ds_test1
-num = int(len(ds_test1) / 2)
+# get optimal threshold with ds_eval
+num = int(len(ds_eval) / 2)
 label = np.concatenate((np.zeros(num), np.ones(num)), axis=0)  # ID data = 0, OOD data = 1
-optimal_threshold = detector.get_optimal_threshold(label, ds_test1)
+optimal_threshold = detector.get_optimal_threshold(label, ds_eval)
 ```
 
-> `ds_test1(numpy.ndarray)`: the data for finding an optimal threshold. .
-> `label(numpy.ndarray)`: the ood label of ds_test1. 0 means non-ood data, and 1 means ood data.
+> `ds_eval(numpy.ndarray)`: the data for finding an optimal threshold.  
+> `label(numpy.ndarray)`: the ood label of ds_eval. 0 means non-ood data, and 1 means ood data.
 
 #### Detection result
 
 ```python
-result = detector.ood_predict(optimal_threshold, ds_test2)
+result = detector.ood_predict(optimal_threshold, ds_test)
 ```
 
-> `ds_test2(numpy.ndarray)`: the testing data for ood detection.  
+> `ds_test(numpy.ndarray)`: the testing data for ood detection.  
 > `optimal_threshold(float)`: the optimal threshold to judge out-of-distribution data. We can also set the threshold value by ourselves.
 
 ## Script Description

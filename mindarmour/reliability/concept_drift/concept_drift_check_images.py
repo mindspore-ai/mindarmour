@@ -24,7 +24,6 @@ from mindspore.train.summary.summary_record import _get_summary_tensor_data
 
 """
 Out-of-Distribution detection for images.
-The sample can be run on Ascend 910 AI processor.
 """
 
 
@@ -46,32 +45,60 @@ class OodDetector:
         Args:
             model (Model): The model for extracting features.
             data (numpy.ndarray): Input data.
-            layer (str): The feature layer. The layer name could be 'output[:Tensor]',
-                        '9[:Tensor]', '10[:Tensor]', '11[:Tensor]' for LeNet, and 'output[:Tensor]',
-                        '1[:Tensor]' for Resnet.
+            layer (str): The name of the feature layer. layer (str) is represented as
+                'name[:Tensor]', where 'name' is given by users when training the model.
+                Please see more details about how to name the model layer in 'README.md'.
 
         Returns:
-            numpy.ndarray, the feature of input data.
+            numpy.ndarray, the data feature extracted by a certain neural layer.
         """
         model.predict(Tensor(data))
         layer_out = _get_summary_tensor_data()
         return layer_out[layer].asnumpy()
 
-    def get_optimal_threshold(self, score, label, ds_test1):
+    def get_optimal_threshold(self, label, ds_eval):
+        """
+        Get the optimal threshold.
+
+        Args:
+            label (numpy.ndarray): The label whether an image is in-distribution and out-of-distribution.
+            ds_eval (numpy.ndarray): The testing dataset to help find the threshold.
+
+        Returns:
+            - float, the optimal threshold.
+        """
         pass
 
-    def ood_predict(self, threshold, ds_test2):
+    def ood_predict(self, threshold, ds_test):
+        """
+        The out-of-distribution detection.
+        Args:
+            threshold (float): the threshold to judge ood data. One can set value by experience
+                or use function get_optimal_threshold.
+            ds_test (numpy.ndarray): The testing dataset.
+
+        Returns:
+           - numpy.ndarray, the detection result. 0 means the data is not ood, 1 means the data is ood.
+        """
         pass
 
 
 class OodDetectorFeatureCluster(OodDetector):
     """
-    Train the OOD detector.
+    Train the OOD detector. Extract the training data features, and obtain the clustering centers. The distance between
+    the testing data features and the clustering centers determines whether an image is an out-of-distribution(OOD)
+    image or not.
 
     Args:
         model (Model):The training model.
         ds_train (numpy.ndarray): The training dataset.
-        n_cluster (int): The cluster number.
+        n_cluster (int): The cluster number. Belonging to [2,100].
+            Usually, n_cluster equals to the class number of the training dataset.
+            If the OOD detector performs poor in the testing dataset, we can increase the value of n_cluster
+            appropriately.
+        layer (str): The name of the feature layer. layer (str) is represented by
+            'name[:Tensor]', where 'name' is given by users when training the model.
+            Please see more details about how to name the model layer in 'README.md'.
     """
 
     def __init__(self, model, ds_train, n_cluster, layer):
@@ -118,21 +145,20 @@ class OodDetectorFeatureCluster(OodDetector):
         score = np.array(score)
         return score
 
-    def get_optimal_threshold(self, label, test_data_threshold):
+    def get_optimal_threshold(self, label, ds_eval):
         """
         Get the optimal threshold.
 
         Args:
-            score (numpy.ndarray): The detection score of images.
             label (numpy.ndarray): The label whether an image is in-distribution and out-of-distribution.
-            test_data_threshold (numpy.ndarray): The testing dataset to help find the threshold.
+            ds_eval (numpy.ndarray): The testing dataset to help find the threshold.
 
         Returns:
             - float, the optimal threshold.
         """
         check_param_type('label', label, np.ndarray)
-        check_param_type('ds_test1', test_data_threshold, np.ndarray)
-        score = self._get_ood_score(test_data_threshold)
+        check_param_type('ds_eval', ds_eval, np.ndarray)
+        score = self._get_ood_score(ds_eval)
         acc = []
         threshold = []
         for threshold_change in np.arange(0.0, 1.0, 0.01):
@@ -154,7 +180,7 @@ class OodDetectorFeatureCluster(OodDetector):
         The out-of-distribution detection.
         Args:
             threshold (float): the threshold to judge ood data. One can set value by experience
-                                or use function get_optimal_threshold.
+                or use function get_optimal_threshold.
             ds_test (numpy.ndarray): The testing dataset.
 
         Returns:

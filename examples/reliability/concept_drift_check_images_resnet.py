@@ -35,13 +35,13 @@ if __name__ == '__main__':
     model = Model(net)
     # load data
     ds_train = np.load('train.npy')
-    ds_test1 = np.load('test1.npy')
-    ds_test2 = np.load('test2.npy')
+    ds_eval = np.load('test1.npy')
+    ds_test = np.load('test2.npy')
     # ood detector initialization
     detector = OodDetectorFeatureCluster(model, ds_train, n_cluster=10, layer='output[:Tensor]')
-    # get optimal threshold with ds_test1
-    num = int(len(ds_test1) / 2)
+    # get optimal threshold with ds_eval
+    num = int(len(ds_eval) / 2)
     label = np.concatenate((np.zeros(num), np.ones(num)), axis=0)  # ID data = 0, OOD data = 1
-    optimal_threshold = detector.get_optimal_threshold(label, ds_test1)
-    # get result of ds_test2. We can also set threshold by ourself.
-    result = detector.ood_predict(optimal_threshold, ds_test2)
+    optimal_threshold = detector.get_optimal_threshold(label, ds_eval)
+    # get result of ds_test2. We can also set threshold by ourselves.
+    result = detector.ood_predict(optimal_threshold, ds_test)

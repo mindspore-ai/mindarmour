@@ -274,11 +274,12 @@ class SimilarityDetector(Detector):
         """
         Filter adversarial noises in input samples.
 
+        Args:
+            inputs (Union[numpy.ndarray, list, tuple]): Data been used as references to create adversarial examples.
+
         Raises:
-            NotImplementedError: This function is not available
-                in class `SimilarityDetector`.
+            NotImplementedError: This function is not available in class `SimilarityDetector`.
         """
-        msg = 'The function transform() is not available in the class ' \
-              '`SimilarityDetector`.'
+        msg = 'The function transform() is not available in the class `SimilarityDetector`.'
         LOGGER.error(TAG, msg)
         raise NotImplementedError(msg)
