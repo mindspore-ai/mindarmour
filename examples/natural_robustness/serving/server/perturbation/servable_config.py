@@ -15,10 +15,10 @@
 """perturbation servable config"""
 import json
 import copy
+import random
 from io import BytesIO
 import cv2
 from PIL import Image
-import numpy as np
 from mindspore_serving.server import register
 from mindarmour.natural_robustness.natural_noise import *
 
@@ -27,6 +27,8 @@ TEMPLATE_LEAF_PATH = '/root/mindarmour/example/adv/test_data/template/leaf'
 TEMPLATE_WINDOW_PATH = '/root/mindarmour/example/adv/test_data/template/window'
 TEMPLATE_PERSON_PATH = '/root/mindarmour/example/adv/test_data/template/person'
 TEMPLATE_BACKGROUND_PATH = '/root/mindarmour/example/adv/test_data//template/dirt_background'
+
+CHARACTERS = [chr(i) for i in range(65, 91)]+[chr(j) for j in range(97, 123)]
 
 path_dict = {'leaf': TEMPLATE_LEAF_PATH,
              'window': TEMPLATE_WINDOW_PATH,
@@ -79,13 +81,15 @@ def check_inputs(img, perturb_config, methods_number, outputs_number):
 
 
 def perturb(img, perturb_config, methods_number, outputs_number):
+    """Perturb given image."""
     img, config, methods_number, outputs_number = check_inputs(img, perturb_config, methods_number, outputs_number)
     res_img_bytes = b''
     file_names = []
     file_length = []
+    names_dict = {}
     for _ in range(outputs_number):
-        file_name = ''
         dst = copy.deepcopy(img)
+        used_methods = []
         for _ in range(methods_number):
             item = np.random.choice(config)
             method_name = item['method']
@@ -93,34 +97,33 @@ def perturb(img, perturb_config, methods_number, outputs_number):
             params = item['params']
             dst = method(**params)(img)
 
-            file_name = file_name + method_name + '_'
-            for key in params:
-                if key == 'template_path':
-                    file_name += 'back_type_'
-                    file_name += params[key].split('/')[-1]
-                    file_name += '_'
-                    continue
-                file_name += key
-                file_name += '_'
-                file_name += str(params[key])
-                file_name += '_'
-            file_name += '#'
+            if method_name == 'BackShadow':
+                method_params = copy.deepcopy(params)
+                method_params['back_type'] = method_params['template_path'].split('/')[-1]
+                del method_params['template_path']
+            else:
+                method_params = params
 
-        file_name += '.png'
-        file_names.append(file_name)
+            used_methods.append([method_name, method_params])
+        name = ''.join(random.sample(CHARACTERS, 20))
+        name += '.png'
+        file_names.append(name)
+        names_dict[name] = used_methods
 
         res_img = cv2.imencode('.png', dst)[1].tobytes()
         res_img_bytes += res_img
         file_length.append(len(res_img))
 
-    return res_img_bytes, ';'.join(file_names), file_length
+    names_dict = json.dumps(names_dict)
+
+    return res_img_bytes, ';'.join(file_names), file_length, names_dict
 
 
 model = register.declare_model(model_file="tensor_add.mindir", model_format="MindIR", with_batch_dim=False)
 
 
-@register.register_method(output_names=["results", "file_names", "file_length"])
+@register.register_method(output_names=["results", "file_names", "file_length", "names_dict"])
 def natural_perturbation(img, perturb_config, methods_number, outputs_number):
     """method natural_perturbation data flow definition, only preprocessing and call model"""
-    res = register.add_stage(perturb, img, perturb_config, methods_number, outputs_number, outputs_count=3)
+    res = register.add_stage(perturb, img, perturb_config, methods_number, outputs_number, outputs_count=4)
     return res
