@@ -294,7 +294,7 @@ class SuperNeuronActivateCoverage(CoverageMetrics):
 class NeuronBoundsCoverage(SuperNeuronActivateCoverage):
     """
     Get the metric of 'neuron boundary coverage' :math:`NBC = (|UpperCornerNeuron| + |LowerCornerNeuron|)/(2*|N|)`,
-    where :math`|N|` is the number of neurons, NBC refers to the proportion of neurons whose neurons output value in
+    where :math:`|N|` is the number of neurons, NBC refers to the proportion of neurons whose neurons output value in
     the test dataset exceeds the upper and lower bounds of the corresponding neurons output value in the training
     dataset.
 
