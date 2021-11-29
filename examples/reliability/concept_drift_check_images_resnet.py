@@ -17,31 +17,13 @@ from mindspore import Tensor
 from mindspore.train.model import Model
 from mindspore import Model, nn, context
 from examples.common.networks.resnet.resnet import resnet50
-from mindspore.train.summary.summary_record import _get_summary_tensor_data
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
-from mindarmour.reliability.concept_drift.concept_drift_check_images import OodDetector, result_eval
+from mindarmour.reliability.concept_drift.concept_drift_check_images import OodDetectorFeatureCluster
 
 
 """
 Examples for Resnet.
 """
-
-
-def feature_extract(data, feature_model, layer='output[:Tensor]'):
-    """
-    Extract features.
-    Args:
-        data (numpy.ndarray): Input data.
-        feature_model (Model): The model for extracting features.
-        layer (str): The feature layer. The layer name could be 'output[:Tensor]',
-                    '1[:Tensor]', '2[:Tensor]',...'10[:Tensor]'.
-
-    Returns:
-        numpy.ndarray, the feature of input data.
-    """
-    feature_model.predict(Tensor(data))
-    layer_out = _get_summary_tensor_data()
-    return layer_out[layer].asnumpy()
 
 
 if __name__ == '__main__':
@@ -52,14 +34,14 @@ if __name__ == '__main__':
     load_param_into_net(net, load_dict)
     model = Model(net)
     # load data
-    ds_train = np.load('./train.npy')
-    ds_test = np.load('./test.npy')
-    ds_train = feature_extract(ds_train, model, layer='output[:Tensor]')
-    ds_test = feature_extract(ds_test, model, layer='output[:Tensor]')
-    # ood detect
-    detector = OodDetector(ds_train, ds_test, n_cluster=10)
-    score = detector.ood_detector()
-    # Evaluation
-    num = int(len(ds_test)/2)
+    ds_train = np.load('train.npy')
+    ds_eval = np.load('test1.npy')
+    ds_test = np.load('test2.npy')
+    # ood detector initialization
+    detector = OodDetectorFeatureCluster(model, ds_train, n_cluster=10, layer='output[:Tensor]')
+    # get optimal threshold with ds_eval
+    num = int(len(ds_eval) / 2)
     label = np.concatenate((np.zeros(num), np.ones(num)), axis=0)  # ID data = 0, OOD data = 1
-    dec_acc = result_eval(score, label, threshold=0.5)
+    optimal_threshold = detector.get_optimal_threshold(label, ds_eval)
+    # get result of ds_test2. We can also set threshold by ourselves.
+    result = detector.ood_predict(optimal_threshold, ds_test)
