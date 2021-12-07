@@ -20,6 +20,7 @@ Concept drift test.
 import logging
 import pytest
 import numpy as np
+from mindspore import context
 from mindarmour import ConceptDriftCheckTimeSeries
 from mindarmour.utils.logger import LogUtil
 
@@ -32,10 +33,13 @@ TAG = 'Concept_Test'
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_cp():
+def test_concept_drift_time_series_ascend():
     """
-    Concept drift test.
+    Feature: test concept drift with time series data
+    Description: make sure the odd detector working properly
+    Expectation: assert np.any(result >=0.0)
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     # create data
     data = 5*np.random.rand(1000)
     data[200: 800] = 50*np.random.rand(600)

@@ -26,7 +26,6 @@ from mindarmour.utils.logger import LogUtil
 from tests.ut.python.utils.mock_net import Net
 
 context.set_context(mode=context.GRAPH_MODE)
-context.set_context(device_target="Ascend")
 
 LOGGER = LogUtil.get_instance()
 TAG = 'HopSkipJumpAttack'
@@ -165,8 +164,30 @@ def nes_mnist_attack(scene, top_k):
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_nes_query_limit():
+def test_nes_query_limit_ascend():
+    """
+    Feature: nes query limited for ascend
+    Description: make sure the attck in query limit scene works properly
+    Expectation: attack without any bugs
+    """
     # scene is in ['Query_Limit', 'Partial_Info', 'Label_Only']
+    context.set_context(device_target="Ascend")
+    scene = 'Query_Limit'
+    nes_mnist_attack(scene, top_k=-1)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_cpu
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_nes_query_limit_cpu():
+    """
+    Feature: nes query limited for cpu
+    Description: make sure the attck in query limit scene works properly
+    Expectation: attack without any bugs
+    """
+    # scene is in ['Query_Limit', 'Partial_Info', 'Label_Only']
+    context.set_context(device_target="CPU")
     scene = 'Query_Limit'
     nes_mnist_attack(scene, top_k=-1)
 
@@ -176,8 +197,30 @@ def test_nes_query_limit():
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_nes_partial_info():
+def test_nes_partial_info_ascend():
+    """
+    Feature: nes partial info for ascend
+    Description: make sure the attck in partial info scene works properly
+    Expectation: attack without any bugs
+    """
     # scene is in ['Query_Limit', 'Partial_Info', 'Label_Only']
+    context.set_context(device_target="Ascend")
+    scene = 'Partial_Info'
+    nes_mnist_attack(scene, top_k=5)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_cpu
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_nes_partial_info_cpu():
+    """
+    Feature: nes partial info for cpu
+    Description: make sure the attck in partial info scene works properly
+    Expectation: attack without any bugs
+    """
+    # scene is in ['Query_Limit', 'Partial_Info', 'Label_Only']
+    context.set_context(device_target="CPU")
     scene = 'Partial_Info'
     nes_mnist_attack(scene, top_k=5)
 
@@ -187,8 +230,30 @@ def test_nes_partial_info():
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_nes_label_only():
+def test_nes_label_only_ascend():
+    """
+    Feature: nes label only for ascend
+    Description: make sure the attck in label only scene works properly
+    Expectation: attack without any bugs
+    """
     # scene is in ['Query_Limit', 'Partial_Info', 'Label_Only']
+    context.set_context(device_target="Ascend")
+    scene = 'Label_Only'
+    nes_mnist_attack(scene, top_k=5)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_cpu
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_nes_label_only_cpu():
+    """
+    Feature: nes label only for cpu
+    Description: make sure the attck in label only scene works properly
+    Expectation: attack without any bugs
+    """
+    # scene is in ['Query_Limit', 'Partial_Info', 'Label_Only']
+    context.set_context(device_target="CPU")
     scene = 'Label_Only'
     nes_mnist_attack(scene, top_k=5)
 
@@ -198,8 +263,20 @@ def test_nes_label_only():
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_value_error():
+def test_value_error_ascend():
     """test that exception is raised for invalid labels"""
+    context.set_context(device_target="Ascend")
+    with pytest.raises(ValueError):
+        assert nes_mnist_attack('Label_Only', -1)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_cpu
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_value_error_cpu():
+    """test that exception is raised for invalid labels"""
+    context.set_context(device_target="CPU")
     with pytest.raises(ValueError):
         assert nes_mnist_attack('Label_Only', -1)
 
@@ -209,7 +286,32 @@ def test_value_error():
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_none():
+def test_none_ascend():
+    """
+    Feature: nes none for ascend
+    Description: detect error or works properly
+    Expectation: detect error or works properly
+    """
+    context.set_context(device_target="Ascend")
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    model = get_model(current_dir)
+    test_images, test_labels = get_dataset(current_dir)
+    nes = NES(model, 'Partial_Info')
+    with pytest.raises(ValueError):
+        assert nes.generate(test_images, test_labels)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_cpu
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_none_cpu():
+    """
+    Feature: nes none for cpu
+    Description: detect error or works properly
+    Expectation: detect error or works properly
+    """
+    context.set_context(device_target="CPU")
     current_dir = os.path.dirname(os.path.abspath(__file__))
     model = get_model(current_dir)
     test_images, test_labels = get_dataset(current_dir)

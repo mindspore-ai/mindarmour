@@ -26,7 +26,6 @@ from mindarmour.adv_robustness.detectors import ErrorBasedDetector
 from mindarmour.adv_robustness.detectors import RegionBasedDetector
 from mindarmour.adv_robustness.detectors import EnsembleDetector
 
-context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
 
 
 class Net(Cell):
@@ -70,10 +69,41 @@ class AutoNet(Cell):
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_ensemble_detector():
+def test_ensemble_detector_ascend():
     """
-    Compute mindspore result.
+    Feature:  Compute mindspore result for ascend
+    Description: make sure the ensemble detector works as expected
+    Expectation: detected_res == expected_value
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+    np.random.seed(6)
+    adv = np.random.rand(4, 4).astype(np.float32)
+    model = Model(Net())
+    auto_encoder = Model(AutoNet())
+    random_label = np.random.randint(10, size=4)
+    labels = np.eye(10)[random_label]
+    magnet_detector = ErrorBasedDetector(auto_encoder)
+    region_detector = RegionBasedDetector(model)
+    # use this to enable radius in region_detector
+    region_detector.fit(adv, labels)
+    detectors = [magnet_detector, region_detector]
+    detector = EnsembleDetector(detectors)
+    detected_res = detector.detect(adv)
+    expected_value = np.array([0, 1, 0, 0])
+    assert np.all(detected_res == expected_value)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_cpu
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_ensemble_detector_cpu():
+    """
+    Feature:  Compute mindspore result for ascend
+    Description: make sure the ensemble detector works as expected
+    Expectation: detected_res == expected_value
+    """
+    context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
     np.random.seed(6)
     adv = np.random.rand(4, 4).astype(np.float32)
     model = Model(Net())
@@ -96,7 +126,39 @@ def test_ensemble_detector():
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_error():
+def test_error_ascend():
+    """
+    Feature: test error for ascend
+    Description: test error
+    Expectation: error detected or attach.generate works properly
+    """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+    np.random.seed(6)
+    adv = np.random.rand(4, 4).astype(np.float32)
+    model = Model(Net())
+    auto_encoder = Model(AutoNet())
+    random_label = np.random.randint(10, size=4)
+    labels = np.eye(10)[random_label]
+    magnet_detector = ErrorBasedDetector(auto_encoder)
+    region_detector = RegionBasedDetector(model)
+    # use this to enable radius in region_detector
+    detectors = [magnet_detector, region_detector]
+    detector = EnsembleDetector(detectors)
+    with pytest.raises(NotImplementedError):
+        assert detector.fit(adv, labels)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_cpu
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_error_cpu():
+    """
+    Feature: test error for cpu
+    Description: test error
+    Expectation: error detected or attach.generate works properly
+    """
+    context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
     np.random.seed(6)
     adv = np.random.rand(4, 4).astype(np.float32)
     model = Model(Net())

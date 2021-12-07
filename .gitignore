@@ -26,3 +26,4 @@ mindarmour.egg-info/
 *pre_trained_model/
 *__pycache__/
 *kernel_meta
+.DS_Store

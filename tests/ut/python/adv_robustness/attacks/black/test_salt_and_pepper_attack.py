@@ -27,7 +27,6 @@ from mindarmour.adv_robustness.attacks import SaltAndPepperNoiseAttack
 from tests.ut.python.utils.mock_net import Net
 
 context.set_context(mode=context.GRAPH_MODE)
-context.set_context(device_target="Ascend")
 
 
 class ModelToBeAttacked(BlackModel):
@@ -48,10 +47,45 @@ class ModelToBeAttacked(BlackModel):
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_salt_and_pepper_attack_method():
+def test_salt_and_pepper_attack_method_ascend():
     """
-    Salt and pepper attack method unit test.
+    Feature: Salt and pepper attack method unit test for ascend
+    Description: Given a image, we want to make sure the adversarial example
+                 generated is different from the image
+    Expectation: inputs != adv_data
     """
+    context.set_context(device_target="Ascend")
+    np.random.seed(123)
+    # upload trained network
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    ckpt_path = os.path.join(current_dir,
+                             '../../../dataset/trained_ckpt_file/checkpoint_lenet-10_1875.ckpt')
+    net = Net()
+    load_dict = load_checkpoint(ckpt_path)
+    load_param_into_net(net, load_dict)
+
+    # get one mnist image
+    inputs = np.load(os.path.join(current_dir, '../../../dataset/test_images.npy'))[:3]
+    labels = np.load(os.path.join(current_dir, '../../../dataset/test_labels.npy'))[:3]
+    model = ModelToBeAttacked(net)
+
+    attack = SaltAndPepperNoiseAttack(model, sparse=True)
+    _, adv_data, _ = attack.generate(inputs, labels)
+    assert np.any(adv_data[0] != inputs[0]), 'Salt and pepper attack method:  generate value must not be equal' \
+                                             ' to original value.'
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_cpu
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_salt_and_pepper_attack_method_cpu():
+    """
+    Feature: Salt and pepper attack method unit test for cpu
+    Description: Given a image, we want to make sure the adversarial example
+                 generated is different from the image
+    Expectation: inputs != adv_data
+    """
+    context.set_context(device_target="CPU")
     np.random.seed(123)
     # upload trained network
     current_dir = os.path.dirname(os.path.abspath(__file__))

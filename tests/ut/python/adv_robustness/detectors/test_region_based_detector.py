@@ -25,8 +25,6 @@ from mindspore.ops.operations import Add
 from mindarmour.adv_robustness.detectors import RegionBasedDetector
 
 
-context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
-
 
 class Net(Cell):
     """
@@ -51,10 +49,39 @@ class Net(Cell):
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_region_based_classification():
+def test_region_based_classification_ascend():
     """
-    Compute mindspore result.
+    Feature:  Compute mindspore result for ascend
+    Description: make sure the region-based detector works as expected
+    Expectation: detected_res == expected_value
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+    np.random.seed(5)
+    ori = np.random.rand(4, 4).astype(np.float32)
+    labels = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 0, 1, 0],
+                       [0, 1, 0, 0]]).astype(np.int32)
+    np.random.seed(6)
+    adv = np.random.rand(4, 4).astype(np.float32)
+    model = Model(Net())
+    detector = RegionBasedDetector(model)
+    radius = detector.fit(ori, labels)
+    detector.set_radius(radius)
+    detected_res = detector.detect(adv)
+    expected_value = np.array([0, 0, 1, 0])
+    assert np.all(detected_res == expected_value)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_cpu
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_region_based_classification_cpu():
+    """
+    Feature:  Compute mindspore result for cpu
+    Description: make sure the region-based detector works as expected
+    Expectation: detected_res == expected_value
+    """
+    context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
     np.random.seed(5)
     ori = np.random.rand(4, 4).astype(np.float32)
     labels = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 0, 1, 0],
@@ -75,7 +102,62 @@ def test_region_based_classification():
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_value_error():
+def test_value_error_ascend():
+    """
+    Feature:  test error for cpu
+    Description: test error
+    Expectation: error detected or attach.generate works properly
+    """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+    np.random.seed(5)
+    ori = np.random.rand(4, 4).astype(np.float32)
+    labels = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 0, 1, 0],
+                       [0, 1, 0, 0]]).astype(np.int32)
+    np.random.seed(6)
+    adv = np.random.rand(4, 4).astype(np.float32)
+    model = Model(Net())
+    # model should be mindspore model
+    with pytest.raises(TypeError):
+        assert RegionBasedDetector(Net())
+
+    with pytest.raises(ValueError):
+        assert RegionBasedDetector(model, number_points=-1)
+
+    with pytest.raises(ValueError):
+        assert RegionBasedDetector(model, initial_radius=-1)
+
+    with pytest.raises(ValueError):
+        assert RegionBasedDetector(model, max_radius=-2.2)
+
+    with pytest.raises(ValueError):
+        assert RegionBasedDetector(model, search_step=0)
+
+    with pytest.raises(TypeError):
+        assert RegionBasedDetector(model, sparse='False')
+
+    detector = RegionBasedDetector(model)
+    with pytest.raises(TypeError):
+        # radius must not empty
+        assert detector.detect(adv)
+
+    radius = detector.fit(ori, labels)
+    detector.set_radius(radius)
+    with pytest.raises(TypeError):
+        # adv type should be in (list, tuple, numpy.ndarray)
+        assert detector.detect(adv.tostring())
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_cpu
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_value_error_cpu():
+    """
+    Feature:  test error for cpu
+    Description: test error
+    Expectation: error detected or attach.generate works properly
+    """
+    context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
     np.random.seed(5)
     ori = np.random.rand(4, 4).astype(np.float32)
     labels = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 0, 1, 0],

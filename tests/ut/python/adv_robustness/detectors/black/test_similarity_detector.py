@@ -24,8 +24,6 @@ from mindspore.ops.operations import Add
 
 from mindarmour.adv_robustness.detectors import SimilarityDetector
 
-context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
-
 
 class EncoderNet(Cell):
     """
@@ -62,10 +60,60 @@ class EncoderNet(Cell):
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_similarity_detector():
+def test_similarity_detector_ascend():
     """
-    Similarity detector unit test
+    Feature:  Similarity detector unit test for ascend
+    Description: make sure the similarity detector works as expected
+    Expectation: detected_res == expected_value
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+
+    # Prepare dataset
+    np.random.seed(5)
+    x_train = np.random.rand(1000, 32, 32, 3).astype(np.float32)
+    perm = np.random.permutation(x_train.shape[0])
+
+    # Generate query sequences
+    benign_queries = x_train[perm[:1000], :, :, :]
+    suspicious_queries = x_train[perm[-1], :, :, :] + np.random.normal(
+        0, 0.05, (1000,) + x_train.shape[1:])
+    suspicious_queries = suspicious_queries.astype(np.float32)
+
+    # explicit threshold not provided, calculate threshold for K
+    encoder = Model(EncoderNet(encode_dim=256))
+    detector = SimilarityDetector(max_k_neighbor=50, trans_model=encoder)
+    num_nearest_neighbors, thresholds = detector.fit(inputs=x_train)
+    detector.set_threshold(num_nearest_neighbors[-1], thresholds[-1])
+
+    detector.detect(benign_queries)
+    detections = detector.get_detection_interval()
+    # compare
+    expected_value = 0
+    assert len(detections) == expected_value
+
+    detector.clear_buffer()
+    detector.detect(suspicious_queries)
+
+    # compare
+    expected_value = [1051, 1102, 1153, 1204, 1255,
+                      1306, 1357, 1408, 1459, 1510,
+                      1561, 1612, 1663, 1714, 1765,
+                      1816, 1867, 1918, 1969]
+    assert np.all(detector.get_detected_queries() == expected_value)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_cpu
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_similarity_detector_cpu():
+    """
+    Feature:  Similarity detector unit test for cpu
+    Description: make sure the similarity detector works as expected
+    Expectation: detected_res == expected_value
+    """
+    context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
+
     # Prepare dataset
     np.random.seed(5)
     x_train = np.random.rand(1000, 32, 32, 3).astype(np.float32)

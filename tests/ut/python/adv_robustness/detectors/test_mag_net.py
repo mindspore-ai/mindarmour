@@ -26,7 +26,6 @@ from mindspore import context
 from mindarmour.adv_robustness.detectors import ErrorBasedDetector
 from mindarmour.adv_robustness.detectors import DivergenceBasedDetector
 
-context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
 
 
 class Net(Cell):
@@ -75,10 +74,36 @@ class PredNet(Cell):
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_mag_net():
+def test_mag_net_ascend():
     """
-    Compute mindspore result.
+    Feature:  Compute mindspore result for ascend
+    Description: make sure the error-based detector works as expected
+    Expectation: detected_res == expected_value
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+    np.random.seed(5)
+    ori = np.random.rand(4, 4, 4).astype(np.float32)
+    np.random.seed(6)
+    adv = np.random.rand(4, 4, 4).astype(np.float32)
+    model = Model(Net())
+    detector = ErrorBasedDetector(model)
+    detector.fit(ori)
+    detected_res = detector.detect(adv)
+    expected_value = np.array([1, 1, 1, 1])
+    assert np.all(detected_res == expected_value)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_cpu
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_mag_net_cpu():
+    """
+    Feature:  Compute mindspore result for cpu
+    Description: make sure the error-based detector works as expected
+    Expectation: detected_res == expected_value
+    """
+    context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
     np.random.seed(5)
     ori = np.random.rand(4, 4, 4).astype(np.float32)
     np.random.seed(6)
@@ -96,10 +121,32 @@ def test_mag_net():
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_mag_net_transform():
+def test_mag_net_transform_ascend():
     """
-    Compute mindspore result.
+    Feature:  Compute mindspore result for ascend
+    Description: make sure the transform function works properly
+    Expectation: adv_trans != adv
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+    np.random.seed(6)
+    adv = np.random.rand(4, 4, 4).astype(np.float32)
+    model = Model(Net())
+    detector = ErrorBasedDetector(model)
+    adv_trans = detector.transform(adv)
+    assert np.any(adv_trans != adv)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_cpu
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_mag_net_transform_cpu():
+    """
+    Feature:  Compute mindspore result for cpu
+    Description: make sure the transform function works properly
+    Expectation: adv_trans != adv
+    """
+    context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
     np.random.seed(6)
     adv = np.random.rand(4, 4, 4).astype(np.float32)
     model = Model(Net())
@@ -113,10 +160,38 @@ def test_mag_net_transform():
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_mag_net_divergence():
+def test_mag_net_divergence_ascend():
     """
-    Compute mindspore result.
+    Feature:  Compute mindspore result for ascend
+    Description: make sure the divergence-based detector works as expected
+    Expectation: detected_res == expected_value
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+    np.random.seed(5)
+    ori = np.random.rand(4, 4, 4).astype(np.float32)
+    np.random.seed(6)
+    adv = np.random.rand(4, 4, 4).astype(np.float32)
+    encoder = Model(Net())
+    model = Model(PredNet())
+    detector = DivergenceBasedDetector(encoder, model)
+    threshold = detector.fit(ori)
+    detector.set_threshold(threshold)
+    detected_res = detector.detect(adv)
+    expected_value = np.array([1, 0, 1, 1])
+    assert np.all(detected_res == expected_value)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_cpu
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_mag_net_divergence_cpu():
+    """
+    Feature:  Compute mindspore result for cpu
+    Description: make sure the divergence-based detector works as expected
+    Expectation: detected_res == expected_value
+    """
+    context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
     np.random.seed(5)
     ori = np.random.rand(4, 4, 4).astype(np.float32)
     np.random.seed(6)
@@ -136,10 +211,33 @@ def test_mag_net_divergence():
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_mag_net_divergence_transform():
+def test_mag_net_divergence_transform_ascend():
     """
-    Compute mindspore result.
+    Feature:  Compute mindspore result for ascend
+    Description: make sure the transform function works properly
+    Expectation: adv_trans != adv
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+    np.random.seed(6)
+    adv = np.random.rand(4, 4, 4).astype(np.float32)
+    encoder = Model(Net())
+    model = Model(PredNet())
+    detector = DivergenceBasedDetector(encoder, model)
+    adv_trans = detector.transform(adv)
+    assert np.any(adv_trans != adv)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_cpu
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_mag_net_divergence_transform_cpu():
+    """
+    Feature:  Compute mindspore result for cpu
+    Description: make sure the transform function works properly
+    Expectation: adv_trans != adv
+    """
+    context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
     np.random.seed(6)
     adv = np.random.rand(4, 4, 4).astype(np.float32)
     encoder = Model(Net())
@@ -154,7 +252,33 @@ def test_mag_net_divergence_transform():
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_value_error():
+def test_value_error_ascend():
+    """
+    Feature:  test error for ascend
+    Description: test error
+    Expectation: error detected or attach.generate works properly
+    """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+    np.random.seed(6)
+    adv = np.random.rand(4, 4, 4).astype(np.float32)
+    encoder = Model(Net())
+    model = Model(PredNet())
+    detector = DivergenceBasedDetector(encoder, model, option='bad_op')
+    with pytest.raises(NotImplementedError):
+        assert detector.detect_diff(adv)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_cpu
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_value_error_cpu():
+    """
+    Feature:  test error for cpu
+    Description: test error
+    Expectation: error detected or attach.generate works properly
+    """
+    context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
     np.random.seed(6)
     adv = np.random.rand(4, 4, 4).astype(np.float32)
     encoder = Model(Net())

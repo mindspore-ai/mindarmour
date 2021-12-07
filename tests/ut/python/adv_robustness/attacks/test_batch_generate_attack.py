@@ -25,8 +25,6 @@ from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
 from mindarmour.adv_robustness.attacks import FastGradientMethod
 
 
-context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
-
 
 # for user
 class Net(Cell):
@@ -114,10 +112,36 @@ class GradWrapWithLoss(Cell):
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_batch_generate_attack():
+def test_batch_generate_attack_ascend():
     """
-    Attack with batch-generate.
+    Feature: Attack with batch-generate for ascend
+    Description: Given a image, we want to make sure the adversarial example
+                 generated is different from the image
+    Expectation: input_np != ms_adv_x
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+    input_np = np.random.random((128, 10)).astype(np.float32)
+    label = np.random.randint(0, 10, 128).astype(np.int32)
+    label = np.eye(10)[label].astype(np.float32)
+
+    attack = FastGradientMethod(Net(), loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
+    ms_adv_x = attack.batch_generate(input_np, label, batch_size=32)
+
+    assert np.any(ms_adv_x != input_np), 'Fast gradient method: generate value' \
+                                            ' must not be equal to original value.'
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_cpu
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_batch_generate_attack_cpu():
+    """
+    Feature: Attack with batch-generate for cpu
+    Description: Given a image, we want to make sure the adversarial example
+                 generated is different from the image
+    Expectation: input_np != ms_adv_x
+    """
+    context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
     input_np = np.random.random((128, 10)).astype(np.float32)
     label = np.random.randint(0, 10, 128).astype(np.int32)
     label = np.eye(10)[label].astype(np.float32)
@@ -129,16 +153,48 @@ def test_batch_generate_attack():
                                             ' must not be equal to original value.'
 
 
+
 @pytest.mark.level0
 @pytest.mark.platform_arm_ascend_training
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_batch_generate_attack_multi_inputs():
+def test_batch_generate_attack_multi_inputs_ascend():
     """
-    Attack with batch-generate by multi-inputs.
+    Feature: Attack with batch-generate by multi-inputs for ascend
+    Description: Given multiple images, we want to make sure the adversarial examples
+                 generated are different from the images
+    Expectation: inputs != ms_adv_x
     """
     context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+    inputs1 = np.random.random((128, 10)).astype(np.float32)
+    inputs2 = np.random.random((128, 10)).astype(np.float32)
+    labels1 = np.random.randint(0, 10, 128).astype(np.int32)
+    labels2 = np.random.randint(0, 10, 128).astype(np.int32)
+    labels1 = np.eye(10)[labels1].astype(np.float32)
+    labels2 = np.eye(10)[labels2].astype(np.float32)
+
+    with_loss_cell = WithLossCell(Net2(), LossNet())
+    grad_with_loss_net = GradWrapWithLoss(with_loss_cell)
+    attack = FastGradientMethod(grad_with_loss_net)
+    ms_adv_x = attack.batch_generate((inputs1, inputs2), (labels1, labels2), batch_size=32)
+
+    assert np.any(ms_adv_x != inputs1), 'Fast gradient method: generate value' \
+                                         ' must not be equal to original value.'
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_cpu
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_batch_generate_attack_multi_inputs_cpu():
+    """
+    Feature: Attack with batch-generate by multi-inputs for cpu
+    Description: Given multiple images, we want to make sure the adversarial examples
+                 generated are different from the images
+    Expectation: inputs != ms_adv_x
+    """
+    context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
     inputs1 = np.random.random((128, 10)).astype(np.float32)
     inputs2 = np.random.random((128, 10)).astype(np.float32)
     labels1 = np.random.randint(0, 10, 128).astype(np.int32)
