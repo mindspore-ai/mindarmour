@@ -24,8 +24,6 @@ from mindspore import context
 from mindarmour.adv_robustness.attacks import CarliniWagnerL2Attack
 
 
-context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
-
 
 # for user
 class Net(Cell):
@@ -59,10 +57,35 @@ class Net(Cell):
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_cw_attack():
+def test_cw_attack_ascend():
     """
-    CW-Attack test
+    Feature: CW-Attack test for ascend
+    Description: Given multiple images, we want to make sure the adversarial examples
+                 generated are different from the images
+    Expectation: input_np != ms_adv_x
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+    net = Net()
+    input_np = np.array([[0.1, 0.2, 0.7, 0.5, 0.4]]).astype(np.float32)
+    label_np = np.array([3]).astype(np.int64)
+    num_classes = input_np.shape[1]
+    attack = CarliniWagnerL2Attack(net, num_classes, targeted=False)
+    adv_data = attack.generate(input_np, label_np)
+    assert np.any(input_np != adv_data)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_cpu
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_cw_attack_cpu():
+    """
+    Feature: CW-Attack test for cpu
+    Description: Given multiple images, we want to make sure the adversarial examples
+                 generated are different from the images
+    Expectation: input_np != ms_adv_x
+    """
+    context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
     net = Net()
     input_np = np.array([[0.1, 0.2, 0.7, 0.5, 0.4]]).astype(np.float32)
     label_np = np.array([3]).astype(np.int64)
@@ -77,10 +100,35 @@ def test_cw_attack():
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_cw_attack_targeted():
+def test_cw_attack_targeted_ascend():
     """
-    CW-Attack test
+    Feature: CW-Attack-Targeted test for ascend
+    Description: Given multiple images, we want to make sure the adversarial examples
+                 generated are different from the images
+    Expectation: input_np != ms_adv_x
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+    net = Net()
+    input_np = np.array([[0.1, 0.2, 0.7, 0.5, 0.4]]).astype(np.float32)
+    target_np = np.array([1]).astype(np.int64)
+    num_classes = input_np.shape[1]
+    attack = CarliniWagnerL2Attack(net, num_classes, targeted=True)
+    adv_data = attack.generate(input_np, target_np)
+    assert np.any(input_np != adv_data)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_cpu
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_cw_attack_targeted_cpu():
+    """
+    Feature: CW-Attack-Targeted test for cpu
+    Description: Given multiple images, we want to make sure the adversarial examples
+                 generated are different from the images
+    Expectation: input_np != ms_adv_x
+    """
+    context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
     net = Net()
     input_np = np.array([[0.1, 0.2, 0.7, 0.5, 0.4]]).astype(np.float32)
     target_np = np.array([1]).astype(np.int64)

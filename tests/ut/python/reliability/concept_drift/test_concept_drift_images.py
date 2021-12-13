@@ -19,13 +19,11 @@ Concept drift test for images.
 import logging
 import pytest
 import numpy as np
-from mindspore import Tensor
-from mindspore.train.model import Model
 from mindarmour.utils.logger import LogUtil
-from mindspore import Model, nn, context
-from examples.common.networks.lenet5.lenet5_net_for_fuzzing import LeNet5
-from mindspore.train.serialization import load_checkpoint, load_param_into_net
 from mindarmour.reliability.concept_drift.concept_drift_check_images import OodDetectorFeatureCluster
+from mindspore import Model, context
+from mindspore.train.serialization import load_checkpoint, load_param_into_net
+from examples.common.networks.lenet5.lenet5_net_for_fuzzing import LeNet5
 
 LOGGER = LogUtil.get_instance()
 TAG = 'Concept_Test'
@@ -37,11 +35,14 @@ TAG = 'Concept_Test'
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_cp():
+def test_concept_drift_image_ascend():
     """
-    Concept drift test
+    Feature: test concept drift with images
+    Description: make sure the odd detector working properly
+    Expectation: assert np.any(result >=0.0)
     """
     # load model
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     ckpt_path = '../../dataset/trained_ckpt_file/checkpoint_lenet-10_1875.ckpt'
     net = LeNet5()
     load_dict = load_checkpoint(ckpt_path)

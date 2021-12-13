@@ -26,7 +26,6 @@ from mindarmour.utils.logger import LogUtil
 
 from tests.ut.python.utils.mock_net import Net
 
-context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
 
 
 LOGGER = LogUtil.get_instance()
@@ -39,10 +38,51 @@ LOGGER.set_level('DEBUG')
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_lbfgs_attack():
+def test_lbfgs_attack_ascend():
     """
-    LBFGS-Attack test
+    Feature: LBFGS-Attack testfor ascend
+    Description: make sure that attack.generate works properly
+    Expectation: attack.generate works properly
     """
+
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+    np.random.seed(123)
+    # upload trained network
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    ckpt_path = os.path.join(current_dir,
+                             '../../dataset/trained_ckpt_file/checkpoint_lenet-10_1875.ckpt')
+    net = Net()
+    load_dict = load_checkpoint(ckpt_path)
+    load_param_into_net(net, load_dict)
+
+    # get one mnist image
+    input_np = np.load(os.path.join(current_dir,
+                                    '../../dataset/test_images.npy'))[:1]
+    label_np = np.load(os.path.join(current_dir,
+                                    '../../dataset/test_labels.npy'))[:1]
+    LOGGER.debug(TAG, 'true label is :{}'.format(label_np[0]))
+    classes = 10
+    target_np = np.random.randint(0, classes, 1)
+    while target_np == label_np[0]:
+        target_np = np.random.randint(0, classes)
+    target_np = np.eye(10)[target_np].astype(np.float32)
+
+    attack = LBFGS(net, is_targeted=True)
+    LOGGER.debug(TAG, 'target_np is :{}'.format(target_np[0]))
+    _ = attack.generate(input_np, target_np)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_cpu
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_lbfgs_attack_cpu():
+    """
+    Feature: LBFGS-Attack testfor cpu
+    Description: make sure that attack.generate works properly
+    Expectation: attack.generate works properly
+    """
+    context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
     np.random.seed(123)
     # upload trained network
     current_dir = os.path.dirname(os.path.abspath(__file__))

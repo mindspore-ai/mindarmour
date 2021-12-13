@@ -28,7 +28,6 @@ from mindarmour.utils.logger import LogUtil
 
 from tests.ut.python.utils.mock_net import Net
 
-context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
 
 LOGGER = LogUtil.get_instance()
 TAG = 'Pointwise_Test'
@@ -53,10 +52,54 @@ class ModelToBeAttacked(BlackModel):
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_pointwise_attack_method():
+def test_pointwise_attack_method_ascend():
     """
-    Pointwise attack method unit test.
+    Feature: Pointwise attack method unit test for ascend
+    Description: Given a image, we want to make sure the adversarial example
+                 generated is different from the image
+    Expectation: input_np != adv_data
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+    np.random.seed(123)
+    # upload trained network
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    ckpt_path = os.path.join(current_dir,
+                             '../../../dataset/trained_ckpt_file/checkpoint_lenet-10_1875.ckpt')
+    net = Net()
+    load_dict = load_checkpoint(ckpt_path)
+    load_param_into_net(net, load_dict)
+
+    # get one mnist image
+    input_np = np.load(os.path.join(current_dir,
+                                    '../../../dataset/test_images.npy'))[:3]
+    labels = np.load(os.path.join(current_dir,
+                                  '../../../dataset/test_labels.npy'))[:3]
+    model = ModelToBeAttacked(net)
+    pre_label = np.argmax(model.predict(input_np), axis=1)
+    LOGGER.info(TAG, 'original sample predict labels are :{}'.format(pre_label))
+    LOGGER.info(TAG, 'true labels are: {}'.format(labels))
+    attack = PointWiseAttack(model, sparse=True, is_targeted=False)
+    is_adv, adv_data, _ = attack.generate(input_np, pre_label)
+    LOGGER.info(TAG, 'adv sample predict labels are: {}'
+                .format(np.argmax(model.predict(adv_data), axis=1)))
+
+    assert np.any(adv_data[is_adv][0] != input_np[is_adv][0]), 'Pointwise attack method: ' \
+                                             'generate value must not be equal' \
+                                             ' to original value.'
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_cpu
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_pointwise_attack_method_cpu():
+    """
+    Feature: Pointwise attack method unit test for cpu
+    Description: Given a image, we want to make sure the adversarial example
+                 generated is different from the image
+    Expectation: input_np != adv_data
+    """
+    context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
     np.random.seed(123)
     # upload trained network
     current_dir = os.path.dirname(os.path.abspath(__file__))

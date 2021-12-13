@@ -24,8 +24,6 @@ from mindspore import Tensor
 
 from mindarmour.adv_robustness.attacks import DeepFool
 
-context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
-
 
 # for user
 class Net(Cell):
@@ -76,10 +74,42 @@ class Net2(Cell):
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_deepfool_attack():
+def test_deepfool_attack_ascend():
     """
-    Deepfool-Attack test
+    Feature: Deepfool-Attack test for ascend
+    Description: Given multiple images, we want to make sure the adversarial examples
+                 generated are different from the images
+    Expectation: input_np != ms_adv_x
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+    net = Net()
+    input_shape = (1, 5)
+    _, classes = input_shape
+    input_np = np.array([[0.1, 0.2, 0.7, 0.5, 0.4]]).astype(np.float32)
+    input_me = Tensor(input_np)
+    true_labels = np.argmax(net(input_me).asnumpy(), axis=1)
+    attack = DeepFool(net, classes, max_iters=10, norm_level=2,
+                      bounds=(0.0, 1.0))
+    adv_data = attack.generate(input_np, true_labels)
+    # expected adv value
+    expect_value = np.asarray([[0.10300991, 0.20332647, 0.59308802, 0.59651263,
+                                0.40406296]])
+    assert np.allclose(adv_data, expect_value), 'mindspore deepfool_method' \
+        ' implementation error, ms_adv_x != expect_value'
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_cpu
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_deepfool_attack_cpu():
+    """
+   Feature: Deepfool-Attack test for cpu
+    Description: Given multiple images, we want to make sure the adversarial examples
+                 generated are different from the images
+    Expectation: input_np != ms_adv_x
+    """
+    context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
     net = Net()
     input_shape = (1, 5)
     _, classes = input_shape
@@ -101,10 +131,40 @@ def test_deepfool_attack():
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_deepfool_attack_detection():
+def test_deepfool_attack_detection_ascend():
     """
-    Deepfool-Attack test
+    Feature: Deepfool-Attack-Detection test for ascend
+    Description: Given multiple images, we want to make sure the adversarial examples
+                 generated are different from the images
+    Expectation: input_np != ms_adv_x
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+    net = Net2()
+    inputs1_np = np.random.random((2, 10, 10)).astype(np.float32)
+    inputs2_np = np.random.random((2, 10, 5)).astype(np.float32)
+    gt_boxes, gt_logits = net(Tensor(inputs1_np), Tensor(inputs2_np))
+    gt_boxes, gt_logits = gt_boxes.asnumpy(), gt_logits.asnumpy()
+    gt_labels = np.argmax(gt_logits, axis=2)
+    num_classes = 10
+
+    attack = DeepFool(net, num_classes, model_type='detection', reserve_ratio=0.3,
+                      bounds=(0.0, 1.0))
+    adv_data = attack.generate((inputs1_np, inputs2_np), (gt_boxes, gt_labels))
+    assert np.any(adv_data != inputs1_np)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_cpu
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_deepfool_attack_detection_cpu():
+    """
+    Feature: Deepfool-Attack-Detection test for cpu
+    Description: Given multiple images, we want to make sure the adversarial examples
+                 generated are different from the images
+    Expectation: input_np != ms_adv_x
+    """
+    context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
     net = Net2()
     inputs1_np = np.random.random((2, 10, 10)).astype(np.float32)
     inputs2_np = np.random.random((2, 10, 5)).astype(np.float32)
@@ -124,10 +184,38 @@ def test_deepfool_attack_detection():
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_deepfool_attack_inf():
+def test_deepfool_attack_inf_ascend():
     """
-    Deepfool-Attack test
+    Feature: Deepfool-Attack with inf-norm test for ascend
+    Description: Given multiple images, we want to make sure the adversarial examples
+                 generated are different from the images
+    Expectation: input_np != ms_adv_x
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+    net = Net()
+    input_shape = (1, 5)
+    _, classes = input_shape
+    input_np = np.array([[0.1, 0.2, 0.7, 0.5, 0.4]]).astype(np.float32)
+    input_me = Tensor(input_np)
+    true_labels = np.argmax(net(input_me).asnumpy(), axis=1)
+    attack = DeepFool(net, classes, max_iters=10, norm_level=np.inf,
+                      bounds=(0.0, 1.0))
+    adv_data = attack.generate(input_np, true_labels)
+    assert np.any(input_np != adv_data)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_cpu
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_deepfool_attack_inf_cpu():
+    """
+    Feature: Deepfool-Attack with inf-norm test for cpu
+    Description: Given multiple images, we want to make sure the adversarial examples
+                 generated are different from the images
+    Expectation: input_np != ms_adv_x
+    """
+    context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
     net = Net()
     input_shape = (1, 5)
     _, classes = input_shape
@@ -145,7 +233,37 @@ def test_deepfool_attack_inf():
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_value_error():
+def test_value_error_ascend():
+    """
+    Feature: value error test for ascend
+    Description: value error for deep fool
+    Expectation: attack.generate works
+    """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+    net = Net()
+    input_shape = (1, 5)
+    _, classes = input_shape
+    input_np = np.array([[0.1, 0.2, 0.7, 0.5, 0.4]]).astype(np.float32)
+    input_me = Tensor(input_np)
+    true_labels = np.argmax(net(input_me).asnumpy(), axis=1)
+    with pytest.raises(NotImplementedError):
+        # norm_level=0 is not available
+        attack = DeepFool(net, classes, max_iters=10, norm_level=1,
+                          bounds=(0.0, 1.0))
+        assert attack.generate(input_np, true_labels)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_cpu
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_value_error_cpu():
+    """
+    Feature: value error test for cpu
+    Description: value error for deep fool
+    Expectation: attack.generate works
+    """
+    context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
     net = Net()
     input_shape = (1, 5)
     _, classes = input_shape

@@ -26,7 +26,6 @@ from mindarmour.utils.logger import LogUtil
 from tests.ut.python.utils.mock_net import Net
 
 context.set_context(mode=context.GRAPH_MODE)
-context.set_context(device_target="Ascend")
 
 LOGGER = LogUtil.get_instance()
 TAG = 'HopSkipJumpAttack'
@@ -87,10 +86,86 @@ def get_model():
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_hsja_mnist_attack():
+def test_hsja_mnist_attack_ascend():
     """
-    hsja-Attack test
+    Feature: test HSJA attack for ascend
+    Description: make sure the HSJA attack works properly
+    Expectation: predict without any bugs
     """
+    context.set_context(device_target="Ascend")
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+
+
+    # get test data
+    test_images_set = np.load(os.path.join(current_dir,
+                                           '../../../dataset/test_images.npy'))
+    test_labels_set = np.load(os.path.join(current_dir,
+                                           '../../../dataset/test_labels.npy'))
+    # prediction accuracy before attack
+    model = get_model()
+    batch_num = 1  # the number of batches of attacking samples
+    predict_labels = []
+    i = 0
+
+    for img in test_images_set:
+        i += 1
+        pred_labels = np.argmax(model.predict(img), axis=1)
+        predict_labels.append(pred_labels)
+        if i >= batch_num:
+            break
+    predict_labels = np.concatenate(predict_labels)
+    true_labels = test_labels_set[:batch_num]
+    accuracy = np.mean(np.equal(predict_labels, true_labels))
+    LOGGER.info(TAG, "prediction accuracy before attacking is : %s",
+                accuracy)
+    test_images = test_images_set[:batch_num]
+
+    # attacking
+    norm = 'l2'
+    search = 'grid_search'
+    target = False
+
+    attack = HopSkipJumpAttack(model, constraint=norm, stepsize_search=search)
+    if target:
+        target_labels = random_target_labels(true_labels)
+        target_images = create_target_images(test_images_set, test_labels_set,
+                                             target_labels)
+        LOGGER.info(TAG, 'len target labels : %s', len(target_labels))
+        LOGGER.info(TAG, 'len target_images : %s', len(target_images))
+        LOGGER.info(TAG, 'len test_images : %s', len(test_images))
+        attack.set_target_images(target_images)
+        success_list, adv_data, _ = attack.generate(test_images, target_labels)
+    else:
+        success_list, adv_data, _ = attack.generate(test_images, None)
+    assert (adv_data != test_images).any()
+
+    adv_datas = []
+    gts = []
+    for success, adv, gt in zip(success_list, adv_data, true_labels):
+        if success:
+            adv_datas.append(adv)
+            gts.append(gt)
+    if gts:
+        adv_datas = np.concatenate(np.asarray(adv_datas), axis=0)
+        gts = np.asarray(gts)
+        pred_logits_adv = model.predict(adv_datas)
+        pred_lables_adv = np.argmax(pred_logits_adv, axis=1)
+        accuracy_adv = np.mean(np.equal(pred_lables_adv, gts))
+        LOGGER.info(TAG, 'mis-classification rate of adversaries is : %s',
+                    accuracy_adv)
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_cpu
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_hsja_mnist_attack_cpu():
+    """
+    Feature: test HSJA attack for cpu
+    Description: make sure the HSJA attack works properly
+    Expectation: predict without any bugs
+    """
+    context.set_context(device_target="CPU")
     current_dir = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -158,7 +233,20 @@ def test_hsja_mnist_attack():
 @pytest.mark.platform_x86_ascend_training
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
-def test_value_error():
+def test_value_error_ascend():
+    context.set_context(device_target="Ascend")
+    model = get_model()
+    norm = 'l2'
+    with pytest.raises(ValueError):
+        assert HopSkipJumpAttack(model, constraint=norm, stepsize_search='bad-search')
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_cpu
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_value_error_cpu():
+    context.set_context(device_target="CPU")
     model = get_model()
     norm = 'l2'
     with pytest.raises(ValueError):
