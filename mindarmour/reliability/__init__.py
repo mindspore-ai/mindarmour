@@ -12,9 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Reliability methods of MindArmour
+Reliability methods of MindArmour.
 """
 
 from .model_fault_injection.fault_injection import FaultInjector
+from .concept_drift.concept_drift_check_time_series import ConceptDriftCheckTimeSeries
+from .concept_drift.concept_drift_check_images import OodDetector
+from .concept_drift.concept_drift_check_images import OodDetectorFeatureCluster
 
-__all__ = ['FaultInjector']
+__all__ = ['FaultInjector',
+           'ConceptDriftCheckTimeSeries',
+           'OodDetector',
+           'OodDetectorFeatureCluster']
