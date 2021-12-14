@@ -65,14 +65,23 @@ def test_fault_injector():
     model = Model(net)
 
     ds_eval = ds.GeneratorDataset(dataset_generator, ['image', 'label'])
+    test_images = []
+    test_labels = []
+    for data in ds_eval.create_tuple_iterator(output_numpy=True):
+        images = data[0].astype(np.float32)
+        labels = data[1]
+        test_images.append(images)
+        test_labels.append(labels)
+    ds_data = np.concatenate(test_images, axis=0)
+    ds_label = np.concatenate(test_labels, axis=0)
     fi_type = ['bitflips_random', 'bitflips_designated', 'random', 'zeros',
                'nan', 'inf', 'anti_activation', 'precision_loss']
     fi_mode = ['single_layer', 'all_layer']
     fi_size = [1]
 
     # Fault injection
-    fi = FaultInjector(model, ds_eval, fi_type, fi_mode, fi_size)
-    _ = fi.kick_off()
+    fi = FaultInjector(model, fi_type, fi_mode, fi_size)
+    _ = fi.kick_off(ds_data, ds_label, iter_times=100)
     _ = fi.metrics()
 
 
@@ -95,6 +104,15 @@ def test_wrong_model():
     load_param_into_net(net, param_dict)
 
     ds_eval = ds.GeneratorDataset(dataset_generator, ['image', 'label'])
+    test_images = []
+    test_labels = []
+    for data in ds_eval.create_tuple_iterator(output_numpy=True):
+        images = data[0].astype(np.float32)
+        labels = data[1]
+        test_images.append(images)
+        test_labels.append(labels)
+    ds_data = np.concatenate(test_images, axis=0)
+    ds_label = np.concatenate(test_labels, axis=0)
     fi_type = ['bitflips_random', 'bitflips_designated', 'random', 'zeros',
                'nan', 'inf', 'anti_activation', 'precision_loss']
     fi_mode = ['single_layer', 'all_layer']
@@ -102,8 +120,8 @@ def test_wrong_model():
 
     # Fault injection
     with pytest.raises(TypeError) as exc_info:
-        fi = FaultInjector(net, ds_eval, fi_type, fi_mode, fi_size)
-        _ = fi.kick_off()
+        fi = FaultInjector(net, fi_type, fi_mode, fi_size)
+        _ = fi.kick_off(ds_data, ds_label, iter_times=100)
         _ = fi.metrics()
     assert exc_info.type is TypeError
 
@@ -127,7 +145,8 @@ def test_wrong_data():
     load_param_into_net(net, param_dict)
     model = Model(net)
 
-    ds_eval = np.random.random((1000, 32, 32, 1)).astype(np.float32)
+    ds_data = ds.GeneratorDataset(dataset_generator, ['image', 'label'])
+    ds_label = ds.GeneratorDataset(dataset_generator, ['image', 'label'])
     fi_type = ['bitflips_random', 'bitflips_designated', 'random', 'zeros',
                'nan', 'inf', 'anti_activation', 'precision_loss']
     fi_mode = ['single_layer', 'all_layer']
@@ -135,8 +154,8 @@ def test_wrong_data():
 
     # Fault injection
     with pytest.raises(TypeError) as exc_info:
-        fi = FaultInjector(model, ds_eval, fi_type, fi_mode, fi_size)
-        _ = fi.kick_off()
+        fi = FaultInjector(model, fi_type, fi_mode, fi_size)
+        _ = fi.kick_off(ds_data, ds_label, iter_times=100)
         _ = fi.metrics()
     assert exc_info.type is TypeError
 
@@ -161,6 +180,15 @@ def test_wrong_fi_type():
     model = Model(net)
 
     ds_eval = ds.GeneratorDataset(dataset_generator, ['image', 'label'])
+    test_images = []
+    test_labels = []
+    for data in ds_eval.create_tuple_iterator(output_numpy=True):
+        images = data[0].astype(np.float32)
+        labels = data[1]
+        test_images.append(images)
+        test_labels.append(labels)
+    ds_data = np.concatenate(test_images, axis=0)
+    ds_label = np.concatenate(test_labels, axis=0)
     fi_type = ['bitflips_random_haha', 'bitflips_designated', 'random', 'zeros',
                'nan', 'inf', 'anti_activation', 'precision_loss']
     fi_mode = ['single_layer', 'all_layer']
@@ -168,8 +196,8 @@ def test_wrong_fi_type():
 
     # Fault injection
     with pytest.raises(AttributeError) as exc_info:
-        fi = FaultInjector(model, ds_eval, fi_type, fi_mode, fi_size)
-        _ = fi.kick_off()
+        fi = FaultInjector(model, fi_type, fi_mode, fi_size)
+        _ = fi.kick_off(ds_data, ds_label, iter_times=100)
         _ = fi.metrics()
     assert exc_info.type is AttributeError
 
@@ -194,6 +222,15 @@ def test_wrong_fi_mode():
     model = Model(net)
 
     ds_eval = ds.GeneratorDataset(dataset_generator, ['image', 'label'])
+    test_images = []
+    test_labels = []
+    for data in ds_eval.create_tuple_iterator(output_numpy=True):
+        images = data[0].astype(np.float32)
+        labels = data[1]
+        test_images.append(images)
+        test_labels.append(labels)
+    ds_data = np.concatenate(test_images, axis=0)
+    ds_label = np.concatenate(test_labels, axis=0)
     fi_type = ['bitflips_random', 'bitflips_designated', 'random', 'zeros',
                'nan', 'inf', 'anti_activation', 'precision_loss']
     fi_mode = ['single_layer_tail', 'all_layer']
@@ -201,8 +238,8 @@ def test_wrong_fi_mode():
 
     # Fault injection
     with pytest.raises(ValueError) as exc_info:
-        fi = FaultInjector(model, ds_eval, fi_type, fi_mode, fi_size)
-        _ = fi.kick_off()
+        fi = FaultInjector(model, fi_type, fi_mode, fi_size)
+        _ = fi.kick_off(ds_data, ds_label, iter_times=100)
         _ = fi.metrics()
     assert exc_info.type is ValueError
 
@@ -227,6 +264,16 @@ def test_wrong_fi_size():
     model = Model(net)
 
     ds_eval = ds.GeneratorDataset(dataset_generator, ['image', 'label'])
+    test_images = []
+    test_labels = []
+    for data in ds_eval.create_tuple_iterator(output_numpy=True):
+        images = data[0].astype(np.float32)
+        labels = data[1]
+        test_images.append(images)
+        test_labels.append(labels)
+    ds_data = np.concatenate(test_images, axis=0)
+    ds_label = np.concatenate(test_labels, axis=0)
+
     fi_type = ['bitflips_random', 'bitflips_designated', 'random', 'zeros',
                'nan', 'inf', 'anti_activation', 'precision_loss']
     fi_mode = ['single_layer', 'all_layer']
@@ -234,7 +281,7 @@ def test_wrong_fi_size():
 
     # Fault injection
     with pytest.raises(ValueError) as exc_info:
-        fi = FaultInjector(model, ds_eval, fi_type, fi_mode, fi_size)
-        _ = fi.kick_off()
+        fi = FaultInjector(model, fi_type, fi_mode, fi_size)
+        _ = fi.kick_off(ds_data, ds_label, iter_times=100)
         _ = fi.metrics()
     assert exc_info.type is ValueError

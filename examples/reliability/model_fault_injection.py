@@ -32,8 +32,9 @@ Please extract and restructure the file as shown above.
 """
 import argparse
 
+import numpy as np
 from mindspore import Model, context
-from mindspore.train.serialization import load_checkpoint, load_param_into_net
+from mindspore.train.serialization import load_checkpoint
 
 from mindarmour.reliability.model_fault_injection.fault_injection import FaultInjector
 from examples.common.networks.lenet5.lenet5_net import LeNet5
@@ -70,8 +71,18 @@ elif test_flag == 'resnet50':
     net = resnet50(10)
 else:
     exit()
-param_dict = load_checkpoint(ckpt_path)
-load_param_into_net(net, param_dict)
+
+test_images = []
+test_labels = []
+for data in ds_eval.create_tuple_iterator(output_numpy=True):
+    images = data[0].astype(np.float32)
+    labels = data[1]
+    test_images.append(images)
+    test_labels.append(labels)
+ds_data = np.concatenate(test_images, axis=0)
+ds_label = np.concatenate(test_labels, axis=0)
+
+param_dict = load_checkpoint(ckpt_path, net=net)
 model = Model(net)
 
 # Initialization
@@ -81,8 +92,8 @@ fi_mode = ['single_layer', 'all_layer']
 fi_size = [1, 2, 3]
 
 # Fault injection
-fi = FaultInjector(model, ds_eval, fi_type, fi_mode, fi_size)
-results = fi.kick_off()
+fi = FaultInjector(model, fi_type, fi_mode, fi_size)
+results = fi.kick_off(ds_data, ds_label, iter_times=100)
 result_summary = fi.metrics()
 
 # print result
