@@ -178,6 +178,7 @@ class OodDetectorFeatureCluster(OodDetector):
     def ood_predict(self, threshold, ds_test):
         """
         The out-of-distribution detection.
+
         Args:
             threshold (float): the threshold to judge ood data. One can set value by experience
                 or use function get_optimal_threshold.
