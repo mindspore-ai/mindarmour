@@ -15,9 +15,10 @@
 LBFGS-Attack test.
 """
 import os
-
+import gc
 import numpy as np
 import pytest
+
 from mindspore import context
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 
@@ -71,6 +72,8 @@ def test_lbfgs_attack_ascend():
     LOGGER.debug(TAG, 'target_np is :{}'.format(target_np[0]))
     _ = attack.generate(input_np, target_np)
 
+    del input_np, label_np, target_np
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
@@ -107,3 +110,5 @@ def test_lbfgs_attack_cpu():
     attack = LBFGS(net, is_targeted=True)
     LOGGER.debug(TAG, 'target_np is :{}'.format(target_np[0]))
     _ = attack.generate(input_np, target_np)
+    del input_np, label_np, target_np
+    gc.collect()

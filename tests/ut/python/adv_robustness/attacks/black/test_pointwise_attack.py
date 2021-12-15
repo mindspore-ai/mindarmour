@@ -15,6 +15,7 @@
 PointWise Attack test
 """
 import os
+import gc
 
 import numpy as np
 import pytest
@@ -86,6 +87,8 @@ def test_pointwise_attack_method_ascend():
     assert np.any(adv_data[is_adv][0] != input_np[is_adv][0]), 'Pointwise attack method: ' \
                                              'generate value must not be equal' \
                                              ' to original value.'
+    del input_np, labels, adv_data
+    gc.collect()
 
 
 @pytest.mark.level0
@@ -126,3 +129,5 @@ def test_pointwise_attack_method_cpu():
     assert np.any(adv_data[is_adv][0] != input_np[is_adv][0]), 'Pointwise attack method: ' \
                                              'generate value must not be equal' \
                                              ' to original value.'
+    del input_np, labels, adv_data
+    gc.collect()

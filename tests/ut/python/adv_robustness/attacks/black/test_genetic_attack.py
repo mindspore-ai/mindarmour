@@ -14,8 +14,10 @@
 """
 Genetic-Attack test.
 """
+import gc
 import numpy as np
 import pytest
+
 import mindspore.ops.operations as M
 from mindspore import Tensor
 from mindspore import context
@@ -112,6 +114,8 @@ def test_genetic_attack():
                            sparse=False)
     _, adv_data, _ = attack.generate(inputs, labels)
     assert np.any(inputs != adv_data)
+    del inputs, labels, adv_data
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_arm_ascend_training
@@ -136,7 +140,8 @@ def test_supplement():
                            sparse=False)
     # raise error
     _, _, _ = attack.generate(inputs, labels)
-
+    del inputs, labels
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_arm_ascend_training
@@ -163,7 +168,8 @@ def test_value_error():
     # raise error
     with pytest.raises(ValueError):
         assert attack.generate(inputs, labels)
-
+    del inputs, labels
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
@@ -189,3 +195,5 @@ def test_genetic_attack_detection_cpu():
         _, adv_img, _ = attack.generate(img_data, (pre_gt_boxes, pre_gt_labels))
         adv_imgs.append(adv_img)
     assert np.any(inputs != np.array(adv_imgs))
+    del inputs, adv_imgs
+    gc.collect()

@@ -14,6 +14,7 @@
 """
 PSO-Attack test.
 """
+import gc
 import numpy as np
 import pytest
 
@@ -115,7 +116,8 @@ def test_pso_attack():
     attack = PSOAttack(model, bounds=(0.0, 1.0), pm=0.5, sparse=False)
     _, adv_data, _ = attack.generate(inputs, labels)
     assert np.any(inputs != adv_data)
-
+    del inputs, labels, adv_data
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_arm_ascend_training
@@ -141,7 +143,8 @@ def test_pso_attack_targeted():
                        sparse=False)
     _, adv_data, _ = attack.generate(inputs, labels)
     assert np.any(inputs != adv_data)
-
+    del inputs, labels, adv_data
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_gpu_training
@@ -165,7 +168,8 @@ def test_pso_attack_gpu():
     attack = PSOAttack(model, bounds=(0.0, 1.0), pm=0.5, sparse=False)
     _, adv_data, _ = attack.generate(inputs, labels)
     assert np.any(inputs != adv_data)
-
+    del inputs, labels, adv_data
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
@@ -189,7 +193,8 @@ def test_pso_attack_cpu():
     attack = PSOAttack(model, bounds=(0.0, 1.0), pm=0.5, sparse=False)
     _, adv_data, _ = attack.generate(inputs, labels)
     assert np.any(inputs != adv_data)
-
+    del inputs, labels, adv_data
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu

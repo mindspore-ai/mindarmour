@@ -14,6 +14,7 @@
 """
 DeepFool-Attack test.
 """
+import gc
 import numpy as np
 import pytest
 
@@ -97,6 +98,8 @@ def test_deepfool_attack_ascend():
     assert np.allclose(adv_data, expect_value), 'mindspore deepfool_method' \
         ' implementation error, ms_adv_x != expect_value'
 
+    del input_np, true_labels, adv_data, expect_value
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
@@ -124,7 +127,8 @@ def test_deepfool_attack_cpu():
                                 0.40406296]])
     assert np.allclose(adv_data, expect_value), 'mindspore deepfool_method' \
         ' implementation error, ms_adv_x != expect_value'
-
+    del input_np, true_labels, adv_data, expect_value
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_arm_ascend_training
@@ -151,7 +155,8 @@ def test_deepfool_attack_detection_ascend():
                       bounds=(0.0, 1.0))
     adv_data = attack.generate((inputs1_np, inputs2_np), (gt_boxes, gt_labels))
     assert np.any(adv_data != inputs1_np)
-
+    del inputs1_np, inputs2_np, gt_labels, adv_data
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
@@ -177,7 +182,8 @@ def test_deepfool_attack_detection_cpu():
                       bounds=(0.0, 1.0))
     adv_data = attack.generate((inputs1_np, inputs2_np), (gt_boxes, gt_labels))
     assert np.any(adv_data != inputs1_np)
-
+    del inputs1_np, inputs2_np, gt_labels, adv_data
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_arm_ascend_training
@@ -202,7 +208,8 @@ def test_deepfool_attack_inf_ascend():
                       bounds=(0.0, 1.0))
     adv_data = attack.generate(input_np, true_labels)
     assert np.any(input_np != adv_data)
-
+    del input_np, true_labels, adv_data
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
@@ -226,7 +233,8 @@ def test_deepfool_attack_inf_cpu():
                       bounds=(0.0, 1.0))
     adv_data = attack.generate(input_np, true_labels)
     assert np.any(input_np != adv_data)
-
+    del input_np, true_labels, adv_data
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_arm_ascend_training
@@ -251,7 +259,8 @@ def test_value_error_ascend():
         attack = DeepFool(net, classes, max_iters=10, norm_level=1,
                           bounds=(0.0, 1.0))
         assert attack.generate(input_np, true_labels)
-
+    del input_np, true_labels
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
@@ -275,3 +284,5 @@ def test_value_error_cpu():
         attack = DeepFool(net, classes, max_iters=10, norm_level=1,
                           bounds=(0.0, 1.0))
         assert attack.generate(input_np, true_labels)
+    del input_np, true_labels
+    gc.collect()

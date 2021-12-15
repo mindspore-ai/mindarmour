@@ -15,6 +15,7 @@
 SaltAndPepper Attack Test
 """
 import os
+import gc
 import numpy as np
 import pytest
 
@@ -73,6 +74,9 @@ def test_salt_and_pepper_attack_method_ascend():
     _, adv_data, _ = attack.generate(inputs, labels)
     assert np.any(adv_data[0] != inputs[0]), 'Salt and pepper attack method:  generate value must not be equal' \
                                              ' to original value.'
+    del inputs, labels, adv_data
+    gc.collect()
+
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
@@ -104,3 +108,5 @@ def test_salt_and_pepper_attack_method_cpu():
     _, adv_data, _ = attack.generate(inputs, labels)
     assert np.any(adv_data[0] != inputs[0]), 'Salt and pepper attack method:  generate value must not be equal' \
                                              ' to original value.'
+    del inputs, labels, adv_data
+    gc.collect()

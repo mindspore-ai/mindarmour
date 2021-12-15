@@ -14,6 +14,7 @@
 """
 Iterative-gradient Attack test.
 """
+import gc
 import numpy as np
 import pytest
 
@@ -79,7 +80,8 @@ def test_basic_iterative_method_ascend():
         assert np.any(
             ms_adv_x != input_np), 'Basic iterative method: generate value' \
                                    ' must not be equal to original value.'
-
+    del input_np, label, ms_adv_x
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
@@ -104,7 +106,8 @@ def test_basic_iterative_method_cpu():
         assert np.any(
             ms_adv_x != input_np), 'Basic iterative method: generate value' \
                                    ' must not be equal to original value.'
-
+    del input_np, label, ms_adv_x
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_arm_ascend_training
@@ -129,7 +132,8 @@ def test_momentum_iterative_method_ascend():
         assert np.any(ms_adv_x != input_np), 'Momentum iterative method: generate' \
                                              ' value must not be equal to' \
                                              ' original value.'
-
+    del input_np, label, ms_adv_x
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
@@ -153,7 +157,8 @@ def test_momentum_iterative_method_cpu():
         assert np.any(ms_adv_x != input_np), 'Momentum iterative method: generate' \
                                              ' value must not be equal to' \
                                              ' original value.'
-
+    del input_np, label, ms_adv_x
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_arm_ascend_training
@@ -180,7 +185,8 @@ def test_projected_gradient_descent_method_ascend():
             ms_adv_x != input_np), 'Projected gradient descent method: ' \
                                    'generate value must not be equal to' \
                                    ' original value.'
-
+    del input_np, label, ms_adv_x
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
@@ -206,7 +212,8 @@ def test_projected_gradient_descent_method_cpu():
             ms_adv_x != input_np), 'Projected gradient descent method: ' \
                                    'generate value must not be equal to' \
                                    ' original value.'
-
+    del input_np, label, ms_adv_x
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_arm_ascend_training
@@ -230,7 +237,8 @@ def test_diverse_input_iterative_method_ascend():
     assert np.any(ms_adv_x != input_np), 'Diverse input iterative method: generate' \
                                              ' value must not be equal to' \
                                              ' original value.'
-
+    del input_np, label, ms_adv_x
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
@@ -253,7 +261,8 @@ def test_diverse_input_iterative_method_cpu():
     assert np.any(ms_adv_x != input_np), 'Diverse input iterative method: generate' \
                                              ' value must not be equal to' \
                                              ' original value.'
-
+    del input_np, label, ms_adv_x
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_arm_ascend_training
@@ -277,7 +286,8 @@ def test_momentum_diverse_input_iterative_method_ascend():
     assert np.any(ms_adv_x != input_np), 'Momentum diverse input iterative method: ' \
                                              'generate value must not be equal to' \
                                              ' original value.'
-
+    del input_np, label, ms_adv_x
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
@@ -301,7 +311,8 @@ def test_momentum_diverse_input_iterative_method_cpu():
     assert np.any(ms_adv_x != input_np), 'Momentum diverse input iterative method: ' \
                                              'generate value must not be equal to' \
                                              ' original value.'
-
+    del input_np, label, ms_adv_x
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_arm_ascend_training
@@ -321,7 +332,8 @@ def test_error_ascend():
         label = np.asarray([2], np.int32)
         label = np.eye(3)[label].astype(np.float32)
         assert attack.generate(input_np, label)
-
+        del input_np, label
+        gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
@@ -340,3 +352,5 @@ def test_error_cpu():
         label = np.asarray([2], np.int32)
         label = np.eye(3)[label].astype(np.float32)
         assert attack.generate(input_np, label)
+        del input_np, label
+        gc.collect()

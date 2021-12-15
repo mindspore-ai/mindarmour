@@ -14,6 +14,7 @@
 """
 Gradient-Attack test.
 """
+import gc
 import numpy as np
 import pytest
 
@@ -130,6 +131,8 @@ def test_fast_gradient_method():
 
     assert np.any(ms_adv_x != input_np), 'Fast gradient method: generate value' \
                                          ' must not be equal to original value.'
+    del input_np, label, ms_adv_x
+    gc.collect()
 
 
 @pytest.mark.level0
@@ -150,7 +153,8 @@ def test_fast_gradient_method_gpu():
 
     assert np.any(ms_adv_x != input_np), 'Fast gradient method: generate value' \
                                          ' must not be equal to original value.'
-
+    del input_np, label, ms_adv_x
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
@@ -170,7 +174,8 @@ def test_fast_gradient_method_cpu():
 
     assert np.any(ms_adv_x != input_np), 'Fast gradient method: generate value' \
                                          ' must not be equal to original value.'
-
+    del input_np, label, ms_adv_x
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_arm_ascend_training
@@ -192,7 +197,8 @@ def test_random_fast_gradient_method():
     assert np.any(ms_adv_x != input_np), 'Random fast gradient method: ' \
                                          'generate value must not be equal to' \
                                          ' original value.'
-
+    del input_np, label, ms_adv_x
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_arm_ascend_training
@@ -213,8 +219,9 @@ def test_fast_gradient_sign_method():
 
     assert np.any(ms_adv_x != input_np), 'Fast gradient sign method: generate' \
                                          ' value must not be equal to' \
-                                         ' original value.'
-
+                                        ' original value.'
+    del input_np, label, ms_adv_x
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_arm_ascend_training
@@ -236,7 +243,8 @@ def test_random_fast_gradient_sign_method():
     assert np.any(ms_adv_x != input_np), 'Random fast gradient sign method: ' \
                                          'generate value must not be equal to' \
                                          ' original value.'
-
+    del input_np, label, ms_adv_x
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_arm_ascend_training
@@ -258,7 +266,8 @@ def test_least_likely_class_method():
     assert np.any(ms_adv_x != input_np), 'Least likely class method: generate' \
                                          ' value must not be equal to' \
                                          ' original value.'
-
+    del input_np, label, ms_adv_x
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_arm_ascend_training
@@ -281,7 +290,8 @@ def test_random_least_likely_class_method():
     assert np.any(ms_adv_x != input_np), 'Random least likely class method: ' \
                                          'generate value must not be equal to' \
                                          ' original value.'
-
+    del input_np, label, ms_adv_x
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_arm_ascend_training
@@ -305,7 +315,8 @@ def test_fast_gradient_method_multi_inputs():
 
     assert np.any(ms_adv_x != inputs1), 'Fast gradient method: generate value' \
                                          ' must not be equal to original value.'
-
+    del inputs1, inputs2, labels1, labels2, ms_adv_x
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_arm_ascend_training
