@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import os
-
+import gc
 import numpy as np
 import pytest
+
 from mindspore import Tensor
 from mindspore import context
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
@@ -153,7 +154,8 @@ def test_hsja_mnist_attack_ascend():
         accuracy_adv = np.mean(np.equal(pred_lables_adv, gts))
         LOGGER.info(TAG, 'mis-classification rate of adversaries is : %s',
                     accuracy_adv)
-
+    del pred_labels, adv_data, predict_labels, true_labels
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
@@ -226,6 +228,8 @@ def test_hsja_mnist_attack_cpu():
         accuracy_adv = np.mean(np.equal(pred_lables_adv, gts))
         LOGGER.info(TAG, 'mis-classification rate of adversaries is : %s',
                     accuracy_adv)
+    del pred_labels, adv_data, predict_labels, true_labels
+    gc.collect()
 
 
 @pytest.mark.level0

@@ -14,6 +14,7 @@
 """
 JSMA-Attack test.
 """
+import gc
 import numpy as np
 import pytest
 
@@ -77,7 +78,8 @@ def test_jsma_attack():
     attack = JSMAAttack(net, classes, max_iteration=5)
     adv_data = attack.generate(input_np, label_np)
     assert np.any(input_np != adv_data)
-
+    del input_np, label_np, adv_data
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_arm_ascend_training
@@ -105,6 +107,8 @@ def test_jsma_attack_2():
     attack = JSMAAttack(net, classes, max_iteration=5, increase=False)
     adv_data = attack.generate(input_np, label_np)
     assert np.any(input_np != adv_data)
+    del input_np, label_np, adv_data
+    gc.collect()
 
 
 @pytest.mark.level0
@@ -132,6 +136,8 @@ def test_jsma_attack_gpu():
     attack = JSMAAttack(net, classes, max_iteration=5)
     adv_data = attack.generate(input_np, label_np)
     assert np.any(input_np != adv_data)
+    del input_np, label_np, adv_data
+    gc.collect()
 
 
 @pytest.mark.level0
@@ -159,3 +165,5 @@ def test_jsma_attack_cpu():
     attack = JSMAAttack(net, classes, max_iteration=5)
     adv_data = attack.generate(input_np, label_np)
     assert np.any(input_np != adv_data)
+    del input_np, label_np, adv_data
+    gc.collect()

@@ -14,6 +14,7 @@
 """
 CW-Attack test.
 """
+import gc
 import numpy as np
 import pytest
 
@@ -72,7 +73,8 @@ def test_cw_attack_ascend():
     attack = CarliniWagnerL2Attack(net, num_classes, targeted=False)
     adv_data = attack.generate(input_np, label_np)
     assert np.any(input_np != adv_data)
-
+    del input_np, label_np, adv_data
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
@@ -93,7 +95,8 @@ def test_cw_attack_cpu():
     attack = CarliniWagnerL2Attack(net, num_classes, targeted=False)
     adv_data = attack.generate(input_np, label_np)
     assert np.any(input_np != adv_data)
-
+    del input_np, label_np, adv_data
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_arm_ascend_training
@@ -115,7 +118,8 @@ def test_cw_attack_targeted_ascend():
     attack = CarliniWagnerL2Attack(net, num_classes, targeted=True)
     adv_data = attack.generate(input_np, target_np)
     assert np.any(input_np != adv_data)
-
+    del input_np, target_np, adv_data
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
@@ -136,3 +140,5 @@ def test_cw_attack_targeted_cpu():
     attack = CarliniWagnerL2Attack(net, num_classes, targeted=True)
     adv_data = attack.generate(input_np, target_np)
     assert np.any(input_np != adv_data)
+    del input_np, target_np, adv_data
+    gc.collect()

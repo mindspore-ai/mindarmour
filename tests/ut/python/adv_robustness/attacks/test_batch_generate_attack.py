@@ -14,6 +14,7 @@
 """
 Batch-generate-attack test.
 """
+import gc
 import numpy as np
 import pytest
 
@@ -129,6 +130,9 @@ def test_batch_generate_attack_ascend():
 
     assert np.any(ms_adv_x != input_np), 'Fast gradient method: generate value' \
                                             ' must not be equal to original value.'
+    del input_np, label, ms_adv_x
+    gc.collect()
+
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
@@ -151,7 +155,8 @@ def test_batch_generate_attack_cpu():
 
     assert np.any(ms_adv_x != input_np), 'Fast gradient method: generate value' \
                                             ' must not be equal to original value.'
-
+    del input_np, label, ms_adv_x
+    gc.collect()
 
 
 @pytest.mark.level0
@@ -181,7 +186,8 @@ def test_batch_generate_attack_multi_inputs_ascend():
 
     assert np.any(ms_adv_x != inputs1), 'Fast gradient method: generate value' \
                                          ' must not be equal to original value.'
-
+    del inputs1, inputs2, labels1, labels2, ms_adv_x
+    gc.collect()
 
 @pytest.mark.level0
 @pytest.mark.platform_x86_cpu
@@ -209,3 +215,5 @@ def test_batch_generate_attack_multi_inputs_cpu():
 
     assert np.any(ms_adv_x != inputs1), 'Fast gradient method: generate value' \
                                          ' must not be equal to original value.'
+    del inputs1, inputs2, labels1, labels2, ms_adv_x
+    gc.collect()
