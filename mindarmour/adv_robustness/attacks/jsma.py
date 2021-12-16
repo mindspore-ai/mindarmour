@@ -54,7 +54,23 @@ class JSMAAttack(Attack):
             input labels are onehot-coded. Default: True.
 
     Examples:
-        >>> attack = JSMAAttack(network)
+        >>> import numpy as np
+        >>> import mindspore.nn as nn
+        >>> from mindspore.nn import Cell
+        >>> from mindarmour.adv_robustness.attacks import JSMAAttack
+        >>> class Net(Cell):
+        >>>     def __init__(self):
+        >>>         super(Net, self).__init__()
+        >>>         self._relu = nn.ReLU()
+        >>>
+        >>>     def construct(self, inputs):
+        >>>         out = self._relu(inputs)
+        >>>         return out
+        >>>
+        >>> net = Net()
+        >>> input_shape = (1, 5)
+        >>> batch_size, classes = input_shape
+        >>> attack = JSMAAttack(net, classes, max_iteration=5)
     """
 
     def __init__(self, network, num_classes, box_min=0.0, box_max=1.0,
@@ -181,7 +197,13 @@ class JSMAAttack(Attack):
             numpy.ndarray, adversarial samples.
 
         Examples:
-            >>> advs = generate([[0.2, 0.3, 0.4], [0.3, 0.4, 0.5]], [1, 2])
+            >>> input_shape = (1, 5)
+            >>> input_np = np.random.random(input_shape).astype(np.float32)
+            >>> label_np = np.random.randint(classes, size=batch_size)
+            >>> batch_size, classes = input_shape
+            >>>
+            >>> attack = JSMAAttack(net, classes, max_iteration=5)
+            >>> advs = attack.generate(input_np, label_np)
         """
         inputs, labels = check_pair_numpy_param('inputs', inputs,
                                                 'labels', labels)

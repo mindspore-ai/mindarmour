@@ -117,7 +117,23 @@ class DeepFool(Attack):
             input labels are onehot-coded. Default: True.
 
     Examples:
-        >>> attack = DeepFool(network)
+        >>> import numpy as np
+        >>> import mindspore.ops.operations as P
+        >>> from mindspore.nn import Cell
+        >>> from mindspore import Tensor
+        >>> from mindarmour.adv_robustness.attacks import DeepFool
+        >>>
+        >>> def __init__(self):
+        >>>     super(Net, self).__init__()
+        >>>     self._softmax = P.Softmax()
+        >>>
+        >>> def construct(self, inputs):
+        >>>     out = self._softmax(inputs)
+        >>>     return out
+        >>>
+        >>> net = Net()
+        >>> attack = DeepFool(net, classes, max_iters=10, norm_level=2,
+                          bounds=(0.0, 1.0))
     """
 
     def __init__(self, network, num_classes, model_type='classification',
@@ -165,14 +181,30 @@ class DeepFool(Attack):
             NotImplementedError: If norm_level is not in [2, np.inf, '2', 'inf'].
 
         Examples:
-            >>> advs = generate([[0.2, 0.3, 0.4], [0.3, 0.4, 0.5]], [1, 2])
+            >>> input_shape = (1, 5)
+            >>> _, classes = input_shape
+            >>> input_np = np.array([[0.1, 0.2, 0.7, 0.5, 0.4]]).astype(np.float32)
+            >>> input_me = Tensor(input_np)
+            >>> true_labels = np.argmax(net(input_me).asnumpy(), axis=1)
+            >>> attack = DeepFool(net, classes, max_iters=10, norm_level=2, bounds=(0.0, 1.0))
+            >>> advs = attack.generate(input_np, true_labels)
         """
+
         if self._model_type == 'detection':
             return self._generate_detection(inputs, labels)
         if self._model_type == 'classification':
             return self._generate_classification(inputs, labels)
         return None
 
+    def _update_image(self, x_origin, r_tot):
+        """update image based on bounds"""
+        if self._bounds is not None:
+            clip_min, clip_max = self._bounds
+            images = x_origin + (1 + self._overshoot)*r_tot*(clip_max-clip_min)
+            images = np.clip(images, clip_min, clip_max)
+        else:
+            images = x_origin + (1 + self._overshoot)*r_tot
+        return images
 
     def _generate_detection(self, inputs, labels):
         """Generate adversarial examples in detection scenario"""
@@ -239,18 +271,11 @@ class DeepFool(Attack):
                     raise NotImplementedError(msg)
                 r_tot[idx, ...] = r_tot[idx, ...] + r_i
 
-            if self._bounds is not None:
-                clip_min, clip_max = self._bounds
-                images = x_origin + (1 + self._overshoot)*r_tot*(clip_max-clip_min)
-                images = np.clip(images, clip_min, clip_max)
-            else:
-                images = x_origin + (1 + self._overshoot)*r_tot
+            images = self._update_image(x_origin, r_tot)
             iteration += 1
             images = images.astype(images_dtype)
             del preds_logits, grads
         return images
-
-
 
     def _generate_classification(self, inputs, labels):
         """Generate adversarial examples in classification scenario"""

@@ -54,7 +54,12 @@ class LBFGS(Attack):
             input labels are onehot-coded. Default: False.
 
     Examples:
-        >>> attack = LBFGS(network)
+        >>> import numpy as np
+        >>> from mindarmour.adv_robustness.attacks import LBFGS
+        >>> from tests.ut.python.utils.mock_net import Net
+        >>>
+        >>> net = Net()
+        >>> attack = LBFGS(net, is_targeted=True)
     """
     def __init__(self, network, eps=1e-5, bounds=(0.0, 1.0), is_targeted=True,
                  nb_iter=150, search_iters=30, loss_fn=None, sparse=False):
@@ -94,6 +99,7 @@ class LBFGS(Attack):
             numpy.ndarray, generated adversarial examples.
 
         Examples:
+            >>> attack = LBFGS(net, is_targeted=True)
             >>> adv = attack.generate([[0.1, 0.2, 0.6], [0.3, 0, 0.4]], [2, 2])
         """
         LOGGER.debug(TAG, 'start to generate adv image.')
@@ -191,7 +197,7 @@ class LBFGS(Attack):
 
     def _optimize(self, start_input, labels, epsilon):
         """
-        Given loss fuction and gradient, use l_bfgs_b algorithm to update input
+        Given loss function and gradient, use l_bfgs_b algorithm to update input
         sample. The epsilon will be doubled until an adversarial example is found.
 
         Args:

@@ -55,7 +55,7 @@ class PSOAttack(Attack):
             clip_max). Default: None.
         targeted (bool): If True, turns on the targeted attack. If False,
             turns on untargeted attack. It should be noted that only untargeted attack
-            is supproted for model_type='detection', Default: False.
+            is supported for model_type='detection', Default: False.
         sparse (bool): If True, input labels are sparse-encoded. If False,
             input labels are one-hot-encoded. Default: True.
         model_type (str): The type of targeted model. 'classification' and 'detection' are supported now.
@@ -64,7 +64,35 @@ class PSOAttack(Attack):
             specifically for model_type='detection'. Reserve_ratio should be in the range of (0, 1). Default: 0.3.
 
     Examples:
-        >>> attack = PSOAttack(model)
+        >>> import numpy as np
+        >>> import mindspore.nn as nn
+        >>> from mindspore import Tensor
+        >>> from mindspore.nn import Cell
+        >>> from mindarmour import BlackModel
+        >>> from mindarmour.adv_robustness.attacks import PSOAttack
+        >>>
+        >>> class ModelToBeAttacked(BlackModel):
+        >>>     def __init__(self, network):
+        >>>         super(ModelToBeAttacked, self).__init__()
+        >>>         self._network = network
+        >>>     def predict(self, inputs):
+        >>>         if len(inputs.shape) == 1:
+        >>>             inputs = np.expand_dims(inputs, axis=0)
+        >>>         result = self._network(Tensor(inputs.astype(np.float32)))
+        >>>         return result.asnumpy()
+        >>>
+        >>> class Net(Cell):
+        >>>     def __init__(self):
+        >>>         super(Net, self).__init__()
+        >>>         self._relu = nn.ReLU()
+        >>>
+        >>>     def construct(self, inputs):
+        >>>         out = self._relu(inputs)
+        >>>         return out
+        >>>
+        >>> net = Net()
+        >>> model = ModelToBeAttacked(net)
+        >>> attack = PSOAttack(model, bounds=(0.0, 1.0), pm=0.5, sparse=False)
     """
 
     def __init__(self, model, model_type='classification', targeted=False, reserve_ratio=0.3, sparse=True,
@@ -169,18 +197,33 @@ class PSOAttack(Attack):
                               self._bounds[1])
         return mutated_pop
 
-    def generate(self, inputs, labels):
+    def _check_best_fitness(self, best_fitness, iters):
+        if best_fitness < -2:
+            LOGGER.debug(TAG, 'best fitness value is %s, which is too small. We recommend that you decrease '
+                              'the value of the initialization parameter c.', best_fitness)
+        if iters < 3 and best_fitness > 100:
+            LOGGER.debug(TAG, 'best fitness value is %s, which is too large. We recommend that you increase '
+                              'the value of the initialization parameter c.', best_fitness)
+
+    def _update_best_fit_position(self, fit_value, par_best_fit, par_best_poi, par, best_fitness, best_position):
+        for k in range(self._pop_size):
+            if fit_value[k] > par_best_fit[k]:
+                par_best_fit[k] = fit_value[k]
+                par_best_poi[k] = par[k]
+            if fit_value[k] > best_fitness:
+                best_fitness = fit_value[k]
+                best_position = par[k].copy()
+        return par_best_fit, par_best_poi, best_fitness, best_position
+
+    def _generate_classification(self, inputs, labels):
         """
-        Generate adversarial examples based on input data and targeted
-        labels (or ground_truth labels).
+        Generate adversarial examples based on input data and
+        targeted labels (or ground_truth labels) for classification model.
 
         Args:
-            inputs (Union[numpy.ndarray, tuple]): Input samples. The format of inputs should be numpy.ndarray if
-                model_type='classification'. The format of inputs can be (input1, input2, ...) or only one array if
-                model_type='detection'.
+            inputs (Union[numpy.ndarray, tuple]): Input samples. The format of inputs should be numpy.ndarray.
             labels (Union[numpy.ndarray, tuple]): Targeted labels or ground-truth labels. The format of labels should
-                be numpy.ndarray if model_type='classification'. The format of labels should be (gt_boxes, gt_labels)
-                if model_type='detection'.
+                be numpy.ndarray.
 
         Returns:
             - numpy.ndarray, bool values for each attack result.
@@ -190,28 +233,32 @@ class PSOAttack(Attack):
             - numpy.ndarray, query times for each sample.
 
         Examples:
-            >>> advs = attack.generate([[0.2, 0.3, 0.4], [0.3, 0.3, 0.2]],
-            >>> [1, 2])
+            >>> net = Net()
+            >>> model = ModelToBeAttacked(net)
+            >>> attack = PSOAttack(model, bounds=(0.0, 1.0), pm=0.5, sparse=False)
+            >>> batch_size = 6
+            >>> x_test = np.random.rand(batch_size, 10)
+            >>> y_test = np.random.randint(low=0, high=10, size=batch_size)
+            >>> y_test = np.eye(10)[y_test]
+            >>> y_test = y_test.astype(np.float32)
+            >>> _, adv_data, _ = attack.generate(x_test, y_test)
         """
         # inputs check
-        if self._model_type == 'classification':
-            inputs, labels = check_pair_numpy_param('inputs', inputs,
-                                                    'labels', labels)
-            if self._sparse:
-                if labels.size > 1:
-                    label_squ = np.squeeze(labels)
-                else:
-                    label_squ = labels
-                if len(label_squ.shape) >= 2 or label_squ.shape[0] != inputs.shape[0]:
-                    msg = "The parameter 'sparse' of PSOAttack is True, but the input labels is not sparse style and " \
-                          "got its shape as {}.".format(labels.shape)
-                    LOGGER.error(TAG, msg)
-                    raise ValueError(msg)
+        inputs, labels = check_pair_numpy_param('inputs', inputs,
+                                                'labels', labels)
+        if self._sparse:
+            if labels.size > 1:
+                label_squ = np.squeeze(labels)
             else:
-                labels = np.argmax(labels, axis=1)
-            images = inputs
-        elif self._model_type == 'detection':
-            images, auxiliary_inputs, gt_boxes, gt_labels = check_detection_inputs(inputs, labels)
+                label_squ = labels
+            if len(label_squ.shape) >= 2 or label_squ.shape[0] != inputs.shape[0]:
+                msg = "The parameter 'sparse' of PSOAttack is True, but the input labels is not sparse style and " \
+                      "got its shape as {}.".format(labels.shape)
+                LOGGER.error(TAG, msg)
+                raise ValueError(msg)
+        else:
+            labels = np.argmax(labels, axis=1)
+        images = inputs
 
         # generate one adversarial each time
         adv_list = []
@@ -226,17 +273,9 @@ class PSOAttack(Attack):
             pixel_deep = self._bounds[1] - self._bounds[0]
 
             q_times += 1
-            if self._model_type == 'classification':
-                label_i = labels[i]
-                confi_ori = self._confidence_cla(x_ori, label_i)
-            elif self._model_type == 'detection':
-                auxiliary_input_i = tuple()
-                for item in auxiliary_inputs:
-                    auxiliary_input_i += (np.expand_dims(item[i], axis=0),)
-                gt_boxes_i, gt_labels_i = np.expand_dims(gt_boxes[i], axis=0), np.expand_dims(gt_labels[i], axis=0)
-                inputs_i = (images[i],) + auxiliary_input_i
-                confi_ori, gt_object_num = self._detection_scores(inputs_i, gt_boxes_i, gt_labels_i, self._model)
-                LOGGER.info(TAG, 'The number of ground-truth objects is %s', gt_object_num[0])
+
+            label_i = labels[i]
+            confi_ori = self._confidence_cla(x_ori, label_i)
 
             # step1, initializing
             # initial global optimum fitness value, cannot set to be -inf
@@ -277,57 +316,39 @@ class PSOAttack(Attack):
                                       x_copies + (np.abs(x_copies) + 0.1*pixel_deep)*self._per_bounds),
                               self._bounds[0], self._bounds[1])
 
-                if self._model_type == 'classification':
-                    confi_adv = self._confidence_cla(par, label_i)
-                elif self._model_type == 'detection':
-                    confi_adv, _ = self._detection_scores(
-                        (par,) + auxiliary_input_i, gt_boxes_i, gt_labels_i, self._model)
+
+                confi_adv = self._confidence_cla(par, label_i)
+
                 q_times += self._pop_size
                 fit_value = self._fitness(confi_ori, confi_adv, x_ori, par)
-                for k in range(self._pop_size):
-                    if fit_value[k] > par_best_fit[k]:
-                        par_best_fit[k] = fit_value[k]
-                        par_best_poi[k] = par[k]
-                    if fit_value[k] > best_fitness:
-                        best_fitness = fit_value[k]
-                        best_position = par[k].copy()
+                par_best_fit, par_best_poi, best_fitness, best_position = self._update_best_fit_position(fit_value,
+                                                                                                         par_best_fit,
+                                                                                                         par_best_poi,
+                                                                                                         par,
+                                                                                                         best_fitness,
+                                                                                                         best_position)
                 iters += 1
-                if best_fitness < -2:
-                    LOGGER.debug(TAG, 'best fitness value is %s, which is too small. We recommend that you decrease '
-                                      'the value of the initialization parameter c.', best_fitness)
-                if iters < 3 and best_fitness > 100:
-                    LOGGER.debug(TAG, 'best fitness value is %s, which is too large. We recommend that you increase '
-                                      'the value of the initialization parameter c.', best_fitness)
+                self._check_best_fitness(best_fitness, iters)
+
                 is_mutation = False
                 if (best_fitness - last_best_fit) < last_best_fit*0.05:
                     is_mutation = True
 
                 q_times += 1
-                if self._model_type == 'classification':
-                    cur_pre = self._model.predict(best_position)
-                    cur_label = np.argmax(cur_pre)
-                    if (self._targeted and cur_label == label_i) or (not self._targeted and cur_label != label_i):
-                        is_success = True
-                elif self._model_type == 'detection':
-                    _, correct_nums_adv = self._detection_scores(
-                        (best_position,) + auxiliary_input_i, gt_boxes_i, gt_labels_i, self._model)
-                    LOGGER.info(TAG, 'The number of correctly detected objects in adversarial image is %s',
-                                correct_nums_adv[0])
-                    if correct_nums_adv <= int(gt_object_num*self._reserve_ratio):
-                        is_success = True
+
+                cur_pre = self._model.predict(best_position)
+                cur_label = np.argmax(cur_pre)
+                if (self._targeted and cur_label == label_i) or (not self._targeted and cur_label != label_i):
+                    is_success = True
 
                 if is_success:
                     LOGGER.debug(TAG, 'successfully find one adversarial '
                                       'sample and start Reduction process')
                     # step3, reduction
-                    if self._model_type == 'classification':
-                        best_position, q_times = self._reduction(x_ori, q_times, label_i, best_position, self._model,
-                                                                 targeted_attack=self._targeted)
-
+                    best_position, q_times = self._reduction(x_ori, q_times, label_i, best_position, self._model,
+                                                             targeted_attack=self._targeted)
                     break
-            if self._model_type == 'detection':
-                best_position, q_times = self._fast_reduction(x_ori, best_position, q_times,
-                                                              auxiliary_input_i, gt_boxes_i, gt_labels_i, self._model)
+
             if not is_success:
                 LOGGER.debug(TAG,
                              'fail to find adversarial sample, iteration '
@@ -341,3 +362,182 @@ class PSOAttack(Attack):
         return np.asarray(success_list), \
                np.asarray(adv_list), \
                np.asarray(query_times_list)
+
+
+    def _generate_detection(self, inputs, labels):
+        """
+        Generate adversarial examples based on input data and
+        targeted labels (or ground_truth labels) for detection model.
+
+        Args:
+            inputs (Union[numpy.ndarray, tuple]): Input samples. The format of inputs can be (input1, input2, ...)
+                                                  or only one array.
+            labels (Union[numpy.ndarray, tuple]): Targeted labels or ground-truth labels.
+                                                  The format of labels should be (gt_boxes, gt_labels).
+
+        Returns:
+            - numpy.ndarray, bool values for each attack result.
+
+            - numpy.ndarray, generated adversarial examples.
+
+            - numpy.ndarray, query times for each sample.
+
+        Examples:
+            >>> net = Net()
+            >>> model = ModelToBeAttacked(net)
+            >>> attack = PSOAttack(model, bounds=(0.0, 1.0), pm=0.5, sparse=False)
+            >>> batch_size = 6
+            >>> x_test = np.random.rand(batch_size, 10)
+            >>> y_test = np.random.randint(low=0, high=10, size=batch_size)
+            >>> y_test = np.eye(10)[y_test]
+            >>> y_test = y_test.astype(np.float32)
+            >>> _, adv_data, _ = attack.generate(x_test, y_test)
+        """
+        # inputs check
+        images, auxiliary_inputs, gt_boxes, gt_labels = check_detection_inputs(inputs, labels)
+
+        # generate one adversarial each time
+        adv_list = []
+        success_list = []
+        query_times_list = []
+        for i in range(images.shape[0]):
+            is_success = False
+            q_times = 0
+            x_ori = images[i]
+            if not self._bounds:
+                self._bounds = [np.min(x_ori), np.max(x_ori)]
+            pixel_deep = self._bounds[1] - self._bounds[0]
+
+            q_times += 1
+            auxiliary_input_i = tuple()
+            for item in auxiliary_inputs:
+                auxiliary_input_i += (np.expand_dims(item[i], axis=0),)
+            gt_boxes_i, gt_labels_i = np.expand_dims(gt_boxes[i], axis=0), np.expand_dims(gt_labels[i], axis=0)
+            inputs_i = (images[i],) + auxiliary_input_i
+            confi_ori, gt_object_num = self._detection_scores(inputs_i, gt_boxes_i, gt_labels_i, self._model)
+            LOGGER.info(TAG, 'The number of ground-truth objects is %s', gt_object_num[0])
+
+            # step1, initializing
+            # initial global optimum fitness value, cannot set to be -inf
+            best_fitness = -np.inf
+            # initial global optimum position
+            best_position = x_ori
+            x_copies = np.repeat(x_ori[np.newaxis, :], self._pop_size, axis=0)
+            cur_noise = np.clip(np.random.random(x_copies.shape)*pixel_deep,
+                                (0 - self._per_bounds)*(np.abs(x_copies) + 0.1),
+                                self._per_bounds*(np.abs(x_copies) + 0.1))
+
+            # initial advs
+            par = np.clip(x_copies + cur_noise, self._bounds[0], self._bounds[1])
+            # initial optimum positions for particles
+            par_best_poi = np.copy(par)
+            # initial optimum fitness values
+            par_best_fit = -np.inf*np.ones(self._pop_size)
+            # step2, optimization
+            # initial velocities for particles
+            v_particles = np.zeros(par.shape)
+            is_mutation = False
+            iters = 0
+            while iters < self._t_max:
+                last_best_fit = best_fitness
+                ran_1 = np.random.random(par.shape)
+                ran_2 = np.random.random(par.shape)
+                v_particles = self._step_size*(
+                    v_particles + self._c1*ran_1*(best_position - par)) \
+                              + self._c2*ran_2*(par_best_poi - par)
+
+                par += v_particles
+
+                if iters > 6 and is_mutation:
+                    par = self._mutation_op(par)
+
+                par = np.clip(np.clip(par,
+                                      x_copies - (np.abs(x_copies) + 0.1*pixel_deep)*self._per_bounds,
+                                      x_copies + (np.abs(x_copies) + 0.1*pixel_deep)*self._per_bounds),
+                              self._bounds[0], self._bounds[1])
+
+                confi_adv, _ = self._detection_scores(
+                    (par,) + auxiliary_input_i, gt_boxes_i, gt_labels_i, self._model)
+                q_times += self._pop_size
+                fit_value = self._fitness(confi_ori, confi_adv, x_ori, par)
+                par_best_fit, par_best_poi, best_fitness, best_position = self._update_best_fit_position(fit_value,
+                                                                                                         par_best_fit,
+                                                                                                         par_best_poi,
+                                                                                                         par,
+                                                                                                         best_fitness,
+                                                                                                         best_position)
+                iters += 1
+                self._check_best_fitness(best_fitness, iters)
+
+                is_mutation = False
+                if (best_fitness - last_best_fit) < last_best_fit*0.05:
+                    is_mutation = True
+
+                q_times += 1
+
+                _, correct_nums_adv = self._detection_scores(
+                    (best_position,) + auxiliary_input_i, gt_boxes_i, gt_labels_i, self._model)
+                LOGGER.info(TAG, 'The number of correctly detected objects in adversarial image is %s',
+                            correct_nums_adv[0])
+                if correct_nums_adv <= int(gt_object_num*self._reserve_ratio):
+                    is_success = True
+
+                if is_success:
+                    LOGGER.debug(TAG, 'successfully find one adversarial '
+                                      'sample and start Reduction process')
+                    break
+            best_position, q_times = self._fast_reduction(x_ori, best_position, q_times,
+                                                          auxiliary_input_i, gt_boxes_i, gt_labels_i, self._model)
+            if not is_success:
+                LOGGER.debug(TAG,
+                             'fail to find adversarial sample, iteration '
+                             'times is: %d and query times is: %d',
+                             iters,
+                             q_times)
+            adv_list.append(best_position)
+            success_list.append(is_success)
+            query_times_list.append(q_times)
+            del x_copies, cur_noise, par, par_best_poi
+        return np.asarray(success_list), \
+               np.asarray(adv_list), \
+               np.asarray(query_times_list)
+
+    def generate(self, inputs, labels):
+        """
+        Generate adversarial examples based on input data and
+        targeted labels (or ground_truth labels).
+
+        Args:
+            inputs (Union[numpy.ndarray, tuple]): Input samples. The format of inputs should be numpy.ndarray if
+                model_type='classification'. The format of inputs can be (input1, input2, ...) or only one array if
+                model_type='detection'.
+            labels (Union[numpy.ndarray, tuple]): Targeted labels or ground-truth labels. The format of labels should
+                be numpy.ndarray if model_type='classification'. The format of labels should be (gt_boxes, gt_labels)
+                if model_type='detection'.
+
+        Returns:
+            - numpy.ndarray, bool values for each attack result.
+
+            - numpy.ndarray, generated adversarial examples.
+
+            - numpy.ndarray, query times for each sample.
+
+        Examples:
+            >>> net = Net()
+            >>> model = ModelToBeAttacked(net)
+            >>> attack = PSOAttack(model, bounds=(0.0, 1.0), pm=0.5, sparse=False)
+            >>> batch_size = 6
+            >>> x_test = np.random.rand(batch_size, 10)
+            >>> y_test = np.random.randint(low=0, high=10, size=batch_size)
+            >>> y_test = np.eye(10)[y_test]
+            >>> y_test = y_test.astype(np.float32)
+            >>> _, adv_data, _ = attack.generate(x_test, y_test)
+        """
+        # inputs check
+        if self._model_type == 'classification':
+            success_list, adv_data, query_time_list = self._generate_classification(inputs, labels)
+
+        elif self._model_type == 'detection':
+            success_list, adv_data, query_time_list = self._generate_detection(inputs, labels)
+
+        return success_list, adv_data, query_time_list

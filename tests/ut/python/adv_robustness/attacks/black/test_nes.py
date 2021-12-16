@@ -28,7 +28,7 @@ from tests.ut.python.utils.mock_net import Net
 context.set_context(mode=context.GRAPH_MODE)
 
 LOGGER = LogUtil.get_instance()
-TAG = 'HopSkipJumpAttack'
+TAG = 'NaturalEvolutionaryStrategy'
 
 
 class ModelToBeAttacked(BlackModel):
@@ -100,7 +100,7 @@ def get_dataset(current_dir):
 
 def nes_mnist_attack(scene, top_k):
     """
-    hsja-Attack test
+    nes-Attack test
     """
     current_dir = os.path.dirname(os.path.abspath(__file__))
     test_images, test_labels = get_dataset(current_dir)

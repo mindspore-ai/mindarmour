@@ -184,7 +184,22 @@ class BasicIterativeMethod(IterativeGradientMethod):
             is already equipped with loss function. Default: None.
 
     Examples:
-        >>> attack = BasicIterativeMethod(network, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
+        >>> import numpy as np
+        >>> import mindspore.nn as nn
+        >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
+        >>> from mindarmour.adv_robustness.attacks import BasicIterativeMethod
+        >>>
+        >>> class Net(Cell):
+        >>>     def __init__(self):
+        >>>         super(Net, self).__init__()
+        >>>         self._relu = nn.ReLU()
+        >>>
+        >>>     def construct(self, inputs):
+        >>>         out = self._relu(inputs)
+        >>>         return out
+        >>>
+        >>> net = Net()
+        >>> attack = BasicIterativeMethod(netw, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
     """
     def __init__(self, network, eps=0.3, eps_iter=0.1, bounds=(0.0, 1.0),
                  is_targeted=False, nb_iter=5, loss_fn=None):
@@ -215,6 +230,17 @@ class BasicIterativeMethod(IterativeGradientMethod):
             numpy.ndarray, generated adversarial examples.
 
         Examples:
+            >>> class Net(Cell):
+            >>>     def __init__(self):
+            >>>         super(Net, self).__init__()
+            >>>         self._relu = nn.ReLU()
+            >>>
+            >>>     def construct(self, inputs):
+            >>>         out = self._relu(inputs)
+            >>>         return out
+            >>>
+            >>> net = Net()
+            >>> attack = BasicIterativeMethod(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
             >>> adv_x = attack.generate([[0.3, 0.2, 0.6],
             >>>                          [0.3, 0.2, 0.4]],
             >>>                         [[0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
@@ -303,6 +329,22 @@ class MomentumIterativeMethod(IterativeGradientMethod):
             numpy.ndarray, generated adversarial examples.
 
         Examples:
+            >>> import numpy as np
+            >>> import mindspore.nn as nn
+            >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
+            >>> from mindarmour.adv_robustness.attacks import MomentumIterativeMethod
+            >>>
+            >>> class Net(Cell):
+            >>>     def __init__(self):
+            >>>         super(Net, self).__init__()
+            >>>         self._relu = nn.ReLU()
+            >>>
+            >>>     def construct(self, inputs):
+            >>>         out = self._relu(inputs)
+            >>>         return out
+            >>>
+            >>> net = Net()
+            >>> attack = MomentumIterativeMethod(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
             >>> adv_x = attack.generate([[0.5, 0.2, 0.6],
             >>>                          [0.3, 0, 0.2]],
             >>>                         [[0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
@@ -433,6 +475,22 @@ class ProjectedGradientDescent(BasicIterativeMethod):
             numpy.ndarray, generated adversarial examples.
 
         Examples:
+            >>> import numpy as np
+            >>> import mindspore.nn as nn
+            >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
+            >>> from mindarmour.adv_robustness.attacks import ProjectedGradientDescent
+            >>>
+            >>> class Net(Cell):
+            >>>     def __init__(self):
+            >>>         super(Net, self).__init__()
+            >>>         self._relu = nn.ReLU()
+            >>>
+            >>>     def construct(self, inputs):
+            >>>         out = self._relu(inputs)
+            >>>         return out
+            >>>
+            >>> net = Net()
+            >>> attack = ProjectedGradientDescent(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
             >>> adv_x = attack.generate([[0.6, 0.2, 0.6],
             >>>                          [0.3, 0.3, 0.4]],
             >>>                         [[0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
