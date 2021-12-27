@@ -95,7 +95,24 @@ class CarliniWagnerL2Attack(Attack):
             input labels are onehot-coded. Default: True.
 
     Examples:
-        >>> attack = CarliniWagnerL2Attack(network)
+        >>> import numpy as np
+        >>> import mindspore.ops.operations as M
+        >>> from mindspore.nn import Cell
+        >>> from mindarmour.adv_robustness.attacks import CarliniWagnerL2Attack
+        >>>
+        >>> class Net(Cell):
+        >>>     def __init__(self):
+        >>>         super(Net, self).__init__()
+        >>>         self._softmax = M.Softmax()
+        >>>
+        >>>     def construct(self, inputs):
+        >>>         out = self._softmax(inputs)
+        >>>         return out
+        >>>
+        >>> input_np = np.array([[0.1, 0.2, 0.7, 0.5, 0.4]]).astype(np.float32)
+        >>> label_np = np.array([3]).astype(np.int64)
+        >>> num_classes = input_np.shape[1]
+        >>> attack = CarliniWagnerL2Attack(net, num_classes, targeted=False)
     """
 
     def __init__(self, network, num_classes, box_min=0.0, box_max=1.0,
@@ -246,6 +263,14 @@ class CarliniWagnerL2Attack(Attack):
         the_grad = the_grad*diff
         return inputs, the_grad
 
+    def _check_success(self, logits, labels):
+        """ check if attack success (include all examples)"""
+        if self._targeted:
+            is_adv = (np.argmax(logits, axis=1) == labels)
+        else:
+            is_adv = (np.argmax(logits, axis=1) != labels)
+        return is_adv
+
     def generate(self, inputs, labels):
         """
         Generate adversarial examples based on input data and targeted labels.
@@ -259,7 +284,30 @@ class CarliniWagnerL2Attack(Attack):
             numpy.ndarray, generated adversarial examples.
 
         Examples:
-            >>> advs = attack.generate([[0.1, 0.2, 0.6], [0.3, 0, 0.4]], [1, 2]]
+            >>> import numpy as np
+            >>> import mindspore.ops.operations as M
+            >>> from mindspore.nn import Cell
+            >>> from mindarmour.adv_robustness.attacks import CarliniWagnerL2Attack
+            >>>
+            >>> class Net(Cell):
+            >>>     def __init__(self):
+            >>>         super(Net, self).__init__()
+            >>>         self._softmax = M.Softmax()
+            >>>
+            >>>     def construct(self, inputs):
+            >>>         out = self._softmax(inputs)
+            >>>         return out
+            >>>
+            >>> input_np = np.array([[0.1, 0.2, 0.7, 0.5, 0.4]]).astype(np.float32)
+            >>> num_classes = input_np.shape[1]
+            >>>
+            >>> label_np = np.array([3]).astype(np.int64)
+            >>> attack_nonTargeted = CarliniWagnerL2Attack(net, num_classes, targeted=False)
+            >>> advs_nonTargeted = attack_nonTargeted.generate(input_np, label_np)
+            >>>
+            >>> target_np = np.array([1]).astype(np.int64)
+            >>> attack_targeted = CarliniWagnerL2Attack(net, num_classes, targeted=False)
+            >>> advs_targeted = attack_targeted.generate(input_np, target_np)
         """
 
         LOGGER.debug(TAG, "enter the func generate.")
@@ -302,11 +350,7 @@ class CarliniWagnerL2Attack(Attack):
                     logits, x_input, reconstructed_original,
                     labels, const, self._confidence)
 
-                # check if attack success (include all examples)
-                if self._targeted:
-                    is_adv = (np.argmax(logits, axis=1) == labels)
-                else:
-                    is_adv = (np.argmax(logits, axis=1) != labels)
+                is_adv = self._check_success(logits, labels)
 
                 for i in range(samples_num):
                     if is_adv[i]:

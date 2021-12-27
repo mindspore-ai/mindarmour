@@ -75,11 +75,26 @@ class HopSkipJumpAttack(Attack):
         ValueError: If constraint not in ['l2', 'linf']
 
     Examples:
-        >>> x_test = np.asarray(np.random.random((sample_num,
-        >>> sample_length)), np.float32)
-        >>> y_test = np.random.randint(0, class_num, size=sample_num)
-        >>> instance = HopSkipJumpAttack(user_model)
-        >>> adv_x = instance.generate(x_test, y_test)
+        >>> import numpy as np
+        >>> from mindspore import Tensor
+        >>> from mindarmour import BlackModel
+        >>> from mindarmour.adv_robustness.attacks import HopSkipJumpAttack
+        >>> from tests.ut.python.utils.mock_net import Net
+        >>>
+        >>> class ModelToBeAttacked(BlackModel):
+        >>>     def __init__(self, network):
+        >>>         super(ModelToBeAttacked, self).__init__()
+        >>>         self._network = network
+        >>>     def predict(self, inputs):
+        >>>         if len(inputs.shape) == 3:
+        >>>             inputs = inputs[np.newaxis, :]
+        >>>         result = self._network(Tensor(inputs.astype(np.float32)))
+        >>>         return result.asnumpy()
+        >>>
+        >>>
+        >>> net = Net()
+        >>> model = ModelToBeAttacked(net)
+        >>> attack = HopSkipJumpAttack(model)
     """
 
     def __init__(self, model, init_num_evals=100, max_num_evals=1000,
@@ -173,7 +188,13 @@ class HopSkipJumpAttack(Attack):
             - numpy.ndarray, query times for each sample.
 
         Examples:
-            >>> generate([[0.1,0.2,0.2],[0.2,0.3,0.4]],[2,6])
+            >>> attack = HopSkipJumpAttack(model)
+            >>> n, c, h, w = 1, 1, 32, 32
+            >>> class_num = 3
+            >>> x_test = np.asarray(np.random.random((n,c,h,w)), np.float32)
+            >>> y_test = np.random.randint(0, class_num, size=n)
+            >>>
+            >>> _, adv_x, _= attack.generate(x_test, y_test)
         """
         if labels is not None:
             inputs, labels = check_pair_numpy_param('inputs', inputs,
