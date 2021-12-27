@@ -80,7 +80,7 @@ class FaultInjector:
             if param['fi_type'] not in attr:
                 msg = "'Undefined fault type', got {}.".format(self.fi_type_map[param['fi_type']])
                 LOGGER.error(TAG, msg)
-                raise AttributeError(msg)
+                raise ValueError(msg)
             if param['fi_mode'] not in ['single_layer', 'all_layer']:
                 msg = "'fault mode should be single_layer or all_layer', but got {}.".format(param['fi_mode'])
                 LOGGER.error(TAG, msg)

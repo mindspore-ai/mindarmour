@@ -195,11 +195,11 @@ def test_wrong_fi_type():
     fi_size = [1]
 
     # Fault injection
-    with pytest.raises(AttributeError) as exc_info:
+    with pytest.raises(ValueError) as exc_info:
         fi = FaultInjector(model, fi_type, fi_mode, fi_size)
         _ = fi.kick_off(ds_data, ds_label, iter_times=100)
         _ = fi.metrics()
-    assert exc_info.type is AttributeError
+    assert exc_info.type is ValueError
 
 
 @pytest.mark.level0
