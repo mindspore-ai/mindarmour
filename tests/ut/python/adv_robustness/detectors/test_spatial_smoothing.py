@@ -24,8 +24,6 @@ from mindspore import context
 
 from mindarmour.adv_robustness.detectors import SpatialSmoothing
 
-context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
-
 
 # for use
 class Net(Cell):
@@ -55,6 +53,7 @@ def test_spatial_smoothing():
     """
     Compute mindspore result.
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     input_shape = (50, 3)
 
     np.random.seed(1)
@@ -84,6 +83,7 @@ def test_spatial_smoothing_diff():
     """
         Compute mindspore result.
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     input_shape = (50, 3)
     np.random.seed(1)
     input_np = np.random.randn(*input_shape).astype(np.float32)

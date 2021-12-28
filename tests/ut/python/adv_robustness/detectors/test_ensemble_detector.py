@@ -26,8 +26,6 @@ from mindarmour.adv_robustness.detectors import ErrorBasedDetector
 from mindarmour.adv_robustness.detectors import RegionBasedDetector
 from mindarmour.adv_robustness.detectors import EnsembleDetector
 
-context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
-
 
 class Net(Cell):
     """
@@ -74,6 +72,7 @@ def test_ensemble_detector():
     """
     Compute mindspore result.
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     np.random.seed(6)
     adv = np.random.rand(4, 4).astype(np.float32)
     model = Model(Net())
@@ -97,6 +96,7 @@ def test_ensemble_detector():
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
 def test_error():
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     np.random.seed(6)
     adv = np.random.rand(4, 4).astype(np.float32)
     model = Model(Net())

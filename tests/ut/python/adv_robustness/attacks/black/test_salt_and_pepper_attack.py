@@ -26,8 +26,6 @@ from mindarmour import BlackModel
 from mindarmour.adv_robustness.attacks import SaltAndPepperNoiseAttack
 
 context.set_context(mode=context.GRAPH_MODE)
-context.set_context(device_target="Ascend")
-
 
 # for user
 class ModelToBeAttacked(BlackModel):
@@ -79,6 +77,7 @@ def test_salt_and_pepper_attack_method():
     """
     Salt and pepper attack method unit test.
     """
+    context.set_context(device_target="Ascend")
     batch_size = 6
     np.random.seed(123)
     net = SimpleNet()
@@ -105,6 +104,7 @@ def test_salt_and_pepper_attack_in_batch():
     """
     Salt and pepper attack method unit test in batch.
     """
+    context.set_context(device_target="Ascend")
     batch_size = 32
     np.random.seed(123)
     net = SimpleNet()

@@ -26,7 +26,6 @@ from mindarmour.utils.logger import LogUtil
 from tests.ut.python.utils.mock_net import Net
 
 context.set_context(mode=context.GRAPH_MODE)
-context.set_context(device_target="Ascend")
 
 LOGGER = LogUtil.get_instance()
 TAG = 'HopSkipJumpAttack'
@@ -91,8 +90,8 @@ def test_hsja_mnist_attack():
     """
     hsja-Attack test
     """
+    context.set_context(device_target="Ascend")
     current_dir = os.path.dirname(os.path.abspath(__file__))
-
 
     # get test data
     test_images_set = np.load(os.path.join(current_dir,
@@ -159,6 +158,7 @@ def test_hsja_mnist_attack():
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
 def test_value_error():
+    context.set_context(device_target="Ascend")
     model = get_model()
     norm = 'l2'
     with pytest.raises(ValueError):

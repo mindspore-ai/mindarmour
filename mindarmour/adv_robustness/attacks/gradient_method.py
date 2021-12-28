@@ -75,7 +75,6 @@ class GradientMethod(Attack):
         else:
             with_loss_cell = WithLossCell(self._network, loss_fn)
             self._grad_all = GradWrapWithLoss(with_loss_cell)
-        self._grad_all.set_train()
 
     def generate(self, inputs, labels):
         """

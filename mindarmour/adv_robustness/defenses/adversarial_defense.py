@@ -136,6 +136,7 @@ class AdversarialDefenseWithAttacks(AdversarialDefense):
                                                    replace_ratio,
                                                    0, 1)
         self._graph_initialized = False
+        self._train_net.set_train()
 
     def defense(self, inputs, labels):
         """

@@ -26,8 +26,6 @@ from mindspore import context
 from mindarmour.adv_robustness.detectors import ErrorBasedDetector
 from mindarmour.adv_robustness.detectors import DivergenceBasedDetector
 
-context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
-
 
 class Net(Cell):
     """
@@ -79,6 +77,7 @@ def test_mag_net():
     """
     Compute mindspore result.
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     np.random.seed(5)
     ori = np.random.rand(4, 4, 4).astype(np.float32)
     np.random.seed(6)
@@ -100,6 +99,7 @@ def test_mag_net_transform():
     """
     Compute mindspore result.
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     np.random.seed(6)
     adv = np.random.rand(4, 4, 4).astype(np.float32)
     model = Model(Net())
@@ -117,6 +117,7 @@ def test_mag_net_divergence():
     """
     Compute mindspore result.
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     np.random.seed(5)
     ori = np.random.rand(4, 4, 4).astype(np.float32)
     np.random.seed(6)
@@ -140,6 +141,7 @@ def test_mag_net_divergence_transform():
     """
     Compute mindspore result.
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     np.random.seed(6)
     adv = np.random.rand(4, 4, 4).astype(np.float32)
     encoder = Model(Net())
@@ -155,6 +157,7 @@ def test_mag_net_divergence_transform():
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
 def test_value_error():
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     np.random.seed(6)
     adv = np.random.rand(4, 4, 4).astype(np.float32)
     encoder = Model(Net())

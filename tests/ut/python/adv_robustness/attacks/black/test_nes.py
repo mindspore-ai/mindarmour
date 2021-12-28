@@ -26,7 +26,6 @@ from mindarmour.utils.logger import LogUtil
 from tests.ut.python.utils.mock_net import Net
 
 context.set_context(mode=context.GRAPH_MODE)
-context.set_context(device_target="Ascend")
 
 LOGGER = LogUtil.get_instance()
 TAG = 'HopSkipJumpAttack'
@@ -103,6 +102,7 @@ def nes_mnist_attack(scene, top_k):
     """
     hsja-Attack test
     """
+    context.set_context(device_target="Ascend")
     current_dir = os.path.dirname(os.path.abspath(__file__))
     test_images, test_labels = get_dataset(current_dir)
     model = get_model(current_dir)
@@ -167,6 +167,7 @@ def nes_mnist_attack(scene, top_k):
 @pytest.mark.component_mindarmour
 def test_nes_query_limit():
     # scene is in ['Query_Limit', 'Partial_Info', 'Label_Only']
+    context.set_context(device_target="Ascend")
     scene = 'Query_Limit'
     nes_mnist_attack(scene, top_k=-1)
 
@@ -178,6 +179,7 @@ def test_nes_query_limit():
 @pytest.mark.component_mindarmour
 def test_nes_partial_info():
     # scene is in ['Query_Limit', 'Partial_Info', 'Label_Only']
+    context.set_context(device_target="Ascend")
     scene = 'Partial_Info'
     nes_mnist_attack(scene, top_k=5)
 
@@ -189,6 +191,7 @@ def test_nes_partial_info():
 @pytest.mark.component_mindarmour
 def test_nes_label_only():
     # scene is in ['Query_Limit', 'Partial_Info', 'Label_Only']
+    context.set_context(device_target="Ascend")
     scene = 'Label_Only'
     nes_mnist_attack(scene, top_k=5)
 
@@ -200,6 +203,7 @@ def test_nes_label_only():
 @pytest.mark.component_mindarmour
 def test_value_error():
     """test that exception is raised for invalid labels"""
+    context.set_context(device_target="Ascend")
     with pytest.raises(ValueError):
         assert nes_mnist_attack('Label_Only', -1)
 
@@ -210,6 +214,7 @@ def test_value_error():
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
 def test_none():
+    context.set_context(device_target="Ascend")
     current_dir = os.path.dirname(os.path.abspath(__file__))
     model = get_model(current_dir)
     test_images, test_labels = get_dataset(current_dir)

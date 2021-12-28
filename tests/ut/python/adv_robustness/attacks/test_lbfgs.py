@@ -26,9 +26,6 @@ from mindarmour.utils.logger import LogUtil
 
 from tests.ut.python.utils.mock_net import Net
 
-context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
-
-
 LOGGER = LogUtil.get_instance()
 TAG = 'LBFGS_Test'
 LOGGER.set_level('DEBUG')
@@ -43,6 +40,7 @@ def test_lbfgs_attack():
     """
     LBFGS-Attack test
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     np.random.seed(123)
     # upload trained network
     current_dir = os.path.dirname(os.path.abspath(__file__))

@@ -1,3 +1,42 @@
+# MindArmour 1.2.1
+
+## MindArmour 1.2.1 Release Notes
+
+### Major Features and Improvements
+
+### API Change
+
+#### Backwards Incompatible Change
+
+##### C++ API
+
+[Modify] ...
+[Add] ...
+[Delete] ...
+
+##### Java API
+
+[Add] ...
+
+#### Deprecations
+
+##### C++ API
+
+##### Java API
+
+### Bug fixes
+
+* [BUGFIX] Fix a bug of PGD method
+* [BUGFIX] Fix a bug of JSMA method
+
+### Contributors
+
+Thanks goes to these wonderful people:
+
+Liu Liu, Zhidan Liu, Luobin Liu and Xiulang Jin.
+
+Contributions of any kind are welcome!
+
 # MindArmour 1.2.0
 
 ## MindArmour 1.2.0 Release Notes
