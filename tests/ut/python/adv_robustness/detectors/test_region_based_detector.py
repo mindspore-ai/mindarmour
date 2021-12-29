@@ -25,9 +25,6 @@ from mindspore.ops.operations import Add
 from mindarmour.adv_robustness.detectors import RegionBasedDetector
 
 
-context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
-
-
 class Net(Cell):
     """
     Construct the network of target model.
@@ -55,6 +52,7 @@ def test_region_based_classification():
     """
     Compute mindspore result.
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     np.random.seed(5)
     ori = np.random.rand(4, 4).astype(np.float32)
     labels = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 0, 1, 0],
@@ -76,6 +74,7 @@ def test_region_based_classification():
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
 def test_value_error():
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     np.random.seed(5)
     ori = np.random.rand(4, 4).astype(np.float32)
     labels = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 0, 1, 0],

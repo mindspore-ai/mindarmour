@@ -23,10 +23,6 @@ from mindspore import context
 
 from mindarmour.adv_robustness.attacks import CarliniWagnerL2Attack
 
-
-context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
-
-
 # for user
 class Net(Cell):
     """
@@ -63,6 +59,7 @@ def test_cw_attack():
     """
     CW-Attack test
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     net = Net()
     input_np = np.array([[0.1, 0.2, 0.7, 0.5, 0.4]]).astype(np.float32)
     label_np = np.array([3]).astype(np.int64)
@@ -81,6 +78,7 @@ def test_cw_attack_targeted():
     """
     CW-Attack test
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     net = Net()
     input_np = np.array([[0.1, 0.2, 0.7, 0.5, 0.4]]).astype(np.float32)
     target_np = np.array([1]).astype(np.int64)

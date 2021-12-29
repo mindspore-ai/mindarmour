@@ -24,7 +24,6 @@ from mindspore import Tensor
 
 from mindarmour.adv_robustness.attacks import DeepFool
 
-context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
 
 
 # for user
@@ -80,6 +79,7 @@ def test_deepfool_attack():
     """
     Deepfool-Attack test
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     net = Net()
     input_shape = (1, 5)
     _, classes = input_shape
@@ -105,6 +105,7 @@ def test_deepfool_attack_detection():
     """
     Deepfool-Attack test
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     net = Net2()
     inputs1_np = np.random.random((2, 10, 10)).astype(np.float32)
     inputs2_np = np.random.random((2, 10, 5)).astype(np.float32)
@@ -128,6 +129,7 @@ def test_deepfool_attack_inf():
     """
     Deepfool-Attack test
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     net = Net()
     input_shape = (1, 5)
     _, classes = input_shape
@@ -146,6 +148,7 @@ def test_deepfool_attack_inf():
 @pytest.mark.env_card
 @pytest.mark.component_mindarmour
 def test_value_error():
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     net = Net()
     input_shape = (1, 5)
     _, classes = input_shape

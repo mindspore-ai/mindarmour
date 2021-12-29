@@ -24,8 +24,6 @@ from mindspore.ops.operations import Add
 
 from mindarmour.adv_robustness.detectors import SimilarityDetector
 
-context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
-
 
 class EncoderNet(Cell):
     """
@@ -66,6 +64,7 @@ def test_similarity_detector():
     """
     Similarity detector unit test
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     # Prepare dataset
     np.random.seed(5)
     x_train = np.random.rand(1000, 32, 32, 3).astype(np.float32)

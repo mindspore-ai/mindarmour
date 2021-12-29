@@ -134,7 +134,6 @@ class JSMAAttack(Attack):
         ori_shape = data.shape
         temp = data.flatten()
         bit_map = np.ones_like(temp)
-        fake_res = np.zeros_like(data)
         counter = np.zeros_like(temp)
         perturbed = np.copy(temp)
         for _ in range(self._max_iter):
@@ -167,7 +166,7 @@ class JSMAAttack(Attack):
                 bit_map[p2_ind] = 0
             perturbed = np.clip(perturbed, self._min, self._max)
         LOGGER.debug(TAG, 'fail to find adversarial sample.')
-        return fake_res
+        return perturbed.reshape(ori_shape)
 
     def generate(self, inputs, labels):
         """

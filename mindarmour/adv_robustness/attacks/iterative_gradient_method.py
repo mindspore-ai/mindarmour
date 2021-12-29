@@ -14,6 +14,7 @@
 """ Iterative gradient method attack. """
 from abc import abstractmethod
 
+import copy
 import numpy as np
 from PIL import Image, ImageOps
 
@@ -68,13 +69,14 @@ def _reshape_l1_projection(values, eps=3):
     return proj_x
 
 
-def _projection(values, eps, norm_level):
+def _projection(values, eps, clip_diff, norm_level):
     """
     Implementation of values normalization within eps.
 
     Args:
         values (numpy.ndarray): Input data.
         eps (float): Project radius.
+        clip_diff (float): Difference range of clip bounds.
         norm_level (Union[int, char, numpy.inf]): Order of the norm. Possible
             values: np.inf, 1 or 2.
 
@@ -88,12 +90,12 @@ def _projection(values, eps, norm_level):
     if norm_level in (1, '1'):
         sample_batch = values.shape[0]
         x_flat = values.reshape(sample_batch, -1)
-        proj_flat = _reshape_l1_projection(x_flat, eps)
+        proj_flat = _reshape_l1_projection(x_flat, eps*clip_diff)
         return proj_flat.reshape(values.shape)
     if norm_level in (2, '2'):
         return eps*normalize_value(values, norm_level)
     if norm_level in (np.inf, 'inf'):
-        return eps*np.sign(values)
+        return eps*clip_diff*np.sign(values)
     msg = 'Values of `norm_level` different from 1, 2 and `np.inf` are ' \
           'currently not supported.'
     LOGGER.error(TAG, msg)
@@ -132,7 +134,6 @@ class IterativeGradientMethod(Attack):
             self._loss_grad = network
         else:
             self._loss_grad = GradWrapWithLoss(WithLossCell(self._network, loss_fn))
-        self._loss_grad.set_train()
 
     @abstractmethod
     def generate(self, inputs, labels):
@@ -407,10 +408,12 @@ class ProjectedGradientDescent(BasicIterativeMethod):
             np.inf, 1 or 2. Default: 'inf'.
         loss_fn (Loss): Loss function for optimization. If None, the input network \
             is already equipped with loss function. Default: None.
+        random_start (bool): If True, use random perturbs at the beginning. If False,
+            start from original samples.
     """
 
     def __init__(self, network, eps=0.3, eps_iter=0.1, bounds=(0.0, 1.0),
-                 is_targeted=False, nb_iter=5, norm_level='inf', loss_fn=None):
+                 is_targeted=False, nb_iter=5, norm_level='inf', loss_fn=None, random_start=False):
         super(ProjectedGradientDescent, self).__init__(network,
                                                        eps=eps,
                                                        eps_iter=eps_iter,
@@ -419,6 +422,10 @@ class ProjectedGradientDescent(BasicIterativeMethod):
                                                        nb_iter=nb_iter,
                                                        loss_fn=loss_fn)
         self._norm_level = check_norm_level(norm_level)
+        self._random_start = check_param_type('random_start', random_start, bool)
+
+    def _get_random_start(self, inputs):
+        return inputs + np.random.uniform(-self._eps, self._eps, size=inputs.shape).astype(np.float32)
 
     def generate(self, inputs, labels):
         """
@@ -442,33 +449,29 @@ class ProjectedGradientDescent(BasicIterativeMethod):
         """
         inputs_image, inputs, labels = check_inputs_labels(inputs, labels)
         arr_x = inputs_image
+        adv_x = copy.deepcopy(inputs_image)
         if self._bounds is not None:
             clip_min, clip_max = self._bounds
             clip_diff = clip_max - clip_min
-            for _ in range(self._nb_iter):
-                adv_x = self._attack.generate(inputs, labels)
-                perturs = _projection(adv_x - arr_x,
-                                      self._eps,
-                                      norm_level=self._norm_level)
-                perturs = np.clip(perturs, (0 - self._eps)*clip_diff,
-                                  self._eps*clip_diff)
-                adv_x = arr_x + perturs
-                if isinstance(inputs, tuple):
-                    inputs = (adv_x,) + inputs[1:]
-                else:
-                    inputs = adv_x
         else:
-            for _ in range(self._nb_iter):
-                adv_x = self._attack.generate(inputs, labels)
-                perturs = _projection(adv_x - arr_x,
-                                      self._eps,
-                                      norm_level=self._norm_level)
-                adv_x = arr_x + perturs
-                adv_x = np.clip(adv_x, arr_x - self._eps, arr_x + self._eps)
-                if isinstance(inputs, tuple):
-                    inputs = (adv_x,) + inputs[1:]
-                else:
-                    inputs = adv_x
+            clip_diff = 1
+        if self._random_start:
+            inputs = self._get_random_start(inputs)
+        for _ in range(self._nb_iter):
+            inputs_tensor = to_tensor_tuple(inputs)
+            labels_tensor = to_tensor_tuple(labels)
+            out_grad = self._loss_grad(*inputs_tensor, *labels_tensor)
+            gradient = out_grad.asnumpy()
+            perturbs = _projection(gradient, self._eps_iter, clip_diff, norm_level=self._norm_level)
+            sum_perturbs = adv_x - arr_x + perturbs
+            sum_perturbs = np.clip(sum_perturbs, (0 - self._eps)*clip_diff, self._eps*clip_diff)
+            adv_x = arr_x + sum_perturbs
+            if self._bounds is not None:
+                adv_x = np.clip(adv_x, clip_min, clip_max)
+            if isinstance(inputs, tuple):
+                inputs = (adv_x,) + inputs[1:]
+            else:
+                inputs = adv_x
         return adv_x
 
 

@@ -24,10 +24,6 @@ from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
 
 from mindarmour.adv_robustness.attacks import FastGradientMethod
 
-
-context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
-
-
 # for user
 class Net(Cell):
     """
@@ -118,6 +114,7 @@ def test_batch_generate_attack():
     """
     Attack with batch-generate.
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     input_np = np.random.random((128, 10)).astype(np.float32)
     label = np.random.randint(0, 10, 128).astype(np.int32)
     label = np.eye(10)[label].astype(np.float32)

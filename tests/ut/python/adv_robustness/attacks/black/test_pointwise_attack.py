@@ -28,8 +28,6 @@ from mindarmour.utils.logger import LogUtil
 
 from tests.ut.python.utils.mock_net import Net
 
-context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
-
 LOGGER = LogUtil.get_instance()
 TAG = 'Pointwise_Test'
 LOGGER.set_level('INFO')
@@ -57,6 +55,7 @@ def test_pointwise_attack_method():
     """
     Pointwise attack method unit test.
     """
+    context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
     np.random.seed(123)
     # upload trained network
     current_dir = os.path.dirname(os.path.abspath(__file__))
