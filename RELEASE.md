@@ -2,28 +2,6 @@
 
 ## MindArmour 1.2.1 Release Notes
 
-### Major Features and Improvements
-
-### API Change
-
-#### Backwards Incompatible Change
-
-##### C++ API
-
-[Modify] ...
-[Add] ...
-[Delete] ...
-
-##### Java API
-
-[Add] ...
-
-#### Deprecations
-
-##### C++ API
-
-##### Java API
-
 ### Bug fixes
 
 * [BUGFIX] Fix a bug of PGD method
