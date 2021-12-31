@@ -408,12 +408,10 @@ class ProjectedGradientDescent(BasicIterativeMethod):
             np.inf, 1 or 2. Default: 'inf'.
         loss_fn (Loss): Loss function for optimization. If None, the input network \
             is already equipped with loss function. Default: None.
-        random_start (bool): If True, use random perturbs at the beginning. If False,
-            start from original samples.
     """
 
     def __init__(self, network, eps=0.3, eps_iter=0.1, bounds=(0.0, 1.0),
-                 is_targeted=False, nb_iter=5, norm_level='inf', loss_fn=None, random_start=False):
+                 is_targeted=False, nb_iter=5, norm_level='inf', loss_fn=None):
         super(ProjectedGradientDescent, self).__init__(network,
                                                        eps=eps,
                                                        eps_iter=eps_iter,
@@ -422,10 +420,6 @@ class ProjectedGradientDescent(BasicIterativeMethod):
                                                        nb_iter=nb_iter,
                                                        loss_fn=loss_fn)
         self._norm_level = check_norm_level(norm_level)
-        self._random_start = check_param_type('random_start', random_start, bool)
-
-    def _get_random_start(self, inputs):
-        return inputs + np.random.uniform(-self._eps, self._eps, size=inputs.shape).astype(np.float32)
 
     def generate(self, inputs, labels):
         """
@@ -455,8 +449,6 @@ class ProjectedGradientDescent(BasicIterativeMethod):
             clip_diff = clip_max - clip_min
         else:
             clip_diff = 1
-        if self._random_start:
-            inputs = self._get_random_start(inputs)
         for _ in range(self._nb_iter):
             inputs_tensor = to_tensor_tuple(inputs)
             labels_tensor = to_tensor_tuple(labels)
