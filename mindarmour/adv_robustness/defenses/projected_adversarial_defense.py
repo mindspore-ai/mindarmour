@@ -39,8 +39,6 @@ class ProjectedAdversarialDefense(AdversarialDefenseWithAttacks):
         nb_iter (int): PGD attack parameters, number of iteration.
             Default: 5.
         norm_level (str): Norm type. 'inf' or 'l2'. Default: 'inf'.
-        random_start (bool): If True, use random perturbs at the beginning. If False,
-            start from original samples.
 
     Examples:
         >>> net = Net()
@@ -56,16 +54,14 @@ class ProjectedAdversarialDefense(AdversarialDefenseWithAttacks):
                  eps=0.3,
                  eps_iter=0.1,
                  nb_iter=5,
-                 norm_level='inf',
-                 random_start=True):
+                 norm_level='inf'):
         attack = ProjectedGradientDescent(network,
                                           eps=eps,
                                           eps_iter=eps_iter,
                                           nb_iter=nb_iter,
                                           bounds=bounds,
                                           norm_level=norm_level,
-                                          loss_fn=loss_fn,
-                                          random_start=random_start)
+                                          loss_fn=loss_fn)
         super(ProjectedAdversarialDefense, self).__init__(
             network, [attack], loss_fn=loss_fn, optimizer=optimizer,
             bounds=bounds, replace_ratio=replace_ratio)
