@@ -1,3 +1,22 @@
+# MindArmour 1.６.0
+
+## MindArmour 1.６.0 Release Notes
+
+### Major Features and Improvements
+
+#### Reliability
+
+* [BETA] Data Drift Detection for Image Data
+* [BETA] Model Fault Injection
+
+### Bug fixes
+
+### Contributors
+
+Thanks goes to these wonderful people:
+
+Wu Xiaoyu，Feng Zhenye, Liu Zhidan, Jin Xiulang, Liu Luobin, Liu Liu, Zhang Shukun
+
 # MindArmour 1.5.0
 
 ## MindArmour 1.5.0 Release Notes
@@ -44,8 +63,8 @@ Wu Xiaoyu，Liu Zhidan, Jin Xiulang, Liu Luobin, Liu Liu
 
 #### Privacy
 
-* [STABLE]Tailored-based privacy protection technology (Pynative)
-* [STABLE]Model Inversion. Reverse analysis technology of privacy information
+* [STABLE] Tailored-based privacy protection technology (Pynative)
+* [STABLE] Model Inversion. Reverse analysis technology of privacy information
 
 ### API Change
 
