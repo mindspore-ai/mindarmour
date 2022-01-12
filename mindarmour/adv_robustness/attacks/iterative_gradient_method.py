@@ -199,7 +199,7 @@ class BasicIterativeMethod(IterativeGradientMethod):
         >>>         return out
         >>>
         >>> net = Net()
-        >>> attack = BasicIterativeMethod(netw, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
+        >>> attack = BasicIterativeMethod(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
     """
     def __init__(self, network, eps=0.3, eps_iter=0.1, bounds=(0.0, 1.0),
                  is_targeted=False, nb_iter=5, loss_fn=None):

@@ -48,6 +48,20 @@ class ErrorBasedDetector(Detector):
         bounds (tuple): (clip_min, clip_max). Default: (0.0, 1.0).
 
     Examples:
+        >>> import numpy as np
+        >>> from mindspore.ops.operations import Add
+        >>> from mindspore.nn import Cell
+        >>> from mindspore import Model
+        >>> from mindspore import context
+        >>> from mindarmour.adv_robustness.detectors import ErrorBasedDetector
+        >>> class Net(Cell):
+        >>>     def __init__(self):
+        >>>         super(Net, self).__init__()
+        >>>         self.add = Add()
+        >>>
+        >>>     def construct(self, inputs):
+        >>>         return self.add(inputs, inputs)
+        >>>
         >>> np.random.seed(5)
         >>> ori = np.random.rand(4, 4, 4).astype(np.float32)
         >>> np.random.seed(6)
@@ -55,7 +69,7 @@ class ErrorBasedDetector(Detector):
         >>> model = Model(Net())
         >>> detector = ErrorBasedDetector(model)
         >>> detector.fit(ori)
-        >>> detected_res = detector.detect(adv)
+        >>> adv_ids = detector.detect(adv)
         >>> adv_trans = detector.transform(adv)
     """
 
@@ -171,16 +185,29 @@ class DivergenceBasedDetector(ErrorBasedDetector):
             In form of (clip_min, clip_max). Default: (0.0, 1.0).
 
     Examples:
+        >>> import numpy as np
+        >>> from mindspore.ops.operations import Add
+        >>> from mindspore.nn import Cell
+        >>> from mindspore import Model
+        >>> from mindspore import context
+        >>> from mindarmour.adv_robustness.detectors import ErrorBasedDetector
+        >>> class PredNet(Cell):
+        >>>     def __init__(self):
+        >>>         super(Net, self).__init__()
+        >>>         self.add = Add()
+        >>>
+        >>>     def construct(self, inputs):
+        >>>         return self.add(inputs, inputs)
+        >>>
         >>> np.random.seed(5)
         >>> ori = np.random.rand(4, 4, 4).astype(np.float32)
         >>> np.random.seed(6)
         >>> adv = np.random.rand(4, 4, 4).astype(np.float32)
-        >>> encoder = Model(Net())
         >>> model = Model(PredNet())
         >>> detector = DivergenceBasedDetector(encoder, model)
         >>> threshold = detector.fit(ori)
         >>> detector.set_threshold(threshold)
-        >>> detected_res = detector.detect(adv)
+        >>> adv_ids = detector.detect(adv)
         >>> adv_trans = detector.transform(adv)
     """
 

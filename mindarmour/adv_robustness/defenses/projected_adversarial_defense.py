@@ -41,9 +41,27 @@ class ProjectedAdversarialDefense(AdversarialDefenseWithAttacks):
         norm_level (str): Norm type. 'inf' or 'l2'. Default: 'inf'.
 
     Examples:
+        >>> import numpy as np
+        >>> from mindspore.nn.optim.momentum import Momentum
+        >>> from mindarmour.adv_robustness.defenses import ProjectedAdversarialDefense
+        >>> from mindspore import nn
+        >>> from tests.ut.python.utils.mock_net import Net
+        >>>
         >>> net = Net()
-        >>> adv_defense = ProjectedAdversarialDefense(net)
-        >>> adv_defense.defense(inputs, labels)
+        >>> lr = 0.001
+        >>> momentum = 0.9
+        >>> batch_size = 32
+        >>> num_class = 10
+        >>>
+        >>> loss_fn = nn.SoftmaxCrossEntropyWithLogits(sparse=False)
+        >>> optimizer = Momentum(net.trainable_params(), learning_rate=lr, momentum=momentum)
+        >>>
+        >>> pad = ProjectedAdversarialDefense(net, loss_fn=loss_fn, optimizer=optimizer)
+        >>>
+        >>> inputs = np.random.rand(batch_size, 1, 32, 32).astype(np.float32)
+        >>> labels = np.random.randint(num_class, size=batch_size).astype(np.int32)
+        >>> labels = np.eye(num_classes)[labels].astype(np.float32)
+        >>> loss = pad.defense(inputs, labels)
     """
     def __init__(self,
                  network,

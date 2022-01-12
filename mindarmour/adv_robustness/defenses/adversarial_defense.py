@@ -36,32 +36,24 @@ class AdversarialDefense(Defense):
         optimizer (Cell): Optimizer used to train the network. Default: None.
 
     Examples:
-        >>> class Net(Cell):
-        >>>     def __init__(self):
-        >>>         super(Net, self).__init__()
-        >>>         self._reshape = P.Reshape()
-        >>>         self._full_con_1 = Dense(28*28, 120)
-        >>>         self._full_con_2 = Dense(120, 84)
-        >>>         self._full_con_3 = Dense(84, 10)
-        >>>         self._relu = ReLU()
-        >>>
-        >>>     def construct(self, x):
-        >>>         out = self._reshape(x, (-1, 28*28))
-        >>>         out = self._full_con_1(out)
-        >>>         out = self.relu(out)
-        >>>         out = self._full_con_2(out)
-        >>>         out = self.relu(out)
-        >>>         out = self._full_con_3(out)
-        >>>         return out
+        >>> import numpy as np
+        >>> from mindspore.nn.optim.momentum import Momentum
+        >>> from mindarmour.adv_robustness.defenses import AdversarialDefense
+        >>> from mindspore import nn
+        >>> from tests.ut.python.utils.mock_net import Net
         >>>
         >>> net = Net()
-        >>> lr = 0.0001
+        >>> lr = 0.001
         >>> momentum = 0.9
-        >>> loss_fn = SoftmaxCrossEntropyWithLogits(sparse=True)
-        >>> optimizer = Momentum(net.trainable_params(), lr, momentum)
+        >>> batch_size = 32
+        >>> num_class = 10
+        >>>
+        >>> loss_fn = SoftmaxCrossEntropyWithLogits(sparse=False)
+        >>> optimizer = Momentum(net.trainable_params(), learning_rate=lr, momentum=momentum)
         >>> adv_defense = AdversarialDefense(net, loss_fn, optimizer)
-        >>> inputs = np.random.rand(32, 1, 28, 28).astype(np.float32)
-        >>> labels = np.random.randint(0, 10).astype(np.int32)
+        >>> inputs = np.random.rand(batch_size, 1, 32, 32).astype(np.float32)
+        >>> labels = np.random.randint(10, size=batch_size).astype(np.int32)
+        >>> labels = np.eye(num_classes)[labels].astype(np.float32)
         >>> adv_defense.defense(inputs, labels)
     """
 
@@ -116,11 +108,31 @@ class AdversarialDefenseWithAttacks(AdversarialDefense):
         ValueError: If replace_ratio is not between 0 and 1.
 
     Examples:
+        >>> import numpy as np
+        >>> from mindspore.nn.optim.momentum import Momentum
+        >>> from mindarmour.adv_robustness.attacks import FastGradientSignMethod
+        >>> from mindarmour.adv_robustness.attacks import ProjectedGradientDescent
+        >>> from mindarmour.adv_robustness.defenses import AdversarialDefense
+        >>> from mindspore import nn
+        >>> from tests.ut.python.utils.mock_net import Net
+        >>>
         >>> net = Net()
-        >>> fgsm = FastGradientSignMethod(net)
-        >>> pgd = ProjectedGradientDescent(net)
-        >>> ead = AdversarialDefenseWithAttacks(net, [fgsm, pgd])
-        >>> ead.defense(inputs, labels)
+        >>> lr = 0.001
+        >>> momentum = 0.9
+        >>> batch_size = 32
+        >>> num_class = 10
+        >>> loss_fn = nn.SoftmaxCrossEntropyWithLogits(sparse=False)
+        >>> optimizer = Momentum(net.trainable_params(), learning_rate=lr, momentum=momentum)
+        >>>
+        >>> fgsm = FastGradientSignMethod(net, loss_fn=loss_fn)
+        >>> pgd = ProjectedGradientDescent(net, loss_fn=loss_fn)
+        >>> ead = AdversarialDefenseWithAttack(net, [fgsm, pgd], loss_fn=loss_fn,
+        >>>                                  optimizer=optimizer)
+        >>>
+        >>> inputs = np.random.rand(batch_size, 1, 32, 32).astype(np.float32)
+        >>> labels = np.random.randint(num_class, size=batch_size).astype(np.int32)
+        >>> labels = np.eye(num_classes)[labels].astype(np.float32)
+        >>> loss = ead.defense(inputs, labels)
     """
 
     def __init__(self, network, attacks, loss_fn=None, optimizer=None,
@@ -187,11 +199,31 @@ class EnsembleAdversarialDefense(AdversarialDefenseWithAttacks):
         ValueError: If replace_ratio is not between 0 and 1.
 
     Examples:
+        >>> import numpy as np
+        >>> from mindspore.nn.optim.momentum import Momentum
+        >>> from mindarmour.adv_robustness.attacks import FastGradientSignMethod
+        >>> from mindarmour.adv_robustness.attacks import ProjectedGradientDescent
+        >>> from mindarmour.adv_robustness.defenses import EnsembleAdversarialDefense
+        >>> from mindspore import nn
+        >>> from tests.ut.python.utils.mock_net import Net
+        >>>
         >>> net = Net()
-        >>> fgsm = FastGradientSignMethod(net)
-        >>> pgd = ProjectedGradientDescent(net)
-        >>> ead = EnsembleAdversarialDefense(net, [fgsm, pgd])
-        >>> ead.defense(inputs, labels)
+        >>> lr = 0.001
+        >>> momentum = 0.9
+        >>> batch_size = 32
+        >>> num_class = 10
+        >>> loss_fn = nn.SoftmaxCrossEntropyWithLogits(sparse=False)
+        >>> optimizer = Momentum(net.trainable_params(), learning_rate=lr, momentum=momentum)
+        >>>
+        >>> fgsm = FastGradientSignMethod(net, loss_fn=loss_fn)
+        >>> pgd = ProjectedGradientDescent(net, loss_fn=loss_fn)
+        >>> ead = EnsembleAdversarialDefense(net, [fgsm, pgd], loss_fn=loss_fn,
+        >>>                                  optimizer=optimizer)
+        >>>
+        >>> inputs = np.random.rand(batch_size, 1, 32, 32).astype(np.float32)
+        >>> labels = np.random.randint(num_class, size=batch_size).astype(np.int32)
+        >>> labels = np.eye(num_classes)[labels].astype(np.float32)
+        >>> loss = ead.defense(inputs, labels)
     """
 
     def __init__(self, network, attacks, loss_fn=None, optimizer=None,
