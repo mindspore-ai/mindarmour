@@ -73,9 +73,35 @@ class SimilarityDetector(Detector):
             Default: 0.001
 
     Examples:
-        >>> detector = SimilarityDetector(model)
-        >>> detector.fit(ori, labels)
-        >>> adv_ids = detector.detect(adv)
+        >>> import numpy as np
+        >>> from mindspore.ops.operations import Add
+        >>> from mindspore.nn import Cell
+        >>> from mindspore import Model
+        >>> from mindspore import context
+        >>> from mindarmour.adv_robustness.detectors import SimilarityDetector
+        >>>
+        >>> class EncoderNet(Cell):
+        >>>     def __init__(self, encode_dim):
+        >>>         super(EncoderNet, self).__init__()
+        >>>         self._encode_dim = encode_dim
+        >>>         self.add = Add()
+        >>>     def construct(self, inputs):
+        >>>         return self.add(inputs, inputs)
+        >>>     def get_encode_dim(self):
+        >>>         return self._encode_dim
+        >>>
+        >>> np.random.seed(5)
+        >>> x_train = np.random.rand(10, 32, 32, 3).astype(np.float32)
+        >>> perm = np.random.permutation(x_train.shape[0])
+        >>> benign_queries = x_train[perm[:10], :, :, :]
+        >>> suspicious_queries = x_train[perm[-1], :, :, :] + np.random.normal(0, 0.05, (10,) + x_train.shape[1:])
+        >>> suspicious_queries = suspicious_queries.astype(np.float32)
+        >>> encoder = Model(EncoderNet(encode_dim=256))
+        >>> detector = SimilarityDetector(max_k_neighbor=3, trans_model=encoder)
+        >>> num_nearest_neighbors, thresholds = detector.fit(inputs=x_train)
+        >>> detector.set_threshold(num_nearest_neighbors[-1], thresholds[-1])
+        >>> detector.detect(benign_queries)
+        >>> detections = detector.get_detection_interval()
     """
 
     def __init__(self, trans_model, max_k_neighbor=1000, chunk_size=1000,

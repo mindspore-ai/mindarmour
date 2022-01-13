@@ -33,6 +33,42 @@ class EnsembleDetector(Detector):
         detectors (Union[tuple, list]): List of detector methods.
         policy (str): Decision policy, could be 'vote', 'all' or 'any'.
             Default: 'vote'
+    Examples:
+        >>> import numpy as np
+        >>> from mindspore.ops.operations import Add
+        >>> from mindspore.nn import Cell
+        >>> from mindspore import Model
+        >>> from mindspore import context
+        >>> from mindarmour.adv_robustness.detectors import ErrorBasedDetector
+        >>> from mindarmour.adv_robustness.detectors import RegionBasedDetector
+        >>> from mindarmour.adv_robustness.detectors import EnsembleDetector
+        >>>
+        >>> class Net(Cell):
+        >>>     def __init__(self):
+        >>>         super(Net, self).__init__()
+        >>>         self.add = Add()
+        >>>     def construct(self, inputs):
+        >>>         return self.add(inputs, inputs)
+        >>>
+        >>> class AutoNet(Cell):
+        >>>     def __init__(self):
+        >>>         super(AutoNet, self).__init__()
+        >>>         self.add = Add()
+        >>>     def construct(self, inputs):
+        >>>         return self.add(inputs, inputs)
+        >>>
+        >>> np.random.seed(6)
+        >>> adv = np.random.rand(4, 4).astype(np.float32)
+        >>> model = Model(Net())
+        >>> auto_encoder = Model(AutoNet())
+        >>> random_label = np.random.randint(10, size=4)
+        >>> labels = np.eye(10)[random_label]
+        >>> magnet_detector = ErrorBasedDetector(auto_encoder)
+        >>> region_detector = RegionBasedDetector(model)
+        >>> region_detector.fit(adv, labels)
+        >>> detectors = [magnet_detector, region_detector]
+        >>> detector = EnsembleDetector(detectors)
+        >>> adv_ids = detector.detect(adv)
     """
 
     def __init__(self, detectors, policy="vote"):

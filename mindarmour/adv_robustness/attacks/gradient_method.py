@@ -459,7 +459,7 @@ class LeastLikelyClassMethod(FastGradientSignMethod):
         >>> net = Net()
         >>> inputs = np.array([[0.1, 0.2, 0.6], [0.3, 0, 0.4]])
         >>> labels = np.array([[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]])
-        >>> attack = LeastLikelyClassMethod(network, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
+        >>> attack = LeastLikelyClassMethod(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
         >>> adv_x = attack.generate(inputs, labels)
     """
 
