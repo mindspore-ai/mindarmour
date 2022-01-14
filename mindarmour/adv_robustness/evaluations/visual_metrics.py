@@ -52,10 +52,10 @@ class RadarMetric:
         >>> metrics_data = [def_metrics, raw_metrics]
         >>> metrics_labels = ['before', 'after']
         >>> rm = RadarMetric(metrics_name,
-        >>>                  metrics_data,
-        >>>                  metrics_labels,
-        >>>                  title='',
-        >>>                  scale='sparse')
+        ...                  metrics_data,
+        ...                  metrics_labels,
+        ...                  title='',
+        ...                  scale='sparse')
         >>> rm.show()
     """
 

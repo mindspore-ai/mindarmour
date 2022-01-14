@@ -62,14 +62,12 @@ class RegionBasedDetector(Detector):
         >>>     def __init__(self):
         >>>         super(Net, self).__init__()
         >>>         self.add = Add()
-        >>>
         >>>     def construct(self, inputs):
         >>>         return self.add(inputs, inputs)
-        >>>
         >>> np.random.seed(5)
         >>> ori = np.random.rand(4, 4).astype(np.float32)
         >>> labels = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 0, 1, 0],
-                              [0, 1, 0, 0]]).astype(np.int32)
+        ...                   [0, 1, 0, 0]]).astype(np.int32)
         >>> np.random.seed(6)
         >>> adv = np.random.rand(4, 4).astype(np.float32)
         >>> model = Model(Net())

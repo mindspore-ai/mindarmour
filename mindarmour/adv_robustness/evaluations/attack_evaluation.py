@@ -50,11 +50,11 @@ class AttackEvaluate:
         >>> x = np.random.normal(size=(3, 512, 512, 3))
         >>> adv_x = np.random.normal(size=(3, 512, 512, 3))
         >>> y = np.array([[0.1, 0.1, 0.2, 0.6],
-        >>>               [0.1, 0.7, 0.0, 0.2],
-        >>>               [0.8, 0.1, 0.0, 0.1]])
+        ...               [0.1, 0.7, 0.0, 0.2],
+        ...               [0.8, 0.1, 0.0, 0.1]])
         >>> adv_y = np.array([[0.1, 0.1, 0.2, 0.6],
-        >>>                   [0.1, 0.0, 0.8, 0.1],
-        >>>                   [0.0, 0.9, 0.1, 0.0]])
+        ...                   [0.1, 0.0, 0.8, 0.1],
+        ...                   [0.0, 0.9, 0.1, 0.0]])
         >>> attack_eval = AttackEvaluate(x, y, adv_x, adv_y)
         >>> mr = attack_eval.mis_classification_rate()
     """

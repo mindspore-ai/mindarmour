@@ -79,7 +79,6 @@ class SimilarityDetector(Detector):
         >>> from mindspore import Model
         >>> from mindspore import context
         >>> from mindarmour.adv_robustness.detectors import SimilarityDetector
-        >>>
         >>> class EncoderNet(Cell):
         >>>     def __init__(self, encode_dim):
         >>>         super(EncoderNet, self).__init__()
@@ -89,7 +88,6 @@ class SimilarityDetector(Detector):
         >>>         return self.add(inputs, inputs)
         >>>     def get_encode_dim(self):
         >>>         return self._encode_dim
-        >>>
         >>> np.random.seed(5)
         >>> x_train = np.random.rand(10, 32, 32, 3).astype(np.float32)
         >>> perm = np.random.permutation(x_train.shape[0])

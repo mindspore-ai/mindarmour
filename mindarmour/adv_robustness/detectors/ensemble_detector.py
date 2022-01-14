@@ -42,7 +42,6 @@ class EnsembleDetector(Detector):
         >>> from mindarmour.adv_robustness.detectors import ErrorBasedDetector
         >>> from mindarmour.adv_robustness.detectors import RegionBasedDetector
         >>> from mindarmour.adv_robustness.detectors import EnsembleDetector
-        >>>
         >>> class Net(Cell):
         >>>     def __init__(self):
         >>>         super(Net, self).__init__()
@@ -56,7 +55,6 @@ class EnsembleDetector(Detector):
         >>>         self.add = Add()
         >>>     def construct(self, inputs):
         >>>         return self.add(inputs, inputs)
-        >>>
         >>> np.random.seed(6)
         >>> adv = np.random.rand(4, 4).astype(np.float32)
         >>> model = Model(Net())

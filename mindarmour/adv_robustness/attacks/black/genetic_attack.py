@@ -75,7 +75,6 @@ class GeneticAttack(Attack):
         >>> from mindspore.nn import Cell
         >>> from mindarmour import BlackModel
         >>> from mindarmour.adv_robustness.attacks import GeneticAttack
-        >>>
         >>> class ModelToBeAttacked(BlackModel):
         >>>     def __init__(self, network):
         >>>         super(ModelToBeAttacked, self).__init__()
@@ -83,16 +82,13 @@ class GeneticAttack(Attack):
         >>>     def predict(self, inputs):
         >>>         result = self._network(Tensor(inputs.astype(np.float32)))
         >>>         return result.asnumpy()
-        >>>
         >>> class Net(Cell):
         >>>     def __init__(self):
         >>>         super(Net, self).__init__()
         >>>         self._softmax = M.Softmax()
-        >>>
         >>>     def construct(self, inputs):
         >>>         out = self._softmax(inputs)
         >>>         return out
-        >>>
         >>> net = Net()
         >>> model = ModelToBeAttacked(net)
         >>> attack = GeneticAttack(model, sparse=False)

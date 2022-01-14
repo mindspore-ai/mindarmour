@@ -99,7 +99,6 @@ class CarliniWagnerL2Attack(Attack):
         >>> import mindspore.ops.operations as M
         >>> from mindspore.nn import Cell
         >>> from mindarmour.adv_robustness.attacks import CarliniWagnerL2Attack
-        >>>
         >>> class Net(Cell):
         >>>     def __init__(self):
         >>>         super(Net, self).__init__()
@@ -108,7 +107,6 @@ class CarliniWagnerL2Attack(Attack):
         >>>     def construct(self, inputs):
         >>>         out = self._softmax(inputs)
         >>>         return out
-        >>>
         >>> input_np = np.array([[0.1, 0.2, 0.7, 0.5, 0.4]]).astype(np.float32)
         >>> label_np = np.array([3]).astype(np.int64)
         >>> num_classes = input_np.shape[1]

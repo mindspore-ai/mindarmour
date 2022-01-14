@@ -59,10 +59,8 @@ class SpatialSmoothing(Detector):
         >>>     def __init__(self):
         >>>         super(Net, self).__init__()
         >>>         self._softmax = P.Softmax()
-        >>>
         >>>     def construct(self, inputs):
         >>>         return self._softmax(inputs)
-        >>>
         >>> input_shape = (50, 3)
         >>> np.random.seed(1)
         >>> input_np = np.random.randn(*input_shape).astype(np.float32)
