@@ -99,6 +99,10 @@ class LBFGS(Attack):
             numpy.ndarray, generated adversarial examples.
 
         Examples:
+            >>> import numpy as np
+            >>> from mindarmour.adv_robustness.attacks import LBFGS
+            >>> from tests.ut.python.utils.mock_net import Net
+            >>> net = Net()
             >>> attack = LBFGS(net, is_targeted=True)
             >>> adv = attack.generate([[0.1, 0.2, 0.6], [0.3, 0, 0.4]], [2, 2])
         """

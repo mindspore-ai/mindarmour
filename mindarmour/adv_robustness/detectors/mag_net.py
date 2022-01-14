@@ -58,10 +58,8 @@ class ErrorBasedDetector(Detector):
         >>>     def __init__(self):
         >>>         super(Net, self).__init__()
         >>>         self.add = Add()
-        >>>
         >>>     def construct(self, inputs):
         >>>         return self.add(inputs, inputs)
-        >>>
         >>> np.random.seed(5)
         >>> ori = np.random.rand(4, 4, 4).astype(np.float32)
         >>> np.random.seed(6)
@@ -195,10 +193,8 @@ class DivergenceBasedDetector(ErrorBasedDetector):
         >>>     def __init__(self):
         >>>         super(Net, self).__init__()
         >>>         self.add = Add()
-        >>>
         >>>     def construct(self, inputs):
         >>>         return self.add(inputs, inputs)
-        >>>
         >>> np.random.seed(5)
         >>> ori = np.random.rand(4, 4, 4).astype(np.float32)
         >>> np.random.seed(6)

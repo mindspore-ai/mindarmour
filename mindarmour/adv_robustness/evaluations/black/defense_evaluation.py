@@ -71,14 +71,14 @@ class BlackDefenseEvaluate:
         >>> true_labels = np.array([3, 1, 0])
         >>> max_queries = 100
         >>> def_eval = BlackDefenseEvaluate(raw_preds,
-        >>>                             def_preds,
-        >>>                             raw_query_counts,
-        >>>                             def_query_counts,
-        >>>                             raw_query_time,
-        >>>                             def_query_time,
-        >>>                             def_detection_counts,
-        >>>                             true_labels,
-        >>>                             max_queries)
+        ...                             def_preds,
+        ...                             raw_query_counts,
+        ...                             def_query_counts,
+        ...                             raw_query_time,
+        ...                             def_query_time,
+        ...                             def_detection_counts,
+        ...                             true_labels,
+        ...                             max_queries)
         >>> def_eval.qcv()
     """
 

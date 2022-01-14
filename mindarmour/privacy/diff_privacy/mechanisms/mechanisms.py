@@ -71,10 +71,10 @@ class ClipMechanismsFactory:
             >>> target_unclipped_quantile = 0.9
             >>> clip_mechanism = ClipMechanismsFactory()
             >>> ada_clip = clip_mechanism.create('Gaussian',
-            >>>                          decay_policy=decay_policy,
-            >>>                          learning_rate=learning_rate,
-            >>>                          target_unclipped_quantile=target_unclipped_quantile,
-            >>>                          fraction_stddev=beta_stddev)
+            ...                          decay_policy=decay_policy,
+            ...                          learning_rate=learning_rate,
+            ...                          target_unclipped_quantile=target_unclipped_quantile,
+            ...                          fraction_stddev=beta_stddev)
             >>> next_norm_bound = ada_clip(beta, norm_bound)
 
         """
@@ -125,25 +125,25 @@ class NoiseMechanismsFactory:
             >>> epochs = 1
             >>> loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True)
             >>> noise_mech = NoiseMechanismsFactory().create('Gaussian',
-            >>>                                              norm_bound=norm_bound,
-            >>>                                              initial_noise_multiplier=initial_noise_multiplier)
+            ...                                              norm_bound=norm_bound,
+            ...                                              initial_noise_multiplier=initial_noise_multiplier)
             >>> clip_mech = ClipMechanismsFactory().create('Gaussian',
-            >>>                                            decay_policy='Linear',
-            >>>                                            learning_rate=0.001,
-            >>>                                            target_unclipped_quantile=0.9,
-            >>>                                            fraction_stddev=0.01)
+            ...                                            decay_policy='Linear',
+            ...                                            learning_rate=0.001,
+            ...                                            target_unclipped_quantile=0.9,
+            ...                                            fraction_stddev=0.01)
             >>> net_opt = nn.Momentum(network.trainable_params(), learning_rate=0.1,
-            >>>                       momentum=0.9)
+            ...                       momentum=0.9)
             >>> model = DPModel(micro_batches=2,
-            >>>                 clip_mech=clip_mech,
-            >>>                 norm_bound=norm_bound,
-            >>>                 noise_mech=noise_mech,
-            >>>                 network=network,
-            >>>                 loss_fn=loss,
-            >>>                 optimizer=net_opt,
-            >>>                 metrics=None)
+            ...                 clip_mech=clip_mech,
+            ...                 norm_bound=norm_bound,
+            ...                 noise_mech=noise_mech,
+            ...                 network=network,
+            ...                 loss_fn=loss,
+            ...                 optimizer=net_opt,
+            ...                 metrics=None)
             >>> ms_ds = ds.GeneratorDataset(dataset_generator,
-            >>>                            ['data', 'label'])
+            ...                             ['data', 'label'])
             >>> model.train(epochs, ms_ds, dataset_sink_mode=False)
         """
         if mech_name == 'Gaussian':
@@ -386,9 +386,9 @@ class AdaClippingWithGaussianRandom(Cell):
         >>> learning_rate = 0.001
         >>> target_unclipped_quantile = 0.9
         >>> ada_clip = AdaClippingWithGaussianRandom(decay_policy=decay_policy,
-        >>>                                          learning_rate=learning_rate,
-        >>>                                          target_unclipped_quantile=target_unclipped_quantile,
-        >>>                                          fraction_stddev=beta_stddev)
+        ...                                          learning_rate=learning_rate,
+        ...                                          target_unclipped_quantile=target_unclipped_quantile,
+        ...                                          fraction_stddev=beta_stddev)
         >>> next_norm_bound = ada_clip(beta, norm_bound)
 
     """

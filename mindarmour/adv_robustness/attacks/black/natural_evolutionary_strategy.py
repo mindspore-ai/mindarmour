@@ -84,7 +84,6 @@ class NES(Attack):
         >>> from mindarmour import BlackModel
         >>> from mindarmour.adv_robustness.attacks import NES
         >>> from tests.ut.python.utils.mock_net import Net
-        >>>
         >>> class ModelToBeAttacked(BlackModel):
         >>>     def __init__(self, network):
         >>>         super(ModelToBeAttacked, self).__init__()
@@ -94,7 +93,6 @@ class NES(Attack):
         >>>             inputs = inputs[np.newaxis, :]
         >>>         result = self._network(Tensor(inputs.astype(np.float32)))
         >>>         return result.asnumpy()
-        >>>
         >>> net = Net()
         >>> model = ModelToBeAttacked(net)
         >>> SCENE = 'Query_Limit'
@@ -157,12 +155,25 @@ class NES(Attack):
             ValueError: If scene is not in ['Label_Only', 'Partial_Info', 'Query_Limit']
 
         Examples:
+            >>> import numpy as np
+            >>> from mindspore import Tensor
+            >>> from mindarmour import BlackModel
+            >>> from mindarmour.adv_robustness.attacks import NES
+            >>> from tests.ut.python.utils.mock_net import Net
+            >>> class ModelToBeAttacked(BlackModel):
+            >>>     def __init__(self, network):
+            >>>         super(ModelToBeAttacked, self).__init__()
+            >>>         self._network = network
+            >>>     def predict(self, inputs):
+            >>>         if len(inputs.shape) == 3:
+            >>>             inputs = inputs[np.newaxis, :]
+            >>>         result = self._network(Tensor(inputs.astype(np.float32)))
+            >>>         return result.asnumpy()
             >>> net = Net()
             >>> model = ModelToBeAttacked(net)
             >>> SCENE = 'Query_Limit'
             >>> TOP_K = -1
             >>> attack= NES(model, SCENE, top_k=TOP_K)
-            >>>
             >>> num_class = 5
             >>> x_test = np.asarray(np.random.random((32, 32)), np.float32)
             >>> target_image  = np.asarray(np.random.random((32, 32)), np.float32)

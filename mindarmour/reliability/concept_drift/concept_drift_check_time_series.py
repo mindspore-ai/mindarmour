@@ -23,7 +23,7 @@ from mindarmour.utils._check_param import check_param_type, check_param_in_range
 
 
 class ConceptDriftCheckTimeSeries:
-    """
+    r"""
     ConceptDriftCheckTimeSeries is used for example series distribution change detection.
 
     Args:
@@ -39,7 +39,7 @@ class ConceptDriftCheckTimeSeries:
 
     Examples:
         >>> concept = ConceptDriftCheckTimeSeries(window_size=100, rolling_window=10,
-        >>>                   step=10, threshold_index=1.5, need_label=False)
+        ...                                       step=10, threshold_index=1.5, need_label=False)
         >>> data_example = 5*np.random.rand(1000)
         >>> data_example[200: 800] = 20*np.random.rand(600)
         >>> score, threshold, concept_drift_location = concept.concept_check(data_example)
@@ -161,7 +161,7 @@ class ConceptDriftCheckTimeSeries:
 
         Examples：
             >>> concept = ConceptDriftCheckTimeSeries(window_size=100, rolling_window=10,
-            >>>                   step=10, threshold_index=1.5, need_label=False)
+            ...                                       step=10, threshold_index=1.5, need_label=False)
             >>> data_example = 5*np.random.rand(1000)
             >>> data_example[200: 800] = 20*np.random.rand(600)
             >>> score, drift_threshold, drift_location = concept.concept_check(data_example)

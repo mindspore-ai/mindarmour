@@ -40,15 +40,15 @@ class DefenseEvaluate:
 
     Examples:
         >>> raw_preds = np.array([[0.1, 0.1, 0.2, 0.6],
-        >>>                       [0.1, 0.7, 0.0, 0.2],
-        >>>                       [0.8, 0.1, 0.0, 0.1]])
+        ...                       [0.1, 0.7, 0.0, 0.2],
+        ...                       [0.8, 0.1, 0.0, 0.1]])
         >>> def_preds = np.array([[0.1, 0.1, 0.1, 0.7],
-        >>>                       [0.1, 0.6, 0.2, 0.1],
-        >>>                       [0.1, 0.2, 0.1, 0.6]])
+        ...                       [0.1, 0.6, 0.2, 0.1],
+        ...                       [0.1, 0.2, 0.1, 0.6]])
         >>> true_labels = np.array([3, 1, 0])
         >>> def_eval = DefenseEvaluate(raw_preds,
-        >>>                            def_preds,
-        >>>                            true_labels)
+        ...                            def_preds,
+        ...                            true_labels)
         >>> def_eval.cav()
     """
     def __init__(self, raw_preds, def_preds, true_labels):

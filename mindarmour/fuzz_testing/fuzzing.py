@@ -107,17 +107,17 @@ class Fuzzer:
         >>> net = Net()
         >>> model = Model(net)
         >>> mutate_config = [{'method': 'Blur',
-        >>>                   'params': {'auto_param': [True]}},
-        >>>                  {'method': 'Contrast',
-        >>>                   'params': {'factor': [2]}},
-        >>>                  {'method': 'Translate',
-        >>>                   'params': {'x_bias': [0.1, 0.2], 'y_bias': [0.2]}},
-        >>>                  {'method': 'FGSM',
-        >>>                   'params': {'eps': [0.1, 0.2, 0.3], 'alpha': [0.1]}}]
+        ...                   'params': {'auto_param': [True]}},
+        ...                  {'method': 'Contrast',
+        ...                   'params': {'factor': [2]}},
+        ...                  {'method': 'Translate',
+        ...                   'params': {'x_bias': [0.1, 0.2], 'y_bias': [0.2]}},
+        ...                  {'method': 'FGSM',
+        ...                   'params': {'eps': [0.1, 0.2, 0.3], 'alpha': [0.1]}}]
         >>> nc = KMultisectionNeuronCoverage(model, train_images, segmented_num=100)
         >>> model_fuzz_test = Fuzzer(model)
         >>> samples, gt_labels, preds, strategies, metrics = model_fuzz_test.fuzzing(mutate_config, initial_seeds,
-        >>>                                                                          nc, max_iters=100)
+        ...                                                                          nc, max_iters=100)
     """
 
     def __init__(self, target_model):

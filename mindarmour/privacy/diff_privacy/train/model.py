@@ -94,25 +94,25 @@ class DPModel(Model):
         >>> loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True)
         >>> factory_opt = DPOptimizerClassFactory(micro_batches=micro_batches)
         >>> factory_opt.set_mechanisms('Gaussian',
-        >>>                            norm_bound=norm_bound,
-        >>>                            initial_noise_multiplier=initial_noise_multiplier)
+        ...                            norm_bound=norm_bound,
+        ...                            initial_noise_multiplier=initial_noise_multiplier)
         >>> net_opt = factory_opt.create('Momentum')(network.trainable_params(),
-        >>>                                          learning_rate=0.1, momentum=0.9)
+        ...                                          learning_rate=0.1, momentum=0.9)
         >>> clip_mech = ClipMechanismsFactory().create('Gaussian',
-        >>>                                            decay_policy='Linear',
-        >>>                                            learning_rate=0.01,
-        >>>                                            target_unclipped_quantile=0.9,
-        >>>                                            fraction_stddev=0.01)
+        ...                                            decay_policy='Linear',
+        ...                                            learning_rate=0.01,
+        ...                                            target_unclipped_quantile=0.9,
+        ...                                            fraction_stddev=0.01)
         >>> model = DPModel(micro_batches=micro_batches,
-        >>>                 norm_bound=norm_bound,
-        >>>                 clip_mech=clip_mech,
-        >>>                 noise_mech=None,
-        >>>                 network=network,
-        >>>                 loss_fn=loss,
-        >>>                 optimizer=net_opt,
-        >>>                 metrics=None)
+        ...                 norm_bound=norm_bound,
+        ...                 clip_mech=clip_mech,
+        ...                 noise_mech=None,
+        ...                 network=network,
+        ...                 loss_fn=loss,
+        ...                 optimizer=net_opt,
+        ...                 metrics=None)
         >>> ms_ds = ds.GeneratorDataset(dataset_generator,
-        >>>                             ['data', 'label'])
+        ...                             ['data', 'label'])
         >>> model.train(epochs, ms_ds, dataset_sink_mode=False)
     """
 

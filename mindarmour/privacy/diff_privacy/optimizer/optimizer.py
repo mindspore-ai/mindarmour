@@ -65,8 +65,8 @@ class DPOptimizerClassFactory:
         >>> GaussianSGD = DPOptimizerClassFactory(micro_batches=2)
         >>> GaussianSGD.set_mechanisms('Gaussian', norm_bound=1.0, initial_noise_multiplier=1.5)
         >>> net_opt = GaussianSGD.create('Momentum')(params=network.trainable_params(),
-        >>>                                          learning_rate=0.001,
-        >>>                                          momentum=0.9)
+        ...                                          learning_rate=0.001,
+        ...                                          momentum=0.9)
     """
 
     def __init__(self, micro_batches=2):
