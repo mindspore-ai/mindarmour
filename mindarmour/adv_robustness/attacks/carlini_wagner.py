@@ -100,13 +100,13 @@ class CarliniWagnerL2Attack(Attack):
         >>> from mindspore.nn import Cell
         >>> from mindarmour.adv_robustness.attacks import CarliniWagnerL2Attack
         >>> class Net(Cell):
-        >>>     def __init__(self):
-        >>>         super(Net, self).__init__()
-        >>>         self._softmax = M.Softmax()
-        >>>
-        >>>     def construct(self, inputs):
-        >>>         out = self._softmax(inputs)
-        >>>         return out
+        ...     def __init__(self):
+        ...         super(Net, self).__init__()
+        ...         self._softmax = M.Softmax()
+        ...
+        ...     def construct(self, inputs):
+        ...         out = self._softmax(inputs)
+        ...         return out
         >>> input_np = np.array([[0.1, 0.2, 0.7, 0.5, 0.4]]).astype(np.float32)
         >>> label_np = np.array([3]).astype(np.int64)
         >>> num_classes = input_np.shape[1]
@@ -286,23 +286,19 @@ class CarliniWagnerL2Attack(Attack):
             >>> import mindspore.ops.operations as M
             >>> from mindspore.nn import Cell
             >>> from mindarmour.adv_robustness.attacks import CarliniWagnerL2Attack
-            >>>
             >>> class Net(Cell):
-            >>>     def __init__(self):
-            >>>         super(Net, self).__init__()
-            >>>         self._softmax = M.Softmax()
-            >>>
-            >>>     def construct(self, inputs):
-            >>>         out = self._softmax(inputs)
-            >>>         return out
-            >>>
+            ...     def __init__(self):
+            ...         super(Net, self).__init__()
+            ...         self._softmax = M.Softmax()
+            ...
+            ...     def construct(self, inputs):
+            ...         out = self._softmax(inputs)
+            ...         return out
             >>> input_np = np.array([[0.1, 0.2, 0.7, 0.5, 0.4]]).astype(np.float32)
             >>> num_classes = input_np.shape[1]
-            >>>
             >>> label_np = np.array([3]).astype(np.int64)
             >>> attack_nonTargeted = CarliniWagnerL2Attack(net, num_classes, targeted=False)
             >>> advs_nonTargeted = attack_nonTargeted.generate(input_np, label_np)
-            >>>
             >>> target_np = np.array([1]).astype(np.int64)
             >>> attack_targeted = CarliniWagnerL2Attack(net, num_classes, targeted=False)
             >>> advs_targeted = attack_targeted.generate(input_np, target_np)

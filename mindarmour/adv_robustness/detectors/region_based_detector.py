@@ -59,11 +59,11 @@ class RegionBasedDetector(Detector):
         >>> from mindspore import context
         >>> from mindarmour.adv_robustness.detectors import ErrorBasedDetector
         >>> class Net(Cell):
-        >>>     def __init__(self):
-        >>>         super(Net, self).__init__()
-        >>>         self.add = Add()
-        >>>     def construct(self, inputs):
-        >>>         return self.add(inputs, inputs)
+        ...     def __init__(self):
+        ...         super(Net, self).__init__()
+        ...         self.add = Add()
+        ...     def construct(self, inputs):
+        ...         return self.add(inputs, inputs)
         >>> np.random.seed(5)
         >>> ori = np.random.rand(4, 4).astype(np.float32)
         >>> labels = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, 0, 1, 0],

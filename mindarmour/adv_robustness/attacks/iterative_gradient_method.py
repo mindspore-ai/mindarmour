@@ -189,12 +189,12 @@ class BasicIterativeMethod(IterativeGradientMethod):
         >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
         >>> from mindarmour.adv_robustness.attacks import BasicIterativeMethod
         >>> class Net(Cell):
-        >>>     def __init__(self):
-        >>>         super(Net, self).__init__()
-        >>>         self._relu = nn.ReLU()
-        >>>     def construct(self, inputs):
-        >>>         out = self._relu(inputs)
-        >>>         return out
+        ...     def __init__(self):
+        ...         super(Net, self).__init__()
+        ...         self._relu = nn.ReLU()
+        ...     def construct(self, inputs):
+        ...         out = self._relu(inputs)
+        ...         return out
         >>> net = Net()
         >>> attack = BasicIterativeMethod(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
     """
@@ -232,12 +232,12 @@ class BasicIterativeMethod(IterativeGradientMethod):
             >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
             >>> from mindarmour.adv_robustness.attacks import BasicIterativeMethod
             >>> class Net(Cell):
-            >>>     def __init__(self):
-            >>>         super(Net, self).__init__()
-            >>>         self._relu = nn.ReLU()
-            >>>     def construct(self, inputs):
-            >>>         out = self._relu(inputs)
-            >>>         return out
+            ...     def __init__(self):
+            ...         super(Net, self).__init__()
+            ...         self._relu = nn.ReLU()
+            ...     def construct(self, inputs):
+            ...         out = self._relu(inputs)
+            ...         return out
             >>> net = Net()
             >>> attack = BasicIterativeMethod(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
             >>> adv_x = attack.generate([[0.3, 0.2, 0.6],
@@ -333,12 +333,12 @@ class MomentumIterativeMethod(IterativeGradientMethod):
             >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
             >>> from mindarmour.adv_robustness.attacks import MomentumIterativeMethod
             >>> class Net(Cell):
-            >>>     def __init__(self):
-            >>>         super(Net, self).__init__()
-            >>>         self._relu = nn.ReLU()
-            >>>     def construct(self, inputs):
-            >>>         out = self._relu(inputs)
-            >>>         return out
+            ...     def __init__(self):
+            ...         super(Net, self).__init__()
+            ...         self._relu = nn.ReLU()
+            ...     def construct(self, inputs):
+            ...         out = self._relu(inputs)
+            ...         return out
             >>> net = Net()
             >>> attack = MomentumIterativeMethod(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
             >>> adv_x = attack.generate([[0.5, 0.2, 0.6],
@@ -476,12 +476,12 @@ class ProjectedGradientDescent(BasicIterativeMethod):
             >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
             >>> from mindarmour.adv_robustness.attacks import ProjectedGradientDescent
             >>> class Net(Cell):
-            >>>     def __init__(self):
-            >>>         super(Net, self).__init__()
-            >>>         self._relu = nn.ReLU()
-            >>>     def construct(self, inputs):
-            >>>         out = self._relu(inputs)
-            >>>         return out
+            ...     def __init__(self):
+            ...         super(Net, self).__init__()
+            ...         self._relu = nn.ReLU()
+            ...     def construct(self, inputs):
+            ...         out = self._relu(inputs)
+            ...         return out
             >>> net = Net()
             >>> attack = ProjectedGradientDescent(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
             >>> adv_x = attack.generate([[0.6, 0.2, 0.6],

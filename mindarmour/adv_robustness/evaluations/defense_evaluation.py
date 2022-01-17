@@ -39,6 +39,9 @@ class DefenseEvaluate:
             one-dimension array whose size is raw_preds.shape[0].
 
     Examples:
+        >>> import numpy as np
+        >>> from mindarmour.adv_robustness.evaluations import DefenseEvaluate
+
         >>> raw_preds = np.array([[0.1, 0.1, 0.2, 0.6],
         ...                       [0.1, 0.7, 0.0, 0.2],
         ...                       [0.8, 0.1, 0.0, 0.1]])
@@ -65,6 +68,9 @@ class DefenseEvaluate:
 
         Returns:
             float, the higher, the more successful the defense is.
+
+        Examples:
+            >>> def_eval.cav()
         """
         def_succ_num = np.sum(np.argmax(self._def_preds, axis=1)
                               == self._true_labels)
@@ -79,6 +85,9 @@ class DefenseEvaluate:
 
         Returns:
             float, the higher, the more successful the defense is.
+
+        Examples:
+            >>> def_eval.crr()
         """
         cond1 = np.argmax(self._def_preds, axis=1) == self._true_labels
         cond2 = np.argmax(self._raw_preds, axis=1) != self._true_labels
@@ -107,6 +116,9 @@ class DefenseEvaluate:
             - float, the lower, the more successful the defense is.
 
               - If return value == -1, len(idxes) == 0.
+
+        Examples:
+            >>> def_eval.ccv()
         """
         idxes = np.arange(self._num_samples)
         cond1 = np.argmax(self._def_preds, axis=1) == self._true_labels
@@ -133,6 +145,9 @@ class DefenseEvaluate:
                   more successful the defense.
 
                 - If return value == -1, idxes == 0.
+
+        Examples:
+            >>> def_eval.cos()
         """
         idxes = np.arange(self._num_samples)
         cond1 = np.argmax(self._def_preds, axis=1) == self._true_labels

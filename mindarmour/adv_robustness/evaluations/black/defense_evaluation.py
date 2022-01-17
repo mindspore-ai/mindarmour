@@ -57,12 +57,14 @@ class BlackDefenseEvaluate:
         max_queries (int): Attack budget, the maximum number of queries.
 
     Examples:
+        >>> import numpy as np
+        >>> from mindarmour.adv_robustness.evaluations import BlackDefenseEvaluate
         >>> raw_preds = np.array([[0.1, 0.1, 0.2, 0.6],
-        >>>                     [0.1, 0.7, 0.0, 0.2],
-        >>>                     [0.8, 0.1, 0.0, 0.1]])
+        ...                       [0.1, 0.7, 0.0, 0.2],
+        ...                       [0.8, 0.1, 0.0, 0.1]])
         >>> def_preds = np.array([[0.1, 0.1, 0.1, 0.7],
-        >>>                     [0.1, 0.6, 0.2, 0.1],
-        >>>                     [0.1, 0.2, 0.1, 0.6]])
+        ...                       [0.1, 0.6, 0.2, 0.1],
+        ...                       [0.1, 0.2, 0.1, 0.6]])
         >>> raw_query_counts = np.array([0,20,10])
         >>> def_query_counts = np.array([0,50,60])
         >>> raw_query_time = np.array([0.1, 2, 1])
@@ -79,7 +81,10 @@ class BlackDefenseEvaluate:
         ...                             def_detection_counts,
         ...                             true_labels,
         ...                             max_queries)
-        >>> def_eval.qcv()
+        >>> qcv = def_eval.qcv()
+        >>> asv = def_eval.asv()
+        >>> fpr = def_eval.fpr()
+        >>> qrv = def_eval.qrv()
     """
 
     def __init__(self, raw_preds, def_preds, raw_query_counts, def_query_counts,

@@ -53,13 +53,13 @@ class GradientMethod(Attack):
         >>> from mindspore import Tensor
         >>> from mindarmour.adv_robustness.attacks import FastGradientMethod
         >>> class Net(Cell):
-        >>>     def __init__(self):
-        >>>         super(Net, self).__init__()
-        >>>         self._relu = nn.ReLU()
-        >>>
-        >>>     def construct(self, inputs):
-        >>>         out = self._relu(inputs)
-        >>>         return out
+        ...     def __init__(self):
+        ...         super(Net, self).__init__()
+        ...         self._relu = nn.ReLU()
+        ...
+        ...     def construct(self, inputs):
+        ...         out = self._relu(inputs)
+        ...         return out
         >>> inputs = np.array([[0.1, 0.2, 0.6], [0.3, 0, 0.4]])
         >>> labels = np.array([[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]])
         >>> net = Net()
@@ -174,12 +174,12 @@ class FastGradientMethod(GradientMethod):
         >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
         >>> from mindarmour.adv_robustness.attacks import FastGradientMethod
         >>> class Net(Cell):
-        >>>     def __init__(self):
-        >>>         super(Net, self).__init__()
-        >>>         self._relu = nn.ReLU()
-        >>>     def construct(self, inputs):
-        >>>         out = self._relu(inputs)
-        >>>         return out
+        ...     def __init__(self):
+        ...         super(Net, self).__init__()
+        ...         self._relu = nn.ReLU()
+        ...     def construct(self, inputs):
+        ...         out = self._relu(inputs)
+        ...         return out
         >>> inputs = np.array([[0.1, 0.2, 0.6], [0.3, 0, 0.4]])
         >>> labels = np.array([[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]])
         >>> net = Net()
@@ -254,12 +254,12 @@ class RandomFastGradientMethod(FastGradientMethod):
         >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
         >>> from mindarmour.adv_robustness.attacks import RandomFastGradientMethod
         >>> class Net(Cell):
-        >>>     def __init__(self):
-        >>>         super(Net, self).__init__()
-        >>>         self._relu = nn.ReLU()
-        >>>     def construct(self, inputs):
-        >>>         out = self._relu(inputs)
-        >>>         return out
+        ...     def __init__(self):
+        ...         super(Net, self).__init__()
+        ...         self._relu = nn.ReLU()
+        ...     def construct(self, inputs):
+        ...         out = self._relu(inputs)
+        ...         return out
         >>> net = Net()
         >>> inputs = np.array([[0.1, 0.2, 0.6], [0.3, 0, 0.4]])
         >>> labels = np.array([[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]])
@@ -308,12 +308,12 @@ class FastGradientSignMethod(GradientMethod):
         >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
         >>> from mindarmour.adv_robustness.attacks import FastGradientSignMethod
         >>> class Net(Cell):
-        >>>     def __init__(self):
-        >>>         super(Net, self).__init__()
-        >>>         self._relu = nn.ReLU()
-        >>>     def construct(self, inputs):
-        >>>         out = self._relu(inputs)
-        >>>         return out
+        ...     def __init__(self):
+        ...         super(Net, self).__init__()
+        ...         self._relu = nn.ReLU()
+        ...     def construct(self, inputs):
+        ...         out = self._relu(inputs)
+        ...         return out
         >>> net = Net()
         >>> inputs = np.array([[0.1, 0.2, 0.6], [0.3, 0, 0.4]])
         >>> labels = np.array([[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]])
@@ -383,14 +383,13 @@ class RandomFastGradientSignMethod(FastGradientSignMethod):
         >>> import mindspore.nn as nn
         >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
         >>> from mindarmour.adv_robustness.attacks import RandomFastGradientSignMethod
-        >>>
         >>> class Net(Cell):
-        >>>     def __init__(self):
-        >>>         super(Net, self).__init__()
-        >>>         self._relu = nn.ReLU()
-        >>>     def construct(self, inputs):
-        >>>         out = self._relu(inputs)
-        >>>         return out
+        ...     def __init__(self):
+        ...         super(Net, self).__init__()
+        ...         self._relu = nn.ReLU()
+        ...     def construct(self, inputs):
+        ...         out = self._relu(inputs)
+        ...         return out
         >>> net = Net()
         >>> inputs = np.array([[0.1, 0.2, 0.6], [0.3, 0, 0.4]])
         >>> labels = np.array([[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]])
@@ -434,13 +433,12 @@ class LeastLikelyClassMethod(FastGradientSignMethod):
         >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
         >>> from mindarmour.adv_robustness.attacks import LeastLikelyClassMethod
         >>> class Net(Cell):
-        >>>     def __init__(self):
-        >>>         super(Net, self).__init__()
-        >>>         self._relu = nn.ReLU()
-        >>>
-        >>>     def construct(self, inputs):
-        >>>         out = self._relu(inputs)
-        >>>         return out
+        ...     def __init__(self):
+        ...         super(Net, self).__init__()
+        ...         self._relu = nn.ReLU()
+        ...     def construct(self, inputs):
+        ...         out = self._relu(inputs)
+        ...         return out
         >>> net = Net()
         >>> inputs = np.array([[0.1, 0.2, 0.6], [0.3, 0, 0.4]])
         >>> labels = np.array([[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]])
@@ -485,12 +483,12 @@ class RandomLeastLikelyClassMethod(FastGradientSignMethod):
         >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
         >>> from mindarmour.adv_robustness.attacks import RandomLeastLikelyClassMethod
         >>> class Net(Cell):
-        >>>     def __init__(self):
-        >>>         super(Net, self).__init__()
-        >>>         self._relu = nn.ReLU()
-        >>>     def construct(self, inputs):
-        >>>         out = self._relu(inputs)
-        >>>         return out
+        ...     def __init__(self):
+        ...         super(Net, self).__init__()
+        ...         self._relu = nn.ReLU()
+        ...     def construct(self, inputs):
+        ...         out = self._relu(inputs)
+        ...         return out
         >>> net = Net()
         >>> inputs = np.array([[0.1, 0.2, 0.6], [0.3, 0, 0.4]])
         >>> labels = np.array([[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]])

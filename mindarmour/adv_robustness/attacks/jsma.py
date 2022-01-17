@@ -59,12 +59,12 @@ class JSMAAttack(Attack):
         >>> from mindspore.nn import Cell
         >>> from mindarmour.adv_robustness.attacks import JSMAAttack
         >>> class Net(Cell):
-        >>>     def __init__(self):
-        >>>         super(Net, self).__init__()
-        >>>         self._relu = nn.ReLU()
-        >>>     def construct(self, inputs):
-        >>>         out = self._relu(inputs)
-        >>>         return out
+        ...     def __init__(self):
+        ...         super(Net, self).__init__()
+        ...         self._relu = nn.ReLU()
+        ...     def construct(self, inputs):
+        ...         out = self._relu(inputs)
+        ...         return out
         >>> net = Net()
         >>> input_shape = (1, 5)
         >>> batch_size, classes = input_shape
@@ -200,12 +200,12 @@ class JSMAAttack(Attack):
             >>> from mindspore.nn import Cell
             >>> from mindarmour.adv_robustness.attacks import JSMAAttack
             >>> class Net(Cell):
-            >>>     def __init__(self):
-            >>>         super(Net, self).__init__()
-            >>>         self._relu = nn.ReLU()
-            >>>     def construct(self, inputs):
-            >>>         out = self._relu(inputs)
-            >>>         return out
+            ...     def __init__(self):
+            ...         super(Net, self).__init__()
+            ...         self._relu = nn.ReLU()
+            ...     def construct(self, inputs):
+            ...         out = self._relu(inputs)
+            ...         return out
             >>> net = Net()
             >>> input_shape = (1, 5)
             >>> batch_size, classes = input_shape
