@@ -81,14 +81,14 @@ class HopSkipJumpAttack(Attack):
         >>> from mindarmour.adv_robustness.attacks import HopSkipJumpAttack
         >>> from tests.ut.python.utils.mock_net import Net
         >>> class ModelToBeAttacked(BlackModel):
-        >>>     def __init__(self, network):
-        >>>         super(ModelToBeAttacked, self).__init__()
-        >>>         self._network = network
-        >>>     def predict(self, inputs):
-        >>>         if len(inputs.shape) == 3:
-        >>>             inputs = inputs[np.newaxis, :]
-        >>>         result = self._network(Tensor(inputs.astype(np.float32)))
-        >>>         return result.asnumpy()
+        ...     def __init__(self, network):
+        ...         super(ModelToBeAttacked, self).__init__()
+        ...         self._network = network
+        ...     def predict(self, inputs):
+        ...         if len(inputs.shape) == 3:
+        ...             inputs = inputs[np.newaxis, :]
+        ...         result = self._network(Tensor(inputs.astype(np.float32)))
+        ...         return result.asnumpy()
         >>> net = Net()
         >>> model = ModelToBeAttacked(net)
         >>> attack = HopSkipJumpAttack(model)
@@ -191,14 +191,14 @@ class HopSkipJumpAttack(Attack):
             >>> from mindarmour.adv_robustness.attacks import HopSkipJumpAttack
             >>> from tests.ut.python.utils.mock_net import Net
             >>> class ModelToBeAttacked(BlackModel):
-            >>>     def __init__(self, network):
-            >>>         super(ModelToBeAttacked, self).__init__()
-            >>>         self._network = network
-            >>>     def predict(self, inputs):
-            >>>         if len(inputs.shape) == 3:
-            >>>             inputs = inputs[np.newaxis, :]
-            >>>         result = self._network(Tensor(inputs.astype(np.float32)))
-            >>>         return result.asnumpy()
+            ...     def __init__(self, network):
+            ...         super(ModelToBeAttacked, self).__init__()
+            ...         self._network = network
+            ...     def predict(self, inputs):
+            ...         if len(inputs.shape) == 3:
+            ...             inputs = inputs[np.newaxis, :]
+            ...         result = self._network(Tensor(inputs.astype(np.float32)))
+            ...         return result.asnumpy()
             >>> net = Net()
             >>> model = ModelToBeAttacked(net)
             >>> attack = HopSkipJumpAttack(model)

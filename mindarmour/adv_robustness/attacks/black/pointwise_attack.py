@@ -53,12 +53,12 @@ class PointWiseAttack(Attack):
         >>> from mindarmour.adv_robustness.attacks import PointWiseAttack
         >>> from tests.ut.python.utils.mock_net import Net
         >>> class ModelToBeAttacked(BlackModel):
-        >>>     def __init__(self, network):
-        >>>         super(ModelToBeAttacked, self).__init__()
-        >>>         self._network = network
-        >>>     def predict(self, inputs):
-        >>>         result = self._network(Tensor(inputs.astype(np.float32)))
-        >>>         return result.asnumpy()
+        ...     def __init__(self, network):
+        ...         super(ModelToBeAttacked, self).__init__()
+        ...         self._network = network
+        ...     def predict(self, inputs):
+        ...         result = self._network(Tensor(inputs.astype(np.float32)))
+        ...         return result.asnumpy()
         >>> net = Net()
         >>> model = ModelToBeAttacked(net)
         >>> attack = PointWiseAttack(model)
@@ -99,12 +99,12 @@ class PointWiseAttack(Attack):
             >>> from mindarmour.adv_robustness.attacks import PointWiseAttack
             >>> from tests.ut.python.utils.mock_net import Net
             >>> class ModelToBeAttacked(BlackModel):
-            >>>     def __init__(self, network):
-            >>>         super(ModelToBeAttacked, self).__init__()
-            >>>         self._network = network
-            >>>     def predict(self, inputs):
-            >>>         result = self._network(Tensor(inputs.astype(np.float32)))
-            >>>         return result.asnumpy()
+            ...     def __init__(self, network):
+            ...         super(ModelToBeAttacked, self).__init__()
+            ...         self._network = network
+            ...     def predict(self, inputs):
+            ...         result = self._network(Tensor(inputs.astype(np.float32)))
+            ...         return result.asnumpy()
             >>> net = Net()
             >>> model = ModelToBeAttacked(net)
             >>> attack = PointWiseAttack(model)

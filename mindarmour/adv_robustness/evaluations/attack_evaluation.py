@@ -47,6 +47,8 @@ class AttackEvaluate:
         ValueError: If target_label is None when targeted is True.
 
     Examples:
+        >>> import numpy as np
+        >>> from mindarmour.adv_robustness.evaluations import AttackEvaluate
         >>> x = np.random.normal(size=(3, 512, 512, 3))
         >>> adv_x = np.random.normal(size=(3, 512, 512, 3))
         >>> y = np.array([[0.1, 0.1, 0.2, 0.6],
@@ -57,6 +59,10 @@ class AttackEvaluate:
         ...                   [0.0, 0.9, 0.1, 0.0]])
         >>> attack_eval = AttackEvaluate(x, y, adv_x, adv_y)
         >>> mr = attack_eval.mis_classification_rate()
+        >>> acac = attack_eval.avg_conf_adv_class()
+        >>> l_0, l_2, l_inf = attack_eval.avg_lp_distance()
+        >>> ass = attack_eval.avg_ssim()
+        >>> nte = attack_eval.nte()
     """
 
     def __init__(self, inputs, labels, adv_inputs, adv_preds,
@@ -97,6 +103,10 @@ class AttackEvaluate:
 
         Returns:
             float, ranges between (0, 1). The higher, the more successful the attack is.
+
+        Examples:
+            >>> attack_eval = AttackEvaluate(x, y, adv_x, adv_y)
+            >>> mr = attack_eval.mis_classification_rate()
         """
         return self._success_idxes.shape[0]*1.0 / self._inputs.shape[0]
 
@@ -106,6 +116,10 @@ class AttackEvaluate:
 
         Returns:
             float, ranges between (0, 1). The higher, the more successful the attack is.
+
+        Examples:
+            >>> attack_eval = AttackEvaluate(x, y, adv_x, adv_y)
+            >>> acac = attack_eval.avg_conf_adv_class()
         """
         idxes = self._success_idxes
         success_num = idxes.shape[0]
@@ -121,6 +135,10 @@ class AttackEvaluate:
 
         Returns:
             float, ranges between (0, 1). The lower, the more successful the attack is.
+
+        Examples:
+            >>> attack_eval = AttackEvaluate(x, y, adv_x, adv_y)
+            >>> acac = attack_eval.avg_conf_adv_class()
         """
         idxes = self._success_idxes
         success_num = idxes.shape[0]
@@ -140,6 +158,10 @@ class AttackEvaluate:
                 the more successful the attack is.
 
               - If return value is -1, there is no success adversarial examples.
+
+        Examples:
+            >>> attack_eval = AttackEvaluate(x, y, adv_x, adv_y)
+            >>> l_0, l_2, l_inf = attack_eval.avg_lp_distance()
         """
         idxes = self._success_idxes
         success_num = idxes.shape[0]
@@ -168,6 +190,10 @@ class AttackEvaluate:
                 successful the attack is.
 
               - If return value is -1: there is no success adversarial examples.
+
+        Examples:
+            >>> attack_eval = AttackEvaluate(x, y, adv_x, adv_y)
+            >>> ass = attack_eval.avg_ssim()
         """
         success_num = self._success_idxes.shape[0]
         if success_num == 0:
@@ -186,10 +212,13 @@ class AttackEvaluate:
         References: `Towards Imperceptible and Robust Adversarial Example Attacks
         against Neural Networks <https://arxiv.org/abs/1801.04693>`_
 
-
         Returns:
             float, ranges between (0, 1). The higher, the more successful the
             attack is.
+
+        Examples:
+            >>> attack_eval = AttackEvaluate(x, y, adv_x, adv_y)
+            >>> nte = attack_eval.nte()
         """
         idxes = self._success_idxes
         success_num = idxes.shape[0]

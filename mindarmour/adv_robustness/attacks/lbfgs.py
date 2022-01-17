@@ -57,7 +57,6 @@ class LBFGS(Attack):
         >>> import numpy as np
         >>> from mindarmour.adv_robustness.attacks import LBFGS
         >>> from tests.ut.python.utils.mock_net import Net
-        >>>
         >>> net = Net()
         >>> attack = LBFGS(net, is_targeted=True)
     """

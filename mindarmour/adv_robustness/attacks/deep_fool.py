@@ -123,12 +123,12 @@ class DeepFool(Attack):
         >>> from mindspore import Tensor
         >>> from mindarmour.adv_robustness.attacks import DeepFool
         >>> class Net(Cell):
-        >>>     def __init__(self):
-        >>>         super(Net, self).__init__()
-        >>>         self._softmax = P.Softmax()
-        >>>     def construct(self, inputs):
-        >>>         out = self._softmax(inputs)
-        >>>         return out
+        ...     def __init__(self):
+        ...         super(Net, self).__init__()
+        ...         self._softmax = P.Softmax()
+        ...     def construct(self, inputs):
+        ...         out = self._softmax(inputs)
+        ...         return out
         >>> net = Net()
         >>> attack = DeepFool(net, classes, max_iters=10, norm_level=2,
         ...                   bounds=(0.0, 1.0))
@@ -185,12 +185,12 @@ class DeepFool(Attack):
             >>> from mindspore import Tensor
             >>> from mindarmour.adv_robustness.attacks import DeepFool
             >>> class Net(Cell):
-            >>>     def __init__(self):
-            >>>         super(Net, self).__init__()
-            >>>         self._softmax = P.Softmax()
-            >>>     def construct(self, inputs):
-            >>>         out = self._softmax(inputs)
-            >>>         return out
+            ...     def __init__(self):
+            ...         super(Net, self).__init__()
+            ...         self._softmax = P.Softmax()
+            ...     def construct(self, inputs):
+            ...         out = self._softmax(inputs)
+            ...         return out
             >>> net = Net()
             >>> attack = DeepFool(net, classes, max_iters=10, norm_level=2,
             ...                   bounds=(0.0, 1.0))
