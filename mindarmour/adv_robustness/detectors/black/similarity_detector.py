@@ -139,6 +139,13 @@ class SimilarityDetector(Detector):
         Raises:
             ValueError: The number of training data is less than
                 max_k_neighbor!
+
+        Examples:
+            >>> x_train = np.random.rand(10, 32, 32, 3).astype(np.float32)
+            >>> perm = np.random.permutation(x_train.shape[0])
+            >>> benign_queries = x_train[perm[:10], :, :, :]
+            >>> num_nearest_neighbors, thresholds = detector.fit(inputs=x_train)
+            >>> detector.set_threshold(num_nearest_neighbors[-1], thresholds[-1])
         """
         data = check_numpy_param('inputs', inputs)
         data_len = data.shape[0]
@@ -189,6 +196,14 @@ class SimilarityDetector(Detector):
         Raises:
             ValueError: The parameters of threshold or num_of_neighbors is
                 not available.
+
+        Examples:
+            >>> x_train = np.random.rand(10, 32, 32, 3).astype(np.float32)
+            >>> perm = np.random.permutation(x_train.shape[0])
+            >>> benign_queries = x_train[perm[:10], :, :, :]
+            >>> num_nearest_neighbors, thresholds = detector.fit(inputs=x_train)
+            >>> detector.set_threshold(num_nearest_neighbors[-1], thresholds[-1])
+            >>> detector.detect(benign_queries)
         """
         if self._threshold is None or self._num_of_neighbors is None:
             msg = 'Explicit detection threshold and number of nearest ' \
@@ -237,6 +252,8 @@ class SimilarityDetector(Detector):
         """
         Clear the buffer memory.
 
+        Examples:
+            >>> detector.detect(benign_queries)
         """
         while self._buffer:
             self._buffer.pop()
@@ -248,6 +265,10 @@ class SimilarityDetector(Detector):
         Args:
             num_of_neighbors (int): Number of the nearest neighbors.
             threshold (float): Detection threshold.
+
+        Examples:
+            >>> num_nearest_neighbors, thresholds = detector.fit(inputs=x_train)
+            >>> detector.set_threshold(num_nearest_neighbors[-1], thresholds[-1])
         """
         self._num_of_neighbors = check_int_positive('num_of_neighbors',
                                                     num_of_neighbors)
@@ -259,6 +280,9 @@ class SimilarityDetector(Detector):
 
         Returns:
             list[int], number of queries between adjacent detections.
+
+        Examples:
+            >>> detector.get_detection_interval()
         """
         detected_queries = self._detected_queries
         interval = []
@@ -272,6 +296,9 @@ class SimilarityDetector(Detector):
 
         Returns:
             list[int], sequence number of detected malicious queries.
+
+        Examples:
+            >>> detector.get_detected_queries()
         """
         detected_queries = self._detected_queries
         return detected_queries
@@ -288,6 +315,9 @@ class SimilarityDetector(Detector):
         Raises:
             NotImplementedError: This function is not available
                 in class `SimilarityDetector`.
+
+        Examples:
+            >>> detector.detect_diff()
         """
         msg = 'The function detect_diff() is not available in the class ' \
               '`SimilarityDetector`.'
@@ -303,6 +333,9 @@ class SimilarityDetector(Detector):
 
         Raises:
             NotImplementedError: This function is not available in class `SimilarityDetector`.
+
+        Examples:
+            >>> detector.transform(x_train)
         """
         msg = 'The function transform() is not available in the class `SimilarityDetector`.'
         LOGGER.error(TAG, msg)

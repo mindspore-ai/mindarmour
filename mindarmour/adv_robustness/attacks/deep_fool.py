@@ -130,8 +130,14 @@ class DeepFool(Attack):
         ...         out = self._softmax(inputs)
         ...         return out
         >>> net = Net()
+        >>> input_shape = (1, 5)
+        >>> _, classes = input_shape
         >>> attack = DeepFool(net, classes, max_iters=10, norm_level=2,
         ...                   bounds=(0.0, 1.0))
+        >>> input_np = np.array([[0.1, 0.2, 0.7, 0.5, 0.4]]).astype(np.float32)
+        >>> input_me = Tensor(input_np)
+        >>> true_labels = np.argmax(net(input_me).asnumpy(), axis=1)
+        >>> advs = attack.generate(input_np, true_labels)
     """
 
     def __init__(self, network, num_classes, model_type='classification',
@@ -177,30 +183,6 @@ class DeepFool(Attack):
 
         Raises:
             NotImplementedError: If norm_level is not in [2, np.inf, '2', 'inf'].
-
-        Examples:
-            >>> import numpy as np
-            >>> import mindspore.ops.operations as P
-            >>> from mindspore.nn import Cell
-            >>> from mindspore import Tensor
-            >>> from mindarmour.adv_robustness.attacks import DeepFool
-            >>> class Net(Cell):
-            ...     def __init__(self):
-            ...         super(Net, self).__init__()
-            ...         self._softmax = P.Softmax()
-            ...     def construct(self, inputs):
-            ...         out = self._softmax(inputs)
-            ...         return out
-            >>> net = Net()
-            >>> attack = DeepFool(net, classes, max_iters=10, norm_level=2,
-            ...                   bounds=(0.0, 1.0))
-            >>> input_shape = (1, 5)
-            >>> _, classes = input_shape
-            >>> input_np = np.array([[0.1, 0.2, 0.7, 0.5, 0.4]]).astype(np.float32)
-            >>> input_me = Tensor(input_np)
-            >>> true_labels = np.argmax(net(input_me).asnumpy(), axis=1)
-            >>> attack = DeepFool(net, classes, max_iters=10, norm_level=2, bounds=(0.0, 1.0))
-            >>> advs = attack.generate(input_np, true_labels)
         """
 
         if self._model_type == 'detection':

@@ -92,6 +92,12 @@ class GeneticAttack(Attack):
         >>> net = Net()
         >>> model = ModelToBeAttacked(net)
         >>> attack = GeneticAttack(model, sparse=False)
+        >>> batch_size = 6
+        >>> x_test = np.random.rand(batch_size, 10)
+        >>> y_test = np.random.randint(low=0, high=10, size=batch_size)
+        >>> y_test = np.eye(10)[y_test]
+        >>> y_test = y_test.astype(np.float32)
+        >>> _, adv_data, _ = attack.generate(x_test, y_test)
     """
     def __init__(self, model, model_type='classification', targeted=True, reserve_ratio=0.3, sparse=True,
                  pop_size=6, mutation_rate=0.005, per_bounds=0.15, max_steps=1000, step_size=0.20, temp=0.3,
@@ -235,14 +241,6 @@ class GeneticAttack(Attack):
             - numpy.ndarray, generated adversarial examples.
 
             - numpy.ndarray, query times for each sample.
-
-        Examples:
-            >>> batch_size = 6
-            >>> x_test = np.random.rand(batch_size, 10)
-            >>> y_test = np.random.randint(low=0, high=10, size=batch_size)
-            >>> y_test = np.eye(10)[y_test]
-            >>> y_test = y_test.astype(np.float32)
-            >>> _, adv_data, _ = attack._generate_classification(x_test, y_test)
         """
         inputs, labels = check_pair_numpy_param('inputs', inputs, 'labels', labels)
         if self._sparse:
@@ -346,14 +344,6 @@ class GeneticAttack(Attack):
             - numpy.ndarray, generated adversarial examples.
 
             - numpy.ndarray, query times for each sample.
-
-        Examples:
-            >>> batch_size = 6
-            >>> x_test = np.random.rand(batch_size, 10)
-            >>> y_test = np.random.randint(low=0, high=10, size=batch_size)
-            >>> y_test = np.eye(10)[y_test]
-            >>> y_test = y_test.astype(np.float32)
-            >>> _, adv_data, _ = attack._generate_detection(x_test, y_test)
         """
         images, auxiliary_inputs, gt_boxes, gt_labels = check_detection_inputs(inputs, labels)
         adv_list = []
@@ -458,14 +448,6 @@ class GeneticAttack(Attack):
             - numpy.ndarray, generated adversarial examples.
 
             - numpy.ndarray, query times for each sample.
-
-        Examples:
-            >>> batch_size = 6
-            >>> x_test = np.random.rand(batch_size, 10)
-            >>> y_test = np.random.randint(low=0, high=10, size=batch_size)
-            >>> y_test = np.eye(10)[y_test]
-            >>> y_test = y_test.astype(np.float32)
-            >>> _, adv_data, _ = attack.generate(x_test, y_test)
         """
         if self._model_type == 'classification':
             success_list, adv_data, query_time_list = self._generate_classification(inputs, labels)

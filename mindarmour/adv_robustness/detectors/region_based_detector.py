@@ -57,7 +57,7 @@ class RegionBasedDetector(Detector):
         >>> from mindspore.nn import Cell
         >>> from mindspore import Model
         >>> from mindspore import context
-        >>> from mindarmour.adv_robustness.detectors import ErrorBasedDetector
+        >>> from mindarmour.adv_robustness.detectors import RegionBasedDetector
         >>> class Net(Cell):
         ...     def __init__(self):
         ...         super(Net, self).__init__()
