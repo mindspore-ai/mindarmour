@@ -58,7 +58,7 @@ class RadarMetric:
         ...                  metrics_labels,
         ...                  title='',
         ...                  scale='sparse')
-        >>> rm.show()
+        >>> #rm.show()
     """
 
     def __init__(self, metrics_name, metrics_data, labels, title, scale='hide'):

@@ -55,6 +55,9 @@ class SaltAndPepperNoiseAttack(Attack):
         >>> net = Net()
         >>> model = ModelToBeAttacked(net)
         >>> attack = SaltAndPepperNoiseAttack(model)
+        >>> x_test = np.asarray(np.random.random((1,1,32,32)), np.float32)
+        >>> y_test = np.random.randint(0, 3, size=1)
+        >>> _, adv_list, _ = attack.generate(x_test, y_test)
     """
 
     def __init__(self, model, bounds=(0.0, 1.0), max_iter=100, is_targeted=False, sparse=True):
@@ -81,26 +84,6 @@ class SaltAndPepperNoiseAttack(Attack):
             - numpy.ndarray, generated adversarial examples.
 
             - numpy.ndarray, query times for each sample.
-
-        Examples:
-            >>> import numpy as np
-            >>> from mindspore import Tensor
-            >>> from mindarmour import BlackModel
-            >>> from mindarmour.adv_robustness.attacks import SaltAndPepperNoiseAttack
-            >>> from tests.ut.python.utils.mock_net import Net
-            >>> class ModelToBeAttacked(BlackModel):
-            ...     def __init__(self, network):
-            ...         super(ModelToBeAttacked, self).__init__()
-            ...         self._network = network
-            ...     def predict(self, inputs):
-            ...         result = self._network(Tensor(inputs.astype(np.float32)))
-            ...         return result.asnumpy()
-            >>> net = Net()
-            >>> model = ModelToBeAttacked(net)
-            >>> attack = PointWiseAttack(model)
-            >>> x_test = np.asarray(np.random.random((1,1,32,32)), np.float32)
-            >>> y_test = np.random.randint(0, 3, size=1)
-            >>> _, adv_list, _ = attack.generate(x_test, y_test)
         """
         arr_x, arr_y = check_pair_numpy_param('inputs', inputs, 'labels', labels)
         if not self._sparse:

@@ -45,12 +45,12 @@ class NaturalAdversarialDefense(AdversarialDefenseWithAttacks):
         >>> lr = 0.001
         >>> momentum = 0.9
         >>> batch_size = 32
-        >>> num_class = 10
+        >>> num_classes = 10
         >>> loss_fn = nn.SoftmaxCrossEntropyWithLogits(sparse=False)
         >>> optimizer = Momentum(net.trainable_params(), learning_rate=lr, momentum=momentum)
         >>> nad = NaturalAdversarialDefense(net, loss_fn=loss_fn, optimizer=optimizer)
         >>> inputs = np.random.rand(batch_size, 1, 32, 32).astype(np.float32)
-        >>> labels = np.random.randint(num_class, size=batch_size).astype(np.int32)
+        >>> labels = np.random.randint(num_classes, size=batch_size).astype(np.int32)
         >>> labels = np.eye(num_classes)[labels].astype(np.float32)
         >>> loss = nad.defense(inputs, labels)
     """

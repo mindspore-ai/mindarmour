@@ -52,7 +52,11 @@ class DefenseEvaluate:
         >>> def_eval = DefenseEvaluate(raw_preds,
         ...                            def_preds,
         ...                            true_labels)
-        >>> def_eval.cav()
+        >>> cav = def_eval.cav()
+        >>> crr = def_eval.crr()
+        >>> csr = def_eval.csr()
+        >>> ccv = def_eval.ccv()
+        >>> cos = def_eval.cos()
     """
     def __init__(self, raw_preds, def_preds, true_labels):
         self._raw_preds, self._def_preds = check_pair_numpy_param('raw_preds',

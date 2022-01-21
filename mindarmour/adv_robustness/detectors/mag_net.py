@@ -184,21 +184,31 @@ class DivergenceBasedDetector(ErrorBasedDetector):
 
     Examples:
         >>> import numpy as np
-        >>> from mindspore.ops.operations import Add
+        >>> import mindspore.ops.operations as P
         >>> from mindspore.nn import Cell
         >>> from mindspore import Model
         >>> from mindspore import context
-        >>> from mindarmour.adv_robustness.detectors import ErrorBasedDetector
+        >>> from mindarmour.adv_robustness.detectors import DivergenceBasedDetector
         >>> class PredNet(Cell):
-        >>>     def __init__(self):
-        >>>         super(Net, self).__init__()
-        >>>         self.add = Add()
-        >>>     def construct(self, inputs):
-        >>>         return self.add(inputs, inputs)
+        ...     def __init__(self):
+        ...         super(PredNet, self).__init__()
+        ...         self.shape = P.Shape()
+        ...         self.reshape = P.Reshape()
+        ...         self._softmax = P.Softmax()
+        ...     def construct(self, inputs):
+        ...         data = self.reshape(inputs, (self.shape(inputs)[0], -1))
+        ...         return self._softmax(data)
+        >>> class Net(Cell):
+        ...     def __init__(self):
+        ...         super(Net, self).__init__()
+        ...         self.add = P.Add()
+        ...     def construct(self, inputs):
+        ...         return self.add(inputs, inputs)
         >>> np.random.seed(5)
         >>> ori = np.random.rand(4, 4, 4).astype(np.float32)
         >>> np.random.seed(6)
         >>> adv = np.random.rand(4, 4, 4).astype(np.float32)
+        >>> encoder = Model(Net())
         >>> model = Model(PredNet())
         >>> detector = DivergenceBasedDetector(encoder, model)
         >>> threshold = detector.fit(ori)

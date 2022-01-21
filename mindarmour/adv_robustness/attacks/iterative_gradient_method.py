@@ -147,12 +147,6 @@ class IterativeGradientMethod(Attack):
         Raises:
             NotImplementedError: This function is not available in
                 IterativeGradientMethod.
-
-        Examples:
-            >>> adv_x = attack.generate([[0.1, 0.9, 0.6],
-            >>>                          [0.3, 0, 0.3]],
-            >>>                         [[0, , 1, 0, 0, 0, 0, 0, 0, 0],
-            >>>                          [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]])
         """
         msg = 'The function generate() is an abstract method in class ' \
               '`IterativeGradientMethod`, and should be implemented ' \
@@ -186,17 +180,23 @@ class BasicIterativeMethod(IterativeGradientMethod):
     Examples:
         >>> import numpy as np
         >>> import mindspore.nn as nn
+        >>> from mindspore.ops import operations as P
         >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
         >>> from mindarmour.adv_robustness.attacks import BasicIterativeMethod
         >>> class Net(Cell):
         ...     def __init__(self):
         ...         super(Net, self).__init__()
-        ...         self._relu = nn.ReLU()
+        ...         self._softmax = P.Softmax()
         ...     def construct(self, inputs):
-        ...         out = self._relu(inputs)
+        ...         out = self._softmax(inputs)
         ...         return out
         >>> net = Net()
         >>> attack = BasicIterativeMethod(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
+        >>> inputs = np.asarray([[0.1, 0.2, 0.7]], np.float32)
+        >>> labels = np.asarray([2],np.int32)
+        >>> labels = np.eye(3)[labels].astype(np.float32)
+        >>> net = Net()
+        >>> adv_x = attack.generate(inputs, labels)
     """
     def __init__(self, network, eps=0.3, eps_iter=0.1, bounds=(0.0, 1.0),
                  is_targeted=False, nb_iter=5, loss_fn=None):
@@ -225,25 +225,6 @@ class BasicIterativeMethod(IterativeGradientMethod):
                 For each input if it has more than one label, it is wrapped in a tuple.
         Returns:
             numpy.ndarray, generated adversarial examples.
-
-        Examples:
-            >>> import numpy as np
-            >>> import mindspore.nn as nn
-            >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
-            >>> from mindarmour.adv_robustness.attacks import BasicIterativeMethod
-            >>> class Net(Cell):
-            ...     def __init__(self):
-            ...         super(Net, self).__init__()
-            ...         self._relu = nn.ReLU()
-            ...     def construct(self, inputs):
-            ...         out = self._relu(inputs)
-            ...         return out
-            >>> net = Net()
-            >>> attack = BasicIterativeMethod(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
-            >>> adv_x = attack.generate([[0.3, 0.2, 0.6],
-            ...                          [0.3, 0.2, 0.4]],
-            ...                         [[0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-            ...                          [0, 0, 0, 0, 0, 0, 1, 0, 0, 0]])
         """
         inputs_image, inputs, labels = check_inputs_labels(inputs, labels)
         arr_x = inputs_image
@@ -299,6 +280,27 @@ class MomentumIterativeMethod(IterativeGradientMethod):
             np.inf, 1 or 2. Default: 'inf'.
         loss_fn (Loss): Loss function for optimization. If None, the input network \
             is already equipped with loss function. Default: None.
+
+    Examples:
+        >>> import numpy as np
+        >>> import mindspore.nn as nn
+        >>> from mindspore.ops import operations as P
+        >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
+        >>> from mindarmour.adv_robustness.attacks import MomentumIterativeMethod
+        >>> class Net(Cell):
+        ...     def __init__(self):
+        ...         super(Net, self).__init__()
+        ...         self._softmax = P.Softmax()
+        ...     def construct(self, inputs):
+        ...         out = self._softmax(inputs)
+        ...         return out
+        >>> net = Net()
+        >>> attack = MomentumIterativeMethod(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
+        >>> inputs = np.asarray([[0.1, 0.2, 0.7]], np.float32)
+        >>> labels = np.asarray([2],np.int32)
+        >>> labels = np.eye(3)[labels].astype(np.float32)
+        >>> net = Net()
+        >>> adv_x = attack.generate(inputs, labels)
     """
 
     def __init__(self, network, eps=0.3, eps_iter=0.1, bounds=(0.0, 1.0),
@@ -326,25 +328,6 @@ class MomentumIterativeMethod(IterativeGradientMethod):
 
         Returns:
             numpy.ndarray, generated adversarial examples.
-
-        Examples:
-            >>> import numpy as np
-            >>> import mindspore.nn as nn
-            >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
-            >>> from mindarmour.adv_robustness.attacks import MomentumIterativeMethod
-            >>> class Net(Cell):
-            ...     def __init__(self):
-            ...         super(Net, self).__init__()
-            ...         self._relu = nn.ReLU()
-            ...     def construct(self, inputs):
-            ...         out = self._relu(inputs)
-            ...         return out
-            >>> net = Net()
-            >>> attack = MomentumIterativeMethod(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
-            >>> adv_x = attack.generate([[0.5, 0.2, 0.6],
-            ...                          [0.3, 0, 0.2]],
-            ...                         [[0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
-            ...                          [0, 0, 0, 0, 0, 1, 0, 0, 0, 0]])
         """
         inputs_image, inputs, labels = check_inputs_labels(inputs, labels)
         arr_x = inputs_image
@@ -443,6 +426,27 @@ class ProjectedGradientDescent(BasicIterativeMethod):
             np.inf, 1 or 2. Default: 'inf'.
         loss_fn (Loss): Loss function for optimization. If None, the input network \
             is already equipped with loss function. Default: None.
+
+    Examples:
+        >>> import numpy as np
+        >>> import mindspore.nn as nn
+        >>> from mindspore.ops import operations as P
+        >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
+        >>> from mindarmour.adv_robustness.attacks import ProjectedGradientDescent
+        >>> class Net(Cell):
+        ...     def __init__(self):
+        ...         super(Net, self).__init__()
+        ...         self._softmax = P.Softmax()
+        ...     def construct(self, inputs):
+        ...         out = self._softmax(inputs)
+        ...         return out
+        >>> net = Net()
+        >>> attack = ProjectedGradientDescent(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
+        >>> inputs = np.asarray([[0.1, 0.2, 0.7]], np.float32)
+        >>> labels = np.asarray([2],np.int32)
+        >>> labels = np.eye(3)[labels].astype(np.float32)
+        >>> net = Net()
+        >>> adv_x = attack.generate(inputs, labels)
     """
 
     def __init__(self, network, eps=0.3, eps_iter=0.1, bounds=(0.0, 1.0),
@@ -469,25 +473,6 @@ class ProjectedGradientDescent(BasicIterativeMethod):
 
         Returns:
             numpy.ndarray, generated adversarial examples.
-
-        Examples:
-            >>> import numpy as np
-            >>> import mindspore.nn as nn
-            >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
-            >>> from mindarmour.adv_robustness.attacks import ProjectedGradientDescent
-            >>> class Net(Cell):
-            ...     def __init__(self):
-            ...         super(Net, self).__init__()
-            ...         self._relu = nn.ReLU()
-            ...     def construct(self, inputs):
-            ...         out = self._relu(inputs)
-            ...         return out
-            >>> net = Net()
-            >>> attack = ProjectedGradientDescent(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
-            >>> adv_x = attack.generate([[0.6, 0.2, 0.6],
-            ...                          [0.3, 0.3, 0.4]],
-            ...                         [[0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-            ...                          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
         """
         inputs_image, inputs, labels = check_inputs_labels(inputs, labels)
         arr_x = inputs_image
@@ -539,6 +524,27 @@ class DiverseInputIterativeMethod(BasicIterativeMethod):
         prob (float): Transformation probability. Default: 0.5.
         loss_fn (Loss): Loss function for optimization. If None, the input network \
             is already equipped with loss function. Default: None.
+
+    Examples:
+        >>> import numpy as np
+        >>> import mindspore.nn as nn
+        >>> from mindspore.ops import operations as P
+        >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
+        >>> from mindarmour.adv_robustness.attacks import DiverseInputIterativeMethod
+        >>> class Net(Cell):
+        ...     def __init__(self):
+        ...         super(Net, self).__init__()
+        ...         self._softmax = P.Softmax()
+        ...     def construct(self, inputs):
+        ...         out = self._softmax(inputs)
+        ...         return out
+        >>> net = Net()
+        >>> attack = DiverseInputIterativeMethod(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
+        >>> inputs = np.asarray([[0.1, 0.2, 0.7]], np.float32)
+        >>> labels = np.asarray([2],np.int32)
+        >>> labels = np.eye(3)[labels].astype(np.float32)
+        >>> net = Net()
+        >>> adv_x = attack.generate(inputs, labels)
     """
     def __init__(self, network, eps=0.3, bounds=(0.0, 1.0),
                  is_targeted=False, prob=0.5, loss_fn=None):
@@ -575,6 +581,27 @@ class MomentumDiverseInputIterativeMethod(MomentumIterativeMethod):
         prob (float): Transformation probability. Default: 0.5.
         loss_fn (Loss): Loss function for optimization. If None, the input network \
             is already equipped with loss function. Default: None.
+
+    Examples:
+        >>> import numpy as np
+        >>> import mindspore.nn as nn
+        >>> from mindspore.ops import operations as P
+        >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
+        >>> from mindarmour.adv_robustness.attacks import MomentumDiverseInputIterativeMethod
+        >>> class Net(Cell):
+        ...     def __init__(self):
+        ...         super(Net, self).__init__()
+        ...         self._softmax = P.Softmax()
+        ...     def construct(self, inputs):
+        ...         out = self._softmax(inputs)
+        ...         return out
+        >>> net = Net()
+        >>> attack = MomentumDiverseInputIterativeMethod(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
+        >>> inputs = np.asarray([[0.1, 0.2, 0.7]], np.float32)
+        >>> labels = np.asarray([2],np.int32)
+        >>> labels = np.eye(3)[labels].astype(np.float32)
+        >>> net = Net()
+        >>> adv_x = attack.generate(inputs, labels)
        """
     def __init__(self, network, eps=0.3, bounds=(0.0, 1.0),
                  is_targeted=False, norm_level='l1', prob=0.5, loss_fn=None):

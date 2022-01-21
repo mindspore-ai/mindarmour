@@ -45,26 +45,6 @@ class GradientMethod(Attack):
             In form of (clip_min, clip_max). Default: None.
         loss_fn (Loss): Loss function for optimization. If None, the input network \
             is already equipped with loss function. Default: None.
-
-    Examples:
-        >>> import numpy as np
-        >>> import mindspore.nn as nn
-        >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
-        >>> from mindspore import Tensor
-        >>> from mindarmour.adv_robustness.attacks import FastGradientMethod
-        >>> class Net(Cell):
-        ...     def __init__(self):
-        ...         super(Net, self).__init__()
-        ...         self._relu = nn.ReLU()
-        ...
-        ...     def construct(self, inputs):
-        ...         out = self._relu(inputs)
-        ...         return out
-        >>> inputs = np.array([[0.1, 0.2, 0.6], [0.3, 0, 0.4]])
-        >>> labels = np.array([[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]])
-        >>> net = Net()
-        >>> attack = FastGradientMethod(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
-        >>> adv_x = attack.generate(inputs, labels)
     """
 
     def __init__(self, network, eps=0.07, alpha=None, bounds=None,
@@ -180,8 +160,9 @@ class FastGradientMethod(GradientMethod):
         ...     def construct(self, inputs):
         ...         out = self._relu(inputs)
         ...         return out
-        >>> inputs = np.array([[0.1, 0.2, 0.6], [0.3, 0, 0.4]])
-        >>> labels = np.array([[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]])
+        >>> inputs = np.asarray([[0.1, 0.2, 0.7]], np.float32)
+        >>> labels = np.asarray([2],np.int32)
+        >>> labels = np.eye(3)[labels].astype(np.float32)
         >>> net = Net()
         >>> attack = FastGradientMethod(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
         >>> adv_x = attack.generate(inputs, labels)
@@ -261,8 +242,9 @@ class RandomFastGradientMethod(FastGradientMethod):
         ...         out = self._relu(inputs)
         ...         return out
         >>> net = Net()
-        >>> inputs = np.array([[0.1, 0.2, 0.6], [0.3, 0, 0.4]])
-        >>> labels = np.array([[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]])
+        >>> inputs = np.asarray([[0.1, 0.2, 0.7]], np.float32)
+        >>> labels = np.asarray([2],np.int32)
+        >>> labels = np.eye(3)[labels].astype(np.float32)
         >>> attack = RandomFastGradientMethod(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
         >>> adv_x = attack.generate(inputs, labels)
     """
@@ -315,8 +297,9 @@ class FastGradientSignMethod(GradientMethod):
         ...         out = self._relu(inputs)
         ...         return out
         >>> net = Net()
-        >>> inputs = np.array([[0.1, 0.2, 0.6], [0.3, 0, 0.4]])
-        >>> labels = np.array([[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]])
+        >>> inputs = np.asarray([[0.1, 0.2, 0.7]], np.float32)
+        >>> labels = np.asarray([2],np.int32)
+        >>> labels = np.eye(3)[labels].astype(np.float32)
         >>> attack = FastGradientSignMethod(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
         >>> adv_x = attack.generate(inputs, labels)
     """
@@ -391,8 +374,9 @@ class RandomFastGradientSignMethod(FastGradientSignMethod):
         ...         out = self._relu(inputs)
         ...         return out
         >>> net = Net()
-        >>> inputs = np.array([[0.1, 0.2, 0.6], [0.3, 0, 0.4]])
-        >>> labels = np.array([[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]])
+        >>> inputs = np.asarray([[0.1, 0.2, 0.7]], np.float32)
+        >>> labels = np.asarray([2],np.int32)
+        >>> labels = np.eye(3)[labels].astype(np.float32)
         >>> attack = RandomFastGradientSignMethod(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
         >>> adv_x = attack.generate(inputs, labels)
     """
@@ -439,9 +423,10 @@ class LeastLikelyClassMethod(FastGradientSignMethod):
         ...     def construct(self, inputs):
         ...         out = self._relu(inputs)
         ...         return out
+        >>> inputs = np.asarray([[0.1, 0.2, 0.7]], np.float32)
+        >>> labels = np.asarray([2],np.int32)
+        >>> labels = np.eye(3)[labels].astype(np.float32)
         >>> net = Net()
-        >>> inputs = np.array([[0.1, 0.2, 0.6], [0.3, 0, 0.4]])
-        >>> labels = np.array([[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]])
         >>> attack = LeastLikelyClassMethod(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
         >>> adv_x = attack.generate(inputs, labels)
     """
@@ -489,10 +474,11 @@ class RandomLeastLikelyClassMethod(FastGradientSignMethod):
         ...     def construct(self, inputs):
         ...         out = self._relu(inputs)
         ...         return out
+        >>> inputs = np.asarray([[0.1, 0.2, 0.7]], np.float32)
+        >>> labels = np.asarray([2],np.int32)
+        >>> labels = np.eye(3)[labels].astype(np.float32)
         >>> net = Net()
-        >>> inputs = np.array([[0.1, 0.2, 0.6], [0.3, 0, 0.4]])
-        >>> labels = np.array([[0, 1, 0, 0, 0], [0, 0, 1, 0, 0]])
-        >>> attack = RandomLeastLikelyClassMethod(network, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
+        >>> attack = RandomLeastLikelyClassMethod(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
         >>> adv_x = attack.generate(inputs, labels)
     """
 

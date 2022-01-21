@@ -58,7 +58,13 @@ class LBFGS(Attack):
         >>> from mindarmour.adv_robustness.attacks import LBFGS
         >>> from tests.ut.python.utils.mock_net import Net
         >>> net = Net()
+        >>> classes = 10
         >>> attack = LBFGS(net, is_targeted=True)
+        >>> input_np = np.asarray(np.random.random((1,1,32,32)), np.float32)
+        >>> label_np = np.array([3]).astype(np.int64)
+        >>> target_np = np.array([7]).astype(np.int64)
+        >>> target_np = np.eye(10)[target_np].astype(np.float32)
+        >>> adv = attack.generate(input_np, target_np)
     """
     def __init__(self, network, eps=1e-5, bounds=(0.0, 1.0), is_targeted=True,
                  nb_iter=150, search_iters=30, loss_fn=None, sparse=False):
@@ -96,14 +102,6 @@ class LBFGS(Attack):
 
         Returns:
             numpy.ndarray, generated adversarial examples.
-
-        Examples:
-            >>> import numpy as np
-            >>> from mindarmour.adv_robustness.attacks import LBFGS
-            >>> from tests.ut.python.utils.mock_net import Net
-            >>> net = Net()
-            >>> attack = LBFGS(net, is_targeted=True)
-            >>> adv = attack.generate([[0.1, 0.2, 0.6], [0.3, 0, 0.4]], [2, 2])
         """
         LOGGER.debug(TAG, 'start to generate adv image.')
         arr_x, arr_y = check_pair_numpy_param('inputs', inputs, 'labels', labels)

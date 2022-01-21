@@ -83,13 +83,18 @@ class PSOAttack(Attack):
         ...     def __init__(self):
         ...         super(Net, self).__init__()
         ...         self._relu = nn.ReLU()
-        ...
         ...     def construct(self, inputs):
         ...         out = self._relu(inputs)
         ...         return out
         >>> net = Net()
         >>> model = ModelToBeAttacked(net)
         >>> attack = PSOAttack(model, bounds=(0.0, 1.0), pm=0.5, sparse=False)
+        >>> batch_size = 6
+        >>> x_test = np.random.rand(batch_size, 10)
+        >>> y_test = np.random.randint(low=0, high=10, size=batch_size)
+        >>> y_test = np.eye(10)[y_test]
+        >>> y_test = y_test.astype(np.float32)
+        >>> _, adv_data, _ = attack.generate(x_test, y_test)
     """
 
     def __init__(self, model, model_type='classification', targeted=False, reserve_ratio=0.3, sparse=True,
@@ -228,17 +233,6 @@ class PSOAttack(Attack):
             - numpy.ndarray, generated adversarial examples.
 
             - numpy.ndarray, query times for each sample.
-
-        Examples:
-            >>> net = Net()
-            >>> model = ModelToBeAttacked(net)
-            >>> attack = PSOAttack(model, bounds=(0.0, 1.0), pm=0.5, sparse=False)
-            >>> batch_size = 6
-            >>> x_test = np.random.rand(batch_size, 10)
-            >>> y_test = np.random.randint(low=0, high=10, size=batch_size)
-            >>> y_test = np.eye(10)[y_test]
-            >>> y_test = y_test.astype(np.float32)
-            >>> _, adv_data, _ = attack.generate(x_test, y_test)
         """
         # inputs check
         inputs, labels = check_pair_numpy_param('inputs', inputs,
@@ -507,40 +501,6 @@ class PSOAttack(Attack):
             - numpy.ndarray, generated adversarial examples.
 
             - numpy.ndarray, query times for each sample.
-
-        Examples:
-            >>> import numpy as np
-            >>> import mindspore.nn as nn
-            >>> from mindspore import Tensor
-            >>> from mindspore.nn import Cell
-            >>> from mindarmour import BlackModel
-            >>> from mindarmour.adv_robustness.attacks import PSOAttack
-            >>> class ModelToBeAttacked(BlackModel):
-            ...     def __init__(self, network):
-            ...         super(ModelToBeAttacked, self).__init__()
-            ...         self._network = network
-            ...     def predict(self, inputs):
-            ...         if len(inputs.shape) == 1:
-            ...             inputs = np.expand_dims(inputs, axis=0)
-            ...         result = self._network(Tensor(inputs.astype(np.float32)))
-            ...         return result.asnumpy()
-            >>> class Net(Cell):
-            ...     def __init__(self):
-            ...         super(Net, self).__init__()
-            ...         self._relu = nn.ReLU()
-            ...
-            ...     def construct(self, inputs):
-            ...         out = self._relu(inputs)
-            ...         return out
-            >>> net = Net()
-            >>> model = ModelToBeAttacked(net)
-            >>> attack = PSOAttack(model, bounds=(0.0, 1.0), pm=0.5, sparse=False)
-            >>> batch_size = 6
-            >>> x_test = np.random.rand(batch_size, 10)
-            >>> y_test = np.random.randint(low=0, high=10, size=batch_size)
-            >>> y_test = np.eye(10)[y_test]
-            >>> y_test = y_test.astype(np.float32)
-            >>> _, adv_data, _ = attack.generate(x_test, y_test)
         """
         # inputs check
         if self._model_type == 'classification':

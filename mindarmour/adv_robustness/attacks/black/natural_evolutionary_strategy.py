@@ -98,6 +98,13 @@ class NES(Attack):
         >>> SCENE = 'Query_Limit'
         >>> TOP_K = -1
         >>> attack= NES(model, SCENE, top_k=TOP_K)
+        >>> num_class = 5
+        >>> x_test = np.asarray(np.random.random((1, 1, 32, 32)), np.float32)
+        >>> target_image  = np.asarray(np.random.random((1, 1, 32, 32)), np.float32)
+        >>> orig_class = 0
+        >>> target_class = 2
+        >>> attack.set_target_images(target_image)
+        >>> tag, adv, queries = attack.generate(np.array(x_test), np.array([target_class]))
     """
 
     def __init__(self, model, scene, max_queries=10000, top_k=-1, num_class=10, batch_size=128, epsilon=0.3,
@@ -153,34 +160,6 @@ class NES(Attack):
             ValueError: If the top_k less than 0 in Label-Only or Partial-Info setting.
             ValueError: If the target_imgs is None in Label-Only or Partial-Info setting.
             ValueError: If scene is not in ['Label_Only', 'Partial_Info', 'Query_Limit']
-
-        Examples:
-            >>> import numpy as np
-            >>> from mindspore import Tensor
-            >>> from mindarmour import BlackModel
-            >>> from mindarmour.adv_robustness.attacks import NES
-            >>> from tests.ut.python.utils.mock_net import Net
-            >>> class ModelToBeAttacked(BlackModel):
-            ...     def __init__(self, network):
-            ...         super(ModelToBeAttacked, self).__init__()
-            ...         self._network = network
-            ...     def predict(self, inputs):
-            ...         if len(inputs.shape) == 3:
-            ...             inputs = inputs[np.newaxis, :]
-            ...         result = self._network(Tensor(inputs.astype(np.float32)))
-            ...         return result.asnumpy()
-            >>> net = Net()
-            >>> model = ModelToBeAttacked(net)
-            >>> SCENE = 'Query_Limit'
-            >>> TOP_K = -1
-            >>> attack= NES(model, SCENE, top_k=TOP_K)
-            >>> num_class = 5
-            >>> x_test = np.asarray(np.random.random((32, 32)), np.float32)
-            >>> target_image  = np.asarray(np.random.random((32, 32)), np.float32)
-            >>> orig_class = 0
-            >>> target_class = 2
-            >>> attack.set_target_images(target_image)
-            >>> tag, adv, queries = attack.generate(np.array(x_test), np.array([target_class]))
         """
         inputs, labels = check_pair_numpy_param('inputs', inputs, 'labels', labels)
         if not self._sparse:

@@ -63,6 +63,8 @@ class AttackEvaluate:
         >>> l_0, l_2, l_inf = attack_eval.avg_lp_distance()
         >>> ass = attack_eval.avg_ssim()
         >>> nte = attack_eval.nte()
+        >>> actc = attack_eval.avg_conf_true_class()
+
     """
 
     def __init__(self, inputs, labels, adv_inputs, adv_preds,
@@ -103,10 +105,6 @@ class AttackEvaluate:
 
         Returns:
             float, ranges between (0, 1). The higher, the more successful the attack is.
-
-        Examples:
-            >>> attack_eval = AttackEvaluate(x, y, adv_x, adv_y)
-            >>> mr = attack_eval.mis_classification_rate()
         """
         return self._success_idxes.shape[0]*1.0 / self._inputs.shape[0]
 
@@ -116,10 +114,6 @@ class AttackEvaluate:
 
         Returns:
             float, ranges between (0, 1). The higher, the more successful the attack is.
-
-        Examples:
-            >>> attack_eval = AttackEvaluate(x, y, adv_x, adv_y)
-            >>> acac = attack_eval.avg_conf_adv_class()
         """
         idxes = self._success_idxes
         success_num = idxes.shape[0]
@@ -135,10 +129,6 @@ class AttackEvaluate:
 
         Returns:
             float, ranges between (0, 1). The lower, the more successful the attack is.
-
-        Examples:
-            >>> attack_eval = AttackEvaluate(x, y, adv_x, adv_y)
-            >>> acac = attack_eval.avg_conf_adv_class()
         """
         idxes = self._success_idxes
         success_num = idxes.shape[0]
@@ -158,10 +148,6 @@ class AttackEvaluate:
                 the more successful the attack is.
 
               - If return value is -1, there is no success adversarial examples.
-
-        Examples:
-            >>> attack_eval = AttackEvaluate(x, y, adv_x, adv_y)
-            >>> l_0, l_2, l_inf = attack_eval.avg_lp_distance()
         """
         idxes = self._success_idxes
         success_num = idxes.shape[0]
@@ -190,10 +176,6 @@ class AttackEvaluate:
                 successful the attack is.
 
               - If return value is -1: there is no success adversarial examples.
-
-        Examples:
-            >>> attack_eval = AttackEvaluate(x, y, adv_x, adv_y)
-            >>> ass = attack_eval.avg_ssim()
         """
         success_num = self._success_idxes.shape[0]
         if success_num == 0:
@@ -215,10 +197,6 @@ class AttackEvaluate:
         Returns:
             float, ranges between (0, 1). The higher, the more successful the
             attack is.
-
-        Examples:
-            >>> attack_eval = AttackEvaluate(x, y, adv_x, adv_y)
-            >>> nte = attack_eval.nte()
         """
         idxes = self._success_idxes
         success_num = idxes.shape[0]
