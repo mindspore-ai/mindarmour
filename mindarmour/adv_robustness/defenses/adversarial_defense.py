@@ -36,10 +36,8 @@ class AdversarialDefense(Defense):
         optimizer (Cell): Optimizer used to train the network. Default: None.
 
     Examples:
-        >>> import numpy as np
         >>> from mindspore.nn.optim.momentum import Momentum
         >>> from mindarmour.adv_robustness.defenses import AdversarialDefense
-        >>> from mindspore import nn
         >>> from tests.ut.python.utils.mock_net import Net
         >>> net = Net()
         >>> lr = 0.001
@@ -109,12 +107,10 @@ class AdversarialDefenseWithAttacks(AdversarialDefense):
         ValueError: If replace_ratio is not between 0 and 1.
 
     Examples:
-        >>> import numpy as np
         >>> from mindspore.nn.optim.momentum import Momentum
         >>> from mindarmour.adv_robustness.attacks import FastGradientSignMethod
         >>> from mindarmour.adv_robustness.attacks import ProjectedGradientDescent
         >>> from mindarmour.adv_robustness.defenses import AdversarialDefenseWithAttacks
-        >>> from mindspore import nn
         >>> from tests.ut.python.utils.mock_net import Net
         >>> net = Net()
         >>> lr = 0.001
@@ -157,9 +153,6 @@ class AdversarialDefenseWithAttacks(AdversarialDefense):
 
         Returns:
             numpy.ndarray, loss of adversarial defense operation.
-
-        Examples:
-            >>> adv_defense.defense(inputs, labels)
         """
         inputs, labels = check_pair_numpy_param('inputs', inputs, 'labels',
                                                 labels)
@@ -200,12 +193,10 @@ class EnsembleAdversarialDefense(AdversarialDefenseWithAttacks):
         ValueError: If replace_ratio is not between 0 and 1.
 
     Examples:
-        >>> import numpy as np
         >>> from mindspore.nn.optim.momentum import Momentum
         >>> from mindarmour.adv_robustness.attacks import FastGradientSignMethod
         >>> from mindarmour.adv_robustness.attacks import ProjectedGradientDescent
         >>> from mindarmour.adv_robustness.defenses import EnsembleAdversarialDefense
-        >>> from mindspore import nn
         >>> from tests.ut.python.utils.mock_net import Net
         >>> net = Net()
         >>> lr = 0.001

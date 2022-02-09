@@ -36,10 +36,8 @@ class NaturalAdversarialDefense(AdversarialDefenseWithAttacks):
         eps (float): Step size of the attack method(FGSM). Default: 0.1.
 
     Examples:
-        >>> import numpy as np
         >>> from mindspore.nn.optim.momentum import Momentum
         >>> from mindarmour.adv_robustness.defenses import NaturalAdversarialDefense
-        >>> from mindspore import nn
         >>> from tests.ut.python.utils.mock_net import Net
         >>> net = Net()
         >>> lr = 0.001

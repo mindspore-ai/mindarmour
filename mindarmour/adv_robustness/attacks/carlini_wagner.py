@@ -95,7 +95,6 @@ class CarliniWagnerL2Attack(Attack):
             input labels are onehot-coded. Default: True.
 
     Examples:
-        >>> import numpy as np
         >>> import mindspore.ops.operations as M
         >>> from mindspore.nn import Cell
         >>> from mindarmour.adv_robustness.attacks import CarliniWagnerL2Attack

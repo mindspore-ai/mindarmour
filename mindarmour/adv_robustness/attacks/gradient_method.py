@@ -149,8 +149,6 @@ class FastGradientMethod(GradientMethod):
             is already equipped with loss function. Default: None.
 
     Examples:
-        >>> import numpy as np
-        >>> import mindspore.nn as nn
         >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
         >>> from mindarmour.adv_robustness.attacks import FastGradientMethod
         >>> class Net(Cell):
@@ -230,8 +228,6 @@ class RandomFastGradientMethod(FastGradientMethod):
         ValueError: eps is smaller than alpha!
 
     Examples:
-        >>> import numpy as np
-        >>> import mindspore.nn as nn
         >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
         >>> from mindarmour.adv_robustness.attacks import RandomFastGradientMethod
         >>> class Net(Cell):
@@ -285,8 +281,6 @@ class FastGradientSignMethod(GradientMethod):
             is already equipped with loss function. Default: None.
 
     Examples:
-        >>> import numpy as np
-        >>> import mindspore.nn as nn
         >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
         >>> from mindarmour.adv_robustness.attacks import FastGradientSignMethod
         >>> class Net(Cell):
@@ -362,8 +356,6 @@ class RandomFastGradientSignMethod(FastGradientSignMethod):
         ValueError: eps is smaller than alpha!
 
     Examples:
-        >>> import numpy as np
-        >>> import mindspore.nn as nn
         >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
         >>> from mindarmour.adv_robustness.attacks import RandomFastGradientSignMethod
         >>> class Net(Cell):
@@ -412,8 +404,6 @@ class LeastLikelyClassMethod(FastGradientSignMethod):
             is already equipped with loss function. Default: None.
 
     Examples:
-        >>> import numpy as np
-        >>> import mindspore.nn as nn
         >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
         >>> from mindarmour.adv_robustness.attacks import LeastLikelyClassMethod
         >>> class Net(Cell):
@@ -463,8 +453,6 @@ class RandomLeastLikelyClassMethod(FastGradientSignMethod):
         ValueError: eps is smaller than alpha!
 
     Examples:
-        >>> import numpy as np
-        >>> import mindspore.nn as nn
         >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
         >>> from mindarmour.adv_robustness.attacks import RandomLeastLikelyClassMethod
         >>> class Net(Cell):

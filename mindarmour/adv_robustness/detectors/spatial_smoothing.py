@@ -49,11 +49,9 @@ class SpatialSmoothing(Detector):
             benign samples. Default: 0.05.
 
     Examples:
-        >>> import numpy as np
         >>> import mindspore.ops.operations as P
         >>> from mindspore.nn import Cell
         >>> from mindspore import Model
-        >>> from mindspore import context
         >>> from mindarmour.adv_robustness.detectors import SpatialSmoothing
         >>> class Net(Cell):
         ...     def __init__(self):

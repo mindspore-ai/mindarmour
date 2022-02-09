@@ -38,6 +38,8 @@ class PrivacyMonitorFactory:
         """
         Create a privacy monitor class.
 
+        For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_
+
         Args:
             policy (str): Monitor policy, 'rdp' and 'zcdp' are supported
                 by now. If policy is 'rdp', the monitor will compute the
@@ -55,8 +57,8 @@ class PrivacyMonitorFactory:
             Callback, a privacy monitor.
 
         Examples:
-            >>> rdp = PrivacyMonitorFactory.create(policy='rdp',
-            >>> num_samples=60000, batch_size=32)
+            >>> from mindarmour.privacy.diff_privacy import PrivacyMonitorFactory
+            >>> rdp = PrivacyMonitorFactory.create(policy='rdp', num_samples=60000, batch_size=32)
         """
         if policy == 'rdp':
             return RDPMonitor(*args, **kwargs)
@@ -71,6 +73,8 @@ class RDPMonitor(Callback):
     privacy (RDP) theory. According to the reference below, if a randomized
     mechanism is said to have ε'-Renyi differential privacy of order α, it
     also satisfies conventional differential privacy (ε, δ) as below:
+
+    For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_
 
     .. math::
         (ε'+\frac{log(1/δ)}{α-1}, δ)
@@ -114,20 +118,8 @@ class RDPMonitor(Callback):
             to device after each step training. Default: False.
 
     Examples:
-        >>> network = Net()
-        >>> net_loss = nn.SoftmaxCrossEntropyWithLogits()
-        >>> epochs = 2
-        >>> norm_clip = 1.0
-        >>> initial_noise_multiplier = 1.5
-        >>> mech = NoiseMechanismsFactory().create('AdaGaussian',
-        >>> norm_bound=norm_clip, initial_noise_multiplier=initial_noise_multiplier)
-        >>> net_opt = nn.Momentum(network.trainable_params(), 0.01, 0.9)
-        >>> model = DPModel(micro_batches=2, norm_clip=norm_clip,
-        >>> mech=mech, network=network, loss_fn=loss, optimizer=net_opt, metrics=None)
-        >>> rdp = PrivacyMonitorFactory.create(policy='rdp',
-        >>> num_samples=60000, batch_size=256,
-        >>> initial_noise_multiplier=initial_noise_multiplier)
-        >>> model.train(epochs, ds, callbacks=[rdp], dataset_sink_mode=False)
+        >>> from mindarmour.privacy.diff_privacy import PrivacyMonitorFactory
+        >>> rdp = PrivacyMonitorFactory.create(policy='rdp', num_samples=100, batch_size=32)
     """
 
     def __init__(self, num_samples, batch_size, initial_noise_multiplier=1.5,
@@ -206,8 +198,7 @@ class RDPMonitor(Callback):
             int, the recommended maximum training epochs.
 
         Examples:
-            >>> rdp = PrivacyMonitorFactory.create(policy='rdp',
-            >>> num_samples=60000, batch_size=32)
+            >>> rdp = PrivacyMonitorFactory.create(policy='rdp', num_samples=100, batch_size=32)
             >>> suggest_epoch = rdp.max_epoch_suggest()
         """
         if self._target_delta is not None and self._max_eps is None:
@@ -376,6 +367,8 @@ class ZCDPMonitor(Callback):
     if a randomized mechanism is said to have ρ-ｚCDP, it also satisfies
     conventional differential privacy (ε, δ) as below:
 
+    For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_
+
     .. math::
         (ρ+２\sqrt{ρ*log(1/δ)}, δ)
 
@@ -407,20 +400,11 @@ class ZCDPMonitor(Callback):
             to device after each step training. Default: False.
 
     Examples:
-        >>> network = Net()
-        >>> net_loss = nn.SoftmaxCrossEntropyWithLogits()
-        >>> epochs = 2
-        >>> norm_clip = 1.0
-        >>> initial_noise_multiplier = 1.5
-        >>> mech = NoiseMechanismsFactory().create('AdaGaussian',
-        >>> norm_bound=norm_clip, initial_noise_multiplier=initial_noise_multiplier)
-        >>> net_opt = nn.Momentum(network.trainable_params(), 0.01, 0.9)
-        >>> model = DPModel(micro_batches=2, norm_clip=norm_clip,
-        >>> mech=mech, network=network, loss_fn=loss, optimizer=net_opt, metrics=None)
+        >>> from mindarmour.privacy.diff_privacy import PrivacyMonitorFactory
         >>> zcdp = PrivacyMonitorFactory.create(policy='zcdp',
-        >>> num_samples=60000, batch_size=256,
-        >>> initial_noise_multiplier=initial_noise_multiplier)
-        >>> model.train(epochs, ds, callbacks=[zcdp], dataset_sink_mode=False)
+        ...                                     num_samples=100,
+        ...                                     batch_size=32,
+        ...                                     initial_noise_multiplier=1.5)
     """
 
     def __init__(self, num_samples, batch_size, initial_noise_multiplier=1.5,

@@ -34,11 +34,9 @@ class EnsembleDetector(Detector):
         policy (str): Decision policy, could be 'vote', 'all' or 'any'.
             Default: 'vote'
     Examples:
-        >>> import numpy as np
         >>> from mindspore.ops.operations import Add
         >>> from mindspore.nn import Cell
         >>> from mindspore import Model
-        >>> from mindspore import context
         >>> from mindarmour.adv_robustness.detectors import ErrorBasedDetector
         >>> from mindarmour.adv_robustness.detectors import RegionBasedDetector
         >>> from mindarmour.adv_robustness.detectors import EnsembleDetector

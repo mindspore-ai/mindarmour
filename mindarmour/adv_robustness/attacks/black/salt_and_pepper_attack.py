@@ -40,7 +40,6 @@ class SaltAndPepperNoiseAttack(Attack):
             Default: True.
 
     Examples:
-        >>> import numpy as np
         >>> from mindspore import Tensor
         >>> from mindarmour import BlackModel
         >>> from mindarmour.adv_robustness.attacks import SaltAndPepperNoiseAttack

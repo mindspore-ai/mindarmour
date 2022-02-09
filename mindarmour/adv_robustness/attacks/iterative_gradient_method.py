@@ -178,8 +178,6 @@ class BasicIterativeMethod(IterativeGradientMethod):
             is already equipped with loss function. Default: None.
 
     Examples:
-        >>> import numpy as np
-        >>> import mindspore.nn as nn
         >>> from mindspore.ops import operations as P
         >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
         >>> from mindarmour.adv_robustness.attacks import BasicIterativeMethod
@@ -282,8 +280,6 @@ class MomentumIterativeMethod(IterativeGradientMethod):
             is already equipped with loss function. Default: None.
 
     Examples:
-        >>> import numpy as np
-        >>> import mindspore.nn as nn
         >>> from mindspore.ops import operations as P
         >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
         >>> from mindarmour.adv_robustness.attacks import MomentumIterativeMethod
@@ -428,8 +424,6 @@ class ProjectedGradientDescent(BasicIterativeMethod):
             is already equipped with loss function. Default: None.
 
     Examples:
-        >>> import numpy as np
-        >>> import mindspore.nn as nn
         >>> from mindspore.ops import operations as P
         >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
         >>> from mindarmour.adv_robustness.attacks import ProjectedGradientDescent
@@ -526,8 +520,6 @@ class DiverseInputIterativeMethod(BasicIterativeMethod):
             is already equipped with loss function. Default: None.
 
     Examples:
-        >>> import numpy as np
-        >>> import mindspore.nn as nn
         >>> from mindspore.ops import operations as P
         >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
         >>> from mindarmour.adv_robustness.attacks import DiverseInputIterativeMethod
@@ -583,8 +575,6 @@ class MomentumDiverseInputIterativeMethod(MomentumIterativeMethod):
             is already equipped with loss function. Default: None.
 
     Examples:
-        >>> import numpy as np
-        >>> import mindspore.nn as nn
         >>> from mindspore.ops import operations as P
         >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
         >>> from mindarmour.adv_robustness.attacks import MomentumDiverseInputIterativeMethod
