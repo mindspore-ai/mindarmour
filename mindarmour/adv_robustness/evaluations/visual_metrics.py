@@ -46,7 +46,6 @@ class RadarMetric:
         ValueError: If scale not in ['hide', 'norm', 'sparse', 'dense'].
 
     Examples:
-        >>> import numpy as np
         >>> from mindarmour.adv_robustness.evaluations import RadarMetric
         >>> metrics_name = ['MR', 'ACAC', 'ASS', 'NTE', 'ACTC']
         >>> def_metrics = [0.9, 0.85, 0.6, 0.7, 0.8]

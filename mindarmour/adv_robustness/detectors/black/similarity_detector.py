@@ -73,11 +73,9 @@ class SimilarityDetector(Detector):
             Default: 0.001
 
     Examples:
-        >>> import numpy as np
         >>> from mindspore.ops.operations import Add
         >>> from mindspore.nn import Cell
         >>> from mindspore import Model
-        >>> from mindspore import context
         >>> from mindarmour.adv_robustness.detectors import SimilarityDetector
         >>> class EncoderNet(Cell):
         ...     def __init__(self, encode_dim):

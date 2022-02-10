@@ -41,10 +41,8 @@ class ProjectedAdversarialDefense(AdversarialDefenseWithAttacks):
         norm_level (str): Norm type. 'inf' or 'l2'. Default: 'inf'.
 
     Examples:
-        >>> import numpy as np
         >>> from mindspore.nn.optim.momentum import Momentum
         >>> from mindarmour.adv_robustness.defenses import ProjectedAdversarialDefense
-        >>> from mindspore import nn
         >>> from tests.ut.python.utils.mock_net import Net
         >>> net = Net()
         >>> lr = 0.001

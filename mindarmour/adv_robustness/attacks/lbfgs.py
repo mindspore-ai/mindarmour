@@ -54,7 +54,6 @@ class LBFGS(Attack):
             input labels are onehot-coded. Default: False.
 
     Examples:
-        >>> import numpy as np
         >>> from mindarmour.adv_robustness.attacks import LBFGS
         >>> from tests.ut.python.utils.mock_net import Net
         >>> net = Net()

@@ -62,6 +62,9 @@ class DPOptimizerClassFactory:
         Optimizer, Optimizer class.
 
     Examples:
+        >>> from mindarmour.privacy.diff_privacy import DPOptimizerClassFactory
+        >>> from tests.ut.python.utils.mock_net import Net
+        >>> network = Net()
         >>> GaussianSGD = DPOptimizerClassFactory(micro_batches=2)
         >>> GaussianSGD.set_mechanisms('Gaussian', norm_bound=1.0, initial_noise_multiplier=1.5)
         >>> net_opt = GaussianSGD.create('Momentum')(params=network.trainable_params(),

@@ -49,11 +49,6 @@ class Attack:
 
         Returns:
             numpy.ndarray, generated adversarial examples
-
-        Examples:
-            >>> inputs = np.array([[0.2, 0.4, 0.5, 0.2], [0.7, 0.2, 0.4, 0.3]])
-            >>> labels = np.array([3, 0])
-            >>> advs = attack.batch_generate(inputs, labels, batch_size=2)
         """
         inputs_image, inputs, labels = check_inputs_labels(inputs, labels)
         arr_x = inputs

@@ -75,7 +75,6 @@ class HopSkipJumpAttack(Attack):
         ValueError: If constraint not in ['l2', 'linf']
 
     Examples:
-        >>> import numpy as np
         >>> from mindspore import Tensor
         >>> from mindarmour import BlackModel
         >>> from mindarmour.adv_robustness.attacks import HopSkipJumpAttack

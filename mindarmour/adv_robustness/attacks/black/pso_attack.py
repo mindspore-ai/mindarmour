@@ -64,7 +64,6 @@ class PSOAttack(Attack):
             specifically for model_type='detection'. Reserve_ratio should be in the range of (0, 1). Default: 0.3.
 
     Examples:
-        >>> import numpy as np
         >>> import mindspore.nn as nn
         >>> from mindspore import Tensor
         >>> from mindspore.nn import Cell

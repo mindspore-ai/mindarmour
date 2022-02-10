@@ -34,7 +34,12 @@ TAG = 'NoiseMechanism'
 
 
 class ClipMechanismsFactory:
-    """ Factory class of clip mechanisms"""
+    """
+    Factory class of clip mechanisms
+
+    For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_
+
+    """
 
     def __init__(self):
         pass
@@ -63,6 +68,9 @@ class ClipMechanismsFactory:
             Mechanisms, class of noise generated Mechanism.
 
         Examples:
+            >>> from mindspore import Tensor
+            >>> from mindspore.common import dtype as mstype
+            >>> from mindarmour.privacy.diff_privacy import ClipMechanismsFactory
             >>> decay_policy = 'Linear'
             >>> beta = Tensor(0.5, mstype.float32)
             >>> norm_bound = Tensor(1.0, mstype.float32)
@@ -71,10 +79,10 @@ class ClipMechanismsFactory:
             >>> target_unclipped_quantile = 0.9
             >>> clip_mechanism = ClipMechanismsFactory()
             >>> ada_clip = clip_mechanism.create('Gaussian',
-            ...                          decay_policy=decay_policy,
-            ...                          learning_rate=learning_rate,
-            ...                          target_unclipped_quantile=target_unclipped_quantile,
-            ...                          fraction_stddev=beta_stddev)
+            ...                                  decay_policy=decay_policy,
+            ...                                  learning_rate=learning_rate,
+            ...                                  target_unclipped_quantile=target_unclipped_quantile,
+            ...                                  fraction_stddev=beta_stddev)
             >>> next_norm_bound = ada_clip(beta, norm_bound)
 
         """
@@ -86,8 +94,11 @@ class ClipMechanismsFactory:
 
 
 class NoiseMechanismsFactory:
-    """ Factory class of noise mechanisms"""
+    """ Factory class of noise mechanisms
 
+    For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_
+
+    """
     def __init__(self):
         pass
 
@@ -117,34 +128,13 @@ class NoiseMechanismsFactory:
             Mechanisms, class of noise generated Mechanism.
 
         Examples:
+            >>> from mindarmour.privacy.diff_privacy import NoiseMechanismsFactory
             >>> norm_bound = 1.0
             >>> initial_noise_multiplier = 1.0
-            >>> network = LeNet5()
-            >>> batch_size = 32
-            >>> batches = 128
-            >>> epochs = 1
-            >>> loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True)
-            >>> noise_mech = NoiseMechanismsFactory().create('Gaussian',
-            ...                                              norm_bound=norm_bound,
-            ...                                              initial_noise_multiplier=initial_noise_multiplier)
-            >>> clip_mech = ClipMechanismsFactory().create('Gaussian',
-            ...                                            decay_policy='Linear',
-            ...                                            learning_rate=0.001,
-            ...                                            target_unclipped_quantile=0.9,
-            ...                                            fraction_stddev=0.01)
-            >>> net_opt = nn.Momentum(network.trainable_params(), learning_rate=0.1,
-            ...                       momentum=0.9)
-            >>> model = DPModel(micro_batches=2,
-            ...                 clip_mech=clip_mech,
-            ...                 norm_bound=norm_bound,
-            ...                 noise_mech=noise_mech,
-            ...                 network=network,
-            ...                 loss_fn=loss,
-            ...                 optimizer=net_opt,
-            ...                 metrics=None)
-            >>> ms_ds = ds.GeneratorDataset(dataset_generator,
-            ...                             ['data', 'label'])
-            >>> model.train(epochs, ms_ds, dataset_sink_mode=False)
+            >>> noise_mechanism = NoiseMechanismsFactory()
+            >>> clip = noise_mechanism.create('Gaussian',
+            ...                               norm_bound=norm_bound,
+            ...                               initial_noise_multiplier=initial_noise_multiplier)
         """
         if mech_name == 'Gaussian':
             return NoiseGaussianRandom(norm_bound=norm_bound,
@@ -192,6 +182,9 @@ class NoiseGaussianRandom(_Mechanisms):
         Tensor, generated noise with shape like given gradients.
 
     Examples:
+        >>> from mindspore import Tensor
+        >>> from mindspore.common import dtype as mstype
+        >>> from mindarmour.privacy.diff_privacy import NoiseGaussianRandom
         >>> gradients = Tensor([0.2, 0.9], mstype.float32)
         >>> norm_bound = 0.1
         >>> initial_noise_multiplier = 1.0
@@ -199,7 +192,6 @@ class NoiseGaussianRandom(_Mechanisms):
         >>> decay_policy = None
         >>> net = NoiseGaussianRandom(norm_bound, initial_noise_multiplier, seed, decay_policy)
         >>> res = net(gradients)
-        >>> print(res)
     """
 
     def __init__(self, norm_bound=1.0, initial_noise_multiplier=1.0, seed=0, decay_policy=None):
@@ -259,6 +251,9 @@ class NoiseAdaGaussianRandom(NoiseGaussianRandom):
         Tensor, generated noise with shape like given gradients.
 
     Examples:
+        >>> from mindspore import Tensor
+        >>> from mindspore.common import dtype as mstype
+        >>> from mindarmour.privacy.diff_privacy import NoiseAdaGaussianRandom
         >>> gradients = Tensor([0.2, 0.9], mstype.float32)
         >>> norm_bound = 1.0
         >>> initial_noise_multiplier = 1.0
@@ -267,7 +262,6 @@ class NoiseAdaGaussianRandom(NoiseGaussianRandom):
         >>> decay_policy = "Exp"
         >>> net = NoiseAdaGaussianRandom(norm_bound, initial_noise_multiplier, seed, noise_decay_rate, decay_policy)
         >>> res = net(gradients)
-        >>> print(res)
     """
 
     def __init__(self, norm_bound=1.0, initial_noise_multiplier=1.0, seed=0, noise_decay_rate=6e-6, decay_policy='Exp'):
@@ -379,6 +373,9 @@ class AdaClippingWithGaussianRandom(Cell):
         Tensor, undated norm clip .
 
     Examples:
+        >>> from mindspore import Tensor
+        >>> from mindspore.common import dtype as mstype
+        >>> from mindarmour.privacy.diff_privacy import AdaClippingWithGaussianRandom
         >>> decay_policy = 'Linear'
         >>> beta = Tensor(0.5, mstype.float32)
         >>> norm_bound = Tensor(1.0, mstype.float32)

@@ -117,7 +117,6 @@ class DeepFool(Attack):
             input labels are onehot-coded. Default: True.
 
     Examples:
-        >>> import numpy as np
         >>> import mindspore.ops.operations as P
         >>> from mindspore.nn import Cell
         >>> from mindspore import Tensor

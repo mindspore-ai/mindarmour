@@ -39,9 +39,7 @@ class DefenseEvaluate:
             one-dimension array whose size is raw_preds.shape[0].
 
     Examples:
-        >>> import numpy as np
         >>> from mindarmour.adv_robustness.evaluations import DefenseEvaluate
-
         >>> raw_preds = np.array([[0.1, 0.1, 0.2, 0.6],
         ...                       [0.1, 0.7, 0.0, 0.2],
         ...                       [0.8, 0.1, 0.0, 0.1]])

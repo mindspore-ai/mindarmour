@@ -69,6 +69,8 @@ class DPModel(Model):
     """
     This class is overload mindspore.train.model.Model.
 
+    For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_
+
     Args:
         micro_batches (int): The number of small batches split from an original
             batch. Default: 2.
@@ -83,37 +85,6 @@ class DPModel(Model):
         ValueError: If DPOptimizer and noise_mecn are both None or not None.
         ValueError: If noise_mech or DPOtimizer's mech method is adaptive while clip_mech is not None.
 
-    Examples:
-        >>> norm_bound = 1.0
-        >>> initial_noise_multiplier = 0.01
-        >>> network = LeNet5()
-        >>> batch_size = 32
-        >>> batches = 128
-        >>> epochs = 1
-        >>> micro_batches = 2
-        >>> loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True)
-        >>> factory_opt = DPOptimizerClassFactory(micro_batches=micro_batches)
-        >>> factory_opt.set_mechanisms('Gaussian',
-        ...                            norm_bound=norm_bound,
-        ...                            initial_noise_multiplier=initial_noise_multiplier)
-        >>> net_opt = factory_opt.create('Momentum')(network.trainable_params(),
-        ...                                          learning_rate=0.1, momentum=0.9)
-        >>> clip_mech = ClipMechanismsFactory().create('Gaussian',
-        ...                                            decay_policy='Linear',
-        ...                                            learning_rate=0.01,
-        ...                                            target_unclipped_quantile=0.9,
-        ...                                            fraction_stddev=0.01)
-        >>> model = DPModel(micro_batches=micro_batches,
-        ...                 norm_bound=norm_bound,
-        ...                 clip_mech=clip_mech,
-        ...                 noise_mech=None,
-        ...                 network=network,
-        ...                 loss_fn=loss,
-        ...                 optimizer=net_opt,
-        ...                 metrics=None)
-        >>> ms_ds = ds.GeneratorDataset(dataset_generator,
-        ...                             ['data', 'label'])
-        >>> model.train(epochs, ms_ds, dataset_sink_mode=False)
     """
 
     def __init__(self, micro_batches=2, norm_bound=1.0, noise_mech=None,

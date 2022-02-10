@@ -69,7 +69,6 @@ class GeneticAttack(Attack):
         c (Union[int, float]): Weight of perturbation loss. Default: 0.1.
 
     Examples:
-        >>> import numpy as np
         >>> import mindspore.ops.operations as M
         >>> from mindspore import Tensor
         >>> from mindspore.nn import Cell

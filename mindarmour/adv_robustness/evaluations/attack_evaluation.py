@@ -47,7 +47,6 @@ class AttackEvaluate:
         ValueError: If target_label is None when targeted is True.
 
     Examples:
-        >>> import numpy as np
         >>> from mindarmour.adv_robustness.evaluations import AttackEvaluate
         >>> x = np.random.normal(size=(3, 512, 512, 3))
         >>> adv_x = np.random.normal(size=(3, 512, 512, 3))

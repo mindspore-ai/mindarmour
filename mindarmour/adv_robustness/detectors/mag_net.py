@@ -48,11 +48,9 @@ class ErrorBasedDetector(Detector):
         bounds (tuple): (clip_min, clip_max). Default: (0.0, 1.0).
 
     Examples:
-        >>> import numpy as np
         >>> from mindspore.ops.operations import Add
         >>> from mindspore.nn import Cell
         >>> from mindspore import Model
-        >>> from mindspore import context
         >>> from mindarmour.adv_robustness.detectors import ErrorBasedDetector
         >>> class Net(Cell):
         ...     def __init__(self):
@@ -183,11 +181,9 @@ class DivergenceBasedDetector(ErrorBasedDetector):
             In form of (clip_min, clip_max). Default: (0.0, 1.0).
 
     Examples:
-        >>> import numpy as np
         >>> import mindspore.ops.operations as P
         >>> from mindspore.nn import Cell
         >>> from mindspore import Model
-        >>> from mindspore import context
         >>> from mindarmour.adv_robustness.detectors import DivergenceBasedDetector
         >>> class PredNet(Cell):
         ...     def __init__(self):

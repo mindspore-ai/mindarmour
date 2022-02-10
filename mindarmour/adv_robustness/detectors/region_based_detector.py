@@ -52,11 +52,9 @@ class RegionBasedDetector(Detector):
             input labels are one-hot-encoded. Default: False.
 
     Examples:
-        >>> import numpy as np
         >>> from mindspore.ops.operations import Add
         >>> from mindspore.nn import Cell
         >>> from mindspore import Model
-        >>> from mindspore import context
         >>> from mindarmour.adv_robustness.detectors import RegionBasedDetector
         >>> class Net(Cell):
         ...     def __init__(self):
