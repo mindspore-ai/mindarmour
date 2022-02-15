@@ -106,21 +106,52 @@ class MembershipInference:
         n_jobs (int): Number of jobs run in parallel. -1 means using all processors,
             otherwise the value of n_jobs must be a positive integer.
 
-    Examples:
-        >>> # train_1, train_2 are non-overlapping datasets from training dataset of target model.
-        >>> # test_1, test_2 are non-overlapping datasets from test dataset of target model.
-        >>> # We use train_1, test_1 to train attack model, and use train_2, test_2 to evaluate attack model.
-        >>> model = Model(network=net, loss_fn=loss, optimizer=opt, metrics={'acc', 'loss'})
-        >>> attack_model = MembershipInference(model, n_jobs=-1)
-        >>> config = [{"method": "KNN", "params": {"n_neighbors": [3, 5, 7]}}]
-        >>> attack_model.train(train_1, test_1, config)
-        >>> metrics = ["precision", "recall", "accuracy"]
-        >>> result = attack_model.eval(train_2, test_2, metrics)
-
     Raises:
         TypeError: If type of model is not mindspore.train.Model.
         TypeError: If type of n_jobs is not int.
         ValueError: The value of n_jobs is neither -1 nor a positive integer.
+
+
+    Examples:
+        >>> import mindspore.ops.operations as P
+        >>> from mindspore.nn import Cell
+        >>> from mindspore import Model
+        >>> from mindarmour.privacy.evaluation import MembershipInference
+        >>> def dataset_generator():
+        ...     batch_size = 16
+        ...     batches = 1
+        ...     data =  np.random.randn(batches * batch_size,1,10).astype(np.float32)
+        ...     label =  np.random.randint(0,10, batches * batch_size).astype(np.int32)
+        ...     for i in range(batches):
+        ...         yield data[i*batch_size:(i+1)*batch_size],\
+        ...               label[i*batch_size:(i+1)*batch_size]
+        >>> class Net(Cell):
+        ...     def __init__(self):
+        ...         super(Net, self).__init__()
+        ...         self._softmax = P.Softmax()
+        ...         self._Dense = nn.Dense(10,10)
+        ...         self._squeeze = P.Squeeze(1)
+        ...     def construct(self, inputs):
+        ...         out = self._softmax(inputs)
+        ...         out = self._Dense(out)
+        ...         return self._squeeze(out)
+        >>> net = Net()
+        >>> loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True)
+        >>> opt = nn.Momentum(params=net.trainable_params(), learning_rate=0.1, momentum=0.9)
+        >>> model = Model(network=net, loss_fn=loss, optimizer=opt)
+        >>> inference_model = MembershipInference(model, 2)
+        >>> config = [{
+        ...     "method": "KNN",
+        ...     "params": {"n_neighbors": [3, 5, 7],}
+        }]
+        >>> ds_train = ds.GeneratorDataset(dataset_generator, ["image", "label"])
+        >>> ds_test = ds.GeneratorDataset(dataset_generator, ["image", "label"])
+        >>> inference_model.train(ds_train, ds_test, config)
+        >>> metrics = ["precision", "accuracy", "recall"]
+        >>> eval_train = ds.GeneratorDataset(dataset_generator, ["image", "label"])
+        >>> eval_test = ds.GeneratorDataset(dataset_generator, ["image", "label"])
+        >>> result = inference_model.eval(eval_train. eval_test, metrics)
+        >>> print(result)
     """
 
     def __init__(self, model, n_jobs=-1):

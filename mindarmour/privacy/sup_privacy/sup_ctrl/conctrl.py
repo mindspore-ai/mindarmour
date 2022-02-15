@@ -38,6 +38,8 @@ class SuppressPrivacyFactory:
     def create(networks, mask_layers, policy="local_train", end_epoch=10, batch_num=20, start_epoch=3,
                mask_times=1000, lr=0.05, sparse_end=0.90, sparse_start=0.0):
         """
+        For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_suppress_privacy.html#%E5%BC%95%E5%85%A5%E6%8A%91%E5%88%B6%E9%9A%90%E7%A7%81%E8%AE%AD%E7%BB%83>`_
+
         Args:
             networks (Cell): The training network.
                 This networks parameter should be same as 'network' parameter of SuppressModel().
@@ -57,35 +59,45 @@ class SuppressPrivacyFactory:
             SuppressCtrl, class of Suppress Privavy Mechanism.
 
         Examples:
-            >>> networks_l5 = LeNet5()
-            >>> mask_layers = []
-            >>> mask_layers.append(MaskLayerDes("conv1.weight", 0, False, True, 10))
-            >>> suppress_ctrl_instance = SuppressPrivacyFactory().create(networks=networks_l5,
-            ...                                                 mask_layers=mask_layers,
-            ...                                                 policy="local_train",
-            ...                                                 end_epoch=10,
-            ...                                                 batch_num=(int)(10000/cfg.batch_size),
-            ...                                                 start_epoch=3,
-            ...                                                 mask_times=1000,
-            ...                                                 lr=lr,
-            ...                                                 sparse_end=0.90,
-            ...                                                 sparse_start=0.0)
+            >>> import mindspore.nn as nn
+            >>> import mindspore.dataset as ds
+            >>> import mindspore.ops.operations as P
+            >>> from mindspore import context
+            >>> from mindspore.nn import Accuracy
+            >>> from mindarmour.privacy.sup_privacy import SuppressPrivacyFactory
+            >>> from mindarmour.privacy.sup_privacy import MaskLayerDes
+            >>> from mindarmour.privacy.sup_privacy import SuppressModel
+            >>> class Net(nn.Cell):
+            ...     def __init__(self):
+            ...         super(Net, self).__init__()
+            ...         self._softmax = P.Softmax()
+            ...         self._Dense = nn.Dense(10,10)
+            ...         self._squeeze = P.Squeeze(1)
+            ...     def construct(self, inputs):
+            ...         out = self._softmax(inputs)
+            ...         out = self._Dense(out)
+            ...         return self._squeeze(out)
+            >>> context.set_context(mode=context.PYNATIVE_MODE, device_target="CPU")
+            >>> network = Net()
+            >>> masklayers = []
+            >>> masklayers.append(MaskLayerDes("_Dense.weight", 0, False, True, 10))
+            >>> suppress_ctrl_instance = SuppressPrivacyFactory().create(networks=network,
+            ...                                                          mask_layers=masklayers,
+            ...                                                          policy="local_train",
+            ...                                                          end_epoch=10,
+            ...                                                          batch_num=1,
+            ...                                                          start_epoch=3,
+            ...                                                          mask_times=10,
+            ...                                                          lr=0.05,
+            ...                                                          sparse_end=0.95,
+            ...                                                          sparse_start=0.0)
             >>> net_loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True, reduction="mean")
-            >>> net_opt = nn.Momentum(params=networks_l5.trainable_params(), learning_rate=lr, momentum=0.0)
-            >>> config_ck = CheckpointConfig(save_checkpoint_steps=(int)(samples/cfg.batch_size),
-            ...                              keep_checkpoint_max=10)
-            >>> model_instance = SuppressModel(network=networks_l5,
+            >>> net_opt = nn.SGD(network.trainable_params(), 0.05)
+            >>> model_instance = SuppressModel(network=network,
             ...                                loss_fn=net_loss,
             ...                                optimizer=net_opt,
             ...                                metrics={"Accuracy": Accuracy()})
             >>> model_instance.link_suppress_ctrl(suppress_ctrl_instance)
-            >>> ds_train = generate_mnist_dataset("./MNIST_unzip/train",
-            ...                                   batch_size=cfg.batch_size, repeat_size=1, samples=samples)
-            >>> ckpoint_cb = ModelCheckpoint(prefix="checkpoint_lenet",
-            ...                              directory="./trained_ckpt_file/",
-            ...                              config=config_ck)
-            >>> model_instance.train(epoch_size, ds_train, callbacks=[ckpoint_cb, LossMonitor(), suppress_masker],
-            ...                      dataset_sink_mode=False)
         """
         check_param_type('policy', policy, str)
         if policy == "local_train":
@@ -97,6 +109,8 @@ class SuppressPrivacyFactory:
 
 class SuppressCtrl(Cell):
     """
+    For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_suppress_privacy.html#%E5%BC%95%E5%85%A5%E6%8A%91%E5%88%B6%E9%9A%90%E7%A7%81%E8%AE%AD%E7%BB%83>`_
+
     Args:
         networks (Cell): The training network.
         mask_layers (list): Description of those layers that need to be suppressed.
@@ -107,37 +121,6 @@ class SuppressCtrl(Cell):
         lr (Union[float, int]): Learning rate.
         sparse_end (float): The sparsity to reach.
         sparse_start (Union[float, int]): The sparsity to start.
-
-    Examples:
-        >>> networks_l5 = LeNet5()
-        >>> masklayers = []
-        >>> masklayers.append(MaskLayerDes("conv1.weight", 0, False, True, 10))
-        >>> suppress_ctrl_instance = SuppressPrivacyFactory().create(networks=networks_l5,
-        ...                                                          mask_layers=masklayers,
-        ...                                                          policy="local_train",
-        ...                                                          end_epoch=10,
-        ...                                                          batch_num=(int)(10000/cfg.batch_size),
-        ...                                                          start_epoch=3,
-        ...                                                          mask_times=1000,
-        ...                                                          lr=lr,
-        ...                                                          sparse_end=0.90,
-        ...                                                          sparse_start=0.0)
-        >>> net_loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True, reduction="mean")
-        >>> net_opt = nn.Momentum(params=networks_l5.trainable_params(), learning_rate=lr, momentum=0.0)
-        >>> config_ck = CheckpointConfig(save_checkpoint_steps=(int)(samples/cfg.batch_size),
-        ...                              keep_checkpoint_max=10)
-        >>> model_instance = SuppressModel(network=networks_l5,
-        ...                                loss_fn=net_loss,
-        ...                                optimizer=net_opt,
-        ...                                metrics={"Accuracy": Accuracy()})
-        >>> model_instance.link_suppress_ctrl(suppress_ctrl_instance)
-        >>> ds_train = generate_mnist_dataset("./MNIST_unzip/train",
-        ...                                   batch_size=cfg.batch_size, repeat_size=1, samples=samples)
-        >>> ckpoint_cb = ModelCheckpoint(prefix="checkpoint_lenet",
-        ...                              directory="./trained_ckpt_file/",
-        ...                              config=config_ck)
-        >>> model_instance.train(epoch_size, ds_train, callbacks=[ckpoint_cb, LossMonitor(), suppress_masker],
-        ...                      dataset_sink_mode=False)
     """
     def __init__(self, networks, mask_layers, end_epoch, batch_num, start_epoch, mask_times, lr,
                  sparse_end, sparse_start):
@@ -776,6 +759,7 @@ class MaskLayerDes:
             If parameter num is greater than 100000, upper_bound has not effect.
 
     Examples:
+        >>> from mindarmour.privacy.sup_privacy import MaskLayerDes
         >>> masklayers = []
         >>> masklayers.append(MaskLayerDes("conv1.weight", 0, False, True, 10))
     """
