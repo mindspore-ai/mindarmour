@@ -107,8 +107,8 @@ def is_normalized(img):
     """
     if is_numpy(img):
         minimal = np.min(img)
-        maximun = np.max(img)
-        if minimal >= 0 and maximun <= 1:
+        maximum = np.max(img)
+        if minimal >= 0 and maximum <= 1:
             return True
         return False
     raise TypeError('img should be Numpy array. Got {}'.format(type(img)))
@@ -359,9 +359,9 @@ class Translate(ImageTransform):
     Translate an image.
 
     Args:
-        x_bias (Union[int, float]): X-direction translation, x = x + x_bias*image_length.
+        x_bias (Union[int, float]): X-direction translation: x + x_bias*image_length.
             Default: 0.
-        y_bias (Union[int, float]): Y-direction translation,  y = y + y_bias*image_wide.
+        y_bias (Union[int, float]): Y-direction translation: y + y_bias*image_wide.
             Default: 0.
     """
 

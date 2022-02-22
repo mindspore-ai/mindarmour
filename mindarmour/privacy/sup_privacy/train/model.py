@@ -225,7 +225,6 @@ class _TupleMul(nn.Cell):
     def construct(self, input1, input2):
         """Add two tuple of data."""
         out = self.hyper_map(self.mul, input1, input2)
-        #print(out)
         return out
 
 # come from nn.cell_wrapper.TrainOneStepCell

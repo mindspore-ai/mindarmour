@@ -347,9 +347,8 @@ class RDPMonitor(Callback):
         Returns:
             float, delta budget.
         """
-        orders = np.atleast_1d(self._orders)
         rdps = np.atleast_1d(rdp)
-        deltas = np.exp((rdps - self._target_eps)*(orders - 1))
+        deltas = np.exp((rdps - self._target_eps)*(np.atleast_1d(self._orders) - 1))
         min_delta = np.min(deltas)
         return np.min([min_delta, 1.])
 
@@ -363,9 +362,8 @@ class RDPMonitor(Callback):
         Returns:
             float, eps budget.
         """
-        orders = np.atleast_1d(self._orders)
         rdps = np.atleast_1d(rdp)
-        eps = rdps - np.log(self._target_delta) / (orders - 1)
+        eps = rdps - np.log(self._target_delta) / (np.atleast_1d(self._orders) - 1)
         return np.min(eps)
 
 

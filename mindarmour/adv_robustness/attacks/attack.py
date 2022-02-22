@@ -183,13 +183,12 @@ class Attack:
         best_position = check_numpy_param('best_position', best_position)
         x_ori, best_position = check_equal_shape('x_ori', x_ori, 'best_position', best_position)
         _, original_num = self._detection_scores((best_position,) + auxiliary_inputs, gt_boxes, gt_labels, model)
-        # pylint: disable=invalid-name
-        REDUCTION_ITERS = 6  # recover 10% difference each time and recover 60% totally.
-        for _ in range(REDUCTION_ITERS):
-            BLOCK_NUM = 30  # divide the image into 30 segments
-            block_width = best_position.shape[0] // BLOCK_NUM
+        reduction_iters = 6  # recover 10% difference each time and recover 60% totally.
+        for _ in range(reduction_iters):
+            block_num = 30  # divide the image into 30 segments
+            block_width = best_position.shape[0] // block_num
             if block_width > 0:
-                for i in range(BLOCK_NUM):
+                for i in range(block_num):
                     diff = x_ori[i*block_width: (i+1)*block_width, :, :]\
                            - best_position[i*block_width:(i+1)*block_width, :, :]
                     if np.max(np.abs(diff)) >= 0.1*(self._bounds[1] - self._bounds[0]):
