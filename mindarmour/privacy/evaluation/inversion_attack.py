@@ -111,6 +111,31 @@ class ImageInversionAttack:
         TypeError: If the type of network is not Cell.
         ValueError: If any value of input_shape is not positive int.
         ValueError: If any value of loss_weights is not positive value.
+
+    Examples:
+            >>> import mindspore.ops.operations as P
+            >>> from mindspore.nn import Cell
+            >>> from mindarmour.privacy.evaluation.inversion_attack import ImageInversionAttack
+            >>> class Net(Cell):
+            ...     def __init__(self):
+            ...         super(Net, self).__init__()
+            ...         self._softmax = P.Softmax()
+            ...         self._reduce = P.ReduceSum()
+            ...         self._squeeze = P.Squeeze(1)
+            ...     def construct(self, inputs):
+            ...         out = self._softmax(inputs)
+            ...         out = self._reduce(out, 2)
+            ...         return self._squeeze(out)
+            >>> net = Net()
+            >>> original_images = np.random.random((2,1,10,10)).astype(np.float32)
+            >>> target_features =  np.random.random((2,10)).astype(np.float32)
+            >>> inversion_attack = ImageInversionAttack(net,
+            ...                                         input_shape=(1, 10, 10),
+            ...                                         input_bound=(0, 1),
+            ...                                         loss_weights=[1, 0.2, 5])
+            >>> inversion_images = inversion_attack.generate(target_features, iters=10)
+            >>> evaluate_result = inversion_attack.evaluate(original_images, inversion_images)
+            >>> print(evaluate_result)
     """
     def __init__(self, network, input_shape, input_bound, loss_weights=(1, 0.2, 5)):
         self._network = check_param_type('network', network, Cell)
@@ -144,15 +169,6 @@ class ImageInversionAttack:
         Raises:
             TypeError: If the type of target_features is not numpy.ndarray.
             ValueError: If any value of iters is not positive int.Z
-
-        Examples:
-            >>> net = LeNet5()
-            >>> inversion_attack = ImageInversionAttack(net, input_shape=(1, 32, 32), input_bound=(0, 1),
-            >>> loss_weights=[1, 0.2, 5])
-            >>> features = np.random.random((2, 10)).astype(np.float32)
-            >>> images = inversion_attack.generate(features, iters=10)
-            >>> print(images.shape)
-            (2, 1, 32, 32)
         """
         target_features = check_numpy_param('target_features', target_features)
         iters = check_int_positive('iters', iters)
@@ -203,16 +219,6 @@ class ImageInversionAttack:
             - float, average ssim value.
 
             - Union[float, None], average confidence. It would be None if labels or new_network is None.
-
-        Examples:
-            >>> net = LeNet5()
-            >>> inversion_attack = ImageInversionAttack(net, input_shape=(1, 32, 32), input_bound=(0, 1),
-            >>> loss_weights=[1, 0.2, 5])
-            >>> features = np.random.random((2, 10)).astype(np.float32)
-            >>> inver_images = inversion_attack.generate(features, iters=10)
-            >>> ori_images = np.random.random((2, 1, 32, 32))
-            >>> result = inversion_attack.evaluate(ori_images, inver_images)
-            >>> print(len(result))
         """
         check_numpy_param('original_images', original_images)
         check_numpy_param('inversion_images', inversion_images)
