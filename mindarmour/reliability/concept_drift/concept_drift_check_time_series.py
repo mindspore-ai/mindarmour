@@ -9,7 +9,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# ============================================================================
 
 """
 Concpt drift module
@@ -72,8 +71,7 @@ class ConceptDriftCheckTimeSeries:
             >>> w, x = ConceptDriftCheckTimeSeries._reservoir_model_feature(window_data)
         """
         # Initialize weights
-        res_size = self._res_size
-        x_state = _w_generate(res_size, len(window_data), window_data)
+        x_state = _w_generate(self._res_size, len(window_data), window_data)
         x_state_t = x_state.T
         # Data reshape
         data_channel = None
@@ -85,7 +83,7 @@ class ConceptDriftCheckTimeSeries:
         reg = 1e-8
         # Calculate w_out
         w_out = np.dot(np.dot(y_t, x_state_t),
-                       np.linalg.inv(np.dot(x_state, x_state_t) + reg*np.eye(res_size)))
+                       np.linalg.inv(np.dot(x_state, x_state_t) + reg*np.eye(self._res_size)))
         return w_out, x_state
 
     def _concept_distance(self, data_x, data_y):
@@ -391,11 +389,11 @@ def _cal_threshold(distance, threshold_index):
     Returns:
         - float, [0, 1].
     """
-    distance = distance[distance > 0]
+    pos_distance = distance[distance > 0]
     # Threshold calculation
-    if distance.size > 0:
-        q_1 = np.percentile(distance, 25)
-        q_3 = np.percentile(distance, 75)
+    if pos_distance.size > 0:
+        q_1 = np.percentile(pos_distance, 25)
+        q_3 = np.percentile(pos_distance, 75)
         q_diff = q_3 - q_1
         threshold = np.clip(0.1 + threshold_index*q_diff, 0, 1)
     else:

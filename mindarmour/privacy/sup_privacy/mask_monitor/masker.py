@@ -26,7 +26,7 @@ TAG = 'suppress masker'
 class SuppressMasker(Callback):
     """
     Args:
-        model (SuppressModel):  SuppressModel instance.
+        model (SuppressModel): SuppressModel instance.
         suppress_ctrl (SuppressCtrl): SuppressCtrl instance.
 
     Examples:
