@@ -132,6 +132,7 @@ setup(
         'pillow >= 6.2.0',
         'scikit-learn >= 0.23.1',
         'easydict >= 1.9',
+        'opencv-python >= 4.1.2.30',
     ],
     classifiers=[
         'License :: OSI Approved :: Apache Software License'
