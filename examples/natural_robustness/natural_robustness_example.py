@@ -163,7 +163,7 @@ if __name__ == '__main__':
     test_gaussian_noise(img)
     test_motion_blur(img)
     test_gradient_blur(img)
-    test_gradient_luminance(img)      #####
+    test_gradient_luminance(img)
     test_natural_noise(img)
     test_curve(img)
     test_rotate(img)
