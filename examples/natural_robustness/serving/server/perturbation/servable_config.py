@@ -21,7 +21,7 @@ import cv2
 import numpy as np
 from PIL import Image
 from mindspore_serving.server import register
-from mindarmour.natural_robustness.image import Contrast, GaussianBlur, SaltAndPepperNoise, Scale, Shear, \
+from mindarmour.natural_robustness.transform.image import Contrast, GaussianBlur, SaltAndPepperNoise, Scale, Shear, \
     Translate, Rotate, MotionBlur, GradientBlur, GradientLuminance, NaturalNoise, Curve, Perspective
 
 

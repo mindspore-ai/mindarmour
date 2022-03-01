@@ -18,8 +18,9 @@ import pytest
 import numpy as np
 from mindspore import context
 
-from mindarmour.natural_robustness.image import Translate, Curve, Perspective, Scale, Shear, Rotate, SaltAndPepperNoise, \
-    NaturalNoise, GaussianNoise, UniformNoise, MotionBlur, GaussianBlur, GradientBlur, Contrast, GradientLuminance
+from mindarmour.natural_robustness.transform.image import Translate, Curve, Perspective, Scale, Shear, Rotate, \
+    SaltAndPepperNoise, NaturalNoise, GaussianNoise, UniformNoise, MotionBlur, GaussianBlur, GradientBlur, Contrast,\
+    GradientLuminance
 
 
 @pytest.mark.level0

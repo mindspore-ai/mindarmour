@@ -17,7 +17,7 @@
 import numpy as np
 import cv2
 
-from mindarmour.natural_robustness.image import Translate, Curve, Perspective, Scale, Shear, Rotate, SaltAndPepperNoise, \
+from mindarmour.natural_robustness.transform.image import Translate, Curve, Perspective, Scale, Shear, Rotate, SaltAndPepperNoise, \
     NaturalNoise, GaussianNoise, UniformNoise, MotionBlur, GaussianBlur, GradientBlur, Contrast, GradientLuminance
 
 
