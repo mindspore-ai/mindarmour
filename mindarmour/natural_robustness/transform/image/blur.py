@@ -18,7 +18,7 @@ Image Blur
 import numpy as np
 import cv2
 
-from mindarmour.natural_robustness.image.natural_perturb import _NaturalPerturb
+from mindarmour.natural_robustness.transform.image.natural_perturb import _NaturalPerturb
 from mindarmour.utils._check_param import check_param_multi_types, check_int_positive, check_param_type
 from mindarmour.utils.logger import LogUtil
 
