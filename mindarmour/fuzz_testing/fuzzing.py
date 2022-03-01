@@ -24,10 +24,11 @@ from mindspore import nn
 from mindarmour.utils._check_param import check_model, check_numpy_param, check_param_multi_types, check_norm_level, \
     check_param_in_range, check_param_type, check_int_positive, check_param_bounds
 from mindarmour.utils.logger import LogUtil
-from ..adv_robustness.attacks import FastGradientSignMethod, \
+from mindarmour.adv_robustness.attacks import FastGradientSignMethod, \
     MomentumDiverseInputIterativeMethod, ProjectedGradientDescent
-from .image_transform import Contrast, Brightness, Blur, \
-    Noise, Translate, Scale, Shear, Rotate
+from mindarmour.natural_robustness.transform.image import GaussianBlur, MotionBlur, GradientBlur, UniformNoise,\
+    GaussianNoise, SaltAndPepperNoise, NaturalNoise, Contrast, GradientLuminance, Translate, Scale, Shear, Rotate, \
+    Perspective, Curve
 from .model_coverage_metrics import CoverageMetrics, KMultisectionNeuronCoverage
 
 LOGGER = LogUtil.get_instance()
@@ -104,17 +105,79 @@ class Fuzzer:
         target_model (Model): Target fuzz model.
 
     Examples:
+        >>> import numpy as np
+        >>> from mindspore import context
+        >>> from mindspore import nn
+        >>> from mindspore.common.initializer import TruncatedNormal
+        >>> from mindspore.ops import operations as P
+        >>> from mindspore.train import Model
+        >>> from mindspore.ops import TensorSummary
+        >>> from mindarmour.fuzz_testing import Fuzzer
+        >>> from mindarmour.fuzz_testing import KMultisectionNeuronCoverage
+        >>>
+        >>> class Net(nn.Cell):
+        >>>     def __init__(self):
+        >>>         super(Net, self).__init__()
+        >>>         self.conv1 = nn.Conv2d(1, 6, 5, padding=0, weight_init=TruncatedNormal(0.02), pad_mode="valid")
+        >>>         self.conv2 = nn.Conv2d(6, 16, 5, padding=0, weight_init=TruncatedNormal(0.02), pad_mode="valid")
+        >>>         self.fc1 = nn.Dense(16 * 5 * 5, 120, TruncatedNormal(0.02), TruncatedNormal(0.02))
+        >>>         self.fc2 = nn.Dense(120, 84, TruncatedNormal(0.02), TruncatedNormal(0.02))
+        >>>         self.fc3 = nn.Dense(84, 10, TruncatedNormal(0.02), TruncatedNormal(0.02))
+        >>>         self.relu = nn.ReLU()
+        >>>         self.max_pool2d = nn.MaxPool2d(kernel_size=2, stride=2)
+        >>>         self.reshape = P.Reshape()
+        >>>         self.summary = TensorSummary()
+        >>>
+        >>>    def construct(self, x):
+        >>>         x = self.conv1(x)
+        >>>         x = self.relu(x)
+        >>>         self.summary('conv1', x)
+        >>>         x = self.max_pool2d(x)
+        >>>         x = self.conv2(x)
+        >>>         x = self.relu(x)
+        >>>         self.summary('conv2', x)
+        >>>         x = self.max_pool2d(x)
+        >>>         x = self.reshape(x, (-1, 16 * 5 * 5))
+        >>>         x = self.fc1(x)
+        >>>         x = self.relu(x)
+        >>>         self.summary('fc1', x)
+        >>>         x = self.fc2(x)
+        >>>         x = self.relu(x)
+        >>>         self.summary('fc2', x)
+        >>>         x = self.fc3(x)
+        >>>         self.summary('fc3', x)
+        >>>         return x
+        >>>
         >>> net = Net()
         >>> model = Model(net)
-        >>> mutate_config = [{'method': 'Blur',
-        ...                   'params': {'auto_param': [True]}},
+        >>> mutate_config = [{'method': 'GaussianBlur',
+        ...                   'params': {'ksize': [1, 2, 3, 5], 'auto_param': [True, False]}},
+        ...                  {'method': 'MotionBlur',
+        ...                   'params': {'degree': [1, 2, 5], 'angle': [45, 10, 100, 140, 210, 270, 300],
+        ...                   'auto_param': [True]}},
+        ...                  {'method': 'UniformNoise',
+        ...                   'params': {'factor': [0.1, 0.2, 0.3], 'auto_param': [False, True]}},
+        ...                  {'method': 'GaussianNoise',
+        ...                   'params': {'factor': [0.1, 0.2, 0.3], 'auto_param': [False, True]}},
         ...                  {'method': 'Contrast',
-        ...                   'params': {'factor': [2]}},
-        ...                  {'method': 'Translate',
-        ...                   'params': {'x_bias': [0.1, 0.2], 'y_bias': [0.2]}},
+        ...                   'params': {'alpha': [0.5, 1, 1.5], 'beta': [-10, 0, 10], 'auto_param': [False, True]}},
+        ...                  {'method': 'Rotate',
+        ...                   'params': {'angle': [20, 90], 'auto_param': [False, True]}},
         ...                  {'method': 'FGSM',
-        ...                   'params': {'eps': [0.1, 0.2, 0.3], 'alpha': [0.1]}}]
-        >>> nc = KMultisectionNeuronCoverage(model, train_images, segmented_num=100)
+        ...                   'params': {'eps': [0.3, 0.2, 0.4], 'alpha': [0.1], 'bounds': [(0, 1)]}}]
+        >>> batch_size = 8
+        >>> num_classe = 10
+        >>> train_images = np.random.rand(32, 1, 32, 32).astype(np.float32)
+        >>> test_images = np.random.rand(batch_size, 1, 32, 32).astype(np.float32)
+        >>> test_labels = np.random.randint(num_classe, size=batch_size).astype(np.int32)
+        >>> test_labels = (np.eye(num_classe)[test_labels]).astype(np.float32)
+        >>> initial_seeds = []
+        >>> # make initial seeds
+        >>> for img, label in zip(test_images, test_labels):
+        >>>     initial_seeds.append([img, label])
+
+        >>> initial_seeds = initial_seeds[:10]
+        >>> nc = KMultisectionNeuronCoverage(model, train_images, segmented_num=100, incremental=True)
         >>> model_fuzz_test = Fuzzer(model)
         >>> samples, gt_labels, preds, strategies, metrics = model_fuzz_test.fuzzing(mutate_config, initial_seeds,
         ...                                                                          nc, max_iters=100)
@@ -125,18 +188,26 @@ class Fuzzer:
 
         # Allowed mutate strategies so far.
         self._strategies = {'Contrast': Contrast,
-                            'Brightness': Brightness,
-                            'Blur': Blur,
-                            'Noise': Noise,
+                            'GradientLuminance': GradientLuminance,
+                            'GaussianBlur': GaussianBlur,
+                            'MotionBlur': MotionBlur,
+                            'GradientBlur': GradientBlur,
+                            'UniformNoise': UniformNoise,
+                            'GaussianNoise': GaussianNoise,
+                            'SaltAndPepperNoise': SaltAndPepperNoise,
+                            'NaturalNoise': NaturalNoise,
                             'Translate': Translate,
                             'Scale': Scale,
                             'Shear': Shear,
                             'Rotate': Rotate,
+                            'Perspective': Perspective,
+                            'Curve': Curve,
                             'FGSM': FastGradientSignMethod,
                             'PGD': ProjectedGradientDescent,
                             'MDIIM': MomentumDiverseInputIterativeMethod}
-        self._affine_trans_list = ['Translate', 'Scale', 'Shear', 'Rotate']
-        self._pixel_value_trans_list = ['Contrast', 'Brightness', 'Blur', 'Noise']
+        self._affine_trans_list = ['Translate', 'Scale', 'Shear', 'Rotate', 'Perspective', 'Curve']
+        self._pixel_value_trans_list = ['Contrast', 'GradientLuminance', 'GaussianBlur', 'MotionBlur', 'GradientBlur',
+                                        'UniformNoise', 'GaussianNoise', 'SaltAndPepperNoise', 'NaturalNoise']
         self._attacks_list = ['FGSM', 'PGD', 'MDIIM']
         self._attack_param_checklists = {
             'FGSM': {'eps': {'dtype': [float], 'range': [0, 1]},
@@ -144,10 +215,11 @@ class Fuzzer:
                      'bounds': {'dtype': [tuple, list]}},
             'PGD': {'eps': {'dtype': [float], 'range': [0, 1]},
                     'eps_iter': {'dtype': [float], 'range': [0, 1]},
-                    'nb_iter': {'dtype': [int], 'range': [0, 100000]},
+                    'nb_iter': {'dtype': [int]},
                     'bounds': {'dtype': [tuple, list]}},
             'MDIIM': {'eps': {'dtype': [float], 'range': [0, 1]},
-                      'norm_level': {'dtype': [str, int], 'range': [1, 2, '1', '2', 'l1', 'l2', 'inf', 'np.inf']},
+                      'norm_level': {'dtype': [str, int],
+                                     'range': [1, 2, '1', '2', 'l1', 'l2', 'inf', 'linf', 'np.inf']},
                       'prob': {'dtype': [float], 'range': [0, 1]},
                       'bounds': {'dtype': [tuple, list]}}}
 
@@ -157,18 +229,26 @@ class Fuzzer:
 
         Args:
             mutate_config (list): Mutate configs. The format is
-                [{'method': 'Blur',
-                'params': {'radius': [0.1, 0.2], 'auto_param': [True, False]}},
-                {'method': 'Contrast',
-                'params': {'factor': [1, 1.5, 2]}},
-                {'method': 'FGSM',
-                'params': {'eps': [0.3, 0.2, 0.4], 'alpha': [0.1]}},
-                ...].
+                 [{'method': 'GaussianBlur',
+                   'params': {'ksize': [1, 2, 3, 5], 'auto_param': [True, False]}},
+                  {'method': 'UniformNoise',
+                  'params': {'factor': [0.1, 0.2, 0.3], 'auto_param': [False, True]}},
+                  {'method': 'GaussianNoise',
+                   'params': {'factor': [0.1, 0.2, 0.3], 'auto_param': [False, True]}},
+                  {'method': 'Contrast',
+                   'params': {'alpha': [0.5, 1, 1.5], 'beta': [-10, 0, 10], 'auto_param': [False, True]}},
+                  {'method': 'Rotate',
+                   'params': {'angle': [20, 90], 'auto_param': [False, True]}},
+                  {'method': 'FGSM',
+                   'params': {'eps': [0.3, 0.2, 0.4], 'alpha': [0.1], 'bounds': [(0, 1)]}}]
+                   ...].
                 The supported methods list is in `self._strategies`, and the params of each method must within the
                 range of optional parameters. Supported methods are grouped in three types: Firstly, pixel value based
                 transform methods include: 'Contrast', 'Brightness', 'Blur' and 'Noise'. Secondly, affine transform
                 methods include: 'Translate', 'Scale', 'Shear' and 'Rotate'. Thirdly, attack methods include: 'FGSM',
-                'PGD' and 'MDIIM'. `mutate_config` must have method in the type of pixel value based transform methods.
+                'PGD' and 'MDIIM'. 'FGSM', 'PGD' and 'MDIIM'. are abbreviations of FastGradientSignMethod,
+                ProjectedGradientDescent and MomentumDiverseInputIterativeMethod.
+                `mutate_config` must have method in the type of pixel value based transform methods.
                 The way of setting parameters for first and second type methods can be seen in
                 'mindarmour/fuzz_testing/image_transform.py'. For third type methods, the optional parameters refer to
                 `self._attack_param_checklists`.
@@ -278,7 +358,6 @@ class Fuzzer:
             if only_pixel_trans:
                 while strategy['method'] not in self._pixel_value_trans_list:
                     strategy = choice(mutate_config)
-            transform = mutates[strategy['method']]
             params = strategy['params']
             method = strategy['method']
             selected_param = {}
@@ -290,9 +369,10 @@ class Fuzzer:
                     shear_keys = selected_param.keys()
                     if 'factor_x' in shear_keys and 'factor_y' in shear_keys:
                         selected_param[choice(['factor_x', 'factor_y'])] = 0
-                transform.set_params(**selected_param)
-                mutate_sample = transform.transform(seed[0])
+                transform = mutates[strategy['method']](**selected_param)
+                mutate_sample = transform(seed[0])
             else:
+                transform = mutates[strategy['method']]
                 for param_name in selected_param:
                     transform.__setattr__('_' + str(param_name), selected_param[param_name])
                 mutate_sample = transform.generate(np.array([seed[0].astype(np.float32)]), np.array([seed[1]]))[0]
@@ -360,6 +440,8 @@ class Fuzzer:
                     _ = check_param_bounds('bounds', param_value)
                 elif param_name == 'norm_level':
                     _ = check_norm_level(param_value)
+                elif param_name == 'nb_iter':
+                    _ = check_int_positive(param_name, param_value)
                 else:
                     allow_type = self._attack_param_checklists[method][param_name]['dtype']
                     allow_range = self._attack_param_checklists[method][param_name]['range']
@@ -372,7 +454,8 @@ class Fuzzer:
         for mutate in mutate_config:
             method = mutate['method']
             if method not in self._attacks_list:
-                mutates[method] = self._strategies[method]()
+                # mutates[method] = self._strategies[method]()
+                mutates[method] = self._strategies[method]
             else:
                 network = self._target_model._network
                 loss_fn = self._target_model._loss_fn
@@ -414,7 +497,6 @@ class Fuzzer:
         else:
             attack_success_rate = None
         metrics_report['Attack_success_rate'] = attack_success_rate
-
         metrics_report['Coverage_metrics'] = coverage.get_metrics(fuzz_samples)
 
         return metrics_report
