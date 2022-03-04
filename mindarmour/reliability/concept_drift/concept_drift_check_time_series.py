@@ -25,6 +25,7 @@ from mindarmour.utils._check_param import check_param_type, check_param_in_range
 class ConceptDriftCheckTimeSeries:
     r"""
     ConceptDriftCheckTimeSeries is used for example series distribution change detection.
+    For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/concept_drift_time_series.html>`_
 
     Args:
         window_size(int): Size of a concept window, no less than 10. If given the input data,
@@ -38,6 +39,7 @@ class ConceptDriftCheckTimeSeries:
             Default: False.
 
     Examples:
+        >>> from mindarmour import ConceptDriftCheckTimeSeries
         >>> concept = ConceptDriftCheckTimeSeries(window_size=100, rolling_window=10,
         ...                                       step=10, threshold_index=1.5, need_label=False)
         >>> data_example = 5*np.random.rand(1000)

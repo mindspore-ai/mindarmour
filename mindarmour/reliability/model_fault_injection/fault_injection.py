@@ -31,6 +31,7 @@ TAG = 'FaultInjector'
 class FaultInjector:
     """
     Fault injection for deep neural networks and evaluate performance.
+    For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/fault_injection.html>`_
 
     Args:
         model (Model): The model need to be evaluated.
@@ -40,14 +41,38 @@ class FaultInjector:
         fi_size (list): The number of fault injection.It mean that how many values need to be injected.
 
     Examples:
+        >>> from mindspore import Model
+        >>> import mindspore.dataset as ds
+        >>> import mindspore.ops.operations as P
+        >>> from mindarmour.reliability.model_fault_injection.fault_injection import FaultInjector
+        >>> class Net(nn.Cell):
+        ...     def __init__(self):
+        ...         super(Net, self).__init__()
+        ...         self._softmax = P.Softmax()
+        ...         self._Dense = nn.Dense(10,10)
+        ...         self._squeeze = P.Squeeze(1)
+        ...     def construct(self, inputs):
+        ...         out = self._softmax(inputs)
+        ...         out = self._Dense(out)
+        ...         return self._squeeze(out)
+        >>> def dataset_generator():
+        ...     batch_size = 16
+        ...     batches = 1
+        ...     data =  np.random.randn(batches * batch_size,1,10).astype(np.float32)
+        ...     label =  np.random.randint(0,10, batches * batch_size).astype(np.int32)
+        ...     for i in range(batches):
+        ...         yield data[i*batch_size:(i+1)*batch_size],\
+        ...               label[i*batch_size:(i+1)*batch_size]
         >>> net = Net()
         >>> model = Model(net)
-        >>> ds_data, ds_label = create_data()
-        >>> fi_type = ['bitflips_random', 'zeros']
+        >>> ds_eval = ds.GeneratorDataset(dataset_generator, ['image', 'label'])
+        >>> fi_type = ['bitflips_random', 'bitflips_designated', 'random', 'zeros',
+                       'nan', 'inf', 'anti_activation', 'precision_loss']
         >>> fi_mode = ['single_layer', 'all_layer']
-        >>> fi_size = [1, 2]
-        >>> fi = FaultInjector(model, fi_type=fi_type, fi_mode=fi_mode, fi_size=fi_size)
-        >>> fi.kick_off(ds_data, ds_label)
+        >>> fi_size = [1]
+        >>> fi = FaultInjector(model, ds_eval, fi_type, fi_mode, fi_size)
+        >>> fi.kick_off()
+        >>> fi.metrics()
     """
 
     def __init__(self, model, fi_type=None, fi_mode=None, fi_size=None):
