@@ -1,9 +1,10 @@
 numpy >= 1.17.0
 scipy >= 1.5.2
 matplotlib >= 3.2.1
-pillow >= 6.2.0
+pillow >= 7.2.0
 pytest >= 4.3.1
 wheel >= 0.32.0
 setuptools >= 40.8.0
 scikit-learn >= 0.23.1
 easydict >= 1.9
+opencv-python >= 4.1.2.30
