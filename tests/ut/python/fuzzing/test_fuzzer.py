@@ -99,15 +99,17 @@ def test_fuzzing_ascend():
     model = Model(net)
     batch_size = 8
     num_classe = 10
-    mutate_config = [{'method': 'Blur',
-                      'params': {'auto_param': [True]}},
+    mutate_config = [{'method': 'GaussianBlur',
+                      'params': {'ksize': [1, 2, 3, 5],
+                                 'auto_param': [True, False]}},
+                     {'method': 'UniformNoise',
+                      'params': {'factor': [0.1, 0.2, 0.3], 'auto_param': [False, True]}},
                      {'method': 'Contrast',
-                      'params': {'factor': [2, 1]}},
-                     {'method': 'Translate',
-                      'params': {'x_bias': [0.1, 0.3], 'y_bias': [0.2]}},
+                      'params': {'alpha': [0.5, 1, 1.5], 'beta': [-10, 0, 10], 'auto_param': [False, True]}},
+                     {'method': 'Rotate',
+                      'params': {'angle': [20, 90], 'auto_param': [False, True]}},
                      {'method': 'FGSM',
-                      'params': {'eps': [0.1, 0.2, 0.3], 'alpha': [0.1]}}
-                     ]
+                      'params': {'eps': [0.3, 0.2, 0.4], 'alpha': [0.1], 'bounds': [(0, 1)]}}]
 
     train_images = np.random.rand(32, 1, 32, 32).astype(np.float32)
     # fuzz test with original test data
@@ -142,15 +144,17 @@ def test_fuzzing_cpu():
     model = Model(net)
     batch_size = 8
     num_classe = 10
-    mutate_config = [{'method': 'Blur',
-                      'params': {'auto_param': [True]}},
+    mutate_config = [{'method': 'GaussianBlur',
+                      'params': {'ksize': [1, 2, 3, 5],
+                                 'auto_param': [True, False]}},
+                     {'method': 'UniformNoise',
+                      'params': {'factor': [0.1, 0.2, 0.3], 'auto_param': [False, True]}},
                      {'method': 'Contrast',
-                      'params': {'factor': [2, 1]}},
-                     {'method': 'Translate',
-                      'params': {'x_bias': [0.1, 0.3], 'y_bias': [0.2]}},
+                      'params': {'alpha': [0.5, 1, 1.5], 'beta': [-10, 0, 10], 'auto_param': [False, True]}},
+                     {'method': 'Rotate',
+                      'params': {'angle': [20, 90], 'auto_param': [False, True]}},
                      {'method': 'FGSM',
-                      'params': {'eps': [0.1, 0.2, 0.3], 'alpha': [0.1]}}
-                     ]
+                      'params': {'eps': [0.3, 0.2, 0.4], 'alpha': [0.1], 'bounds': [(0, 1)]}}]
     # initialize fuzz test with training dataset
     train_images = np.random.rand(32, 1, 32, 32).astype(np.float32)
 
