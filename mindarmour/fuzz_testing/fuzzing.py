@@ -229,19 +229,19 @@ class Fuzzer:
 
         Args:
             mutate_config (list): Mutate configs. The format is
-                 [{'method': 'GaussianBlur',
-                   'params': {'ksize': [1, 2, 3, 5], 'auto_param': [True, False]}},
-                  {'method': 'UniformNoise',
-                  'params': {'factor': [0.1, 0.2, 0.3], 'auto_param': [False, True]}},
-                  {'method': 'GaussianNoise',
-                   'params': {'factor': [0.1, 0.2, 0.3], 'auto_param': [False, True]}},
-                  {'method': 'Contrast',
-                   'params': {'alpha': [0.5, 1, 1.5], 'beta': [-10, 0, 10], 'auto_param': [False, True]}},
-                  {'method': 'Rotate',
-                   'params': {'angle': [20, 90], 'auto_param': [False, True]}},
-                  {'method': 'FGSM',
-                   'params': {'eps': [0.3, 0.2, 0.4], 'alpha': [0.1], 'bounds': [(0, 1)]}}]
-                   ...].
+                [{'method': 'GaussianBlur',
+                'params': {'ksize': [1, 2, 3, 5], 'auto_param': [True, False]}},
+                {'method': 'UniformNoise',
+                'params': {'factor': [0.1, 0.2, 0.3], 'auto_param': [False, True]}},
+                {'method': 'GaussianNoise',
+                'params': {'factor': [0.1, 0.2, 0.3], 'auto_param': [False, True]}},
+                {'method': 'Contrast',
+                'params': {'alpha': [0.5, 1, 1.5], 'beta': [-10, 0, 10], 'auto_param': [False, True]}},
+                {'method': 'Rotate',
+                'params': {'angle': [20, 90], 'auto_param': [False, True]}},
+                {'method': 'FGSM',
+                'params': {'eps': [0.3, 0.2, 0.4], 'alpha': [0.1], 'bounds': [(0, 1)]}}]
+                ...].
                 The supported methods list is in `self._strategies`, and the params of each method must within the
                 range of optional parameters. Supported methods are grouped in three types: Firstly, pixel value based
                 transform methods include: 'Contrast', 'Brightness', 'Blur' and 'Noise'. Secondly, affine transform
