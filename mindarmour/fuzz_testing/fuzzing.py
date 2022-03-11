@@ -105,49 +105,44 @@ class Fuzzer:
         target_model (Model): Target fuzz model.
 
     Examples:
-        >>> import numpy as np
-        >>> from mindspore import context
-        >>> from mindspore import nn
         >>> from mindspore.common.initializer import TruncatedNormal
         >>> from mindspore.ops import operations as P
         >>> from mindspore.train import Model
         >>> from mindspore.ops import TensorSummary
         >>> from mindarmour.fuzz_testing import Fuzzer
         >>> from mindarmour.fuzz_testing import KMultisectionNeuronCoverage
-        >>>
         >>> class Net(nn.Cell):
-        >>>     def __init__(self):
-        >>>         super(Net, self).__init__()
-        >>>         self.conv1 = nn.Conv2d(1, 6, 5, padding=0, weight_init=TruncatedNormal(0.02), pad_mode="valid")
-        >>>         self.conv2 = nn.Conv2d(6, 16, 5, padding=0, weight_init=TruncatedNormal(0.02), pad_mode="valid")
-        >>>         self.fc1 = nn.Dense(16 * 5 * 5, 120, TruncatedNormal(0.02), TruncatedNormal(0.02))
-        >>>         self.fc2 = nn.Dense(120, 84, TruncatedNormal(0.02), TruncatedNormal(0.02))
-        >>>         self.fc3 = nn.Dense(84, 10, TruncatedNormal(0.02), TruncatedNormal(0.02))
-        >>>         self.relu = nn.ReLU()
-        >>>         self.max_pool2d = nn.MaxPool2d(kernel_size=2, stride=2)
-        >>>         self.reshape = P.Reshape()
-        >>>         self.summary = TensorSummary()
-        >>>
-        >>>    def construct(self, x):
-        >>>         x = self.conv1(x)
-        >>>         x = self.relu(x)
-        >>>         self.summary('conv1', x)
-        >>>         x = self.max_pool2d(x)
-        >>>         x = self.conv2(x)
-        >>>         x = self.relu(x)
-        >>>         self.summary('conv2', x)
-        >>>         x = self.max_pool2d(x)
-        >>>         x = self.reshape(x, (-1, 16 * 5 * 5))
-        >>>         x = self.fc1(x)
-        >>>         x = self.relu(x)
-        >>>         self.summary('fc1', x)
-        >>>         x = self.fc2(x)
-        >>>         x = self.relu(x)
-        >>>         self.summary('fc2', x)
-        >>>         x = self.fc3(x)
-        >>>         self.summary('fc3', x)
-        >>>         return x
-        >>>
+        ...     def __init__(self):
+        ...         super(Net, self).__init__()
+        ...         self.conv1 = nn.Conv2d(1, 6, 5, padding=0, weight_init=TruncatedNormal(0.02), pad_mode="valid")
+        ...         self.conv2 = nn.Conv2d(6, 16, 5, padding=0, weight_init=TruncatedNormal(0.02), pad_mode="valid")
+        ...         self.fc1 = nn.Dense(16 * 5 * 5, 120, TruncatedNormal(0.02), TruncatedNormal(0.02))
+        ...         self.fc2 = nn.Dense(120, 84, TruncatedNormal(0.02), TruncatedNormal(0.02))
+        ...         self.fc3 = nn.Dense(84, 10, TruncatedNormal(0.02), TruncatedNormal(0.02))
+        ...         self.relu = nn.ReLU()
+        ...         self.max_pool2d = nn.MaxPool2d(kernel_size=2, stride=2)
+        ...         self.reshape = P.Reshape()
+        ...         self.summary = TensorSummary()
+        ...
+        ...    def construct(self, x):
+        ...         x = self.conv1(x)
+        ...         x = self.relu(x)
+        ...         self.summary('conv1', x)
+        ...         x = self.max_pool2d(x)
+        ...         x = self.conv2(x)
+        ...         x = self.relu(x)
+        ...         self.summary('conv2', x)
+        ...         x = self.max_pool2d(x)
+        ...         x = self.reshape(x, (-1, 16 * 5 * 5))
+        ...         x = self.fc1(x)
+        ...         x = self.relu(x)
+        ...         self.summary('fc1', x)
+        ...         x = self.fc2(x)
+        ...         x = self.relu(x)
+        ...         self.summary('fc2', x)
+        ...         x = self.fc3(x)
+        ...         self.summary('fc3', x)
+        ...         return x
         >>> net = Net()
         >>> model = Model(net)
         >>> mutate_config = [{'method': 'GaussianBlur',
@@ -175,7 +170,6 @@ class Fuzzer:
         >>> # make initial seeds
         >>> for img, label in zip(test_images, test_labels):
         >>>     initial_seeds.append([img, label])
-
         >>> initial_seeds = initial_seeds[:10]
         >>> nc = KMultisectionNeuronCoverage(model, train_images, segmented_num=100, incremental=True)
         >>> model_fuzz_test = Fuzzer(model)
@@ -243,15 +237,17 @@ class Fuzzer:
                 'params': {'eps': [0.3, 0.2, 0.4], 'alpha': [0.1], 'bounds': [(0, 1)]}}]
                 ...].
                 The supported methods list is in `self._strategies`, and the params of each method must within the
-                range of optional parameters. Supported methods are grouped in three types: Firstly, pixel value based
-                transform methods include: 'Contrast', 'Brightness', 'Blur' and 'Noise'. Secondly, affine transform
-                methods include: 'Translate', 'Scale', 'Shear' and 'Rotate'. Thirdly, attack methods include: 'FGSM',
+                range of optional parameters. Supported methods are grouped in two types: Firstly, natural robustness
+                methods include: 'Translate', 'Scale', 'Shear', 'Rotate', 'Perspective', 'Curve', 'GaussianBlur',
+                'MotionBlur', 'GradientBlur', 'Contrast', 'GradientLuminance', 'UniformNoise', 'GaussianNoise',
+                'SaltAndPepperNoise', 'NaturalNoise'. Secondly, attack methods include: 'FGSM',
                 'PGD' and 'MDIIM'. 'FGSM', 'PGD' and 'MDIIM'. are abbreviations of FastGradientSignMethod,
                 ProjectedGradientDescent and MomentumDiverseInputIterativeMethod.
-                `mutate_config` must have method in the type of pixel value based transform methods.
+                `mutate_config` must have method in ['Contrast', 'GradientLuminance', 'GaussianBlur', 'MotionBlur',
+                'GradientBlur', 'UniformNoise', 'GaussianNoise', 'SaltAndPepperNoise', 'NaturalNoise'].
                 The way of setting parameters for first and second type methods can be seen in
-                'mindarmour/fuzz_testing/image_transform.py'. For third type methods, the optional parameters refer to
-                `self._attack_param_checklists`.
+                'mindarmour/natural_robustness/transform/image'. For third type methods, the optional parameters refer
+                to `self._attack_param_checklists`.
             initial_seeds (list[list]): Initial seeds used to generate mutated samples. The format of initial seeds is
                 [[image_data, label], [...], ...] and the label must be one-hot.
             coverage (CoverageMetrics): Class of neuron coverage metrics.
