@@ -120,9 +120,11 @@ class _NaturalPerturb:
         pass
 
     def _check(self, image):
-        """ Check image format. If input image is RGB and its shape
+        """
+        Check image format. If input image is RGB and its shape
         is (C, H, W), it will be transposed to (H, W, C). If the value
-        of the image is not normalized , it will be rescaled between 0 to 255."""
+        of the image is not normalized , it will be rescaled between 0 to 255.
+        """
         rgb = _is_rgb(image)
         chw = False
         gray3dim = False
@@ -131,14 +133,10 @@ class _NaturalPerturb:
             chw = _is_chw(image)
             if chw:
                 image = _chw_to_hwc(image)
-            else:
-                image = image
         else:
             if len(np.shape(image)) == 3:
                 gray3dim = True
                 image = image[0]
-            else:
-                image = image
         if normalized:
             image = image * 255
         return rgb, chw, normalized, gray3dim, np.uint8(image)

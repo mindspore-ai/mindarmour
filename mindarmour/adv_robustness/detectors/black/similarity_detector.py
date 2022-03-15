@@ -160,9 +160,7 @@ class SimilarityDetector(Detector):
             distance_mat = np.sort(distance_mat, axis=-1)
             distances.append(distance_mat[:, :self._max_k_neighbor])
         # the rest
-        distance_mat = _pairwise_distances(x_input=data[(data.shape[0] //
-                                                         self._chunk_size)*
-                                                        self._chunk_size:, :],
+        distance_mat = _pairwise_distances(x_input=data[(data.shape[0] // self._chunk_size) * self._chunk_size:, :],
                                            y_input=data)
         distance_mat = np.sort(distance_mat, axis=-1)
         distances.append(distance_mat[:, :self._max_k_neighbor])

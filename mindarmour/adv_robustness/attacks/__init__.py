@@ -15,8 +15,10 @@
 This module includes classical black-box and white-box attack algorithms
 in making adversarial examples.
 """
-from .gradient_method import *
-from .iterative_gradient_method import *
+from .gradient_method import FastGradientMethod, FastGradientSignMethod, RandomFastGradientMethod, \
+    RandomFastGradientSignMethod, LeastLikelyClassMethod, RandomLeastLikelyClassMethod
+from .iterative_gradient_method import IterativeGradientMethod, BasicIterativeMethod, MomentumIterativeMethod, \
+    ProjectedGradientDescent, DiverseInputIterativeMethod, MomentumDiverseInputIterativeMethod
 from .deep_fool import DeepFool
 from .jsma import JSMAAttack
 from .carlini_wagner import CarliniWagnerL2Attack

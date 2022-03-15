@@ -125,20 +125,14 @@ class CarliniWagnerL2Attack(Attack):
         self._num_classes = check_int_positive('num_classes', num_classes)
         self._min = check_param_type('box_min', box_min, float)
         self._max = check_param_type('box_max', box_max, float)
-        self._bin_search_steps = check_int_positive('search_steps',
-                                                    bin_search_steps)
-        self._max_iterations = check_int_positive('max_iterations',
-                                                  max_iterations)
-        self._confidence = check_param_multi_types('confidence', confidence,
-                                                   [int, float])
-        self._learning_rate = check_value_positive('learning_rate',
-                                                   learning_rate)
-        self._initial_const = check_value_positive('initial_const',
-                                                   initial_const)
+        self._bin_search_steps = check_int_positive('search_steps', bin_search_steps)
+        self._max_iterations = check_int_positive('max_iterations', max_iterations)
+        self._confidence = check_param_multi_types('confidence', confidence, [int, float])
+        self._learning_rate = check_value_positive('learning_rate', learning_rate)
+        self._initial_const = check_value_positive('initial_const', initial_const)
         self._abort_early = check_param_type('abort_early', abort_early, bool)
         self._fast = check_param_type('fast', fast, bool)
-        self._abort_early_check_ratio = check_value_positive('abort_early_check_ratio',
-                                                             abort_early_check_ratio)
+        self._abort_early_check_ratio = check_value_positive('abort_early_check_ratio', abort_early_check_ratio)
         self._targeted = check_param_type('targeted', targeted, bool)
         self._net_grad = GradWrap(self._network)
         self._sparse = check_param_type('sparse', sparse, bool)
@@ -154,10 +148,8 @@ class CarliniWagnerL2Attack(Attack):
             new_x (numpy.ndarray): Adversarial examples.
             org_x (numpy.ndarray): Original benign input samples.
             org_or_target_class (numpy.ndarray): Original/target labels.
-            constant (float): A trade-off constant to use to balance loss
-                and perturbation norm.
-            confidence (float): Confidence level of the output of adversarial
-                examples.
+            constant (float): A trade-off constant to use to balance loss and perturbation norm.
+            confidence (float): Confidence level of the output of adversarial examples.
 
         Returns:
             numpy.ndarray, norm of perturbation, sum of the loss and the
@@ -183,7 +175,7 @@ class CarliniWagnerL2Attack(Attack):
 
         other_class_index = _best_logits_of_other_class(
             logits, org_or_target_class, value=np.inf)
-        loss1 = np.sum((new_x - org_x)**2,
+        loss1 = np.sum((new_x - org_x) ** 2,
                        axis=tuple(range(len(new_x.shape))[1:]))
         loss2 = np.zeros_like(loss1, dtype=self._dtype)
         loss2_grade = np.zeros_like(new_x, dtype=self._dtype)
@@ -193,16 +185,16 @@ class CarliniWagnerL2Attack(Attack):
                 loss2[i] = max(0, logits[i][other_class_index[i]]
                                - logits[i][org_or_target_class[i]]
                                + confidence)
-                loss2_grade[i] = constant[i]*(jaco_grad[other_class_index[
+                loss2_grade[i] = constant[i] * (jaco_grad[other_class_index[
                     i]][i] - jaco_grad[org_or_target_class[i]][i])
         else:
             for i in range(org_or_target_class.shape[0]):
                 loss2[i] = max(0, logits[i][org_or_target_class[i]]
                                - logits[i][other_class_index[i]] + confidence)
-                loss2_grade[i] = constant[i]*(jaco_grad[org_or_target_class[
+                loss2_grade[i] = constant[i] * (jaco_grad[org_or_target_class[
                     i]][i] - jaco_grad[other_class_index[i]][i])
-        total_loss = loss1 + constant*loss2
-        loss1_grade = 2*(new_x - org_x)
+        total_loss = loss1 + constant * loss2
+        loss1_grade = 2 * (new_x - org_x)
         for i in range(org_or_target_class.shape[0]):
             if loss2[i] < 0:
                 msg = 'loss value should greater than or equal to 0, ' \
@@ -233,7 +225,7 @@ class CarliniWagnerL2Attack(Attack):
         mean = (self._min + self._max) / 2
         diff = (self._max - self._min) / 2
         inputs = (inputs - mean) / diff
-        inputs = inputs*0.999999
+        inputs = inputs * 0.999999
         return np.arctanh(inputs)
 
     def _to_model_space(self, inputs):
@@ -257,8 +249,8 @@ class CarliniWagnerL2Attack(Attack):
         the_grad = 1 - np.square(inputs)
         mean = (self._min + self._max) / 2
         diff = (self._max - self._min) / 2
-        inputs = inputs*diff + mean
-        the_grad = the_grad*diff
+        inputs = inputs * diff + mean
+        the_grad = the_grad * diff
         return inputs, the_grad
 
     def _check_success(self, logits, labels):
@@ -292,35 +284,30 @@ class CarliniWagnerL2Attack(Attack):
         reconstructed_original, _ = self._to_model_space(att_original)
 
         # find an adversarial sample
-        const = np.ones_like(labels, dtype=self._dtype)*self._initial_const
+        const = np.ones_like(labels, dtype=self._dtype) * self._initial_const
         lower_bound = np.zeros_like(labels, dtype=self._dtype)
-        upper_bound = np.ones_like(labels, dtype=self._dtype)*np.inf
+        upper_bound = np.ones_like(labels, dtype=self._dtype) * np.inf
         adversarial_res = inputs.copy()
-        adversarial_loss = np.ones_like(labels, dtype=self._dtype)*np.inf
+        adversarial_loss = np.ones_like(labels, dtype=self._dtype) * np.inf
         samples_num = labels.shape[0]
         adv_flag = np.zeros_like(labels)
         for binary_search_step in range(self._bin_search_steps):
-            if (binary_search_step == self._bin_search_steps - 1) and \
-                    (self._bin_search_steps >= 10):
+            if (binary_search_step == self._bin_search_steps - 1) and (self._bin_search_steps >= 10):
                 const = min(1e10, upper_bound)
-            LOGGER.debug(TAG,
-                         'starting optimization with const = %s',
-                         str(const))
+            LOGGER.debug(TAG, 'starting optimization with const = %s', str(const))
 
             att_perturbation = np.zeros_like(att_original, dtype=self._dtype)
-            loss_at_previous_check = np.ones_like(labels, dtype=self._dtype)*np.inf
+            loss_at_previous_check = np.ones_like(labels, dtype=self._dtype) * np.inf
 
             # create a new optimizer to minimize the perturbation
             optimizer = _AdamOptimizer(att_perturbation.shape)
 
             for iteration in range(self._max_iterations):
-                x_input, dxdp = self._to_model_space(
-                    att_original + att_perturbation)
+                x_input, dxdp = self._to_model_space(att_original + att_perturbation)
                 logits = self._network(Tensor(x_input)).asnumpy()
 
-                current_l2_loss, current_loss, dldx = self._loss_function(
-                    logits, x_input, reconstructed_original,
-                    labels, const, self._confidence)
+                current_l2_loss, current_loss, dldx = self._loss_function(logits, x_input, reconstructed_original,
+                                                                          labels, const, self._confidence)
 
                 is_adv = self._check_success(logits, labels)
 
@@ -334,57 +321,50 @@ class CarliniWagnerL2Attack(Attack):
                 if np.all(adv_flag):
                     if self._fast:
                         LOGGER.debug(TAG, "succeed find adversarial examples.")
-                        msg = 'iteration: {}, logits_att: {}, ' \
-                              'loss: {}, l2_dist: {}' \
-                            .format(iteration,
-                                    np.argmax(logits, axis=1),
-                                    current_loss, current_l2_loss)
+                        msg = 'iteration: {}, logits_att: {}, loss: {}, l2_dist: {}' \
+                            .format(iteration, np.argmax(logits, axis=1), current_loss, current_l2_loss)
                         LOGGER.debug(TAG, msg)
                         return adversarial_res
 
                 dldx, inputs = check_equal_shape('dldx', dldx, 'inputs', inputs)
 
-                gradient = dldx*dxdp
-                att_perturbation += \
-                    optimizer(gradient, self._learning_rate)
+                gradient = dldx * dxdp
+                att_perturbation += optimizer(gradient, self._learning_rate)
 
                 # check if should stop iteration early
                 flag = True
                 iter_check = iteration % (np.ceil(
-                    self._max_iterations*self._abort_early_check_ratio))
+                    self._max_iterations * self._abort_early_check_ratio))
                 if self._abort_early and iter_check == 0:
                     # check progress
                     for i in range(inputs.shape[0]):
-                        if current_loss[i] <= .9999*loss_at_previous_check[i]:
+                        if current_loss[i] <= .9999 * loss_at_previous_check[i]:
                             flag = False
                     # stop Adam if all samples has no progress
                     if flag:
-                        LOGGER.debug(TAG,
-                                     'step:%d, no progress yet, stop iteration',
-                                     binary_search_step)
+                        LOGGER.debug(TAG, 'step:%d, no progress yet, stop iteration', binary_search_step)
                         break
                     loss_at_previous_check = current_loss
-
-            for i in range(samples_num):
-                # update bound based on search result
-                if adv_flag[i]:
-                    LOGGER.debug(TAG,
-                                 'example %d, found adversarial with const=%f',
-                                 i, const[i])
-                    upper_bound[i] = const[i]
-                else:
-                    LOGGER.debug(TAG,
-                                 'example %d, failed to find adversarial'
-                                 ' with const=%f',
-                                 i, const[i])
-                    lower_bound[i] = const[i]
-
-                if upper_bound[i] == np.inf:
-                    const[i] *= 10
-                else:
-                    const[i] = (lower_bound[i] + upper_bound[i]) / 2
+            upper_bound, lower_bound, const = self._update_bounds(samples_num, adv_flag, const, upper_bound,
+                                                                  lower_bound)
 
         return adversarial_res
+
+    def _update_bounds(self, samples_num, adv_flag, const, upper_bound, lower_bound):
+        """update bound based on search result"""
+        for i in range(samples_num):
+            if adv_flag[i]:
+                LOGGER.debug(TAG, 'example %d, found adversarial with const=%f', i, const[i])
+                upper_bound[i] = const[i]
+            else:
+                LOGGER.debug(TAG, 'example %d, failed to find adversarial with const=%f', i, const[i])
+                lower_bound[i] = const[i]
+
+            if upper_bound[i] == np.inf:
+                const[i] *= 10
+            else:
+                const[i] = (lower_bound[i] + upper_bound[i]) / 2
+        return upper_bound, lower_bound, const
 
 
 class _AdamOptimizer:
@@ -428,8 +408,8 @@ class _AdamOptimizer:
         """
         gradient = check_numpy_param('gradient', gradient)
         self._t += 1
-        self._m = beta1*self._m + (1 - beta1)*gradient
-        self._v = beta2*self._v + (1 - beta2)*gradient**2
-        alpha = learning_rate*np.sqrt(1 - beta2**self._t) / (1 - beta1**self._t)
-        pertur = -alpha*self._m / (np.sqrt(self._v) + epsilon)
+        self._m = beta1 * self._m + (1 - beta1) * gradient
+        self._v = beta2 * self._v + (1 - beta2) * gradient ** 2
+        alpha = learning_rate * np.sqrt(1 - beta2 ** self._t) / (1 - beta1 ** self._t)
+        pertur = -alpha * self._m / (np.sqrt(self._v) + epsilon)
         return pertur

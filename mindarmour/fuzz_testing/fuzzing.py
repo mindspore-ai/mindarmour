@@ -450,7 +450,6 @@ class Fuzzer:
         for mutate in mutate_config:
             method = mutate['method']
             if method not in self._attacks_list:
-                # mutates[method] = self._strategies[method]()
                 mutates[method] = self._strategies[method]
             else:
                 network = self._target_model._network

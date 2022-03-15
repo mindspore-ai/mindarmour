@@ -11,6 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""
+setup script
+"""
 import os
 import stat
 import shlex
@@ -27,7 +30,7 @@ pkg_dir = os.path.join(cur_dir, 'build')
 
 
 def clean():
-    # pylint: disable=unused-argument
+    """clean"""
     def readonly_handler(func, path, execinfo):
         os.chmod(path, stat.S_IWRITE)
         func(path)
@@ -38,6 +41,7 @@ def clean():
 
 
 def write_version(file):
+    """write version"""
     file.write("__version__ = '{}'\n".format(version))
 
 
