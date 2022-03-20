@@ -31,6 +31,7 @@ def _is_positive_int(item):
         return False
     return item > 0
 
+
 def _is_non_negative_int(item):
     """Verify that the value is a non-negative integer."""
     if not isinstance(item, int):
@@ -50,6 +51,7 @@ def _is_non_negative_float(item):
     if not isinstance(item, (int, float)):
         return False
     return item >= 0
+
 
 def _is_range_0_1_float(item):
     if not isinstance(item, (int, float)):
@@ -151,7 +153,6 @@ _VALID_CONFIG_CHECKLIST = {
 }
 
 
-
 def _check_config(attack_config, config_checklist):
     """
     Verify that config_list is valid.
@@ -161,7 +162,7 @@ def _check_config(attack_config, config_checklist):
         check_param_type("config", config, dict)
         if set(config.keys()) != {"params", "method"}:
             msg = "Keys of each config in attack_config must be {}," \
-                "but got {}.".format({'method', 'params'}, set(config.keys()))
+                  "but got {}.".format({'method', 'params'}, set(config.keys()))
             LOGGER.error(TAG, msg)
             raise KeyError(msg)
 
@@ -175,7 +176,7 @@ def _check_config(attack_config, config_checklist):
 
         if not params.keys() <= config_checklist[method].keys():
             msg = "Params in method {} is not accepted, the parameters " \
-                "that can be set are {}.".format(method, set(config_checklist[method].keys()))
+                  "that can be set are {}.".format(method, set(config_checklist[method].keys()))
 
             LOGGER.error(TAG, msg)
             raise KeyError(msg)
@@ -199,7 +200,7 @@ def _check_config(attack_config, config_checklist):
                         break
 
                 if not flag:
-                    msg = "Setting of parmeter {} in method {} is invalid".format(param_key, method)
+                    msg = "Setting of parameter {} in method {} is invalid".format(param_key, method)
                     raise ValueError(msg)
 
 

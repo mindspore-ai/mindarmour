@@ -36,7 +36,7 @@ _reciprocal = P.Reciprocal()
 @_grad_scale.register("Tensor", "Tensor")
 def tensor_grad_scale(scale, grad):
     """ grad scaling """
-    return grad*_reciprocal(scale)
+    return grad * _reciprocal(scale)
 
 
 class _TupleAdd(nn.Cell):
@@ -141,12 +141,11 @@ class DPOptimizerClassFactory:
 
                 self._mech_param_updater = None
                 if self._mech is not None and self._mech._decay_policy is not None:
-                    self._mech_param_updater = _MechanismsParamsUpdater(decay_policy=self._mech._decay_policy,
-                                                                        decay_rate=self._mech._noise_decay_rate,
-                                                                        cur_noise_multiplier=
-                                                                        self._mech._noise_multiplier,
-                                                                        init_noise_multiplier=
-                                                                        self._mech._initial_noise_multiplier)
+                    self._mech_param_updater = _MechanismsParamsUpdater(
+                        decay_policy=self._mech._decay_policy,
+                        decay_rate=self._mech._noise_decay_rate,
+                        cur_noise_multiplier=self._mech._noise_multiplier,
+                        init_noise_multiplier=self._mech._initial_noise_multiplier)
 
             def construct(self, gradients):
                 """

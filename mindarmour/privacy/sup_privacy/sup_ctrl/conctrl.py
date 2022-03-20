@@ -26,11 +26,14 @@ from mindspore.nn import Cell
 from mindarmour.utils.logger import LogUtil
 from mindarmour.utils._check_param import check_int_positive, check_value_positive, \
     check_value_non_negative, check_param_type
+
 LOGGER = LogUtil.get_instance()
 TAG = 'Suppression training.'
 
+
 class SuppressPrivacyFactory:
     """ Factory class of SuppressCtrl mechanisms"""
+
     def __init__(self):
         pass
 
@@ -107,6 +110,7 @@ class SuppressPrivacyFactory:
         LOGGER.error(TAG, msg)
         raise ValueError(msg)
 
+
 class SuppressCtrl(Cell):
     """
     For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_suppress_privacy.html#%E5%BC%95%E5%85%A5%E6%8A%91%E5%88%B6%E9%9A%90%E7%A7%81%E8%AE%AD%E7%BB%83>`_
@@ -122,6 +126,7 @@ class SuppressCtrl(Cell):
         sparse_end (float): The sparsity to reach.
         sparse_start (Union[float, int]): The sparsity to start.
     """
+
     def __init__(self, networks, mask_layers, end_epoch, batch_num, start_epoch, mask_times, lr,
                  sparse_end, sparse_start):
         super(SuppressCtrl, self).__init__()
@@ -137,7 +142,7 @@ class SuppressCtrl(Cell):
 
         self.weight_lower_bound = 0.005  # all network weight will be larger than this value
         self.sparse_vibra = 0.02  # the sparsity may have certain range of variations
-        self.sparse_valid_max_weight = 0.02 # if max network weight is less than this value, suppress operation stop temporarily
+        self.sparse_valid_max_weight = 0.02  # if max network weight is less than this value, operation stop temporarily
         self.add_noise_thd = 0.50  # if network weight is more than this value, noise is forced
         self.noise_volume = 0.1  # noise volume 0.1
         self.base_ground_thd = 0.0000001  # if network weight is less than this value, will be considered as 0
@@ -149,72 +154,15 @@ class SuppressCtrl(Cell):
         self.mask_start_step = 0  # suppress operation is actually started at this step
         self.mask_prev_step = 0  # previous suppress operation is done at this step
         self.cur_sparse = 0.0  # current sparsity to which one suppress will get
-        self.mask_all_steps = (end_epoch - start_epoch + 1)*batch_num  # the amount of step contained in all suppress operation
-        self.mask_step_interval = self.mask_all_steps/mask_times  # the amount of step contaied in one suppress operation
+        self.mask_all_steps = (end_epoch - start_epoch + 1) * batch_num  # the amount of step contained in all operation
+        self.mask_step_interval = self.mask_all_steps / mask_times  # the amount of step contained in one operation
         self.mask_initialized = False  # flag means the initialization is done
         self.grad_idx_map = []
 
-        if self.lr > 0.5:
-            msg = "learning rate should not be greater than 0.5, but got {}".format(self.lr)
-            LOGGER.error(TAG, msg)
-            raise ValueError(msg)
-
-        if self.mask_start_epoch > self.mask_end_epoch:
-            msg = "start_epoch should not be greater than end_epoch, but got start_epoch and end_epoch are: " \
-                  "{}, {}".format(self.mask_start_epoch, self.mask_end_epoch)
-            LOGGER.error(TAG, msg)
-            raise ValueError(msg)
-
-        if self.mask_end_epoch > 100:
-            msg = "The end_epoch should be smaller than 100, but got {}".format(self.mask_end_epoch)
-            LOGGER.error(TAG, msg)
-            raise ValueError(msg)
-
-        if self.mask_step_interval <= 0:
-            msg = "step_interval should be greater than 0, but got {}".format(self.mask_step_interval)
-            LOGGER.error(TAG, msg)
-            raise ValueError(msg)
-
-        if self.mask_step_interval <= 10 or self.mask_step_interval >= 20:
-            msg = "mask_interval should be greater than 10, smaller than 20, but got {}".format(self.mask_step_interval)
-            msg += "\n Precision of trained model may be poor !!! "
-            msg += "\n please modify epoch_start, epoch_end and batch_num !"
-            msg += "\n mask_interval = (epoch_end-epoch_start+1)*batch_num/mask_times, batch_num = samples/batch_size"
-            LOGGER.info(TAG, msg)
-
-        if self.sparse_end >= 1.00 or self.sparse_end <= 0:
-            msg = "sparse_end should be in range (0, 1), but got {}".format(self.sparse_end)
-            LOGGER.error(TAG, msg)
-            raise ValueError(msg)
-
-        if self.sparse_start >= self.sparse_end:
-            msg = "sparse_start should be smaller than sparse_end, but got sparse_start and sparse_end are: " \
-                  "{}, {}".format(self.sparse_start, self.sparse_end)
-            LOGGER.error(TAG, msg)
-            raise ValueError(msg)
+        self._check_params()
 
         if mask_layers is not None:
-            mask_layer_id = 0
-            for one_mask_layer in mask_layers:
-                if not isinstance(one_mask_layer, MaskLayerDes):
-                    msg = "mask_layers should be a list of MaskLayerDes, but got a {}".format(type(one_mask_layer))
-                    LOGGER.error(TAG, msg)
-                    raise ValueError(msg)
-                layer_name = one_mask_layer.layer_name
-                mask_layer_id2 = 0
-                for one_mask_layer_2 in mask_layers:
-                    if mask_layer_id != mask_layer_id2 and layer_name == one_mask_layer_2.layer_name:
-                        msg = "Mask layer name should be unique, but got duplicate name: {} in mask_layer {} and {}".\
-                            format(layer_name, mask_layer_id, mask_layer_id2)
-                        LOGGER.error(TAG, msg)
-                        raise ValueError(msg)
-                    if mask_layer_id != mask_layer_id2 and one_mask_layer.grad_idx == one_mask_layer_2.grad_idx:
-                        msg = "Grad_idx should be unique, but got duplicate idx: {} in mask_layer {} and {}".\
-                            format(layer_name, one_mask_layer_2.layer_name, one_mask_layer.grad_idx)
-                        LOGGER.error(TAG, msg)
-                        raise ValueError(msg)
-                    mask_layer_id2 = mask_layer_id2 + 1
-                mask_layer_id = mask_layer_id + 1
+            self._check_mask_layers()
 
         if networks is not None:
             for layer in networks.get_parameters(expand=True):
@@ -277,6 +225,71 @@ class SuppressCtrl(Cell):
         msg += "\nsup_privacy only support SGD optimizer"
         LOGGER.warn(TAG, msg)
 
+    def _check_params(self):
+        """check parameters"""
+        if self.lr > 0.5:
+            msg = "learning rate should not be greater than 0.5, but got {}".format(self.lr)
+            LOGGER.error(TAG, msg)
+            raise ValueError(msg)
+
+        if self.mask_start_epoch > self.mask_end_epoch:
+            msg = "start_epoch should not be greater than end_epoch, but got start_epoch and end_epoch are: " \
+                  "{}, {}".format(self.mask_start_epoch, self.mask_end_epoch)
+            LOGGER.error(TAG, msg)
+            raise ValueError(msg)
+
+        if self.mask_end_epoch > 100:
+            msg = "The end_epoch should be smaller than 100, but got {}".format(self.mask_end_epoch)
+            LOGGER.error(TAG, msg)
+            raise ValueError(msg)
+
+        if self.mask_step_interval <= 0:
+            msg = "step_interval should be greater than 0, but got {}".format(self.mask_step_interval)
+            LOGGER.error(TAG, msg)
+            raise ValueError(msg)
+
+        if self.mask_step_interval <= 10 or self.mask_step_interval >= 20:
+            msg = "mask_interval should be greater than 10, smaller than 20, but got {}".format(self.mask_step_interval)
+            msg += "\n Precision of trained model may be poor !!! "
+            msg += "\n please modify epoch_start, epoch_end and batch_num !"
+            msg += "\n mask_interval = (epoch_end-epoch_start+1)*batch_num/mask_times, batch_num = samples/batch_size"
+            LOGGER.info(TAG, msg)
+
+        if self.sparse_end >= 1.00 or self.sparse_end <= 0:
+            msg = "sparse_end should be in range (0, 1), but got {}".format(self.sparse_end)
+            LOGGER.error(TAG, msg)
+            raise ValueError(msg)
+
+        if self.sparse_start >= self.sparse_end:
+            msg = "sparse_start should be smaller than sparse_end, but got sparse_start and sparse_end are: " \
+                  "{}, {}".format(self.sparse_start, self.sparse_end)
+            LOGGER.error(TAG, msg)
+            raise ValueError(msg)
+
+    def _check_mask_layers(self):
+        """check mask layers"""
+        mask_layer_id = 0
+        for one_mask_layer in self.mask_layers:
+            if not isinstance(one_mask_layer, MaskLayerDes):
+                msg = "mask_layers should be a list of MaskLayerDes, but got a {}".format(type(one_mask_layer))
+                LOGGER.error(TAG, msg)
+                raise ValueError(msg)
+            layer_name = one_mask_layer.layer_name
+            mask_layer_id2 = 0
+            for one_mask_layer_2 in self.mask_layers:
+                if mask_layer_id != mask_layer_id2 and layer_name == one_mask_layer_2.layer_name:
+                    msg = "Mask layer name should be unique, but got duplicate name: {} in mask_layer {} and {}". \
+                        format(layer_name, mask_layer_id, mask_layer_id2)
+                    LOGGER.error(TAG, msg)
+                    raise ValueError(msg)
+                if mask_layer_id != mask_layer_id2 and one_mask_layer.grad_idx == one_mask_layer_2.grad_idx:
+                    msg = "Grad_idx should be unique, but got duplicate idx: {} in mask_layer {} and {}". \
+                        format(layer_name, one_mask_layer_2.layer_name, one_mask_layer.grad_idx)
+                    LOGGER.error(TAG, msg)
+                    raise ValueError(msg)
+                mask_layer_id2 = mask_layer_id2 + 1
+            mask_layer_id = mask_layer_id + 1
+
     def update_status(self, cur_epoch, cur_step, cur_step_in_epoch):
         """
         Update the suppress operation status.
@@ -296,7 +309,7 @@ class SuppressCtrl(Cell):
                 self.mask_prev_step = cur_step
                 self.to_do_mask = True
             # execute the last suppression operation
-            elif cur_epoch == self.mask_end_epoch and cur_step_in_epoch == self.batch_num-2:
+            elif cur_epoch == self.mask_end_epoch and cur_step_in_epoch == self.batch_num - 2:
                 self.mask_prev_step = cur_step
                 self.to_do_mask = True
             else:
@@ -340,8 +353,8 @@ class SuppressCtrl(Cell):
                 grad_mask_cell = self.grads_mask_list[grad_idx]
                 last_sparse_pos = grad_mask_cell.sparse_pos_list[-1]
                 if actual_stop_pos <= 0 or \
-                    (actual_stop_pos < last_sparse_pos + grad_mask_cell.part_num and \
-                     grad_mask_cell.is_approximity and m > 0):
+                        (actual_stop_pos < last_sparse_pos + grad_mask_cell.part_num and \
+                         grad_mask_cell.is_approximity and m > 0):
                     sparse_weight_thd = 0
                     msg = "{} len={}, sparse={}, current sparse thd={}, [idle] \n" \
                         .format(layer.name, len_array, actual_stop_pos / len_array, sparse_weight_thd)
@@ -377,7 +390,7 @@ class SuppressCtrl(Cell):
                     del partition
 
                 msg = "{} len={}, sparse={}, current sparse thd={}, max={}, min={}, avg={}, avg_abs={} \n".format(
-                    layer.name, len_array, actual_stop_pos/len_array, sparse_weight_thd,
+                    layer.name, len_array, actual_stop_pos / len_array, sparse_weight_thd,
                     weight_abs_max, weight_abs_min, weight_avg, weight_abs_avg)
                 LOGGER.info(TAG, msg)
                 del weight_array_flat_abs
@@ -413,7 +426,7 @@ class SuppressCtrl(Cell):
         p = 0
         q = 0
         # add noise on weights if not masking or clipping.
-        weight_noise_bound = min(self.add_noise_thd, max(self.noise_volume*10, weight_abs_max*0.75))
+        weight_noise_bound = min(self.add_noise_thd, max(self.noise_volume * 10, weight_abs_max * 0.75))
         size = self.grads_mask_list[layer_index].para_num
         for i in range(0, size):
             if mul_mask_array_flat[i] <= 0.0:
@@ -428,14 +441,14 @@ class SuppressCtrl(Cell):
                 else:
                     # not mask
                     if weight_array_flat[i] > 0.0:
-                        add_mask_array_flat[i] = (weight_array_flat[i] \
+                        add_mask_array_flat[i] = (weight_array_flat[i]
                                                   - min(self.weight_lower_bound, sparse_weight_thd)) / self.lr
                     else:
                         add_mask_array_flat[i] = (weight_array_flat[i]
                                                   + min(self.weight_lower_bound, sparse_weight_thd)) / self.lr
                     p = p + 1
             elif is_lower_clip and abs(weight_array_flat[i]) <= \
-                    self.weight_lower_bound and sparse_weight_thd > self.weight_lower_bound*0.5:
+                    self.weight_lower_bound and sparse_weight_thd > self.weight_lower_bound * 0.5:
                 # not mask
                 mul_mask_array_flat[i] = 1.0
                 if weight_array_flat[i] > 0.0:
@@ -463,8 +476,8 @@ class SuppressCtrl(Cell):
         grad_mask_cell.update()
         de_weight_cell.update()
         msg = "Dimension of mask tensor is {}D, which located in the {}-th layer of the network. \n The number of " \
-              "suppressed elements, max-clip elements, min-clip elements and noised elements are {}, {}, {}, {}"\
-                  .format(len(grad_mask_cell.mul_mask_array_shape), layer_index, m, n, p, q)
+              "suppressed elements, max-clip elements, min-clip elements and noised elements are {}, {}, {}, {}" \
+            .format(len(grad_mask_cell.mul_mask_array_shape), layer_index, m, n, p, q)
         LOGGER.info(TAG, msg)
         grad_mask_cell.sparse_pos_list.append(m)
 
@@ -500,8 +513,8 @@ class SuppressCtrl(Cell):
         for i in range(0, part_num):
             if split_k_num <= 0:
                 break
-            array_row_mul_mask = mul_mask_array_flat[i * part_size : (i + 1) * part_size]
-            array_row_flat_abs = weight_array_flat_abs[i * part_size : (i + 1) * part_size]
+            array_row_mul_mask = mul_mask_array_flat[i * part_size: (i + 1) * part_size]
+            array_row_flat_abs = weight_array_flat_abs[i * part_size: (i + 1) * part_size]
             if not init_batch_suppress:
                 array_row_flat_abs_masked = np.where(array_row_mul_mask <= 0.0, -1.0, array_row_flat_abs)
                 set_abs = set(array_row_flat_abs_masked)
@@ -553,7 +566,7 @@ class SuppressCtrl(Cell):
                     split_k_num, (actual_stop_pos - last_sparse_pos), actual_stop_pos, real_suppress_num)
         LOGGER.info(TAG, msg)
         if init_batch_suppress:
-            init_sparse_actual = real_suppress_num/para_num
+            init_sparse_actual = real_suppress_num / para_num
             print("init batch suppresss, actual sparse = {}".format(init_sparse_actual))
 
         gc.collect()
@@ -660,6 +673,7 @@ class SuppressCtrl(Cell):
         return sparse, sparse_value_1, sparse_value_2
 
     def calc_actual_sparse_for_fc1(self, networks):
+        """calculate actual sparse for full connection 1 layer"""
         return self.calc_actual_sparse_for_layer(networks, "fc1.weight")
 
     def calc_actual_sparse_for_layer(self, networks, layer_name):
@@ -716,6 +730,7 @@ class SuppressCtrl(Cell):
         msg += "\nsup_privacy only support SGD optimizer"
         LOGGER.info(TAG, msg)
 
+
 def get_one_mask_layer(mask_layers, layer_name):
     """
     Returns the layer definitions that need to be suppressed.
@@ -731,6 +746,7 @@ def get_one_mask_layer(mask_layers, layer_name):
         if each_mask_layer.layer_name in layer_name and not each_mask_layer.inited:
             return each_mask_layer
     return None
+
 
 class MaskLayerDes:
     """
@@ -763,6 +779,7 @@ class MaskLayerDes:
         >>> masklayers = []
         >>> masklayers.append(MaskLayerDes("conv1.weight", 0, False, True, 10))
     """
+
     def __init__(self, layer_name, grad_idx, is_add_noise, is_lower_clip, min_num, upper_bound=1.20):
         self.layer_name = check_param_type('layer_name', layer_name, str)
         check_param_type('grad_idx', grad_idx, int)
@@ -772,6 +789,7 @@ class MaskLayerDes:
         self.min_num = check_param_type('min_num', min_num, int)
         self.upper_bound = check_value_positive('upper_bound', upper_bound)
         self.inited = False
+
 
 class GradMaskInCell(Cell):
     """
@@ -787,6 +805,7 @@ class GradMaskInCell(Cell):
             If min_num is smaller than (parameter num*SupperssCtrl.sparse_end), min_num has no effect.
         upper_bound ([float, int]): max abs value of weight in this layer, default: 1.20.
     """
+
     def __init__(self, array, is_add_noise, is_lower_clip, min_num, upper_bound=1.20):
         super(GradMaskInCell, self).__init__()
         self.mul_mask_array_shape = array.shape
@@ -806,7 +825,7 @@ class GradMaskInCell(Cell):
         self.part_size = self.para_num
         self.part_num_max = 16
         self.para_many_num = 10000
-        self.para_huge_num = 10*10000*10000
+        self.para_huge_num = 10 * 10000 * 10000
 
         if self.para_num > self.para_many_num:
             self.is_approximity = True
@@ -836,6 +855,7 @@ class GradMaskInCell(Cell):
         """
         self.mul_mask_tensor = Tensor(self.mul_mask_array_flat.reshape(self.mul_mask_array_shape), mstype.float32)
 
+
 class DeWeightInCell(Cell):
     """
     Define the mask matrix for de-weight masking.
@@ -843,6 +863,7 @@ class DeWeightInCell(Cell):
     Args:
         array (numpy.ndarray): The mask array.
     """
+
     def __init__(self, array):
         super(DeWeightInCell, self).__init__()
         self.add_mask_array_shape = array.shape

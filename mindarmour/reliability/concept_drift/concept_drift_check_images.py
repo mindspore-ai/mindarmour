@@ -11,8 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# ============================================================================
-
 """
 Out-of-Distribution detection module for images.
 """
@@ -33,6 +31,7 @@ class OodDetector:
         model (Model):The training model.
         ds_train (numpy.ndarray): The training dataset.
     """
+
     def __init__(self, model, ds_train):
         self.model = model
         self.ds_train = check_param_type('ds_train', ds_train, np.ndarray)
@@ -65,7 +64,6 @@ class OodDetector:
         Returns:
             - float, the optimal threshold.
         """
-
 
     def ood_predict(self, threshold, ds_test):
         """

@@ -62,7 +62,7 @@ _reciprocal = P.Reciprocal()
 @_grad_scale.register("Tensor", "Tensor")
 def tensor_grad_scale(scale, grad):
     """ grad scaling """
-    return grad*F.cast(_reciprocal(scale), F.dtype(grad))
+    return grad * F.cast(_reciprocal(scale), F.dtype(grad))
 
 
 class DPModel(Model):
@@ -417,10 +417,8 @@ class _TrainOneStepWithLossScaleCell(Cell):
             self._noise_mech_param_updater = _MechanismsParamsUpdater(
                 decay_policy=self._noise_mech._decay_policy,
                 decay_rate=self._noise_mech._noise_decay_rate,
-                cur_noise_multiplier=
-                self._noise_mech._noise_multiplier,
-                init_noise_multiplier=
-                self._noise_mech._initial_noise_multiplier)
+                cur_noise_multiplier=self._noise_mech._noise_multiplier,
+                init_noise_multiplier=self._noise_mech._initial_noise_multiplier)
 
     def construct(self, data, label, sens=None):
         """
@@ -444,8 +442,8 @@ class _TrainOneStepWithLossScaleCell(Cell):
         record_labels = self._split(label)
         # first index
         loss = self.network(record_datas[0], record_labels[0])
-        scaling_sens_filled = C.ones_like(loss)*F.cast(scaling_sens,
-                                                       F.dtype(loss))
+        scaling_sens_filled = C.ones_like(loss) * F.cast(scaling_sens,
+                                                         F.dtype(loss))
         record_grad = self.grad(self.network, weights)(record_datas[0],
                                                        record_labels[0],
                                                        scaling_sens_filled)
@@ -465,8 +463,8 @@ class _TrainOneStepWithLossScaleCell(Cell):
         total_loss = loss
         for i in range(1, self._micro_batches):
             loss = self.network(record_datas[i], record_labels[i])
-            scaling_sens_filled = C.ones_like(loss)*F.cast(scaling_sens,
-                                                           F.dtype(loss))
+            scaling_sens_filled = C.ones_like(loss) * F.cast(scaling_sens,
+                                                             F.dtype(loss))
             record_grad = self.grad(self.network, weights)(record_datas[i],
                                                            record_labels[i],
                                                            scaling_sens_filled)

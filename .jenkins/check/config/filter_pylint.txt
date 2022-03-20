@@ -6,6 +6,7 @@
 "mindarmour/setup.py"                                                                               "missing-docstring"
 "mindarmour/setup.py"                                                                               "invalid-name"
 "mindarmour/mindarmour/reliability/model_fault_injection/fault_injection.py"                        "protected-access"
+"mindarmour/setup.py"                                                                               "unused-argument"
 
 # Tests
 "mindarmour/tests/st"                                                                               "missing-docstring"

@@ -253,16 +253,7 @@ class DeepFool(Attack):
                     if diff_w_k < diff_w:
                         diff_w = diff_w_k
                         weight = w_k
-                if self._norm_level == 2 or self._norm_level == '2':
-                    r_i = diff_w*weight / (np.linalg.norm(weight) + 1e-8)
-                elif self._norm_level == np.inf or self._norm_level == 'inf':
-                    r_i = diff_w*np.sign(weight) \
-                          / (np.linalg.norm(weight, ord=1) + 1e-8)
-                else:
-                    msg = 'ord {} is not available in normalization,' \
-                        .format(str(self._norm_level))
-                    LOGGER.error(TAG, msg)
-                    raise NotImplementedError(msg)
+                r_i = self._normalize_r_i(diff_w, weight)
                 r_tot[idx, ...] = r_tot[idx, ...] + r_i
 
             images = self._update_image(x_origin, r_tot)
@@ -311,16 +302,7 @@ class DeepFool(Attack):
                         diff_w = diff_w_k
                         weight = w_k
 
-                if self._norm_level == 2 or self._norm_level == '2':
-                    r_i = diff_w*weight / (np.linalg.norm(weight) + 1e-8)
-                elif self._norm_level == np.inf or self._norm_level == 'inf':
-                    r_i = diff_w*np.sign(weight) \
-                          / (np.linalg.norm(weight, ord=1) + 1e-8)
-                else:
-                    msg = 'ord {} is not available in normalization.' \
-                        .format(str(self._norm_level))
-                    LOGGER.error(TAG, msg)
-                    raise NotImplementedError(msg)
+                r_i = self._normalize_r_i(diff_w, weight)
                 r_tot[idx, ...] = r_tot[idx, ...] + r_i
 
             if self._bounds is not None:
@@ -337,3 +319,16 @@ class DeepFool(Attack):
             inputs = inputs.astype(inputs_dtype)
             del preds, grads
         return inputs
+
+    def _normalize_r_i(self, diff_w, weight):
+        """normalize r_i used to update r_tot"""
+        if self._norm_level == 2 or self._norm_level == '2':
+            r_i = diff_w * weight / (np.linalg.norm(weight) + 1e-8)
+        elif self._norm_level == np.inf or self._norm_level == 'inf':
+            r_i = diff_w * np.sign(weight) / (np.linalg.norm(weight, ord=1) + 1e-8)
+        else:
+            msg = 'ord {} is not available in normalization,'.format(str(self._norm_level))
+            LOGGER.error(TAG, msg)
+            raise NotImplementedError(msg)
+
+        return r_i
