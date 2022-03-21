@@ -158,13 +158,6 @@ class ConceptDriftCheckTimeSeries:
             - numpy.ndarray, the concept drift score of the example series.
             - float, the threshold to judge concept drift.
             - list, the location of the concept drift.
-
-        Examples：
-            >>> concept = ConceptDriftCheckTimeSeries(window_size=100, rolling_window=10,
-            ...                                       step=10, threshold_index=1.5, need_label=False)
-            >>> data_example = 5*np.random.rand(1000)
-            >>> data_example[200: 800] = 20*np.random.rand(600)
-            >>> score, drift_threshold, drift_location = concept.concept_check(data_example)
         """
         # data check
         data = _check_array_not_empty('data', data)

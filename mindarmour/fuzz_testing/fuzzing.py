@@ -124,7 +124,7 @@ class Fuzzer:
         ...         self.reshape = P.Reshape()
         ...         self.summary = TensorSummary()
         ...
-        ...    def construct(self, x):
+        ...     def construct(self, x):
         ...         x = self.conv1(x)
         ...         x = self.relu(x)
         ...         self.summary('conv1', x)

@@ -120,7 +120,7 @@ def _attack_rf(features, labels, random_grid, n_jobs):
     return rf_model
 
 
-def get_attack_model(features, labels, config, n_jobs=-1):
+def _get_attack_model(features, labels, config, n_jobs=-1):
     """
     Get trained attack model specify by config.
 
@@ -139,10 +139,11 @@ def get_attack_model(features, labels, config, n_jobs=-1):
         sklearn.BaseEstimator, trained model specify by config["method"].
 
     Examples:
+        >>> from mindarmour.privacy.evaluation.attacker import get_attack_model
         >>> features = np.random.randn(10, 10)
         >>> labels = np.random.randint(0, 2, 10)
-        >>> config = {"method": "knn", "params": {"n_neighbors": [3, 5, 7]}}
-        >>> attack_model = get_attack_model(features, labels, config)
+        >>> config = {"method": "knn", "params": {"n_neighbors": [3, 5]}}
+        >>> attack_model = _get_attack_model(features, labels, config)
     """
     features, labels = check_pair_numpy_param("features", features, "labels", labels)
     config = check_param_type("config", config, dict)

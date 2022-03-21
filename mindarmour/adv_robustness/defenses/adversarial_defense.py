@@ -79,9 +79,6 @@ class AdversarialDefense(Defense):
 
         Returns:
             numpy.ndarray, loss of defense operation.
-
-        Examples:
-            >>> adv_defense.defense(inputs, labels)
         """
         inputs, labels = check_pair_numpy_param('inputs', inputs, 'labels',
                                                 labels)

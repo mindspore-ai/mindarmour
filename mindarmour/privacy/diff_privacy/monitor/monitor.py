@@ -196,10 +196,6 @@ class RDPMonitor(Callback):
 
         Returns:
             int, the recommended maximum training epochs.
-
-        Examples:
-            >>> rdp = PrivacyMonitorFactory.create(policy='rdp', num_samples=100, batch_size=32)
-            >>> suggest_epoch = rdp.max_epoch_suggest()
         """
         if self._target_delta is not None and self._max_eps is None:
             msg = 'max_eps should be consistent with target_delta, but got None.'
@@ -450,11 +446,6 @@ class ZCDPMonitor(Callback):
 
         Returns:
             int, the recommended maximum training epochs.
-
-        Examples:
-            >>> zcdp = PrivacyMonitorFactory.create(policy='zcdp',
-            >>> num_samples=60000, batch_size=32)
-            >>> suggest_epoch = zcdp.max_epoch_suggest()
         """
         epoch = 1
         while epoch < 10000:
