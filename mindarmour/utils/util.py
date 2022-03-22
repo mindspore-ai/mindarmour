@@ -102,12 +102,24 @@ class WithLossCell(Cell):
         loss_fn (Function): The loss function is used for computing loss.
 
     Examples:
-        >>> data = Tensor(np.ones([1, 1, 32, 32]).astype(np.float32)*0.01)
-        >>> label = Tensor(np.ones([1, 10]).astype(np.float32))
-        >>> net = NET()
+        >>> from mindspore import Tensor
+        >>> from mindarmour.utils.util import WithLossCell
+        >>> import mindspore.ops.operations as P
+        >>> class Net(nn.Cell):
+        ...     def __init__(self):
+        ...         super(Net, self).__init__()
+        ...         self._softmax = P.Softmax()
+        ...         self._Dense = nn.Dense(10,10)
+        ...         self._squeeze = P.Squeeze(1)
+        ...     def construct(self, inputs):
+        ...         out = self._softmax(inputs)
+        ...         out = self._Dense(out)
+        ...         return self._squeeze(out)
+        >>> data = Tensor(np.ones([2, 1, 10]).astype(np.float32)*0.01)
+        >>> labels = Tensor(np.ones([2, 10]).astype(np.float32))
+        >>> net = Net()
         >>> loss_fn = nn.SoftmaxCrossEntropyWithLogits()
         >>> loss_net = WithLossCell(net, loss_fn)
-        >>> loss_out = loss_net(data, label)
     """
     def __init__(self, network, loss_fn):
         super(WithLossCell, self).__init__()
@@ -138,9 +150,23 @@ class GradWrapWithLoss(Cell):
         network (Cell): The target network to wrap.
 
     Examples:
-        >>> data = Tensor(np.ones([1, 1, 32, 32]).astype(np.float32)*0.01)
-        >>> labels = Tensor(np.ones([1, 10]).astype(np.float32))
-        >>> net = NET()
+        >>> from mindspore import Tensor
+        >>> from mindarmour.utils import GradWrapWithLoss
+        >>> from mindarmour.utils.util import WithLossCell
+        >>> import mindspore.ops.operations as P
+        >>> class Net(nn.Cell):
+        ...     def __init__(self):
+        ...         super(Net, self).__init__()
+        ...         self._softmax = P.Softmax()
+        ...         self._Dense = nn.Dense(10,10)
+        ...         self._squeeze = P.Squeeze(1)
+        ...     def construct(self, inputs):
+        ...         out = self._softmax(inputs)
+        ...         out = self._Dense(out)
+        ...         return self._squeeze(out)
+        >>> data = Tensor(np.ones([2, 1, 10]).astype(np.float32)*0.01)
+        >>> labels = Tensor(np.ones([2, 10]).astype(np.float32))
+        >>> net = Net()
         >>> loss_fn = nn.SoftmaxCrossEntropyWithLogits()
         >>> loss_net = WithLossCell(net, loss_fn)
         >>> grad_all = GradWrapWithLoss(loss_net)
@@ -176,12 +202,25 @@ class GradWrap(Cell):
         network (Cell): The target network to wrap.
 
     Examples:
-        >>> data = Tensor(np.ones([1, 1, 32, 32]).astype(np.float32)*0.01)
-        >>> label = Tensor(np.ones([1, 10]).astype(np.float32))
+        >>> from mindspore import Tensor
+        >>> from mindarmour.utils import GradWrap
+        >>> from mindarmour.utils.util import WithLossCell
+        >>> import mindspore.ops.operations as P
+        >>> class Net(nn.Cell):
+        ...     def __init__(self):
+        ...         super(Net, self).__init__()
+        ...         self._softmax = P.Softmax()
+        ...         self._Dense = nn.Dense(10,10)
+        ...         self._squeeze = P.Squeeze(1)
+        ...     def construct(self, inputs):
+        ...         out = self._softmax(inputs)
+        ...         out = self._Dense(out)
+        ...         return self._squeeze(out)
+        >>> data = Tensor(np.ones([2, 1, 10]).astype(np.float32)*0.01)
+        >>> labels = Tensor(np.ones([2, 10]).astype(np.float32))
         >>> num_classes = 10
         >>> sens = np.zeros((data.shape[0], num_classes)).astype(np.float32)
         >>> sens[:, 1] = 1.0
-        >>> net = NET()
         >>> wrap_net = GradWrap(net)
         >>> wrap_net(data, Tensor(sens))
     """

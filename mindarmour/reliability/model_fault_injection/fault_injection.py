@@ -59,8 +59,7 @@ class FaultInjector:
         ...     data =  np.random.randn(batches * batch_size,1,10).astype(np.float32)
         ...     label =  np.random.randint(0,10, batches * batch_size).astype(np.int32)
         ...     for i in range(batches):
-        ...         yield data[i*batch_size:(i+1)*batch_size],\
-        ...               label[i*batch_size:(i+1)*batch_size]
+        ...         yield data[i*batch_size:(i+1)*batch_size], label[i*batch_size:(i+1)*batch_size]
         >>> net = Net()
         >>> model = Model(net)
         >>> ds_eval = ds.GeneratorDataset(dataset_generator, ['image', 'label'])

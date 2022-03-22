@@ -25,7 +25,7 @@ from mindspore import Tensor
 from mindarmour.utils.logger import LogUtil
 from mindarmour.utils._check_param import check_param_type, check_param_multi_types, \
     check_model, check_numpy_param
-from .attacker import get_attack_model
+from .attacker import _get_attack_model
 from ._check_config import verify_config_params
 
 LOGGER = LogUtil.get_instance()
@@ -123,8 +123,7 @@ class MembershipInference:
         ...     data =  np.random.randn(batches * batch_size,1,10).astype(np.float32)
         ...     label =  np.random.randint(0,10, batches * batch_size).astype(np.int32)
         ...     for i in range(batches):
-        ...         yield data[i*batch_size:(i+1)*batch_size],\
-        ...               label[i*batch_size:(i+1)*batch_size]
+        ...         yield data[i*batch_size:(i+1)*batch_size], label[i*batch_size:(i+1)*batch_size]
         >>> class Net(Cell):
         ...     def __init__(self):
         ...         super(Net, self).__init__()
@@ -143,7 +142,7 @@ class MembershipInference:
         >>> config = [{
         ...     "method": "KNN",
         ...     "params": {"n_neighbors": [3, 5, 7],}
-        }]
+        ...     }]
         >>> ds_train = ds.GeneratorDataset(dataset_generator, ["image", "label"])
         >>> ds_test = ds.GeneratorDataset(dataset_generator, ["image", "label"])
         >>> inference_model.train(ds_train, ds_test, config)
@@ -195,7 +194,7 @@ class MembershipInference:
 
         features, labels = self._transform(dataset_train, dataset_test)
         for config in attack_config:
-            self._attack_list.append(get_attack_model(features, labels, config, n_jobs=self._n_jobs))
+            self._attack_list.append(_get_attack_model(features, labels, config, n_jobs=self._n_jobs))
 
 
     def eval(self, dataset_train, dataset_test, metrics):

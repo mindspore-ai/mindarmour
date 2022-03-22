@@ -172,8 +172,50 @@ class NeuronCoverage(CoverageMetrics):
             float, the metric of 'neuron coverage'.
 
         Examples:
+            >>> from mindspore.common.initializer import TruncatedNormal
+            >>> from mindspore.ops import operations as P
+            >>> from mindspore.train import Model
+            >>> from mindspore.ops import TensorSummary
+            >>> from mindarmour.fuzz_testing import NeuronCoverage
+            >>> class Net(nn.Cell):
+            ...     def __init__(self):
+            ...         super(Net, self).__init__()
+            ...         self.conv1 = nn.Conv2d(1, 6, 5, padding=0, weight_init=TruncatedNormal(0.02), pad_mode="valid")
+            ...         self.conv2 = nn.Conv2d(6, 16, 5, padding=0, weight_init=TruncatedNormal(0.02), pad_mode="valid")
+            ...         self.fc1 = nn.Dense(16 * 5 * 5, 120, TruncatedNormal(0.02), TruncatedNormal(0.02))
+            ...         self.fc2 = nn.Dense(120, 84, TruncatedNormal(0.02), TruncatedNormal(0.02))
+            ...         self.fc3 = nn.Dense(84, 10, TruncatedNormal(0.02), TruncatedNormal(0.02))
+            ...         self.relu = nn.ReLU()
+            ...         self.max_pool2d = nn.MaxPool2d(kernel_size=2, stride=2)
+            ...         self.reshape = P.Reshape()
+            ...         self.summary = TensorSummary()
+            ...     def construct(self, x):
+            ...         x = self.conv1(x)
+            ...         x = self.relu(x)
+            ...         self.summary('conv1', x)
+            ...         x = self.max_pool2d(x)
+            ...         x = self.conv2(x)
+            ...         x = self.relu(x)
+            ...         self.summary('conv2', x)
+            ...         x = self.max_pool2d(x)
+            ...         x = self.reshape(x, (-1, 16 * 5 * 5))
+            ...         x = self.fc1(x)
+            ...         x = self.relu(x)
+            ...         self.summary('fc1', x)
+            ...         x = self.fc2(x)
+            ...         x = self.relu(x)
+            ...         self.summary('fc2', x)
+            ...         x = self.fc3(x)
+            ...         self.summary('fc3', x)
+            ...         return x
+            >>> net = Net()
+            >>> model = Model(net)
+            >>> batch_size = 8
+            >>> num_classe = 10
+            >>> train_images = np.random.rand(32, 1, 32, 32).astype(np.float32)
+            >>> test_images = np.random.rand(batch_size, 1, 32, 32).astype(np.float32)
             >>> nc = NeuronCoverage(model, threshold=0.1)
-            >>> nc_metrics = nc.get_metrics(test_data)
+            >>> nc_metrics = nc.get_metrics(test_images)
         """
         dataset = check_numpy_param('dataset', dataset)
         batches = math.ceil(dataset.shape[0] / self.batch_size)
@@ -219,8 +261,50 @@ class TopKNeuronCoverage(CoverageMetrics):
             float, the metrics of 'top k neuron coverage'.
 
         Examples:
+            >>> from mindspore.common.initializer import TruncatedNormal
+            >>> from mindspore.ops import operations as P
+            >>> from mindspore.train import Model
+            >>> from mindspore.ops import TensorSummary
+            >>> from mindarmour.fuzz_testing import TopKNeuronCoverage
+            >>> class Net(nn.Cell):
+            ...     def __init__(self):
+            ...         super(Net, self).__init__()
+            ...         self.conv1 = nn.Conv2d(1, 6, 5, padding=0, weight_init=TruncatedNormal(0.02), pad_mode="valid")
+            ...         self.conv2 = nn.Conv2d(6, 16, 5, padding=0, weight_init=TruncatedNormal(0.02), pad_mode="valid")
+            ...         self.fc1 = nn.Dense(16 * 5 * 5, 120, TruncatedNormal(0.02), TruncatedNormal(0.02))
+            ...         self.fc2 = nn.Dense(120, 84, TruncatedNormal(0.02), TruncatedNormal(0.02))
+            ...         self.fc3 = nn.Dense(84, 10, TruncatedNormal(0.02), TruncatedNormal(0.02))
+            ...         self.relu = nn.ReLU()
+            ...         self.max_pool2d = nn.MaxPool2d(kernel_size=2, stride=2)
+            ...         self.reshape = P.Reshape()
+            ...         self.summary = TensorSummary()
+            ...     def construct(self, x):
+            ...         x = self.conv1(x)
+            ...         x = self.relu(x)
+            ...         self.summary('conv1', x)
+            ...         x = self.max_pool2d(x)
+            ...         x = self.conv2(x)
+            ...         x = self.relu(x)
+            ...         self.summary('conv2', x)
+            ...         x = self.max_pool2d(x)
+            ...         x = self.reshape(x, (-1, 16 * 5 * 5))
+            ...         x = self.fc1(x)
+            ...         x = self.relu(x)
+            ...         self.summary('fc1', x)
+            ...         x = self.fc2(x)
+            ...         x = self.relu(x)
+            ...         self.summary('fc2', x)
+            ...         x = self.fc3(x)
+            ...         self.summary('fc3', x)
+            ...         return x
+            >>> net = Net()
+            >>> model = Model(net)
+            >>> batch_size = 8
+            >>> num_classe = 10
+            >>> train_images = np.random.rand(32, 1, 32, 32).astype(np.float32)
+            >>> test_images = np.random.rand(batch_size, 1, 32, 32).astype(np.float32)
             >>> tknc = TopKNeuronCoverage(model, top_k=3)
-            >>> metrics = tknc.get_metrics(test_data)
+            >>> metrics = tknc.get_metrics(test_images)
         """
         dataset = check_numpy_param('dataset', dataset)
         batches = math.ceil(dataset.shape[0] / self.batch_size)
@@ -269,8 +353,50 @@ class SuperNeuronActivateCoverage(CoverageMetrics):
             float, the metric of 'strong neuron activation coverage'.
 
         Examples:
-            >>> snac = SuperNeuronActivateCoverage(model, train_dataset)
-            >>> metrics = snac.get_metrics(test_data)
+            >>> from mindspore.common.initializer import TruncatedNormal
+            >>> from mindspore.ops import operations as P
+            >>> from mindspore.train import Model
+            >>> from mindspore.ops import TensorSummary
+            >>> from mindarmour.fuzz_testing import SuperNeuronActivateCoverage
+            >>> class Net(nn.Cell):
+            ...     def __init__(self):
+            ...         super(Net, self).__init__()
+            ...         self.conv1 = nn.Conv2d(1, 6, 5, padding=0, weight_init=TruncatedNormal(0.02), pad_mode="valid")
+            ...         self.conv2 = nn.Conv2d(6, 16, 5, padding=0, weight_init=TruncatedNormal(0.02), pad_mode="valid")
+            ...         self.fc1 = nn.Dense(16 * 5 * 5, 120, TruncatedNormal(0.02), TruncatedNormal(0.02))
+            ...         self.fc2 = nn.Dense(120, 84, TruncatedNormal(0.02), TruncatedNormal(0.02))
+            ...         self.fc3 = nn.Dense(84, 10, TruncatedNormal(0.02), TruncatedNormal(0.02))
+            ...         self.relu = nn.ReLU()
+            ...         self.max_pool2d = nn.MaxPool2d(kernel_size=2, stride=2)
+            ...         self.reshape = P.Reshape()
+            ...         self.summary = TensorSummary()
+            ...     def construct(self, x):
+            ...         x = self.conv1(x)
+            ...         x = self.relu(x)
+            ...         self.summary('conv1', x)
+            ...         x = self.max_pool2d(x)
+            ...         x = self.conv2(x)
+            ...         x = self.relu(x)
+            ...         self.summary('conv2', x)
+            ...         x = self.max_pool2d(x)
+            ...         x = self.reshape(x, (-1, 16 * 5 * 5))
+            ...         x = self.fc1(x)
+            ...         x = self.relu(x)
+            ...         self.summary('fc1', x)
+            ...         x = self.fc2(x)
+            ...         x = self.relu(x)
+            ...         self.summary('fc2', x)
+            ...         x = self.fc3(x)
+            ...         self.summary('fc3', x)
+            ...         return x
+            >>> net = Net()
+            >>> model = Model(net)
+            >>> batch_size = 8
+            >>> num_classe = 10
+            >>> train_images = np.random.rand(32, 1, 32, 32).astype(np.float32)
+            >>> test_images = np.random.rand(batch_size, 1, 32, 32).astype(np.float32)
+            >>> snac = SuperNeuronActivateCoverage(model, train_images)
+            >>> metrics = snac.get_metrics(test_images)
         """
         dataset = check_numpy_param('dataset', dataset)
         if not self.incremental or not self._activate_table:
@@ -319,8 +445,50 @@ class NeuronBoundsCoverage(SuperNeuronActivateCoverage):
             float, the metric of 'neuron boundary coverage'.
 
         Examples:
-            >>> nbc = NeuronBoundsCoverage(model, train_dataset)
-            >>> metrics = nbc.get_metrics(test_data)
+            >>> from mindspore.common.initializer import TruncatedNormal
+            >>> from mindspore.ops import operations as P
+            >>> from mindspore.train import Model
+            >>> from mindspore.ops import TensorSummary
+            >>> from mindarmour.fuzz_testing import NeuronBoundsCoverage
+            >>> class Net(nn.Cell):
+            ...     def __init__(self):
+            ...         super(Net, self).__init__()
+            ...         self.conv1 = nn.Conv2d(1, 6, 5, padding=0, weight_init=TruncatedNormal(0.02), pad_mode="valid")
+            ...         self.conv2 = nn.Conv2d(6, 16, 5, padding=0, weight_init=TruncatedNormal(0.02), pad_mode="valid")
+            ...         self.fc1 = nn.Dense(16 * 5 * 5, 120, TruncatedNormal(0.02), TruncatedNormal(0.02))
+            ...         self.fc2 = nn.Dense(120, 84, TruncatedNormal(0.02), TruncatedNormal(0.02))
+            ...         self.fc3 = nn.Dense(84, 10, TruncatedNormal(0.02), TruncatedNormal(0.02))
+            ...         self.relu = nn.ReLU()
+            ...         self.max_pool2d = nn.MaxPool2d(kernel_size=2, stride=2)
+            ...         self.reshape = P.Reshape()
+            ...         self.summary = TensorSummary()
+            ...     def construct(self, x):
+            ...         x = self.conv1(x)
+            ...         x = self.relu(x)
+            ...         self.summary('conv1', x)
+            ...         x = self.max_pool2d(x)
+            ...         x = self.conv2(x)
+            ...         x = self.relu(x)
+            ...         self.summary('conv2', x)
+            ...         x = self.max_pool2d(x)
+            ...         x = self.reshape(x, (-1, 16 * 5 * 5))
+            ...         x = self.fc1(x)
+            ...         x = self.relu(x)
+            ...         self.summary('fc1', x)
+            ...         x = self.fc2(x)
+            ...         x = self.relu(x)
+            ...         self.summary('fc2', x)
+            ...         x = self.fc3(x)
+            ...         self.summary('fc3', x)
+            ...         return x
+            >>> net = Net()
+            >>> model = Model(net)
+            >>> batch_size = 8
+            >>> num_classe = 10
+            >>> train_images = np.random.rand(32, 1, 32, 32).astype(np.float32)
+            >>> test_images = np.random.rand(batch_size, 1, 32, 32).astype(np.float32)
+            >>> nbc = NeuronBoundsCoverage(model, train_images)
+            >>> metrics = nbc.get_metrics(test_images)
         """
         dataset = check_numpy_param('dataset', dataset)
         if not self.incremental or not self._activate_table:
@@ -383,8 +551,50 @@ class KMultisectionNeuronCoverage(SuperNeuronActivateCoverage):
             float, the metric of 'k-multisection neuron coverage'.
 
         Examples:
-            >>> kmnc = KMultisectionNeuronCoverage(model, train_dataset, segmented_num=100)
-            >>> metrics = kmnc.get_metrics(test_data)
+            >>> from mindspore.common.initializer import TruncatedNormal
+            >>> from mindspore.ops import operations as P
+            >>> from mindspore.train import Model
+            >>> from mindspore.ops import TensorSummary
+            >>> from mindarmour.fuzz_testing import KMultisectionNeuronCoverage
+            >>> class Net(nn.Cell):
+            ...     def __init__(self):
+            ...         super(Net, self).__init__()
+            ...         self.conv1 = nn.Conv2d(1, 6, 5, padding=0, weight_init=TruncatedNormal(0.02), pad_mode="valid")
+            ...         self.conv2 = nn.Conv2d(6, 16, 5, padding=0, weight_init=TruncatedNormal(0.02), pad_mode="valid")
+            ...         self.fc1 = nn.Dense(16 * 5 * 5, 120, TruncatedNormal(0.02), TruncatedNormal(0.02))
+            ...         self.fc2 = nn.Dense(120, 84, TruncatedNormal(0.02), TruncatedNormal(0.02))
+            ...         self.fc3 = nn.Dense(84, 10, TruncatedNormal(0.02), TruncatedNormal(0.02))
+            ...         self.relu = nn.ReLU()
+            ...         self.max_pool2d = nn.MaxPool2d(kernel_size=2, stride=2)
+            ...         self.reshape = P.Reshape()
+            ...         self.summary = TensorSummary()
+            ...     def construct(self, x):
+            ...         x = self.conv1(x)
+            ...         x = self.relu(x)
+            ...         self.summary('conv1', x)
+            ...         x = self.max_pool2d(x)
+            ...         x = self.conv2(x)
+            ...         x = self.relu(x)
+            ...         self.summary('conv2', x)
+            ...         x = self.max_pool2d(x)
+            ...         x = self.reshape(x, (-1, 16 * 5 * 5))
+            ...         x = self.fc1(x)
+            ...         x = self.relu(x)
+            ...         self.summary('fc1', x)
+            ...         x = self.fc2(x)
+            ...         x = self.relu(x)
+            ...         self.summary('fc2', x)
+            ...         x = self.fc3(x)
+            ...         self.summary('fc3', x)
+            ...         return x
+            >>> net = Net()
+            >>> model = Model(net)
+            >>> batch_size = 8
+            >>> num_classe = 10
+            >>> train_images = np.random.rand(32, 1, 32, 32).astype(np.float32)
+            >>> test_images = np.random.rand(batch_size, 1, 32, 32).astype(np.float32)
+            >>> kmnc = KMultisectionNeuronCoverage(model, train_images, segmented_num=100)
+            >>> metrics = kmnc.get_metrics(test_images)
         """
 
         dataset = check_numpy_param('dataset', dataset)

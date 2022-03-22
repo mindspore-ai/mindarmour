@@ -18,7 +18,7 @@ import pytest
 
 import numpy as np
 
-from mindarmour.privacy.evaluation.attacker import get_attack_model
+from mindarmour.privacy.evaluation.attacker import _get_attack_model
 
 
 @pytest.mark.level0
@@ -35,7 +35,7 @@ def test_get_knn_model():
             "n_neighbors": [3, 5, 7],
         }
     }
-    knn_attacker = get_attack_model(features, labels, config_knn, -1)
+    knn_attacker = _get_attack_model(features, labels, config_knn, -1)
     pred = knn_attacker.predict(features)
     assert pred is not None
 
@@ -54,7 +54,7 @@ def test_get_lr_model():
             "C": np.logspace(-4, 2, 10),
         }
     }
-    lr_attacker = get_attack_model(features, labels, config_lr, -1)
+    lr_attacker = _get_attack_model(features, labels, config_lr, -1)
     pred = lr_attacker.predict(features)
     assert pred is not None
 
@@ -75,7 +75,7 @@ def test_get_mlp_model():
             "alpha": [0.0001, 0.001, 0.01],
         }
     }
-    mlpc_attacker = get_attack_model(features, labels, config_mlpc, -1)
+    mlpc_attacker = _get_attack_model(features, labels, config_mlpc, -1)
     pred = mlpc_attacker.predict(features)
     assert pred is not None
 
@@ -98,6 +98,6 @@ def test_get_rf_model():
             "min_samples_leaf": [1, 2, 4],
         }
     }
-    rf_attacker = get_attack_model(features, labels, config_rf, -1)
+    rf_attacker = _get_attack_model(features, labels, config_rf, -1)
     pred = rf_attacker.predict(features)
     assert pred is not None

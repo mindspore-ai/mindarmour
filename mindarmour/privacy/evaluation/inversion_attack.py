@@ -135,7 +135,6 @@ class ImageInversionAttack:
             ...                                         loss_weights=[1, 0.2, 5])
             >>> inversion_images = inversion_attack.generate(target_features, iters=10)
             >>> evaluate_result = inversion_attack.evaluate(original_images, inversion_images)
-            >>> print(evaluate_result)
     """
     def __init__(self, network, input_shape, input_bound, loss_weights=(1, 0.2, 5)):
         self._network = check_param_type('network', network, Cell)
