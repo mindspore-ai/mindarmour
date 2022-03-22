@@ -184,6 +184,7 @@ class _TupleAdd(nn.Cell):
         out = self.hyper_map(self.add, input1, input2)
         return out
 
+
 class _TupleMul(nn.Cell):
     """
     Mul two tuple of data.
@@ -198,7 +199,7 @@ class _TupleMul(nn.Cell):
         out = self.hyper_map(self.mul, input1, input2)
         return out
 
-# come from nn.cell_wrapper.TrainOneStepCell
+
 class TrainOneStepCell(Cell):
     r"""
     Network training package class.
