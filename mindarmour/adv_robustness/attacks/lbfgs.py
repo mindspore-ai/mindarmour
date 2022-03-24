@@ -34,7 +34,8 @@ TAG = 'LBFGS'
 
 class LBFGS(Attack):
     """
-    Uses L-BFGS-B to minimize the distance between the input and the adversarial example.
+    In L-BFGS-B attack, the Limited-Memory BFGS optimizaiton algorithm is used
+    to minimize the distance between the inputs and the adversarial examples.
 
     References: `Pedro Tabacof, Eduardo Valle. "Exploring the Space of
     Adversarial Images" <https://arxiv.org/abs/1510.05328>`_

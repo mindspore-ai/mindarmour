@@ -36,6 +36,8 @@ TAG = 'NoiseMechanism'
 class ClipMechanismsFactory:
     """
     Factory class of clip mechanisms
+    Wrapper of clip noise generating mechanisms. It supports Adaptive Clipping with
+    Gaussian Random Noise for now.
 
     For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_
 
@@ -55,7 +57,7 @@ class ClipMechanismsFactory:
             learning_rate(float): Learning rate of update norm clip. Default: 0.001.
             target_unclipped_quantile(float): Target quantile of norm clip. Default: 0.9.
             fraction_stddev(float): The stddev of Gaussian normal which used in
-                empirical_fraction, the formula is :math:`empirical fraction + N(0, fraction sstddev)`.
+                empirical_fraction, the formula is :math:`empirical_fraction + N(0, fraction_stddev)`.
                 Default: 0.01.
             seed(int): Original random seed, if seed=0 random normal will use secure
                 random number. IF seed!=0 random normal will generate values using
@@ -95,6 +97,8 @@ class ClipMechanismsFactory:
 
 class NoiseMechanismsFactory:
     """ Factory class of noise mechanisms
+    Wrapper of noise generating mechanisms. It supports Gaussian Random Noise and
+    Adaptive Gaussian Random Noise for now.
 
     For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_
 
@@ -165,7 +169,8 @@ class _Mechanisms(Cell):
 
 class NoiseGaussianRandom(_Mechanisms):
     """
-    Gaussian noise generated mechanism.
+    Generate noise in Gaussian Distribution with :math:`mean=0` and
+    :math:`standard deviation = norm_bound * initial_noise_multiplier`.
 
     Args:
         norm_bound(float): Clipping bound for the l2 norm of the gradients.
@@ -177,9 +182,6 @@ class NoiseGaussianRandom(_Mechanisms):
             random number. If seed!=0, random normal will generate values using
             given seed. Default: 0.
         decay_policy(str): Mechanisms parameters update policy. Default: None.
-
-    Returns:
-        Tensor, generated noise with shape like given gradients.
 
     Examples:
         >>> from mindspore import Tensor
@@ -230,8 +232,7 @@ class NoiseAdaGaussianRandom(NoiseGaussianRandom):
     """
     Adaptive Gaussian noise generated mechanism. Noise would be decayed with
     training. Decay mode could be 'Time' mode, 'Step' mode, 'Exp' mode.
-    `self._noise_multiplier` will be update during the model.train, using
-    _MechanismsParamsUpdater.
+    `self._noise_multiplier` will be update during model training process.
 
     Args:
         norm_bound(float): Clipping bound for the l2 norm of the gradients.
@@ -246,9 +247,6 @@ class NoiseAdaGaussianRandom(NoiseGaussianRandom):
             Default: 6e-6.
         decay_policy(str): Noise decay strategy include 'Step', 'Time', 'Exp'.
             Default: 'Exp'.
-
-    Returns:
-        Tensor, generated noise with shape like given gradients.
 
     Examples:
         >>> from mindspore import Tensor
@@ -350,10 +348,10 @@ class _MechanismsParamsUpdater(Cell):
 
 class AdaClippingWithGaussianRandom(Cell):
     """
-    Adaptive clipping. If `decay_policy` is 'Linear', the update formula :math:`norm bound = norm bound -
-    learning rate*(beta - target unclipped quantile)`.
-    If `decay_policy` is 'Geometric', the update formula is :math:`norm bound =
-    norm bound*exp(-learning rate*(empirical fraction - target unclipped quantile))`.
+    Adaptive clipping. If `decay_policy` is 'Linear', the update formula :math:`norm_bound = norm_bound -
+    learning_rate*(beta - target_unclipped_quantile)`.
+    If `decay_policy` is 'Geometric', the update formula is :math:`norm_bound =
+    norm_bound*exp(-learning_rate*(empirical_fraction - target_unclipped_quantile))`.
     where beta is the empirical fraction of samples with the value at most
     `target_unclipped_quantile`.
 

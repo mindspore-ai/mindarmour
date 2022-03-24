@@ -94,8 +94,11 @@ def _softmax_cross_entropy(logits, labels, epsilon=1e-12):
 
 class MembershipInference:
     """
-    Evaluation proposed by Shokri, Stronati, Song and Shmatikov is a grey-box attack.
-    The attack requires loss or logits results of training samples.
+    Proposed by Shokri, Stronati, Song and Shmatikov, membership inference is a grey-box attack
+    for inferring user's privacy data. It requires loss or logits results of the training samples.
+    (Privacy refers to some sensitive attributes of a single user).
+
+    For details, please refer to the `Tutorial <https://mindspore.cn/mindarmour/docs/en/master/test_model_security_membership_inference.html>`_
 
     References: `Reza Shokri, Marco Stronati, Congzheng Song, Vitaly Shmatikov.
     Membership Inference Attacks against Machine Learning Models. 2017.

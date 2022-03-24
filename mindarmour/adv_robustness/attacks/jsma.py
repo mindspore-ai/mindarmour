@@ -32,8 +32,10 @@ TAG = 'JSMA'
 
 class JSMAAttack(Attack):
     """
-    JSMA is an targeted & iterative attack based on saliency map of
-    input features.
+    Jacobian-based Saliency Map Attack is a targeted and iterative attack based on saliency
+    map of the input features. It uses the gradient of loss with each class labels with respect
+    to every component of the input. Then a saliency map is used to select the dimension which
+    produces the maximum error.
 
     Reference: `The limitations of deep learning in adversarial settings
     <https://arxiv.org/abs/1511.07528>`_

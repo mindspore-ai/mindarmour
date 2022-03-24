@@ -25,7 +25,7 @@ from mindarmour.utils._check_param import check_param_type, check_param_in_range
 
 class OodDetector:
     """
-    Train the OOD detector.
+    The abstract class of the out-of-distribution detector.
 
     Args:
         model (Model):The training model.
@@ -55,7 +55,9 @@ class OodDetector:
 
     def get_optimal_threshold(self, label, ds_eval):
         """
-        Get the optimal threshold.
+        Get the optimal threshold. Try to find an optimal threshold value to
+        detect OOD examples. The optimal threshold is calculated by a labeled
+        dateset `ds_eval`.
 
         Args:
             label (numpy.ndarray): The label whether an image is in-distribution and out-of-distribution.
@@ -67,7 +69,9 @@ class OodDetector:
 
     def ood_predict(self, threshold, ds_test):
         """
-        The out-of-distribution detection.
+        The out-of-distribution detection. This function aims to detect whether images,
+        regarded as `ds_test`, are OOD examples or not. If the prediction score of one
+        image is larger than `threshold`, this image is out-of-distribution.
 
         Args:
             threshold (float): the threshold to judge ood data. One can set value by experience
@@ -174,7 +178,9 @@ class OodDetectorFeatureCluster(OodDetector):
 
     def get_optimal_threshold(self, label, ds_eval):
         """
-        Get the optimal threshold.
+        Get the optimal threshold. Try to find an optimal threshold value to
+        detect OOD examples. The optimal threshold is calculated by a labeled
+        dateset `ds_eval`.
 
         Args:
             label (numpy.ndarray): The label whether an image is in-distribution and out-of-distribution.
@@ -204,7 +210,9 @@ class OodDetectorFeatureCluster(OodDetector):
 
     def ood_predict(self, threshold, ds_test):
         """
-        The out-of-distribution detection.
+        The out-of-distribution detection. This function aims to detect whether images,
+        regarded as `ds_test`, are OOD examples or not. If the prediction score of one
+        image is larger than `threshold`, this image is out-of-distribution.
 
         Args:
             threshold (float): the threshold to judge ood data. One can set value by experience

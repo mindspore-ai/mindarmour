@@ -28,7 +28,9 @@ TAG = 'FaultInjector'
 
 class FaultInjector:
     """
-    Fault injection for deep neural networks and evaluate performance.
+    Fault injection module simulates various fault scenarios for deep neural networks and evaluates
+    performance and reliability of the model.
+
     For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/fault_injection.html>`_
 
     Args:
@@ -40,7 +42,6 @@ class FaultInjector:
 
     Examples:
         >>> from mindspore import Model
-        >>> import mindspore.dataset as ds
         >>> import mindspore.ops.operations as P
         >>> from mindarmour.reliability.model_fault_injection.fault_injection import FaultInjector
         >>> class Net(nn.Cell):
@@ -64,7 +65,7 @@ class FaultInjector:
         >>> model = Model(net)
         >>> ds_eval = ds.GeneratorDataset(dataset_generator, ['image', 'label'])
         >>> fi_type = ['bitflips_random', 'bitflips_designated', 'random', 'zeros',
-                       'nan', 'inf', 'anti_activation', 'precision_loss']
+        ...            'nan', 'inf', 'anti_activation', 'precision_loss']
         >>> fi_mode = ['single_layer', 'all_layer']
         >>> fi_size = [1]
         >>> fi = FaultInjector(model, ds_eval, fi_type, fi_mode, fi_size)

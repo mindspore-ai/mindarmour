@@ -257,7 +257,10 @@ class BasicIterativeMethod(IterativeGradientMethod):
 
 class MomentumIterativeMethod(IterativeGradientMethod):
     """
-    The Momentum Iterative Method attack.
+    The Momentum Iterative Method attack accelerates the gradient descent algorithm,
+    such as FGSM, FGM, and LLCM, by accumulating a velocity vector in the gradient
+    direction of the loss function across iterations, and thus generates the adversarial examples.
+
 
     References: `Y. Dong, et al., "Boosting adversarial attacks with
     momentum," arXiv:1710.06081, 2017 <https://arxiv.org/abs/1710.06081>`_
@@ -502,7 +505,9 @@ class ProjectedGradientDescent(BasicIterativeMethod):
 
 class DiverseInputIterativeMethod(BasicIterativeMethod):
     """
-    The Diverse Input Iterative Method attack.
+    The Diverse Input Iterative Method attack follows the basic iterative method,
+    and applies random transformation to the input data at each iteration. Such transformation
+    on the input data could improve the transferability of the adversarial examples.
 
     References: `Xie, Cihang and Zhang, et al., "Improving Transferability of
     Adversarial Examples With Input Diversity," in CVPR, 2019 <https://arxiv.org/abs/1803.06978>`_
@@ -555,7 +560,10 @@ class DiverseInputIterativeMethod(BasicIterativeMethod):
 
 class MomentumDiverseInputIterativeMethod(MomentumIterativeMethod):
     """
-    The Momentum Diverse Input Iterative Method attack.
+    The Momentum Diverse Input Iterative Method attack is a momentum iterative method,
+    and applies random transformation to the input data at each iteration. Such transformation
+    on the input data could improve the transferability of the adversarial examples.
+
 
     References: `Xie, Cihang and Zhang, et al., "Improving Transferability of
     Adversarial Examples With Input Diversity," in CVPR, 2019 <https://arxiv.org/abs/1803.06978>`_

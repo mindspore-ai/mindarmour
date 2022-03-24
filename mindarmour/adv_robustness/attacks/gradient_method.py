@@ -204,6 +204,8 @@ class FastGradientMethod(GradientMethod):
 class RandomFastGradientMethod(FastGradientMethod):
     """
     Fast Gradient Method use Random perturbation.
+    An one-step attack based on gradients calculation. The adversarial noises
+    are generated based on the gradients of inputs, and then randomly perturbed.
 
     References: `Florian Tramer, Alexey Kurakin, Nicolas Papernot, "Ensemble
     adversarial training: Attacks and defenses" in ICLR, 2018
@@ -260,8 +262,8 @@ class RandomFastGradientMethod(FastGradientMethod):
 
 class FastGradientSignMethod(GradientMethod):
     """
-    Use the sign instead of the value of the gradient to the input. This attack is
-    often referred to as Fast Gradient Sign Method and was introduced previously.
+    The Fast Gradient Sign Method attack calculates the gradient of the input
+    data, and then uses the sign of the gradient to create adversarial noises.
 
     References: `Ian J. Goodfellow, J. Shlens, and C. Szegedy, "Explaining
     and harnessing adversarial examples," in ICLR, 2015
@@ -335,6 +337,9 @@ class FastGradientSignMethod(GradientMethod):
 class RandomFastGradientSignMethod(FastGradientSignMethod):
     """
     Fast Gradient Sign Method using random perturbation.
+    The Random Fast Gradient Sign Method attack calculates the gradient of the input
+    data, and then uses the sign of the gradient with random perturbation
+    to create adversarial noises.
 
     References: `F. Tramer, et al., "Ensemble adversarial training: Attacks
     and defenses," in ICLR, 2018 <https://arxiv.org/abs/1705.07204>`_
@@ -387,7 +392,8 @@ class RandomFastGradientSignMethod(FastGradientSignMethod):
 
 class LeastLikelyClassMethod(FastGradientSignMethod):
     """
-    Least-Likely Class Method.
+    The Single Step Least-Likely Class Method, a variant of FGSM, targets the
+    least-likely class to generate the adversarial examples.
 
     References: `F. Tramer, et al., "Ensemble adversarial training: Attacks
     and defenses," in ICLR, 2018 <https://arxiv.org/abs/1705.07204>`_
@@ -434,6 +440,9 @@ class LeastLikelyClassMethod(FastGradientSignMethod):
 class RandomLeastLikelyClassMethod(FastGradientSignMethod):
     """
     Least-Likely Class Method use Random perturbation.
+
+    The Single Step Least-Likely Class Method with Random Perturbation, a variant of Random FGSM,
+    targets the least-likely class to generate the adversarial examples.
 
     References: `F. Tramer, et al., "Ensemble adversarial training: Attacks
     and defenses," in ICLR, 2018 <https://arxiv.org/abs/1705.07204>`_
