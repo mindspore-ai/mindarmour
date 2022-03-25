@@ -1,3 +1,27 @@
+# MindArmour 1.7.0
+
+## MindArmour 1.7.0 Release Notes
+
+### Major Features and Improvements
+
+#### Robustness
+
+* [STABLE] Real-World Robustness Evaluation Methods
+
+### API Change
+
+* `mindarmour.fuzz_testing.Fuzzer.fuzzing` interface's parameter `mutate_config` change supported range. ([!333](https://gitee.com/mindspore/mindarmour/pulls/333))
+
+### Bug fixes
+
+* Update version of third-party dependence pillow from more than 6.2.0 to more than 7.2.0. ([!329](https://gitee.com/mindspore/mindarmour/pulls/329))
+
+### Contributors
+
+Thanks goes to these wonderful people:
+
+Liu Zhidan, Zhang Shukun, Jin Xiulang, Liu Liu.
+
 # MindArmour 1.６.0
 
 ## MindArmour 1.６.0 Release Notes
