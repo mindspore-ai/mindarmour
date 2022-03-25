@@ -88,7 +88,8 @@ class AdversarialDefense(Defense):
 
 class AdversarialDefenseWithAttacks(AdversarialDefense):
     """
-    Adversarial defense with attacks.
+    Adversarial training using specific attacking method and the given
+    adversarial examples to enhance model robustness.
 
     Args:
         network (Cell): A MindSpore network to be defensed.
@@ -174,7 +175,8 @@ class AdversarialDefenseWithAttacks(AdversarialDefense):
 
 class EnsembleAdversarialDefense(AdversarialDefenseWithAttacks):
     """
-    Ensemble adversarial defense.
+    Adversarial training using a list of specific attacking methods
+    and the given adversarial examples to enhance model robustness.
 
     Args:
         network (Cell): A MindSpore network to be defensed.

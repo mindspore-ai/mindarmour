@@ -34,7 +34,9 @@ TAG = 'RegionBasedDetector'
 
 class RegionBasedDetector(Detector):
     """
-    This class implement a region-based detector.
+    The region-based detector uses the fact that adversarial examples are close
+    to the classification boundary, and ensembles information around the given example
+    to predict whether it is an adversarial example or not.
 
     Reference: `Mitigating evasion attacks to deep neural networks via
     region-based classification <https://arxiv.org/abs/1709.05583>`_

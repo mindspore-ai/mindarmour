@@ -27,7 +27,8 @@ TAG = 'EnsembleDetector'
 
 class EnsembleDetector(Detector):
     """
-    Ensemble detector.
+    The ensemble detector uses a list of detectors to detect the adversarial
+    examples from the input samples.
 
     Args:
         detectors (Union[tuple, list]): List of detector methods.

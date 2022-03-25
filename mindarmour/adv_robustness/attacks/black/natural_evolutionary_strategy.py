@@ -142,7 +142,7 @@ class NES(Attack):
 
     def generate(self, inputs, labels):
         """
-        Main algorithm for NES.
+        Generate adversarial examples based on input data and target labels.
 
         Args:
             inputs (numpy.ndarray): Benign input samples.

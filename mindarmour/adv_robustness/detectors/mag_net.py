@@ -166,7 +166,8 @@ class ErrorBasedDetector(Detector):
 
 class DivergenceBasedDetector(ErrorBasedDetector):
     """
-    This class implement a divergence-based detector.
+    The divergence-based detector learns to distinguish normal and adversarial
+    examples by their js-divergence.
 
     Reference: `MagNet: a Two-Pronged Defense against Adversarial Examples,
     by Dongyu Meng and Hao Chen, at CCS 2017.

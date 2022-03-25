@@ -216,6 +216,7 @@ class GradWrap(Cell):
         ...         out = self._softmax(inputs)
         ...         out = self._Dense(out)
         ...         return self._squeeze(out)
+        >>> net = Net()
         >>> data = Tensor(np.ones([2, 1, 10]).astype(np.float32)*0.01)
         >>> labels = Tensor(np.ones([2, 10]).astype(np.float32))
         >>> num_classes = 10

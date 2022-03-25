@@ -58,7 +58,9 @@ def _best_logits_of_other_class(logits, target_class, value=1):
 
 class CarliniWagnerL2Attack(Attack):
     """
-    The Carlini & Wagner attack using L2 norm.
+    The Carlini & Wagner attack using L2 norm generates the adversarial examples
+    by utilizing two separate losses: an adversarial loss to make the generated example
+    actually adversarial, and a distance loss to constraint the quality of the adversarial example.
 
     References: `Nicholas Carlini, David Wagner: "Towards Evaluating
     the Robustness of Neural Networks" <https://arxiv.org/abs/1608.04644>`_

@@ -169,7 +169,7 @@ class Fuzzer:
         >>> initial_seeds = []
         >>> # make initial seeds
         >>> for img, label in zip(test_images, test_labels):
-        >>>     initial_seeds.append([img, label])
+        ...     initial_seeds.append([img, label])
         >>> initial_seeds = initial_seeds[:10]
         >>> nc = KMultisectionNeuronCoverage(model, train_images, segmented_num=100, incremental=True)
         >>> model_fuzz_test = Fuzzer(model)

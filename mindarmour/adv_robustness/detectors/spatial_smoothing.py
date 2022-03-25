@@ -38,6 +38,10 @@ def _median_filter_np(inputs, size=2):
 class SpatialSmoothing(Detector):
     """
     Detect method based on spatial smoothing.
+    Using Gaussian filtering, median filtering, and mean filtering, to blur
+    the original image. When the model has a large threshold difference
+    between the predicted values before and after the sample is blurred,
+    it is judged as an adversarial example.
 
     Args:
         model (Model): Target model.

@@ -30,6 +30,8 @@ class LogUtil:
     """
     Logging module.
 
+    Recording the logging statistics over time in long-running scripts.
+
     Raises:
         SyntaxError: If create this class.
     """

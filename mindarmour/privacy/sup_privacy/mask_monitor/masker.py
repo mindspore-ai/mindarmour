@@ -25,6 +25,7 @@ TAG = 'suppress masker'
 
 class SuppressMasker(Callback):
     """
+    Periodicity check suppress privacy function status and toggle suppress operation.
     For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_suppress_privacy.html#%E5%BC%95%E5%85%A5%E6%8A%91%E5%88%B6%E9%9A%90%E7%A7%81%E8%AE%AD%E7%BB%83>`_
 
     Args:
@@ -33,7 +34,6 @@ class SuppressMasker(Callback):
 
     Examples:
         >>> import mindspore.nn as nn
-        >>> import mindspore.dataset as ds
         >>> import mindspore.ops.operations as P
         >>> from mindspore import context
         >>> from mindspore.nn import Accuracy

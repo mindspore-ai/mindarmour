@@ -67,6 +67,7 @@ def tensor_grad_scale(scale, grad):
 
 class DPModel(Model):
     """
+    DPModel is used for constructing a model for differential privacy training.
     This class is overload mindspore.train.model.Model.
 
     For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_
@@ -82,7 +83,7 @@ class DPModel(Model):
             Default: None.
 
     Raises:
-        ValueError: If DPOptimizer and noise_mecn are both None or not None.
+        ValueError: If DPOptimizer and noise_mech are both None or not None.
         ValueError: If noise_mech or DPOtimizer's mech method is adaptive while clip_mech is not None.
 
     """

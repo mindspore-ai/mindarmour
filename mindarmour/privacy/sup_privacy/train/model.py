@@ -56,7 +56,9 @@ def tensor_grad_scale(scale, grad):
 
 class SuppressModel(Model):
     """
-    This class is overload mindspore.train.model.Model.
+    Complete model train function. The suppress privacy function is embedded into the overload
+    mindspore.train.model.Model.
+
     For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_suppress_privacy.html>`_
 
     Args:

@@ -98,9 +98,7 @@ class SimilarityDetector(Detector):
         >>> detector.set_threshold(num_nearest_neighbors[-1], thresholds[-1])
         >>> detector.detect(benign_queries)
         >>> detections = detector.get_detection_interval()
-        >>> detector.detect_diff()
         >>> detected_queries = detector.get_detected_queries()
-        >>> detector.transform(x_train)
     """
 
     def __init__(self, trans_model, max_k_neighbor=1000, chunk_size=1000,
