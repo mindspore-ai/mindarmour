@@ -23,6 +23,7 @@ from mindarmour.privacy.sup_privacy.sup_ctrl.conctrl import SuppressCtrl
 LOGGER = LogUtil.get_instance()
 TAG = 'suppress masker'
 
+
 class SuppressMasker(Callback):
     """
     Periodicity check suppress privacy function status and toggle suppress operation.

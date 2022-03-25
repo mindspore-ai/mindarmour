@@ -622,10 +622,8 @@ class _TrainOneStepCell(Cell):
             self._noise_mech_param_updater = _MechanismsParamsUpdater(
                 decay_policy=self._noise_mech._decay_policy,
                 decay_rate=self._noise_mech._noise_decay_rate,
-                cur_noise_multiplier=
-                self._noise_mech._noise_multiplier,
-                init_noise_multiplier=
-                self._noise_mech._initial_noise_multiplier)
+                cur_noise_multiplier=self._noise_mech._noise_multiplier,
+                init_noise_multiplier=self._noise_mech._initial_noise_multiplier)
 
     def construct(self, data, label):
         """
