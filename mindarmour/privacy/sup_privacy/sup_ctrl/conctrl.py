@@ -676,7 +676,12 @@ class SuppressCtrl(Cell):
         return sparse, sparse_value_1, sparse_value_2
 
     def calc_actual_sparse_for_fc1(self, networks):
-        """calculate actual sparse for full connection 1 layer"""
+        """
+        Calculate actual sparse for full connection 1 layer
+
+        Args:
+            networks (Cell): The training network.
+        """
         return self.calc_actual_sparse_for_layer(networks, "fc1.weight")
 
     def calc_actual_sparse_for_layer(self, networks, layer_name):
