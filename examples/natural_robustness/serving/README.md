@@ -147,7 +147,8 @@ serving
        """invoke servable perturbation method natural_perturbation"""
 
        # 请求的服务端ip及端口、请求的服务名、请求的方法名
-       client = Client("10.175.122.87:5500", "perturbation", "natural_perturbation")
+       ip_addr = "0.0.0.0:8800"
+       client = Client(ip_addr, "perturbation", "natural_perturbation")
 
        # 输入数据
        instances = []
