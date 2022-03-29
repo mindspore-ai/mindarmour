@@ -32,7 +32,11 @@ TAG = 'Suppression training.'
 
 
 class SuppressPrivacyFactory:
-    """ Factory class of SuppressCtrl mechanisms"""
+    """
+    Factory class of SuppressCtrl mechanisms.
+
+    For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_suppress_privacy.html#%E5%BC%95%E5%85%A5%E6%8A%91%E5%88%B6%E9%9A%90%E7%A7%81%E8%AE%AD%E7%BB%83>`_.
+    """
 
     def __init__(self):
         pass
@@ -41,8 +45,6 @@ class SuppressPrivacyFactory:
     def create(networks, mask_layers, policy="local_train", end_epoch=10, batch_num=20, start_epoch=3,
                mask_times=1000, lr=0.05, sparse_end=0.90, sparse_start=0.0):
         """
-        For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_suppress_privacy.html#%E5%BC%95%E5%85%A5%E6%8A%91%E5%88%B6%E9%9A%90%E7%A7%81%E8%AE%AD%E7%BB%83>`_
-
         Args:
             networks (Cell): The training network.
                 This networks parameter should be same as 'network' parameter of SuppressModel().
@@ -116,7 +118,7 @@ class SuppressCtrl(Cell):
     finding the parameters that should be suppressed, and suppress these
     parameters permanently.
 
-    For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_suppress_privacy.html#%E5%BC%95%E5%85%A5%E6%8A%91%E5%88%B6%E9%9A%90%E7%A7%81%E8%AE%AD%E7%BB%83>`_
+    For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_suppress_privacy.html#%E5%BC%95%E5%85%A5%E6%8A%91%E5%88%B6%E9%9A%90%E7%A7%81%E8%AE%AD%E7%BB%83>`_.
 
     Args:
         networks (Cell): The training network.

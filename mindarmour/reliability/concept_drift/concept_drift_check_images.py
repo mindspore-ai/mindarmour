@@ -89,7 +89,7 @@ class OodDetectorFeatureCluster(OodDetector):
     the testing data features and the clustering centers determines whether an image is an out-of-distribution(OOD)
     image or not.
 
-    For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/concept_drift_images.html>`_
+    For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/concept_drift_images.html>`_.
 
     Args:
         model (Model):The training model.

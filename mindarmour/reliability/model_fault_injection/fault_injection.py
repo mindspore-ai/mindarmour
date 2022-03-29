@@ -31,7 +31,7 @@ class FaultInjector:
     Fault injection module simulates various fault scenarios for deep neural networks and evaluates
     performance and reliability of the model.
 
-    For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/fault_injection.html>`_
+    For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/fault_injection.html>`_.
 
     Args:
         model (Model): The model need to be evaluated.
@@ -196,7 +196,7 @@ class FaultInjector:
 
     def kick_off(self, ds_data, ds_label, iter_times=100):
         """
-        Startup and return final results.
+        Startup and return final results after Fault Injection.
 
         Args:
             ds_data(np.ndarray): Input data for testing. The evaluation is based on this data.
@@ -241,9 +241,10 @@ class FaultInjector:
 
     def metrics(self):
         """
-        metrics of final result.
+        Metrics of final result.
+
         Returns:
-            list, the summary of result.
+            - list, the summary of result.
         """
         result_summary = []
         single_layer_acc = []

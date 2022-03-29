@@ -59,7 +59,7 @@ class SuppressModel(Model):
     Complete model train function. The suppress privacy function is embedded into the overload
     mindspore.train.model.Model.
 
-    For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_suppress_privacy.html>`_
+    For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_suppress_privacy.html>`_.
 
     Args:
         network (Cell): The training network.

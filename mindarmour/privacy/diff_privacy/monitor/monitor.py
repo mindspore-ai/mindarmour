@@ -28,7 +28,7 @@ TAG = 'DP monitor'
 class PrivacyMonitorFactory:
     """
     Factory class of DP training's privacy monitor.
-    For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_
+    For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_.
 
     """
 
@@ -77,7 +77,7 @@ class RDPMonitor(Callback):
     .. math::
         (ε'+\frac{log(1/δ)}{α-1}, δ)
 
-    For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_
+    For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_.
 
     Reference: `Rényi Differential Privacy of the Sampled Gaussian Mechanism
     <https://arxiv.org/abs/1908.10530>`_
@@ -370,7 +370,7 @@ class ZCDPMonitor(Callback):
     noise mechanisms(such as NoiseAdaGaussianRandom and NoiseGaussianRandom).
     The matching noise mechanism of ZCDP will be developed in the future.
 
-    For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_
+    For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_.
 
     Reference: `Concentrated Differentially Private Gradient Descent with
     Adaptive per-Iteration Privacy Budget <https://arxiv.org/abs/1808.09501>`_
