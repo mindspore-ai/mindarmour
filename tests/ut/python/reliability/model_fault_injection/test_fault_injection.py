@@ -16,6 +16,7 @@
 Test for fault injection.
 """
 
+import os
 import pytest
 import numpy as np
 
@@ -37,12 +38,12 @@ def dataset_generator():
     """mock training data."""
     batch_size = 32
     batches = 128
-    data = np.random.random((batches*batch_size, 1, 32, 32)).astype(
+    data = np.random.random((batches * batch_size, 1, 32, 32)).astype(
         np.float32)
-    label = np.random.randint(0, 10, batches*batch_size).astype(np.int32)
+    label = np.random.randint(0, 10, batches * batch_size).astype(np.int32)
     for i in range(batches):
-        yield data[i*batch_size:(i + 1)*batch_size],\
-              label[i*batch_size:(i + 1)*batch_size]
+        yield data[i * batch_size:(i + 1) * batch_size], \
+              label[i * batch_size:(i + 1) * batch_size]
 
 
 @pytest.mark.level0
@@ -58,7 +59,9 @@ def test_fault_injector():
     Expectation: Run kick_off and metrics successfully
     """
     # load model
+    cur_path = os.path.abspath(os.path.dirname(__file__))
     ckpt_path = '../../dataset/trained_ckpt_file/checkpoint_lenet-10_1875.ckpt'
+    ckpt_path = os.path.join(cur_path, ckpt_path)
     net = Net()
     param_dict = load_checkpoint(ckpt_path)
     load_param_into_net(net, param_dict)
@@ -98,7 +101,9 @@ def test_wrong_model():
     Expectation: Throw TypeError exception
     """
     # load model
+    cur_path = os.path.abspath(os.path.dirname(__file__))
     ckpt_path = '../../dataset/trained_ckpt_file/checkpoint_lenet-10_1875.ckpt'
+    ckpt_path = os.path.join(cur_path, ckpt_path)
     net = Net()
     param_dict = load_checkpoint(ckpt_path)
     load_param_into_net(net, param_dict)
@@ -139,7 +144,9 @@ def test_wrong_data():
     Expectation: Throw TypeError exception
     """
     # load model
+    cur_path = os.path.abspath(os.path.dirname(__file__))
     ckpt_path = '../../dataset/trained_ckpt_file/checkpoint_lenet-10_1875.ckpt'
+    ckpt_path = os.path.join(cur_path, ckpt_path)
     net = Net()
     param_dict = load_checkpoint(ckpt_path)
     load_param_into_net(net, param_dict)
@@ -173,7 +180,9 @@ def test_wrong_fi_type():
     Expectation: Throw AttributeError exception
     """
     # load model
+    cur_path = os.path.abspath(os.path.dirname(__file__))
     ckpt_path = '../../dataset/trained_ckpt_file/checkpoint_lenet-10_1875.ckpt'
+    ckpt_path = os.path.join(cur_path, ckpt_path)
     net = Net()
     param_dict = load_checkpoint(ckpt_path)
     load_param_into_net(net, param_dict)
@@ -215,7 +224,9 @@ def test_wrong_fi_mode():
     Expectation: Throw ValueError exception
     """
     # load model
+    cur_path = os.path.abspath(os.path.dirname(__file__))
     ckpt_path = '../../dataset/trained_ckpt_file/checkpoint_lenet-10_1875.ckpt'
+    ckpt_path = os.path.join(cur_path, ckpt_path)
     net = Net()
     param_dict = load_checkpoint(ckpt_path)
     load_param_into_net(net, param_dict)
@@ -257,7 +268,9 @@ def test_wrong_fi_size():
     Expectation: Throw ValueError exception
     """
     # load model
+    cur_path = os.path.abspath(os.path.dirname(__file__))
     ckpt_path = '../../dataset/trained_ckpt_file/checkpoint_lenet-10_1875.ckpt'
+    ckpt_path = os.path.join(cur_path, ckpt_path)
     net = Net()
     param_dict = load_checkpoint(ckpt_path)
     load_param_into_net(net, param_dict)

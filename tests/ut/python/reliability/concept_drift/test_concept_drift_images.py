@@ -16,6 +16,7 @@
 Concept drift test for images.
 """
 
+import os
 import logging
 import pytest
 import numpy as np
@@ -43,15 +44,17 @@ def test_concept_drift_image_ascend():
     """
     # load model
     context.set_context(mode=context.GRAPH_MODE, device_target="Ascend")
+    cur_path = os.path.abspath(os.path.dirname(__file__))
     ckpt_path = '../../dataset/trained_ckpt_file/checkpoint_lenet-10_1875.ckpt'
+    ckpt_path = os.path.join(cur_path, ckpt_path)
     net = LeNet5()
     load_dict = load_checkpoint(ckpt_path)
     load_param_into_net(net, load_dict)
     model = Model(net)
     # load data
-    ds_train = np.load('../../dataset/concept_train_lenet.npy')
-    ds_eval = np.load('../../dataset/concept_test_lenet1.npy')
-    ds_test = np.load('../../dataset/concept_test_lenet2.npy')
+    ds_train = np.load(os.path.join(cur_path, '../../dataset/concept_train_lenet.npy'))
+    ds_eval = np.load(os.path.join(cur_path, '../../dataset/concept_test_lenet1.npy'))
+    ds_test = np.load(os.path.join(cur_path, '../../dataset/concept_test_lenet2.npy'))
     # ood detector initialization
     detector = OodDetectorFeatureCluster(model, ds_train, n_cluster=10, layer='output[:Tensor]')
     # get optimal threshold with ds_eval
