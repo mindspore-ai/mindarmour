@@ -39,7 +39,7 @@ class ClipMechanismsFactory:
     Wrapper of clip noise generating mechanisms. It supports Adaptive Clipping with
     Gaussian Random Noise for now.
 
-    For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_
+    For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_.
 
     """
 
@@ -49,7 +49,7 @@ class ClipMechanismsFactory:
     @staticmethod
     def create(mech_name, decay_policy='Linear', learning_rate=0.001,
                target_unclipped_quantile=0.9, fraction_stddev=0.01, seed=0):
-        """
+        r"""
         Args:
             mech_name(str): Clip noise generated strategy, support 'Gaussian' now.
             decay_policy(str): Decay policy of adaptive clipping, decay_policy must
@@ -57,7 +57,7 @@ class ClipMechanismsFactory:
             learning_rate(float): Learning rate of update norm clip. Default: 0.001.
             target_unclipped_quantile(float): Target quantile of norm clip. Default: 0.9.
             fraction_stddev(float): The stddev of Gaussian normal which used in
-                empirical_fraction, the formula is :math:`empirical_fraction + N(0, fraction_stddev)`.
+                empirical_fraction, the formula is :math:`empirical\_fraction + N(0, fraction\_stddev)`.
                 Default: 0.01.
             seed(int): Original random seed, if seed=0 random normal will use secure
                 random number. IF seed!=0 random normal will generate values using
@@ -100,7 +100,7 @@ class NoiseMechanismsFactory:
     Wrapper of noise generating mechanisms. It supports Gaussian Random Noise and
     Adaptive Gaussian Random Noise for now.
 
-    For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_
+    For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_.
 
     """
     def __init__(self):
@@ -168,9 +168,9 @@ class _Mechanisms(Cell):
 
 
 class NoiseGaussianRandom(_Mechanisms):
-    """
+    r"""
     Generate noise in Gaussian Distribution with :math:`mean=0` and
-    :math:`standard deviation = norm_bound * initial_noise_multiplier`.
+    :math:`standard\_deviation = norm\_bound * initial\_noise\_multiplier`.
 
     Args:
         norm_bound(float): Clipping bound for the l2 norm of the gradients.
@@ -347,11 +347,11 @@ class _MechanismsParamsUpdater(Cell):
 
 
 class AdaClippingWithGaussianRandom(Cell):
-    """
-    Adaptive clipping. If `decay_policy` is 'Linear', the update formula :math:`norm_bound = norm_bound -
-    learning_rate*(beta - target_unclipped_quantile)`.
-    If `decay_policy` is 'Geometric', the update formula is :math:`norm_bound =
-    norm_bound*exp(-learning_rate*(empirical_fraction - target_unclipped_quantile))`.
+    r"""
+    Adaptive clipping. If `decay_policy` is 'Linear', the update formula :math:`norm\_bound = norm\_bound -
+    learning\_rate*(beta - target\_unclipped\_quantile)`.
+    If `decay_policy` is 'Geometric', the update formula is :math:`norm\_bound =
+    norm\_bound*exp(-learning\_rate*(empirical\_fraction - target\_unclipped\_quantile))`.
     where beta is the empirical fraction of samples with the value at most
     `target_unclipped_quantile`.
 
