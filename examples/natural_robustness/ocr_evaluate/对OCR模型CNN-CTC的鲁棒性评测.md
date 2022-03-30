@@ -209,7 +209,7 @@
       3. 请求自然扰动serving服务，并保存serving返回的数据
 
          ```python
-         client = Client("10.113.216.54:5500", "perturbation", "natural_perturbation")
+         client = Client("0.0.0.0:5500", "perturbation", "natural_perturbation")
          start_time = time.time()
          result = client.infer(instances)
          end_time = time.time()

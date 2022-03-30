@@ -88,7 +88,7 @@ def generate_adv_iii5t_3000(lmdb_paths, lmdb_save_path, perturb_config):
 
     print(f'num of samples in IIIT dataset: {len(filtered_index_list)}')
 
-    client = Client("10.113.216.54:5500", "perturbation", "natural_perturbation")
+    client = Client("0.0.0.0:5500", "perturbation", "natural_perturbation")
     start_time = time.time()
     result = client.infer(instances)
     end_time = time.time()
@@ -101,9 +101,12 @@ def generate_adv_iii5t_3000(lmdb_paths, lmdb_save_path, perturb_config):
         for i, index in enumerate(filtered_index_list):
             try:
                 file_names = result[i]['file_names'].split(';')
-            except:
+            except KeyError:
                 error_msg = result[i]
-                raise ValueError(error_msg)
+                msg = 'serving failed to generate the {}th image in origin dataset with ' \
+                      'error messages: {}'.format(i, error_msg)
+                print(KeyError(msg))
+                continue
 
             length = result[i]['file_length'].tolist()
             before = 0
