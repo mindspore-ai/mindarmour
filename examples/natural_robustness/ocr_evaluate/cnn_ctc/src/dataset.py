@@ -22,8 +22,8 @@ import numpy as np
 from PIL import Image
 import lmdb
 from mindspore.communication.management import get_rank, get_group_size
-from src.model_utils.config import config
-from src.util import CTCLabelConverter
+from .model_utils.config import config
+from .util import CTCLabelConverter
 
 
 class NormalizePAD:

@@ -47,6 +47,8 @@ def check_inputs(img, perturb_config, methods_number, outputs_number):
     if not np.any(img):
         raise ValueError("img cannot be empty.")
     img = Image.open(BytesIO(img))
+    if img.mode == "L":
+        img = img.convert('RGB')
     img = cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
 
     config = json.loads(perturb_config)
