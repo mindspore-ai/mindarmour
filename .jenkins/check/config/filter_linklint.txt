@@ -1,0 +1,4 @@
+# akg-third-party
+# file directory: mindspore/akg/third_party/incubator-tvm/
+
+https://www.mindspore.cn/*/r1.7/*
