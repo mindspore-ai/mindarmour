@@ -1,5 +1,7 @@
 # MindArmour 1.7.0
 
+[查看中文](./RELEASE_CN.md)
+
 ## MindArmour 1.7.0 Release Notes
 
 ### Major Features and Improvements
