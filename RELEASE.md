@@ -16,13 +16,15 @@
 
 ### Bug fixes
 
-* Update version of third-party dependence pillow from more than 6.2.0 to more than 7.2.0. ([!329](https://gitee.com/mindspore/mindarmour/pulls/329))
+* Update version of third-party dependence pillow from more than or equal to 6.2.0 to more than or equal to 7.2.0. ([!329](https://gitee.com/mindspore/mindarmour/pulls/329))
 
 ### Contributors
 
 Thanks goes to these wonderful people:
 
 Liu Zhidan, Zhang Shukun, Jin Xiulang, Liu Liu.
+
+Contributions of any kind are welcome!
 
 # MindArmour 1.６.0
 
