@@ -1,4 +1,4 @@
-# MindArmour 1.7.0
+# MindArmour Release Notes
 
 ## MindArmour 1.7.0 Release Notes
 
