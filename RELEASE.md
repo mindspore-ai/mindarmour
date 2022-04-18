@@ -12,7 +12,7 @@
 
 ### API Change
 
-* `mindarmour.fuzz_testing.Fuzzer.fuzzing` interface's parameter `mutate_config` change supported range. ([!333](https://gitee.com/mindspore/mindarmour/pulls/333))
+* Change value of parameter `mutate_config` in  `mindarmour.fuzz_testing.Fuzzer.fuzzing` interface. ([!333](https://gitee.com/mindspore/mindarmour/pulls/333))
 
 ### Bug fixes
 
