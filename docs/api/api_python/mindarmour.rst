@@ -6,7 +6,7 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
 .. py:class:: mindarmour.Attack
 
     所有通过创建对抗样本的攻击类的抽象基类。
-    
+
     对抗样本是通过向原始样本添加对抗噪声来生成的。
 
     .. py:method:: batch_generate(inputs, labels, batch_size=64)
@@ -22,7 +22,7 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
         **返回：**
 
         - **numpy.ndarray** - 生成的对抗样本。
-    
+
     .. py:method:: generate(inputs, labels)
 
         根据正常样本及其标签生成对抗样本。
@@ -35,12 +35,213 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
         **异常：**
 
         - **NotImplementedError** - 此为抽象方法。
-       
+
+.. py:class:: mindarmour.BlackModel
+
+    将目标模型视为黑盒的抽象类。模型应由用户定义。
+
+    .. py:method:: is_adversarial(data, label, is_targeted)
+
+        检查输入样本是否为对抗样本。
+
+        **参数：**
+
+        - **data** (numpy.ndarray) - 要检查的输入样本，通常是一些恶意干扰的样本。
+        - **label** (numpy.ndarray) - 对于目标攻击，标签是受扰动样本的预期标签。对于无目标攻击，标签是相应未扰动样本的原始标签。
+        - **is_targeted** (bool) - 对于有目标/无目标攻击，请选择True/False。
+
+        **返回：**
+
+        - **bool** - 如果为True，则输入样本是对抗性的。如果为False，则输入样本不是对抗性的。
+
+    .. py:method:: predict(inputs)
+
+        使用用户指定的模型进行预测。预测结果的shape应该是(m,n)，其中n表示此模型分类的类数。
+
+        **参数：**
+
+        - **inputs** (numpy.ndarray) - 要预测的输入样本。
+
+        **异常：**
+
+        - **NotImplementedError** - 抽象方法未实现。
+
+.. py:class:: mindarmour.Detector
+
+    所有对抗样本检测器的抽象基类。
+
+    .. py:method:: detect(inputs)
+
+        从输入样本中检测对抗样本。
+
+        **参数：**
+
+        - **inputs** (Union[numpy.ndarray, list, tuple]) - 要检测的输入样本。
+
+        **异常：**
+
+        - **NotImplementedError** - 抽象方法未实现。
+
+    .. py:method:: detect_diff(inputs)
+
+        计算输入样本和去噪样本之间的差值。
+
+        **参数：**
+
+        - **inputs** (Union[numpy.ndarray, list, tuple]) - 要检测的输入样本。
+
+        **异常：**
+
+        - **NotImplementedError** - 抽象方法未实现。
+
+    .. py:method:: fit(inputs, labels=None)
+
+        拟合阈值，拒绝与去噪样本差异大于阈值的对抗样本。当应用于正常样本时，阈值由假正率决定。
+
+        **参数：**
+
+        - **inputs** (numpy.ndarray) - 用于计算阈值的输入样本。
+        - **labels** (numpy.ndarray) - 训练数据的标签。默认值：None。
+
+        **异常：**
+
+        - **NotImplementedError** - 抽象方法未实现。
+
+    .. py:method:: transform(inputs)
+
+        过滤输入样本中的对抗性噪声。
+
+        **参数：**
+
+        - **inputs** (Union[numpy.ndarray, list, tuple]) - 要转换的输入样本。
+
+        **异常：**
+
+        - **NotImplementedError** - 抽象方法未实现。
+
+.. py:class:: mindarmour.Defense(network)
+
+    所有防御类的抽象基类，用于防御对抗样本。
+
+    **参数：**
+
+    - **network** (Cell) - 要防御的MindSpore风格的深度学习模型。
+
+    .. py:method:: batch_defense(inputs, labels, batch_size=32, epochs=5)
+
+        带有批量样本的防御模型。
+
+        **参数：**
+
+        - **inputs** (numpy.ndarray) - 生成对抗样本的原始样本。
+        - **labels** (numpy.ndarray) - 输入样本的标签。
+        - **batch_size** (int) - 一个批次中的样本数。默认值：32。
+        - **epochs** (int) - epochs的数量。默认值：5。
+
+        **返回：**
+
+        - **numpy.ndarray** - 批处理防御操作的损失。
+
+        **异常：**
+
+        - **ValueError** - batch_size为0。
+
+    .. py:method:: defense(inputs, labels)
+
+        带样本的防御模型。
+
+        **参数：**
+
+        - **inputs** (numpy.ndarray) - 生成对抗样本的原始样本。
+        - **labels** (numpy.ndarray) - 输入样本的标签。
+
+        **异常：**
+
+        - **NotImplementedError** - 抽象方法未实现。
+
+.. py:class:: mindarmour.Fuzzer(target_model)
+
+    深度神经网络的模糊测试框架。
+
+    参考文献： `DeepHunter: A Coverage-Guided Fuzz Testing Framework for Deep Neural Networks <https://dl.acm.org/doi/10.1145/3293882.3330579>`_。
+
+    **参数：**
+
+    - **target_model** (Model) - 目标模糊模型。
+
+    .. py:method:: fuzzing(mutate_config, initial_seeds, coverage, evaluate=True, max_iters=10000, mutate_num_per_seed=20)
+        深度神经网络的模糊测试。
+
+        **参数：**
+
+        - **mutate_config** (list) - 变异方法配置。格式为:
+            .. code-block:: python
+
+                mutate_config = 
+                    [{'method': 'GaussianBlur',
+                      'params': {'ksize': [1, 2, 3, 5], 'auto_param': [True, False]}},
+                     {'method': 'UniformNoise',
+                      'params': {'factor': [0.1, 0.2, 0.3], 'auto_param': [False, True]}},
+                     {'method': 'GaussianNoise',
+                      'params': {'factor': [0.1, 0.2, 0.3], 'auto_param': [False, True]}},
+                     {'method': 'Contrast',
+                      'params': {'alpha': [0.5, 1, 1.5], 'beta': [-10, 0, 10], 'auto_param': [False, True]}},
+                     {'method': 'Rotate',
+                      'params': {'angle': [20, 90], 'auto_param': [False, True]}},
+                     {'method': 'FGSM',
+                      'params': {'eps': [0.3, 0.2, 0.4], 'alpha': [0.1], 'bounds': [(0, 1)]}}]
+                    ...]
+
+        - 支持的方法在列表 `self._strategies` 中，每个方法的参数必须在可选参数的范围内。支持的方法分为两种类型：
+        - 首先，自然鲁棒性方法包括：'Translate', 'Scale'、'Shear'、'Rotate'、'Perspective'、'Curve'、'GaussianBlur'、'MotionBlur'、'GradientBlur'、'Contrast'、'GradientLuminance'、'UniformNoise'、'GaussianNoise'、'SaltAndPepperNoise'、'NaturalNoise'。
+        - 其次，对抗样本攻击方式包括：'FGSM'、'PGD'和'MDIM'。'FGSM'、'PGD'和'MDIM'分别是 FastGradientSignMethod、ProjectedGradientDent和MomentumDiverseInputIterativeMethod的缩写。 `mutate_config` 必须包含在['Contrast', 'GradientLuminance', 'GaussianBlur', 'MotionBlur', 'GradientBlur', 'UniformNoise', 'GaussianNoise', 'SaltAndPepperNoise', 'NaturalNoise']中的方法。
+
+        - 第一类方法的参数设置方式可以在 `mindarmour/natural_robustness/transform/image <https://gitee.com/mindspore/mindarmour/tree/master/mindarmour/natural_robustness/transform/image>`_ 中看到。第二类方法参数配置参考 `self._attack_param_checklists` 。
+        - **initial_seeds** (list[list]) - 用于生成变异样本的初始种子队列。初始种子队列的格式为[[image_data, label], [...], ...]，且标签必须为one-hot。
+        - **coverage** (CoverageMetrics) - 神经元覆盖率指标类。
+        - **evaluate** (bool) - 是否返回评估报告。默认值：True。
+        - **max_iters** (int) - 选择要变异的种子的最大数量。默认值：10000。
+        - **mutate_num_per_seed** (int) - 每个种子的最大变异次数。默认值：20。
+
+        **返回：**
+
+        - **list** - 模糊测试生成的变异样本。
+        - **list** - 变异样本的ground truth标签。
+        - **list** - 预测结果。
+        - **list** - 变异策略。
+        - **dict** - Fuzzer的指标报告。
+
+        **异常：**
+
+        - **ValueError** - 参数'Coverage'必须是CoverageMetrics的子类。
+        - **ValueError** - 初始种子队列为空。
+        - **ValueError** - 初始种子队列中的种子不是包含两个元素。
+
+.. py:class:: mindarmour.DPModel(micro_batches=2, norm_bound=1.0, noise_mech=None, clip_mech=None, **kwargs)
+
+    DPModel用于构建差分隐私训练的模型。
+
+    这个类就是重载Mindpore.train.model.Model。
+
+    详情请查看： `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_。
+
+    **参数：**
+
+    - **micro_batches** (int) - 从原始批次拆分的小批次数。默认值：2。
+    - **norm_bound** (float) - 用于剪裁绑定，如果设置为1，将返回原始数据。默认值：1.0。
+    - **norm_bound** (float) - 对象可以生成不同类型的噪音。默认值：None。
+    - **clip_mech** (Mechanisms) - 该对象用于更新自适应剪裁。默认值：None。
+
+    **异常：**
+
+    - **ValueError** - DPOptimizer和noise_mech都为None或非None。
+    - **ValueError** - noise_mech或DPOtimizer的mech方法是自适应的，而clip_mech不是None。
+
 .. py:class:: mindarmour.MembershipInference(model, n_jobs=-1)
 
     成员推理是由Shokri、Stronati、Song和Shmatikov提出的一种用于推测用户隐私数据的灰盒攻击。它需要训练样本的loss或logits结果。（隐私是指单个用户的一些敏感属性）。
 
-    有关详细信息，请参见 ：`教程 <https://mindspore.cn/mindarmour/docs/en/master/test_model_security_membership_inference.html>`_。
+    有关详细信息，请参见：`教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/test_model_security_membership_inference.html>`_。
 
     参考文献：`Reza Shokri, Marco Stronati, Congzheng Song, Vitaly Shmatikov. Membership Inference Attacks against Machine Learning Models. 2017. <https://arxiv.org/abs/1610.05820v2>`_。
 
@@ -55,33 +256,6 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
     - **TypeError** - n_jobs的类型不是int。
     - **ValueError** - n_jobs的值既不是-1，也不是正整数。
 
-    .. py:method:: train(dataset_train, dataset_test, attack_config)
-
-        根据配置，使用输入数据集训练攻击模型。
-
-        将攻击模型保存至self._attack_list。
-
-        **参数：**
-
-        - **dataset_train** (minspore.dataset) - 目标模型的训练数据集。
-        - **dataset_test** (minspore.dataset) - 目标模型的测试集。
-        - **attack_config** (Union[list, tuple]) - 攻击模型的参数设置。格式为
-            .. code_block:: 
-                attack_config = 
-                    [{"method": "knn", "params": {"n_neighbors": [3, 5, 7]}},
-                     {"method": "lr", "params": {"C": np.logspace(-4, 2, 10)}}]
-
-        - 支持的方法有knn、lr、mlp和rf，每个方法的参数必须在可变参数的范围内。参数实现的提示可在下面找到：
-            - `KNN <https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html>`_ ，
-            - `LR <https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html>`_ ，
-            - `RF <https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html>`_ ，
-            - `MLP <https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPRegressor.html>`_ 。
-
-        **异常：**
-
-        - **KeyError** - attack_config中的配置没有键{"method", "params"}。
-        - **NameError** - attack_config中的方法（不区分大小写）不在["lr", "knn", "rf", "mlp"]中。
-        
     .. py:method:: eval(dataset_train, dataset_test, metrics)
 
         评估目标模型的不同隐私。
@@ -96,8 +270,35 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
         **返回：**
 
         - **list** - 每个元素都包含攻击模型的评估指标。
-        
-    
+
+    .. py:method:: train(dataset_train, dataset_test, attack_config)
+
+        根据配置，使用输入数据集训练攻击模型。
+
+        将攻击模型保存至self._attack_list。
+
+        **参数：**
+
+        - **dataset_train** (minspore.dataset) - 目标模型的训练数据集。
+        - **dataset_test** (minspore.dataset) - 目标模型的测试集。
+        - **attack_config** (Union[list, tuple]) - 攻击模型的参数设置。格式为
+            .. code_block::
+
+                attack_config = 
+                    [{"method": "knn", "params": {"n_neighbors": [3, 5, 7]}},
+                     {"method": "lr", "params": {"C": np.logspace(-4, 2, 10)}}]
+
+        - 支持的方法有knn、lr、mlp和rf，每个方法的参数必须在可变参数的范围内。参数实现的提示可在下面找到：
+            - `KNN <https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html>`_ ，
+            - `LR <https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html>`_ ，
+            - `RF <https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html>`_ ，
+            - `MLP <https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPRegressor.html>`_ 。
+
+        **异常：**
+
+        - **KeyError** - attack_config中的配置没有键{"method", "params"}。
+        - **NameError** - attack_config中的方法（不区分大小写）不在["lr", "knn", "rf", "mlp"]中。
+
 .. py:class:: mindarmour.ImageInversionAttack(network, input_shape, input_bound, loss_weights=(1, 0.2, 5))
 
     一种用于通过还原图像的深层表达来重建图像的攻击方法。
@@ -117,193 +318,45 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
     - **ValueError** - input_shape的值都不是正int。
     - **ValueError** - loss_weights的值都不是正值。
 
-
-    .. py:method:: generate(target_features, iters=100)
-
-        根据target_features重建图像。
-
-        **参数：**
-        
-        - **iters** (int) - 逆向攻击的迭代次数，应为正整数。默认值：100。
-
-        **返回：**
-        
-        - **numpy.ndarray** - 重建图像，预计与原始图像相似。
-
-        **异常：**
-        
-        - **TypeError** - target_features的类型不是numpy.ndarray。
-        - **ValueError** - iters的值都不是正int.Z
-
-    .. py:method:: evaluate(original_images, inversion_images, labels=None, new_network=None)
+   .. py:method:: evaluate(original_images, inversion_images, labels=None, new_network=None)
 
         通过三个指标评估还原图像的质量：原始图像和还原图像之间的平均L2距离和SSIM值，以及新模型对还原图像的推理结果在真实标签上的置信度平均值。
 
         **参数：**
-        
+
         - **original_images** (numpy.ndarray) - 原始图像，其形状应为(img_num, channels, img_width, img_height)。
         - **inversion_images** (numpy.ndarray) - 还原图像，其形状应为(img_num, channels, img_width, img_height)。
         - **labels** (numpy.ndarray) - 原始图像的ground truth标签。默认值：None。
         - **new_network** (Cell) - 其结构包含self._network所有部分的网络。_network，但加载了不同的模型文件。默认值：None。
 
         **返回：**
-        
+
         - **float** - l2距离。
         - **float** - 平均ssim值。
         - **Union** [float, None] - 平均置信度。如果labels或new_network为 None，则该值为None。
 
-    
-.. py:class:: mindarmour.DPModel(micro_batches=2, norm_bound=1.0, noise_mech=None, clip_mech=None, **kwargs)
+    .. py:method:: generate(target_features, iters=100)
 
-    DPModel用于构建差分隐私训练的模型。
-
-    这个类就是重载Mindpore.train.model.Model。
-
-    详情请查看：`教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_。
-
-    **参数：**
-
-    - **micro_batches** (int) - 从原始批次拆分的小批次数。默认值：2。
-    - **norm_bound** (float) - 用于剪裁绑定，如果设置为1，将返回原始数据。默认值：1.0。
-    - **norm_bound** (float) - 对象可以生成不同类型的噪音。默认值：None。
-    - **clip_mech** (Mechanisms) - 该对象用于更新自适应剪裁。默认值：None。
-
-    **异常：**
-
-    - **ValueError** - DPOptimizer和noise_mech都为None或非None。
-    - **ValueError** - noise_mech或DPOtimizer的mech方法是自适应的，而clip_mech不是None。
-
-
-.. py:class:: mindarmour.BlackModel
-
-    将目标模型视为黑盒的抽象类。模型应由用户定义。
-
-    .. py:method:: is_adversarial(data, label, is_targeted)
-
-        检查输入样本是否为对抗样本。
+        根据target_features重建图像。
 
         **参数：**
 
-        - **data** (numpy.ndarray) - 要检查的输入样本，通常是一些恶意干扰的样本。
-        - **label** (numpy.ndarray) - 对于目标攻击，标签是受扰动样本的预期标签。对于无目标攻击，标签是相应未扰动样本的原始标签。
-        - **is_targeted** (bool) - 对于有目标/无目标攻击，请选择True/False。
+        - **iters** (int) - 逆向攻击的迭代次数，应为正整数。默认值：100。
 
         **返回：**
 
-        - **bool** - 如果为True，则输入样本是对抗性的。如果为False，则输入样本不是对抗性的。
-        
-    .. py:method:: predict(inputs)
-
-        使用用户指定的模型进行预测。预测结果的shape应该是(m,n)，其中n表示此模型分类的类数。
-
-        **参数：**
-
-        - **inputs** (numpy.ndarray) - 要预测的输入样本。
+        - **numpy.ndarray** - 重建图像，预计与原始图像相似。
 
         **异常：**
 
-        - **NotImplementedError** - 抽象方法未实现。
-        
-    
-.. py:class:: mindarmour.Detector
+        - **TypeError** - target_features的类型不是numpy.ndarray。
+        - **ValueError** - iters的值都不是正int.Z
 
-    所有对抗样本检测器的抽象基类。
-        
-    .. py:method:: fit(inputs, labels=None)
-
-        拟合阈值，拒绝与去噪样本差异大于阈值的对抗样本。当应用于正常样本时，阈值由假正率决定。
-
-        **参数：**
-
-        - **inputs** (numpy.ndarray) - 用于计算阈值的输入样本。
-        - **labels** (numpy.ndarray) - 训练数据的标签。默认值：None。
-
-        **异常：**
-
-        - **NotImplementedError** - 抽象方法未实现。
-    
-    .. py:method:: detect_diff(inputs)
-
-        计算输入样本和去噪样本之间的差值。
-
-        **参数：**
-
-        - **inputs** (Union[numpy.ndarray, list, tuple]) - 要检测的输入样本。
-
-        **异常：**
-
-        - **NotImplementedError** - 抽象方法未实现。
-
-        
-    .. py:method:: detect(inputs)
-
-        从输入样本中检测对抗样本。
-
-        **参数：**
-
-        - **inputs** (Union[numpy.ndarray, list, tuple]) - 要检测的输入样本。
-
-        **异常：**
-
-        - **NotImplementedError** - 抽象方法未实现。
-
-    .. py:method:: transform(inputs)
-
-        过滤输入样本中的对抗性噪声。
-
-        **参数：**
-
-        - **inputs** (Union[numpy.ndarray, list, tuple]) - 要转换的输入样本。
-        
-        **异常：**
-
-        - **NotImplementedError** - 抽象方法未实现。
-
-.. py:class:: mindarmour.Defense(network)
-
-    所有防御类的抽象基类，用于防御对抗样本。
-
-    **参数：**
-
-    - **network** (Cell) - 要防御的MindSpore风格的深度学习模型。
-    
-    .. py:method:: batch_defense(inputs, labels, batch_size=32, epochs=5)
-
-        带有批量样本的防御模型。
-
-        **参数：**
-
-        - **inputs** (numpy.ndarray) - 生成对抗样本的原始样本。
-        - **labels** (numpy.ndarray) - 输入样本的标签。
-        - **batch_size** (int) - 一个批次中的样本数。默认值：32。
-        - **epochs** (int) - epochs的数量。默认值：5。
-
-        **返回：**
-
-        - **numpy.ndarray** - 批处理防御操作的损失。
-
-        **异常：**
-
-        - **ValueError** - batch_size为0。
-    
-    .. py:method:: defense(inputs, labels)
-
-        带样本的防御模型。
-
-        **参数：**
-
-        - **inputs** (numpy.ndarray) - 生成对抗样本的原始样本。
-        - **labels** (numpy.ndarray) - 输入样本的标签。
-
-        **异常：**
-
-        - **NotImplementedError** - 抽象方法未实现。
-        
 .. py:class:: mindarmour.ConceptDriftCheckTimeSeries(window_size=100, rolling_window=10, step=10, threshold_index=1.5, need_label=False)
 
     概念漂移检查时间序列（ConceptDriftCheckTimeSeries）用于样本序列分布变化检测。
 
-    有关详细信息，请查看：`教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/concept_drift_time_series.html>`_.
+    有关详细信息，请查看： `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/concept_drift_time_series.html>`_。
 
     **参数：**
 
@@ -326,61 +379,3 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
         - **numpy.ndarray** - 样本序列的概念漂移分数。
         - **float** - 判断概念漂移的阈值。
         - **list** - 概念漂移的位置。
-
-.. py::class:: mindarmour.Fuzzer(target_model)
-
-    深度神经网络的模糊测试框架。
-
-    参考文献：`DeepHunter: A Coverage-Guided Fuzz Testing Framework for Deep Neural Networks <https://dl.acm.org/doi/10.1145/3293882.3330579>`_。
-
-    **参数：**
-
-    - **target_model** (Model) - 目标模糊模型。
-
-    .. py:method:: fuzzing(mutate_config, initial_seeds, coverage, evaluate=True, max_iters=10000, mutate_num_per_seed=20)
-        深度神经网络的模糊测试。
-
-         **参数：**
-
-        - **mutate_config** (list) - 变异方法配置。格式为:
-            .. code-block:: python
-                mutate_config = 
-                    [{'method': 'GaussianBlur',
-                      'params': {'ksize': [1, 2, 3, 5], 'auto_param': [True, False]}},
-                     {'method': 'UniformNoise',
-                      'params': {'factor': [0.1, 0.2, 0.3], 'auto_param': [False, True]}},
-                     {'method': 'GaussianNoise',
-                      'params': {'factor': [0.1, 0.2, 0.3], 'auto_param': [False, True]}},
-                     {'method': 'Contrast',
-                      'params': {'alpha': [0.5, 1, 1.5], 'beta': [-10, 0, 10], 'auto_param': [False, True]}},
-                     {'method': 'Rotate',
-                      'params': {'angle': [20, 90], 'auto_param': [False, True]}},
-                     {'method': 'FGSM',
-                      'params': {'eps': [0.3, 0.2, 0.4], 'alpha': [0.1], 'bounds': [(0, 1)]}}]
-                    ...]
-
-        - 支持的方法在列表 `self._strategies` 中，每个方法的参数必须在可选参数的范围内。支持的方法分为两种类型：
-        - 首先，自然鲁棒性方法包括：'Translate', 'Scale'、'Shear'、'Rotate'、'Perspective'、'Curve'、'GaussianBlur'、'MotionBlur'、'GradientBlur'、'Contrast'、'GradientLuminance'、'UniformNoise'、'GaussianNoise'、'SaltAndPepperNoise'、'NaturalNoise'。
-        - 其次，对抗样本攻击方式包括：'FGSM'、'PGD'和'MDIM'。'FGSM'、'PGD'和'MDIM'分别是 FastGradientSignMethod、ProjectedGradientDent和MomentumDiverseInputIterativeMethod的缩写。 `mutate_config` 必须包含在['Contrast', 'GradientLuminance', 'GaussianBlur', 'MotionBlur', 'GradientBlur', 'UniformNoise', 'GaussianNoise', 'SaltAndPepperNoise', 'NaturalNoise']中的方法。
-        
-        - 第一类方法的参数设置方式可以在 `mindarmour/natural_robustness/transform/image <https://gitee.com/mindspore/mindarmour/tree/master/mindarmour/natural_robustness/transform/image>`_ 中看到。第二类方法参数配置参考 `self._attack_param_checklists` 。
-        - **initial_seeds** (list[list]) - 用于生成变异样本的初始种子队列。初始种子队列的格式为[[image_data, label], [...], ...]，且标签必须为one-hot。
-        - **coverage** (CoverageMetrics) - 神经元覆盖率指标类。
-        - **evaluate** (bool) - 是否返回评估报告。默认值：True。
-        - **max_iters** (int) - 选择要变异的种子的最大数量。默认值：10000。
-        - **mutate_num_per_seed** (int) - 每个种子的最大变异次数。默认值：20。
-
-        **返回：**
-
-        - **list** - 模糊测试生成的变异样本。
-        - **list** - 变异样本的ground truth标签。
-        - **list** - 预测结果。
-        - **list** - 变异策略。
-        - **dict** - Fuzzer的指标报告。
-
-        **异常：**
-
-        - **ValueError** - 参数'Coverage'必须是CoverageMetrics的子类。
-        - **ValueError** - 初始种子队列为空。
-        - **ValueError** - 初始种子队列中的种子不是包含两个元素。
-        

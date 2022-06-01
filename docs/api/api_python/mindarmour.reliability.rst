@@ -3,20 +3,19 @@ mindarmour.reliability
 
 MindArmour的可靠性方法。
 
-..py:class:: mindarmour.reliability.FaultInjector(model, fi_type=None, fi_mode=None, fi_size=None)
+.. py:class:: mindarmour.reliability.FaultInjector(model, fi_type=None, fi_mode=None, fi_size=None)
 
     故障注入模块模拟深度神经网络的各种故障场景，并评估模型的性能和可靠性。
 
-    详情请查看 `教程<https://mindspore.cn/mindarmour/docs/zh-CN/master/fault_injection.html>`_。
+    详情请查看 `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/fault_injection.html>`_。
 
     **参数：**
 
     - **model** (Model) - 需要评估模型。
-    - **fi_type** (list) - 故障注入的类型，包括bitflips_random（随机翻转）、bitflips_designated（翻转关键位）、random、zeros、na- **n、inf、anti_activation precision_loss等。
+    - **fi_type** (list) - 故障注入的类型，包括bitflips_random（随机翻转）、bitflips_designated（翻转关键位）、random、zeros、nan、inf、anti_activation precision_loss等。
     - **fi_mode** (list) - 故障注入的模式。仅在单层或所有层上注入故障。
     - **fi_size** (list) - 故障注入的次数，表示需要注入多少值。
 
-    
     .. py:method:: kick_off(ds_data, ds_label, iter_times=100)
 
         故障注入后启动并返回最终结果。
@@ -30,7 +29,7 @@ MindArmour的可靠性方法。
         **返回：**
 
         - **list** - 故障注入的结果。
-    
+
     .. py:method:: metrics()
 
         最终结果的指标。
@@ -39,7 +38,36 @@ MindArmour的可靠性方法。
 
         - **list** - 结果总结。
 
-..py:class:: mindarmour.reliability.OodDetector(model, ds_train)
+.. py:class:: mindarmour.reliability.ConceptDriftCheckTimeSeries(window_size=100, rolling_window=10, step=10, threshold_index=1.5, need_label=False)
+
+    概念漂移检查时间序列（ConceptDriftCheckTimeSeries）用于样本序列分布变化检测。
+    有关详细信息，请查看 `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/concept_drift_time_series.html>`_。
+
+    **参数：**
+
+    - **window_size** (int) - 概念窗口的大小，不小于10。如果给定输入数据，window_size在[10, 1/3*len(input_data)]中。
+      如果数据是周期性的，通常window_size等于2-5个周期。例如，对于月/周数据，30/7天的数据量是一个周期。默认值：100。
+    - **rolling_window** (int) - 平滑窗口大小，在[1, window_size]中。默认值：10。
+    - **step** (int) - 滑动窗口的跳跃长度，在[1, window_size]中。默认值：10。
+    - **threshold_index** (float) - 阈值索引，:math:`(-\infty, +\infty)` 。默认值：1.5。
+    - **need_label** (bool) - False或True。如果need_label=True，则需要概念漂移标签。默认值：False。
+
+    .. py:method:: concept_check(data)
+
+        在数据系列中查找概念漂移位置。
+
+        **参数：**
+
+        - **data** (numpy.ndarray) - 输入数据。数据的shape可以是(n,1)或(n,m)。
+          请注意，每列（m列）是一个数据序列。
+
+        **返回：**
+
+        - **numpy.ndarray** - 样本序列的概念漂移分数。
+        - **float** - 判断概念漂移的阈值。
+        - **list** - 概念漂移的位置。
+
+.. py:class:: mindarmour.reliability.OodDetector(model, ds_train)
 
     分布外检测器的抽象类。
 
@@ -73,52 +101,32 @@ MindArmour的可靠性方法。
         **返回：**
 
         - **numpy.ndarray** - 检测结果。0表示数据不是ood，1表示数据是ood。
-        
-    
-..py:class:: mindarmour.reliability.ConceptDriftCheckTimeSeries(window_size=100, rolling_window=10, step=10, threshold_index=1.5, need_label=False)
 
-    概念漂移检查时间序列（ConceptDriftCheckTimeSeries）用于样本序列分布变化检测。
-    有关详细信息，请查看`教程<https://mindspore.cn/mindarmour/docs/zh-CN/master/concept_drift_time_series.html>`_。
-
-    **参数：**
-
-    - **window_size** (int) - 概念窗口的大小，不小于10。如果给定输入数据，window_size在[10, 1/3*len(input_data)]中。
-    如果数据是周期性的，通常window_size等于2-5个周期。例如，对于月/周数据，30/7天的数据量是一个周期。默认值：100。
-    - **rolling_window** (int) - 平滑窗口大小，在[1, window_size]中。默认值：10。
-    - **step** (int) - 滑动窗口的跳跃长度，在[1, window_size]中。默认值：10。
-    - **threshold_index** (float) - 阈值索引，:math:`(-\infty, +\infty)` 。默认值：1.5。
-    - **need_label** (bool) - False或True。如果need_label=True，则需要概念漂移标签。默认值：False。
-
-    .. py:method:: concept_check(data)
-
-        在数据系列中查找概念漂移位置。
-
-        **参数：**
-
-        - **data** (numpy.ndarray) - 输入数据。数据的shape可以是(n,1)或(n,m)。
-        请注意，每列（m列）是一个数据序列。
-
-        **返回：**
-
-        - **numpy.ndarray** - 样本序列的概念漂移分数。
-        - **float** - 判断概念漂移的阈值。
-        - **list** - 概念漂移的位置。
-
-
-..py:class:: mindarmour.reliability.OodDetectorFeatureCluster(model, ds_train, n_cluster, layer)
+.. py:class:: mindarmour.reliability.OodDetectorFeatureCluster(model, ds_train, n_cluster, layer)
 
     训练OOD检测器。提取训练数据特征，得到聚类中心。测试数据特征与聚类中心之间的距离确定图像是否为分布外（OOD）图像。
 
-    有关详细信息，请查看`教程<https://mindspore.cn/mindarmour/docs/zh-CN/master/concept_drift_images.html>`_。
+    有关详细信息，请查看 `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/concept_drift_images.html>`_。
 
     **参数：**
 
     - **model** (Model) - 训练模型。
     - **ds_train** (numpy.ndarray) - 训练数据集。
     - **n_cluster** (int) - 聚类编号。取值属于[2,100]。
-    通常，n_cluster等于训练数据集的类号。如果OOD检测器在测试数据集中性能较差，我们可以适当增加n_cluster的值。
+      通常，n_cluster等于训练数据集的类号。如果OOD检测器在测试数据集中性能较差，我们可以适当增加n_cluster的值。
     - **layer** (str) - 特征层的名称。layer (str)由'name[:Tensor]'表示，其中'name'由用户在训练模型时给出。
-    请查看有关如何在'README.md'中命名模型层的更多详细信息。
+      请查看有关如何在'README.md'中命名模型层的更多详细信息。
+
+    .. py:method:: get_optimal_threshold(label, ds_eval)
+
+        **参数：**
+
+        - **label** (numpy.ndarray) - 区分图像是否为分布内或分布外的标签。
+        - **ds_eval** (numpy.ndarray) - 帮助查找阈值的测试数据集。
+
+        **返回：**
+
+        - **float** - 最佳阈值。
 
     .. py:method:: ood_predict(threshold, ds_test)
 
@@ -131,17 +139,4 @@ MindArmour的可靠性方法。
 
         **返回：**
 
-           - **numpy.ndarray** - 检测结果。0表示数据不是ood，1表示数据是ood。
-
-    .. py:method:: get_optimal_threshold(label, ds_eval)
-
-
-        **参数：**
-
-        - **label** (numpy.ndarray) - 区分图像是否为分布内或分布外的标签。
-        - **ds_eval** (numpy.ndarray) - 帮助查找阈值的测试数据集。
-
-        **返回：**
-
-        - **float** - 最佳阈值。
-    
+        - **numpy.ndarray** - 检测结果。0表示数据不是ood，1表示数据是ood。
