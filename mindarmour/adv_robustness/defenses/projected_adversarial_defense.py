@@ -38,7 +38,8 @@ class ProjectedAdversarialDefense(AdversarialDefenseWithAttacks):
             Default:0.1.
         nb_iter (int): PGD attack parameters, number of iteration.
             Default: 5.
-        norm_level (str): Norm type. 'inf' or 'l2'. Default: 'inf'.
+        norm_level (Union[int, char, numpy.inf]): Norm type. 1, 2, np.inf, 'l1', 'l2', 'np.inf' or 'inf'.
+            Default: 'inf'.
 
     Examples:
         >>> from mindspore.nn.optim.momentum import Momentum

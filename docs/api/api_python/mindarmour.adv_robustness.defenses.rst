@@ -104,4 +104,4 @@ mindarmour.adv_robustness.defenses
     - **eps** (float) - PGD攻击参数epsilon。默认值：0.3。
     - **eps_iter** (int) - PGD攻击参数，内环epsilon。默认值：0.1。
     - **nb_iter** (int) - PGD攻击参数，迭代次数。默认值：5。
-    - **norm_level** (str) - 范数类型。'inf'或'l2'。默认值：'inf'。
+    - **norm_level** (Union[int, char, numpy.inf]) - 范数类型。可选值：1、2、np.inf、'l1'、'l2'、'np.inf' 或 'inf'。默认值：'inf'。
