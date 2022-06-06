@@ -187,19 +187,19 @@ mindarmour.privacy.diff_privacy
 
     .. py:method:: max_epoch_suggest()
 
-    估计最大训练epoch，以满足预定义的隐私预算。
+        估计最大训练epoch，以满足预定义的隐私预算。
 
-    **返回：**
+        **返回：**
 
-    - **int** - 建议的最大训练epoch。
+        - **int** - 建议的最大训练epoch。
 
     .. py:method:: step_end(run_context)
 
-    在每个训练步骤后计算隐私预算。
+        在每个训练步骤后计算隐私预算。
 
-    **参数：**
+        **参数：**
 
-    - **run_context** (RunContext) - 包含模型的一些信息。
+        - **run_context** (RunContext) - 包含模型的一些信息。
 
 
 
@@ -220,7 +220,7 @@ mindarmour.privacy.diff_privacy
 
     - **num_samples** (int) - 训练数据集中的样本总数。
     - **batch_size** (int) - 训练时批处理中的样本数。
-    - **initial_noise_multiplier(Union[float, int]) - 高斯噪声标准偏差除以norm_bound的比率，将用于计算隐私预算。默认值：1.5。
+    - **initial_noise_multiplier** (Union[float, int]) - 高斯噪声标准偏差除以norm_bound的比率，将用于计算隐私预算。默认值：1.5。
     - **max_eps** (Union[float, int]) - DP训练的最大可接受epsilon预算，用于估计最大训练epoch。默认值：10.0。
     - **target_delta** (Union[float, int]) - DP训练的目标delta预算。如果target_delta设置为δ，则隐私预算δ将在整个训练过程中是固定的。默认值：1e-3。
     - **noise_decay_mode** (Union[None, str]) - 训练时添加噪音的衰减模式，可以是None、'Time'、'Step'、'Exp'。默认值：'Time'。
