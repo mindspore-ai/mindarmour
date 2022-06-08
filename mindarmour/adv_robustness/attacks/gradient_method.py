@@ -149,9 +149,8 @@ class FastGradientMethod(GradientMethod):
             is already equipped with loss function. Default: None.
 
     Examples:
-        >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
         >>> from mindarmour.adv_robustness.attacks import FastGradientMethod
-        >>> class Net(Cell):
+        >>> class Net(nn.Cell):
         ...     def __init__(self):
         ...         super(Net, self).__init__()
         ...         self._relu = nn.ReLU()
@@ -162,7 +161,7 @@ class FastGradientMethod(GradientMethod):
         >>> labels = np.asarray([2],np.int32)
         >>> labels = np.eye(3)[labels].astype(np.float32)
         >>> net = Net()
-        >>> attack = FastGradientMethod(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
+        >>> attack = FastGradientMethod(net, loss_fn=nn.SoftmaxCrossEntropyWithLogits(sparse=False))
         >>> adv_x = attack.generate(inputs, labels)
     """
 
@@ -230,9 +229,8 @@ class RandomFastGradientMethod(FastGradientMethod):
         ValueError: eps is smaller than alpha!
 
     Examples:
-        >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
         >>> from mindarmour.adv_robustness.attacks import RandomFastGradientMethod
-        >>> class Net(Cell):
+        >>> class Net(nn.Cell):
         ...     def __init__(self):
         ...         super(Net, self).__init__()
         ...         self._relu = nn.ReLU()
@@ -243,7 +241,7 @@ class RandomFastGradientMethod(FastGradientMethod):
         >>> inputs = np.asarray([[0.1, 0.2, 0.7]], np.float32)
         >>> labels = np.asarray([2],np.int32)
         >>> labels = np.eye(3)[labels].astype(np.float32)
-        >>> attack = RandomFastGradientMethod(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
+        >>> attack = RandomFastGradientMethod(net, loss_fn=nn.SoftmaxCrossEntropyWithLogits(sparse=False))
         >>> adv_x = attack.generate(inputs, labels)
     """
 
@@ -283,9 +281,8 @@ class FastGradientSignMethod(GradientMethod):
             is already equipped with loss function. Default: None.
 
     Examples:
-        >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
         >>> from mindarmour.adv_robustness.attacks import FastGradientSignMethod
-        >>> class Net(Cell):
+        >>> class Net(nn.Cell):
         ...     def __init__(self):
         ...         super(Net, self).__init__()
         ...         self._relu = nn.ReLU()
@@ -296,7 +293,7 @@ class FastGradientSignMethod(GradientMethod):
         >>> inputs = np.asarray([[0.1, 0.2, 0.7]], np.float32)
         >>> labels = np.asarray([2],np.int32)
         >>> labels = np.eye(3)[labels].astype(np.float32)
-        >>> attack = FastGradientSignMethod(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
+        >>> attack = FastGradientSignMethod(net, loss_fn=nn.SoftmaxCrossEntropyWithLogits(sparse=False))
         >>> adv_x = attack.generate(inputs, labels)
     """
 
@@ -361,9 +358,8 @@ class RandomFastGradientSignMethod(FastGradientSignMethod):
         ValueError: eps is smaller than alpha!
 
     Examples:
-        >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
         >>> from mindarmour.adv_robustness.attacks import RandomFastGradientSignMethod
-        >>> class Net(Cell):
+        >>> class Net(nn.Cell):
         ...     def __init__(self):
         ...         super(Net, self).__init__()
         ...         self._relu = nn.ReLU()
@@ -374,7 +370,7 @@ class RandomFastGradientSignMethod(FastGradientSignMethod):
         >>> inputs = np.asarray([[0.1, 0.2, 0.7]], np.float32)
         >>> labels = np.asarray([2],np.int32)
         >>> labels = np.eye(3)[labels].astype(np.float32)
-        >>> attack = RandomFastGradientSignMethod(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
+        >>> attack = RandomFastGradientSignMethod(net, loss_fn=nn.SoftmaxCrossEntropyWithLogits(sparse=False))
         >>> adv_x = attack.generate(inputs, labels)
     """
 
@@ -410,9 +406,8 @@ class LeastLikelyClassMethod(FastGradientSignMethod):
             is already equipped with loss function. Default: None.
 
     Examples:
-        >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
         >>> from mindarmour.adv_robustness.attacks import LeastLikelyClassMethod
-        >>> class Net(Cell):
+        >>> class Net(nn.Cell):
         ...     def __init__(self):
         ...         super(Net, self).__init__()
         ...         self._relu = nn.ReLU()
@@ -423,7 +418,7 @@ class LeastLikelyClassMethod(FastGradientSignMethod):
         >>> labels = np.asarray([2],np.int32)
         >>> labels = np.eye(3)[labels].astype(np.float32)
         >>> net = Net()
-        >>> attack = LeastLikelyClassMethod(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
+        >>> attack = LeastLikelyClassMethod(net, loss_fn=nn.SoftmaxCrossEntropyWithLogits(sparse=False))
         >>> adv_x = attack.generate(inputs, labels)
     """
 
@@ -462,9 +457,8 @@ class RandomLeastLikelyClassMethod(FastGradientSignMethod):
         ValueError: eps is smaller than alpha!
 
     Examples:
-        >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
         >>> from mindarmour.adv_robustness.attacks import RandomLeastLikelyClassMethod
-        >>> class Net(Cell):
+        >>> class Net(nn.Cell):
         ...     def __init__(self):
         ...         super(Net, self).__init__()
         ...         self._relu = nn.ReLU()
@@ -475,7 +469,7 @@ class RandomLeastLikelyClassMethod(FastGradientSignMethod):
         >>> labels = np.asarray([2],np.int32)
         >>> labels = np.eye(3)[labels].astype(np.float32)
         >>> net = Net()
-        >>> attack = RandomLeastLikelyClassMethod(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
+        >>> attack = RandomLeastLikelyClassMethod(net, loss_fn=nn.SoftmaxCrossEntropyWithLogits(sparse=False))
         >>> adv_x = attack.generate(inputs, labels)
     """
 

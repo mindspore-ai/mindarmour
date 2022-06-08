@@ -70,7 +70,8 @@ class DPModel(Model):
     DPModel is used for constructing a model for differential privacy training.
     This class is overload mindspore.train.model.Model.
 
-    For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_.
+    For details, please check `Protecting User Privacy with Differential Privacy Mechanism
+    <https://mindspore.cn/mindarmour/docs/en/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_.
 
     Args:
         micro_batches (int): The number of small batches split from an original

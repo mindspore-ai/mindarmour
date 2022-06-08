@@ -54,10 +54,9 @@ class SpatialSmoothing(Detector):
 
     Examples:
         >>> import mindspore.ops.operations as P
-        >>> from mindspore.nn import Cell
         >>> from mindspore import Model
         >>> from mindarmour.adv_robustness.detectors import SpatialSmoothing
-        >>> class Net(Cell):
+        >>> class Net(nn.Cell):
         ...     def __init__(self):
         ...         super(Net, self).__init__()
         ...         self._softmax = P.Softmax()

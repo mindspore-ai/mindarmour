@@ -56,9 +56,8 @@ class JSMAAttack(Attack):
             input labels are onehot-coded. Default: True.
 
     Examples:
-        >>> from mindspore.nn import Cell
         >>> from mindarmour.adv_robustness.attacks import JSMAAttack
-        >>> class Net(Cell):
+        >>> class Net(nn.Cell):
         ...     def __init__(self):
         ...         super(Net, self).__init__()
         ...         self._relu = nn.ReLU()

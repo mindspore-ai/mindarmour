@@ -179,9 +179,8 @@ class BasicIterativeMethod(IterativeGradientMethod):
 
     Examples:
         >>> from mindspore.ops import operations as P
-        >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
         >>> from mindarmour.adv_robustness.attacks import BasicIterativeMethod
-        >>> class Net(Cell):
+        >>> class Net(nn.Cell):
         ...     def __init__(self):
         ...         super(Net, self).__init__()
         ...         self._softmax = P.Softmax()
@@ -189,7 +188,7 @@ class BasicIterativeMethod(IterativeGradientMethod):
         ...         out = self._softmax(inputs)
         ...         return out
         >>> net = Net()
-        >>> attack = BasicIterativeMethod(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
+        >>> attack = BasicIterativeMethod(net, loss_fn=nn.SoftmaxCrossEntropyWithLogits(sparse=False))
         >>> inputs = np.asarray([[0.1, 0.2, 0.7]], np.float32)
         >>> labels = np.asarray([2],np.int32)
         >>> labels = np.eye(3)[labels].astype(np.float32)
@@ -284,9 +283,8 @@ class MomentumIterativeMethod(IterativeGradientMethod):
 
     Examples:
         >>> from mindspore.ops import operations as P
-        >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
         >>> from mindarmour.adv_robustness.attacks import MomentumIterativeMethod
-        >>> class Net(Cell):
+        >>> class Net(nn.Cell):
         ...     def __init__(self):
         ...         super(Net, self).__init__()
         ...         self._softmax = P.Softmax()
@@ -294,7 +292,7 @@ class MomentumIterativeMethod(IterativeGradientMethod):
         ...         out = self._softmax(inputs)
         ...         return out
         >>> net = Net()
-        >>> attack = MomentumIterativeMethod(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
+        >>> attack = MomentumIterativeMethod(net, loss_fn=nn.SoftmaxCrossEntropyWithLogits(sparse=False))
         >>> inputs = np.asarray([[0.1, 0.2, 0.7]], np.float32)
         >>> labels = np.asarray([2],np.int32)
         >>> labels = np.eye(3)[labels].astype(np.float32)
@@ -428,9 +426,8 @@ class ProjectedGradientDescent(BasicIterativeMethod):
 
     Examples:
         >>> from mindspore.ops import operations as P
-        >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
         >>> from mindarmour.adv_robustness.attacks import ProjectedGradientDescent
-        >>> class Net(Cell):
+        >>> class Net(nn.Cell):
         ...     def __init__(self):
         ...         super(Net, self).__init__()
         ...         self._softmax = P.Softmax()
@@ -438,7 +435,7 @@ class ProjectedGradientDescent(BasicIterativeMethod):
         ...         out = self._softmax(inputs)
         ...         return out
         >>> net = Net()
-        >>> attack = ProjectedGradientDescent(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
+        >>> attack = ProjectedGradientDescent(net, loss_fn=nn.SoftmaxCrossEntropyWithLogits(sparse=False))
         >>> inputs = np.asarray([[0.1, 0.2, 0.7]], np.float32)
         >>> labels = np.asarray([2],np.int32)
         >>> labels = np.eye(3)[labels].astype(np.float32)
@@ -526,9 +523,8 @@ class DiverseInputIterativeMethod(BasicIterativeMethod):
 
     Examples:
         >>> from mindspore.ops import operations as P
-        >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
         >>> from mindarmour.adv_robustness.attacks import DiverseInputIterativeMethod
-        >>> class Net(Cell):
+        >>> class Net(nn.Cell):
         ...     def __init__(self):
         ...         super(Net, self).__init__()
         ...         self._softmax = P.Softmax()
@@ -536,7 +532,7 @@ class DiverseInputIterativeMethod(BasicIterativeMethod):
         ...         out = self._softmax(inputs)
         ...         return out
         >>> net = Net()
-        >>> attack = DiverseInputIterativeMethod(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
+        >>> attack = DiverseInputIterativeMethod(net, loss_fn=nn.SoftmaxCrossEntropyWithLogits(sparse=False))
         >>> inputs = np.asarray([[0.1, 0.2, 0.7]], np.float32)
         >>> labels = np.asarray([2],np.int32)
         >>> labels = np.eye(3)[labels].astype(np.float32)
@@ -584,9 +580,8 @@ class MomentumDiverseInputIterativeMethod(MomentumIterativeMethod):
 
     Examples:
         >>> from mindspore.ops import operations as P
-        >>> from mindspore.nn import Cell, SoftmaxCrossEntropyWithLogits
         >>> from mindarmour.adv_robustness.attacks import MomentumDiverseInputIterativeMethod
-        >>> class Net(Cell):
+        >>> class Net(nn.Cell):
         ...     def __init__(self):
         ...         super(Net, self).__init__()
         ...         self._softmax = P.Softmax()
@@ -594,7 +589,7 @@ class MomentumDiverseInputIterativeMethod(MomentumIterativeMethod):
         ...         out = self._softmax(inputs)
         ...         return out
         >>> net = Net()
-        >>> attack = MomentumDiverseInputIterativeMethod(net, loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
+        >>> attack = MomentumDiverseInputIterativeMethod(net, loss_fn=nn.SoftmaxCrossEntropyWithLogits(sparse=False))
         >>> inputs = np.asarray([[0.1, 0.2, 0.7]], np.float32)
         >>> labels = np.asarray([2],np.int32)
         >>> labels = np.eye(3)[labels].astype(np.float32)

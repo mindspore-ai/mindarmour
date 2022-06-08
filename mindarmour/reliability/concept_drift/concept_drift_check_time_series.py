@@ -23,7 +23,8 @@ from mindarmour.utils._check_param import check_param_type, check_param_in_range
 class ConceptDriftCheckTimeSeries:
     r"""
     ConceptDriftCheckTimeSeries is used for example series distribution change detection.
-    For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/concept_drift_time_series.html>`_.
+    For details, please check `Implementing the Concept Drift Detection Application of Time Series Data
+    <https://mindspore.cn/mindarmour/docs/en/master/concept_drift_time_series.html>`_.
 
     Args:
         window_size(int): Size of a concept window, no less than 10. If given the input data,

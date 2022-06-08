@@ -98,7 +98,8 @@ class MembershipInference:
     for inferring user's privacy data. It requires loss or logits results of the training samples.
     (Privacy refers to some sensitive attributes of a single user).
 
-    For details, please refer to the `Tutorial <https://mindspore.cn/mindarmour/docs/en/master/test_model_security_membership_inference.html>`_.
+    For details, please refer to the `Using Membership Inference to Test Model Security
+    <https://mindspore.cn/mindarmour/docs/en/master/test_model_security_membership_inference.html>`_.
 
     References: `Reza Shokri, Marco Stronati, Congzheng Song, Vitaly Shmatikov.
     Membership Inference Attacks against Machine Learning Models. 2017.

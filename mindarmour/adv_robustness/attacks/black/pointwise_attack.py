@@ -49,8 +49,19 @@ class PointWiseAttack(Attack):
     Examples:
         >>> from mindspore import Tensor
         >>> from mindarmour import BlackModel
+        >>> import mindspore.ops.operations as P
         >>> from mindarmour.adv_robustness.attacks import PointWiseAttack
-        >>> from tests.ut.python.utils.mock_net import Net
+        >>> class Net(nn.Cell):
+        ...     def __init__(self):
+        ...         super(Net, self).__init__()
+        ...         self._softmax = P.Softmax()
+        ...         self._reduce = P.ReduceSum()
+        ...         self._squeeze = P.Squeeze(1)
+        ...     def construct(self, inputs):
+        ...         out = self._softmax(inputs)
+        ...         out = self._reduce(out, 2)
+        ...         out = self._squeeze(out)
+        ...         return out
         >>> class ModelToBeAttacked(BlackModel):
         ...     def __init__(self, network):
         ...         super(ModelToBeAttacked, self).__init__()
