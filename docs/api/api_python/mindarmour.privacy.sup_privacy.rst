@@ -123,7 +123,6 @@ mindarmour.privacy.sup_privacy
 
         将用于加法运算的掩码数组设置为0。
 
-
     .. py:method:: update_mask(networks, cur_step, target_sparse=0.0)
 
         对整个模型的用于加法运算和乘法运算的掩码数组进行更新。
@@ -150,7 +149,7 @@ mindarmour.privacy.sup_privacy
 
         对单层的用于加法运算和乘法运算的掩码数组进行更新。
 
-        禁用clipping lower、clipping、adding noise操作
+        禁用clipping lower、clipping、adding noise操作。
 
         **参数：**
 
