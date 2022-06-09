@@ -291,7 +291,7 @@ mindarmour.adv_robustness.attacks
 
         - **NotImplementedError** - norm_level不在[2, np.inf, '2', 'inf']中。
 
-.. py:class:: mindarmour.adv_robustness.attacks.CarliniWagnerL2Attack(network, num_classes, box_min=0.0, box_max=1.0, bin_search_steps=5, max_iterations=1000, confidence=0, learning_rate=0.005, initial_const=0.01, abort_early_check_ratio=0.05, targeted=False, fast=True, abort_early=True, sparse=True)
+.. py:class:: mindarmour.adv_robustness.attacks.CarliniWagnerL2Attack(network, num_classes, box_min=0.0, box_max=1.0, bin_search_steps=5, max_iterations=1000, confidence=0, learning_rate=5e-3, initial_const=1e-2, abort_early_check_ratio=5e-2, targeted=False, fast=True, abort_early=True, sparse=True)
 
     使用L2范数的Carlini & Wagner攻击通过分别利用两个损失生成对抗样本：“对抗损失”可使生成的示例实际上是对抗性的，“距离损失”可以限制对抗样本的质量。
 
@@ -304,7 +304,7 @@ mindarmour.adv_robustness.attacks
     - **box_min** (float) - 目标模型输入的下界。默认值：0。
     - **box_max** (float) - 目标模型输入的上界。默认值：1.0。
     - **bin_search_steps** (int) - 用于查找距离和置信度之间的最优代价常数的二进制搜索的步数。默认值：5。
-    - **max_itrations** (int) - 最大迭代次数，应大于零。默认值：1000。
+    - **max_iterations** (int) - 最大迭代次数，应大于零。默认值：1000。
     - **confidence** (float) - 对抗样本输出的置信度。默认值：0。
     - **learning_rate** (float) - 攻击算法的学习率。默认值：5e-3。
     - **initial_const** (float) - 用于平衡扰动范数和置信度差异的相对重要性的初始折衷常数。默认值：1e-2。
@@ -359,7 +359,7 @@ mindarmour.adv_robustness.attacks
 
         - **numpy.ndarray** - 对抗样本。
 
-.. py:class:: mindarmour.adv_robustness.attacks.LBFGS(network, eps=1e-05, bounds=(0.0, 1.0), is_targeted=True, nb_iter=150, search_iters=30, loss_fn=None, sparse=False)
+.. py:class:: mindarmour.adv_robustness.attacks.LBFGS(network, eps=1e-5, bounds=(0.0, 1.0), is_targeted=True, nb_iter=150, search_iters=30, loss_fn=None, sparse=False)
 
     在L-BFGS-B攻击中，使用有限内存BFGS优化算法来最小化输入与对抗样本之间的距离。
 
@@ -389,7 +389,7 @@ mindarmour.adv_robustness.attacks
 
         - **numpy.ndarray** - 生成的对抗样本。
 
-.. py:class:: mindarmour.adv_robustness.attacks.GeneticAttack(model, model_type='classification', targeted=True, reserve_ratio=0.3, sparse=True, pop_size=6, mutation_rate=0.005, per_bounds=0.15, max_steps=1000, step_size=0.2, temp=0.3, bounds=(0, 1.0), adaptive=False, c=0.1)
+.. py:class:: mindarmour.adv_robustness.attacks.GeneticAttack(model, model_type='classification', targeted=True, reserve_ratio=0.3, sparse=True, pop_size=6, mutation_rate=0.005, per_bounds=0.15, max_steps=1000, step_size=0.20, temp=0.3, bounds=(0, 1.0), adaptive=False, c=0.1)
 
     遗传攻击（Genetic Attack）表示基于遗传算法的黑盒攻击，属于差分进化算法。
 
@@ -478,7 +478,7 @@ mindarmour.adv_robustness.attacks
 
         - **target_images** (numpy.ndarray) - 目标图像。
 
-.. py:class:: mindarmour.adv_robustness.attacks.NES(model, scene, max_queries=10000, top_k=-1, num_class=10, batch_size=128, epsilon=0.3, samples_per_draw=128, momentum=0.9, learning_rate=0.001, max_lr=0.05, min_lr=0.0005, sigma=0.001, plateau_length=20, plateau_drop=2.0, adv_thresh=0.25, zero_iters=10, starting_eps=1.0, starting_delta_eps=0.5, label_only_sigma=0.001, conservative=2, sparse=True)
+.. py:class:: mindarmour.adv_robustness.attacks.NES(model, scene, max_queries=10000, top_k=-1, num_class=10, batch_size=128, epsilon=0.3, samples_per_draw=128, momentum=0.9, learning_rate=1e-3, max_lr=0.05, min_lr=5e-4, sigma=1e-3, plateau_length=20, plateau_drop=2.0, adv_thresh=0.25, zero_iters=10, starting_eps=1.0, starting_delta_eps=0.5, label_only_sigma=0.001, conservative=2, sparse=True)
 
     该类是自然进化策略（Natural Evolutionary Strategies，NES）攻击法的实现。NES使用自然进化策略来估计梯度，以提高查询效率。NES包括三个设置：Query-Limited设置、Partial-Information置和Label-Only设置。在query-limit设置中，攻击对目标模型的查询数量有限，但可以访问所有类的概率。在partial-info设置中，攻击仅有权访问top-k类的概率。
     在label-only设置中，攻击只能访问按其预测概率排序的k个推断标签列表。在Partial-Information设置和Label-Only设置中，NES会进行目标攻击，因此用户需要使用set_target_images方法来设置目标类的目标图像。
@@ -550,7 +550,7 @@ mindarmour.adv_robustness.attacks
 
     - **model** (BlackModel) - 目标模型。
     - **max_iter** (int) - 生成对抗图像的最大迭代轮数。默认值：1000。
-    - **search_ter** (int) - 二进制搜索的最大轮数。默认值：10。
+    - **search_iter** (int) - 二进制搜索的最大轮数。默认值：10。
     - **is_targeted** (bool) - 如果为True，则为目标攻击。如果为False，则为无目标攻击。默认值：False。
     - **init_attack** (Attack) - 用于查找起点的攻击。默认值：None。
     - **sparse** (bool) - 如果为True，则输入标签为稀疏编码。如果为False，则输入标签为onehot编码。默认值：True。
