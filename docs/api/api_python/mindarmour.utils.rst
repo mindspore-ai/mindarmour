@@ -1,7 +1,7 @@
 mindarmour.utils
 ================
 
-MindArmour的工具方法，包含日志记录和网络包装。
+MindArmour的工具方法。
 
 .. py:class:: mindarmour.utils.LogUtil
 
@@ -119,8 +119,8 @@ MindArmour的工具方法，包含日志记录和网络包装。
         **参数：**
 
         - **data** (Tensor) - 数据由输入和权重组成。
-        - **inputs** - 网络的输入。
-        - **weight** - 每个梯度的权重，'weight'与'inputs'的维度相同。
+          - inputs: 网络的输入。
+          - weight: 每个梯度的权重，'weight'与'labels'的shape相同。
 
         **返回：**
 

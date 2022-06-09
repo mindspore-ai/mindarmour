@@ -71,7 +71,7 @@ mindarmour.privacy.diff_privacy
 
     - **Tensor** - 更新后的梯度裁剪阈值。
 
-    .. py:method:: AdaClippingWithGaussianRandom.construct(empirical_fraction, norm_bound)
+    .. py:method:: construct(empirical_fraction, norm_bound)
 
         更新norm_bound的值。
 
@@ -86,9 +86,7 @@ mindarmour.privacy.diff_privacy
 
 .. py:class:: mindarmour.privacy.diff_privacy.NoiseMechanismsFactory
 
-    噪声机制的工厂类
-
-    噪声产生机制的包装器。它目前支持高斯随机噪声（Gaussian Random Noise）和自适应高斯随机噪声（Adaptive Gaussian Random Noise）。
+    噪声产生机制的工厂类。它目前支持高斯随机噪声（Gaussian Random Noise）和自适应高斯随机噪声（Adaptive Gaussian Random Noise）。
 
     详情请查看： `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_。
 
@@ -113,12 +111,11 @@ mindarmour.privacy.diff_privacy
 
 .. py:class:: mindarmour.privacy.diff_privacy.ClipMechanismsFactory
 
-    剪裁机制的工厂类
-    噪声生成机制的裁剪包装器。它目前支持高斯随机噪声（Gaussian Random Noise）的自适应剪裁（Adaptive Clipping）。
+    梯度剪裁机制的工厂类。它目前支持高斯随机噪声（Gaussian Random Noise）的自适应剪裁（Adaptive Clipping）。
 
     详情请查看： `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_。
 
-    .. py:method:: ClipMechanismsFactory.create(mech_name, decay_policy='Linear', learning_rate=0.001, target_unclipped_quantile=0.9, fraction_stddev=0.01, seed=0)
+    .. py:method:: create(mech_name, decay_policy='Linear', learning_rate=0.001, target_unclipped_quantile=0.9, fraction_stddev=0.01, seed=0)
 
         **参数：**
 
@@ -143,15 +140,15 @@ mindarmour.privacy.diff_privacy
 
     详情请查看： `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_。
 
-    .. py:method:: PrivacyMonitorFactory.create(policy, *args, **kwargs)
+    .. py:method:: create(policy, *args, **kwargs)
 
         创建隐私预算监测类。
 
         **参数：**
 
         - **policy** (str) - 监控策略，现支持'rdp'和'zcdp'。
-        - 如果策略为'rdp'，监控器将根据Renyi差分隐私（Renyi differential privacy，RDP）理论计算DP训练的隐私预算；
-        - 如果策略为'zcdp'，监控器将根据零集中差分隐私（zero-concentrated differential privacy，zCDP）理论计算DP训练的隐私预算。注意，'zcdp'不适合子采样噪声机制。
+          - 如果策略为'rdp'，监控器将根据Renyi差分隐私（Renyi differential privacy，RDP）理论计算DP训练的隐私预算；
+          - 如果策略为'zcdp'，监控器将根据零集中差分隐私（zero-concentrated differential privacy，zCDP）理论计算DP训练的隐私预算。注意，'zcdp'不适合子采样噪声机制。
         - **args** (Union[int, float, numpy.ndarray, list, str]) - 用于创建隐私监视器的参数。
         - **kwargs** (Union[int, float, numpy.ndarray, list, str]) - 用于创建隐私监视器的关键字参数。
 
@@ -200,8 +197,6 @@ mindarmour.privacy.diff_privacy
         **参数：**
 
         - **run_context** (RunContext) - 包含模型的一些信息。
-
-
 
 .. py:class:: mindarmour.privacy.diff_privacy.ZCDPMonitor(num_samples, batch_size, initial_noise_multiplier=1.5, max_eps=10.0, target_delta=0.001, noise_decay_mode='Time', noise_decay_rate=0.0006, per_print_times=50, dataset_sink_mode=False)
 

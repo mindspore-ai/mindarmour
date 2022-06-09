@@ -23,7 +23,6 @@ mindarmour.privacy.evaluation
     - **TypeError** - n_jobs的类型不是int。
     - **ValueError** - n_jobs的值既不是-1，也不是正整数。
 
-
     .. py:method:: eval(dataset_train, dataset_test, metrics)
 
         评估目标模型的隐私泄露程度。
