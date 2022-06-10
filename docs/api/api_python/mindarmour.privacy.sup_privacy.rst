@@ -49,7 +49,7 @@ mindarmour.privacy.sup_privacy
 
     详情请查看： `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_suppress_privacy.html#%E5%BC%95%E5%85%A5%E6%8A%91%E5%88%B6%E9%9A%90%E7%A7%81%E8%AE%AD%E7%BB%83>`_。
 
-    .. py:method:: create(networks, mask_layers, policy='local_train', end_epoch=10, batch_num=20, start_epoch=3, mask_times=1000, lr=0.05, sparse_end=0.9, sparse_start=0.0)
+    .. py:method:: create(networks, mask_layers, policy='local_train', end_epoch=10, batch_num=20, start_epoch=3, mask_times=1000, lr=0.05, sparse_end=0.90, sparse_start=0.0)
 
         **参数：**
 
@@ -168,14 +168,13 @@ mindarmour.privacy.sup_privacy
         - **cur_step** (int) - 整个训练过程的当前步骤。
         - **cur_step_in_epoch** (int) - 当前epoch的当前步骤。
 
-.. py:class:: mindarmour.privacy.sup_privacy.MaskLayerDes(layer_name, grad_idx, is_add_noise, is_lower_clip, min_num, upper_bound=1.2)
+.. py:class:: mindarmour.privacy.sup_privacy.MaskLayerDes(layer_name, grad_idx, is_add_noise, is_lower_clip, min_num, upper_bound=1.20)
 
     描述需要抑制的层。
 
     **参数：**
 
     - **layer_name** (str) - 层名称，如下获取一个层的名称：
-
         .. code-block::
 
             for layer in networks.get_parameters(expand=True):

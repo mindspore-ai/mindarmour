@@ -55,7 +55,7 @@ mindarmour.privacy.evaluation
                     [{"method": "knn", "params": {"n_neighbors": [3, 5, 7]}},
                      {"method": "lr", "params": {"C": np.logspace(-4, 2, 10)}}]
 
-            - 支持的方法有knn、lr、mlp和rf，每个方法的参数必须在可变参数的范围内。参数实现的提示可在下面找到：
+          - 支持的方法有knn、lr、mlp和rf，每个方法的参数必须在可变参数的范围内。参数实现的提示可在下面找到：
             - `KNN <https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html>`_,
             - `LR <https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html>`_,
             - `RF <https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html>`_,
@@ -107,6 +107,7 @@ mindarmour.privacy.evaluation
         根据target_features重建图像。
 
         **参数：**
+
         - **target_features** (numpy.ndarray) - 原始图像的深度表示。 `target_features` 的第一个维度应该是img_num。需要注意的是，如果img_num等于1，则 `target_features` 的形状应该是(1, dim2, dim3, ...)。
         - **iters** (int) - 逆向攻击的迭代次数，应为正整数。默认值：100。
 

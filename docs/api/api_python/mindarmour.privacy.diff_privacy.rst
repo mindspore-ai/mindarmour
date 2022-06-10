@@ -26,7 +26,7 @@ mindarmour.privacy.diff_privacy
 
         - **Tensor** - 生成的shape与给定梯度相同的噪声。
 
-.. py:class:: mindarmour.privacy.diff_privacy.NoiseAdaGaussianRandom(norm_bound=1.0, initial_noise_multiplier=1.0, seed=0, noise_decay_rate=6e-06, decay_policy='Exp')
+.. py:class:: mindarmour.privacy.diff_privacy.NoiseAdaGaussianRandom(norm_bound=1.0, initial_noise_multiplier=1.0, seed=0, noise_decay_rate=6e-6, decay_policy='Exp')
 
     自适应高斯噪声产生机制。噪音会随着训练而衰减。衰减模式可以是'Time'、'Step'、'Exp'。
     在模型训练过程中，将更新 `self._noise_multiplier` 。
@@ -77,7 +77,7 @@ mindarmour.privacy.diff_privacy
 
         **参数：**
 
-        - **empirical_fraction** (Tensor) - 梯度裁剪的经验分位数。
+        - **empirical_fraction** (Tensor) - 梯度裁剪的经验分位数,最大值不超过 `target_unclipped_quantile` 。
         - **norm_bound** (Tensor) - 梯度的l2范数的裁剪范围。
 
         **返回：**
@@ -90,7 +90,7 @@ mindarmour.privacy.diff_privacy
 
     详情请查看： `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_。
 
-    .. py:method:: create(mech_name, norm_bound=1.0, initial_noise_multiplier=1.0, seed=0, noise_decay_rate=6e-06, decay_policy=None)
+    .. py:method:: create(mech_name, norm_bound=1.0, initial_noise_multiplier=1.0, seed=0, noise_decay_rate=6e-6, decay_policy=None)
 
         **参数：**
 
@@ -156,7 +156,7 @@ mindarmour.privacy.diff_privacy
 
         - **Callback** - 隐私监视器。
 
-.. py:class:: mindarmour.privacy.diff_privacy.RDPMonitor(num_samples, batch_size, initial_noise_multiplier=1.5, max_eps=10.0, target_delta=0.001, max_delta=None, target_eps=None, orders=None, noise_decay_mode='Time', noise_decay_rate=0.0006, per_print_times=50, dataset_sink_mode=False)
+.. py:class:: mindarmour.privacy.diff_privacy.RDPMonitor(num_samples, batch_size, initial_noise_multiplier=1.5, max_eps=10.0, target_delta=1e-3, max_delta=None, target_eps=None, orders=None, noise_decay_mode='Time', noise_decay_rate=6e-4, per_print_times=50, dataset_sink_mode=False)
 
     基于Renyi差分隐私（RDP）理论，计算DP训练的隐私预算。根据下面的参考文献，如果随机化机制被认为具有α阶的ε'-Renyi差分隐私，它也满足常规差分隐私(ε, δ)，如下所示：
 

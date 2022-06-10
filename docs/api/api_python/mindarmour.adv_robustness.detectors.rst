@@ -50,7 +50,7 @@ mindarmour.adv_robustness.detectors
 
         **返回：**
 
-      - **float** - 区分对抗样本和良性样本的阈值。
+        - **float** - 区分对抗样本和良性样本的阈值。
 
     .. py:method:: set_threshold(threshold)    
 
@@ -372,7 +372,7 @@ mindarmour.adv_robustness.detectors
 
         - **list[int]** - 相邻检测之间的查询数。
 
-    .. py:method:: set_threshold(threshold)    
+    .. py:method:: set_threshold(threshold, num_of_neighbors)    
 
         设置参数num_of_neighbors和threshold。
 

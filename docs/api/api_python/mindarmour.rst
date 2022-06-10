@@ -192,11 +192,11 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
                       'params': {'eps': [0.3, 0.2, 0.4], 'alpha': [0.1], 'bounds': [(0, 1)]}}]
                     ...]
 
-        - 支持的方法在列表 `self._strategies` 中，每个方法的参数必须在可选参数的范围内。支持的方法分为两种类型：
-        - 首先，自然鲁棒性方法包括：'Translate', 'Scale'、'Shear'、'Rotate'、'Perspective'、'Curve'、'GaussianBlur'、'MotionBlur'、'GradientBlur'、'Contrast'、'GradientLuminance'、'UniformNoise'、'GaussianNoise'、'SaltAndPepperNoise'、'NaturalNoise'。
-        - 其次，对抗样本攻击方式包括：'FGSM'、'PGD'和'MDIM'。'FGSM'、'PGD'和'MDIM'分别是 FastGradientSignMethod、ProjectedGradientDent和MomentumDiverseInputIterativeMethod的缩写。 `mutate_config` 必须包含在['Contrast', 'GradientLuminance', 'GaussianBlur', 'MotionBlur', 'GradientBlur', 'UniformNoise', 'GaussianNoise', 'SaltAndPepperNoise', 'NaturalNoise']中的方法。
+          - 支持的方法在列表 `self._strategies` 中，每个方法的参数必须在可选参数的范围内。支持的方法分为两种类型：
+          - 首先，自然鲁棒性方法包括：'Translate', 'Scale'、'Shear'、'Rotate'、'Perspective'、'Curve'、'GaussianBlur'、'MotionBlur'、'GradientBlur'、'Contrast'、'GradientLuminance'、'UniformNoise'、'GaussianNoise'、'SaltAndPepperNoise'、'NaturalNoise'。
+          - 其次，对抗样本攻击方式包括：'FGSM'、'PGD'和'MDIM'。'FGSM'、'PGD'和'MDIM'分别是 FastGradientSignMethod、ProjectedGradientDent和MomentumDiverseInputIterativeMethod的缩写。 `mutate_config` 必须包含在['Contrast', 'GradientLuminance', 'GaussianBlur', 'MotionBlur', 'GradientBlur', 'UniformNoise', 'GaussianNoise', 'SaltAndPepperNoise', 'NaturalNoise']中的方法。
 
-        - 第一类方法的参数设置方式可以在 `mindarmour/natural_robustness/transform/image <https://gitee.com/mindspore/mindarmour/tree/master/mindarmour/natural_robustness/transform/image>`_ 中看到。第二类方法参数配置参考 `self._attack_param_checklists` 。
+          - 第一类方法的参数设置方式可以在 `mindarmour/natural_robustness/transform/image <https://gitee.com/mindspore/mindarmour/tree/master/mindarmour/natural_robustness/transform/image>`_ 中看到。第二类方法参数配置参考 `self._attack_param_checklists` 。
         - **initial_seeds** (list[list]) - 用于生成变异样本的初始种子队列。初始种子队列的格式为[[image_data, label], [...], ...]，且标签必须为one-hot。
         - **coverage** (CoverageMetrics) - 神经元覆盖率指标类。
         - **evaluate** (bool) - 是否返回评估报告。默认值：True。
@@ -229,7 +229,7 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
 
     - **micro_batches** (int) - 从原始批次拆分的小批次数。默认值：2。
     - **norm_bound** (float) - 用于剪裁绑定，如果设置为1，将返回原始数据。默认值：1.0。
-    - **norm_bound** (float) - 对象可以生成不同类型的噪音。默认值：None。
+    - **norm_mech** (float) - 对象可以生成不同类型的噪音。默认值：None。
     - **clip_mech** (Mechanisms) - 该对象用于更新自适应剪裁。默认值：None。
 
     **异常：**
@@ -288,7 +288,7 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
                     [{"method": "knn", "params": {"n_neighbors": [3, 5, 7]}},
                      {"method": "lr", "params": {"C": np.logspace(-4, 2, 10)}}]
 
-        - 支持的方法有knn、lr、mlp和rf，每个方法的参数必须在可变参数的范围内。参数实现的提示可在下面找到：
+          - 支持的方法有knn、lr、mlp和rf，每个方法的参数必须在可变参数的范围内。参数实现的提示可在下面找到：
             - `KNN <https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html>`_ ，
             - `LR <https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html>`_ ，
             - `RF <https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html>`_ ，
@@ -318,7 +318,7 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
     - **ValueError** - input_shape的值都不是正int。
     - **ValueError** - loss_weights的值都不是正值。
 
-   .. py:method:: evaluate(original_images, inversion_images, labels=None, new_network=None)
+    .. py:method:: evaluate(original_images, inversion_images, labels=None, new_network=None)
 
         通过三个指标评估还原图像的质量：原始图像和还原图像之间的平均L2距离和SSIM值，以及新模型对还原图像的推理结果在真实标签上的置信度平均值。
 
