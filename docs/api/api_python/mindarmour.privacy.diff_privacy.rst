@@ -198,7 +198,7 @@ mindarmour.privacy.diff_privacy
 
         - **run_context** (RunContext) - 包含模型的一些信息。
 
-.. py:class:: mindarmour.privacy.diff_privacy.ZCDPMonitor(num_samples, batch_size, initial_noise_multiplier=1.5, max_eps=10.0, target_delta=0.001, noise_decay_mode='Time', noise_decay_rate=0.0006, per_print_times=50, dataset_sink_mode=False)
+.. py:class:: mindarmour.privacy.diff_privacy.ZCDPMonitor(num_samples, batch_size, initial_noise_multiplier=1.5, max_eps=10.0, target_delta=1e-3, noise_decay_mode='Time', noise_decay_rate=6e-4, per_print_times=50, dataset_sink_mode=False)
 
     基于零集中差分隐私（zCDP）理论，计算DP训练的隐私预算。根据下面的参考文献，如果随机化机制满足ρ-zCDP机制，它也满足传统的差分隐私（ε, δ），如下所示：
 

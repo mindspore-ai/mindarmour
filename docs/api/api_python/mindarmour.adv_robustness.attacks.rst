@@ -478,7 +478,7 @@ mindarmour.adv_robustness.attacks
 
         - **target_images** (numpy.ndarray) - 目标图像。
 
-.. py:class:: mindarmour.adv_robustness.attacks.NES(model, scene, max_queries=10000, top_k=-1, num_class=10, batch_size=128, epsilon=0.3, samples_per_draw=128, momentum=0.9, learning_rate=1e-3, max_lr=0.05, min_lr=5e-4, sigma=1e-3, plateau_length=20, plateau_drop=2.0, adv_thresh=0.25, zero_iters=10, starting_eps=1.0, starting_delta_eps=0.5, label_only_sigma=0.001, conservative=2, sparse=True)
+.. py:class:: mindarmour.adv_robustness.attacks.NES(model, scene, max_queries=10000, top_k=-1, num_class=10, batch_size=128, epsilon=0.3, samples_per_draw=128, momentum=0.9, learning_rate=1e-3, max_lr=5e-2, min_lr=5e-4, sigma=1e-3, plateau_length=20, plateau_drop=2.0, adv_thresh=0.25, zero_iters=10, starting_eps=1.0, starting_delta_eps=0.5, label_only_sigma=1e-3, conservative=2, sparse=True)
 
     该类是自然进化策略（Natural Evolutionary Strategies，NES）攻击法的实现。NES使用自然进化策略来估计梯度，以提高查询效率。NES包括三个设置：Query-Limited设置、Partial-Information置和Label-Only设置。在query-limit设置中，攻击对目标模型的查询数量有限，但可以访问所有类的概率。在partial-info设置中，攻击仅有权访问top-k类的概率。
     在label-only设置中，攻击只能访问按其预测概率排序的k个推断标签列表。在Partial-Information设置和Label-Only设置中，NES会进行目标攻击，因此用户需要使用set_target_images方法来设置目标类的目标图像。
