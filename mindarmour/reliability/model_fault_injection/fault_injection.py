@@ -31,7 +31,8 @@ class FaultInjector:
     Fault injection module simulates various fault scenarios for deep neural networks and evaluates
     performance and reliability of the model.
 
-    For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/fault_injection.html>`_.
+    For details, please check `Implementing the Model Fault Injection and Evaluation
+    <https://mindspore.cn/mindarmour/docs/en/master/fault_injection.html>`_.
 
     Args:
         model (Model): The model need to be evaluated.

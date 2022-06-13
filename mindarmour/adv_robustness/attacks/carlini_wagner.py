@@ -97,13 +97,12 @@ class CarliniWagnerL2Attack(Attack):
             input labels are onehot-coded. Default: True.
 
     Examples:
-        >>> import mindspore.ops.operations as M
-        >>> from mindspore.nn import Cell
+        >>> import mindspore.ops.operations as P
         >>> from mindarmour.adv_robustness.attacks import CarliniWagnerL2Attack
-        >>> class Net(Cell):
+        >>> class Net(nn.Cell):
         ...     def __init__(self):
         ...         super(Net, self).__init__()
-        ...         self._softmax = M.Softmax()
+        ...         self._softmax = P.Softmax()
         ...     def construct(self, inputs):
         ...         out = self._softmax(inputs)
         ...         return out

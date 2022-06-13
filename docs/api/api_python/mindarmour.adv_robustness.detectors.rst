@@ -306,6 +306,7 @@ mindarmour.adv_robustness.detectors
     - **max_k_neighbor** (int) - 最近邻的最大数量。默认值：1000。
     - **chunk_size** (int) - 缓冲区大小。默认值：1000。
     - **max_buffer_size** (int) - 最大缓冲区大小。默认值：10000。默认值：False。
+    - **tuning** (bool) - 计算k个最近邻的平均距离，如果'tuning'为true，k=K。如果为False，k=1,...,K。默认值：False。
     - **fpr** (float) - 合法查询序列上的误报率。默认值：0.001
 
     .. py:method:: clear_buffer()    

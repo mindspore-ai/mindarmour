@@ -63,7 +63,13 @@ class DPOptimizerClassFactory:
 
     Examples:
         >>> from mindarmour.privacy.diff_privacy import DPOptimizerClassFactory
-        >>> from tests.ut.python.utils.mock_net import Net
+        >>> class Net(nn.Cell):
+        ...     def __init__(self):
+        ...         super(Net, self).__init__()
+        ...         self._relu = nn.ReLU()
+        ...     def construct(self, inputs):
+        ...         out = self._relu(inputs)
+        ...         return out
         >>> network = Net()
         >>> GaussianSGD = DPOptimizerClassFactory(micro_batches=2)
         >>> GaussianSGD.set_mechanisms('Gaussian', norm_bound=1.0, initial_noise_multiplier=1.5)
@@ -79,9 +85,8 @@ class DPOptimizerClassFactory:
 
     def set_mechanisms(self, policy, *args, **kwargs):
         """
-        Get noise mechanism object. Policies can be 'sgd', 'momentum'
-        or 'adam'. Candidate args and kwargs can be seen in class
-        NoiseMechanismsFactory of mechanisms.py.
+        Get noise mechanism object. Policies can be 'Gaussian' or 'AdaGaussian'.
+        Candidate args and kwargs can be seen in class NoiseMechanismsFactory of mechanisms.py.
 
         Args:
             policy (str): Choose mechanism type.

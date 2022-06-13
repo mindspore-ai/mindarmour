@@ -36,12 +36,11 @@ class EnsembleDetector(Detector):
             Default: 'vote'
     Examples:
         >>> from mindspore.ops.operations import Add
-        >>> from mindspore.nn import Cell
         >>> from mindspore import Model
         >>> from mindarmour.adv_robustness.detectors import ErrorBasedDetector
         >>> from mindarmour.adv_robustness.detectors import RegionBasedDetector
         >>> from mindarmour.adv_robustness.detectors import EnsembleDetector
-        >>> class Net(Cell):
+        >>> class Net(nn.Cell):
         ...     def __init__(self):
         ...         super(Net, self).__init__()
         ...         self.add = Add()

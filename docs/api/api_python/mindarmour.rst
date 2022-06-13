@@ -223,7 +223,7 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
 
     这个类就是重载Mindpore.train.model.Model。
 
-    详情请查看： `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_。
+    详情请查看： `应用差分隐私机制保护用户隐私 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_。
 
     **参数：**
 
@@ -241,7 +241,7 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
 
     成员推理是由Shokri、Stronati、Song和Shmatikov提出的一种用于推测用户隐私数据的灰盒攻击。它需要训练样本的loss或logits结果。（隐私是指单个用户的一些敏感属性）。
 
-    有关详细信息，请参见：`教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/test_model_security_membership_inference.html>`_。
+    有关详细信息，请参见：`使用成员推理测试模型安全性 <https://mindspore.cn/mindarmour/docs/zh-CN/master/test_model_security_membership_inference.html>`_。
 
     参考文献：`Reza Shokri, Marco Stronati, Congzheng Song, Vitaly Shmatikov. Membership Inference Attacks against Machine Learning Models. 2017. <https://arxiv.org/abs/1610.05820v2>`_。
 
@@ -340,7 +340,8 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
         根据target_features重建图像。
 
         **参数：**
-
+        - **target_features** (numpy.ndarray) - 原始图像的深度表示。 `target_features` 的第一个维度应该是img_num。
+          需要注意的是，如果img_num等于1，则target_features的形状应该是(1, dim2, dim3, ...)。
         - **iters** (int) - 逆向攻击的迭代次数，应为正整数。默认值：100。
 
         **返回：**
@@ -356,7 +357,7 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
 
     概念漂移检查时间序列（ConceptDriftCheckTimeSeries）用于样本序列分布变化检测。
 
-    有关详细信息，请查看： `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/concept_drift_time_series.html>`_。
+    有关详细信息，请查看： `实现时序数据概念漂移检测应用 <https://mindspore.cn/mindarmour/docs/zh-CN/master/concept_drift_time_series.html>`_。
 
     **参数：**
 

@@ -179,6 +179,7 @@ mindarmour.adv_robustness.evaluations
     **参数：**
 
     - **metrics_name** (Union[tuple, list]) - 要显示的度量名称数组。每组值对应一条雷达曲线。
+    - **metrics_data** (numpy.ndarray) - 多个雷达曲线的每个度量的（归一化）值，如[[0.5, 0.8, ...], [0.2,0.6,...], ...]。
     - **labels** (Union[tuple, list]) - 所有雷达曲线的图例。
     - **title** (str) - 图表的标题。
     - **scale** (str) - 用于调整轴刻度的标量，如'hide'、'norm'、'sparse'、'dense'。默认值：'hide'。

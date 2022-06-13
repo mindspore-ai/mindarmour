@@ -43,18 +43,29 @@ class ProjectedAdversarialDefense(AdversarialDefenseWithAttacks):
 
     Examples:
         >>> from mindspore.nn.optim.momentum import Momentum
+        >>> import mindspore.ops.operations as P
         >>> from mindarmour.adv_robustness.defenses import ProjectedAdversarialDefense
-        >>> from tests.ut.python.utils.mock_net import Net
+        >>> class Net(nn.Cell):
+        ...     def __init__(self):
+        ...         super(Net, self).__init__()
+        ...         self._softmax = P.Softmax()
+        ...         self._dense = nn.Dense(10, 10)
+        ...         self._squeeze = P.Squeeze(1)
+        ...     def construct(self, inputs):
+        ...         out = self._softmax(inputs)
+        ...         out = self._dense(out)
+        ...         out = self._squeeze(out)
+        ...         return out
         >>> net = Net()
         >>> lr = 0.001
         >>> momentum = 0.9
-        >>> batch_size = 32
+        >>> batch_size = 16
         >>> num_classes = 10
         >>> loss_fn = nn.SoftmaxCrossEntropyWithLogits(sparse=False)
         >>> optimizer = Momentum(net.trainable_params(), learning_rate=lr, momentum=momentum)
         >>> pad = ProjectedAdversarialDefense(net, loss_fn=loss_fn, optimizer=optimizer)
-        >>> inputs = np.random.rand(batch_size, 1, 32, 32).astype(np.float32)
-        >>> labels = np.random.randint(num_classes, size=batch_size).astype(np.int32)
+        >>> inputs = np.random.rand(batch_size, 1, 10).astype(np.float32)
+        >>> labels = np.random.randint(10, size=batch_size).astype(np.int32)
         >>> labels = np.eye(num_classes)[labels].astype(np.float32)
         >>> loss = pad.defense(inputs, labels)
     """

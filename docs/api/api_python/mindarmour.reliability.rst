@@ -7,7 +7,7 @@ MindArmour的可靠性方法。
 
     故障注入模块模拟深度神经网络的各种故障场景，并评估模型的性能和可靠性。
 
-    详情请查看 `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/fault_injection.html>`_。
+    详情请查看 `实现模型故障注入评估模型容错性 <https://mindspore.cn/mindarmour/docs/zh-CN/master/fault_injection.html>`_。
 
     **参数：**
 
@@ -41,7 +41,8 @@ MindArmour的可靠性方法。
 .. py:class:: mindarmour.reliability.ConceptDriftCheckTimeSeries(window_size=100, rolling_window=10, step=10, threshold_index=1.5, need_label=False)
 
     概念漂移检查时间序列（ConceptDriftCheckTimeSeries）用于样本序列分布变化检测。
-    有关详细信息，请查看 `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/concept_drift_time_series.html>`_。
+    有关详细信息，请查看 `实现时序数据概念漂移检测应用
+    <https://mindspore.cn/mindarmour/docs/zh-CN/master/concept_drift_time_series.html>`_。
 
     **参数：**
 
@@ -106,7 +107,7 @@ MindArmour的可靠性方法。
 
     训练OOD检测器。提取训练数据特征，得到聚类中心。测试数据特征与聚类中心之间的距离确定图像是否为分布外（OOD）图像。
 
-    有关详细信息，请查看 `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/concept_drift_images.html>`_。
+    有关详细信息，请查看 `实现图像数据概念漂移检测应用 <https://mindspore.cn/mindarmour/docs/zh-CN/master/concept_drift_images.html>`_。
 
     **参数：**
 

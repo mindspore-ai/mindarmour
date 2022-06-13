@@ -7,7 +7,8 @@ mindarmour.privacy.sup_privacy
 
     周期性检查抑制隐私功能状态和切换（启动/关闭）抑制操作。
 
-    详情请查看： `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_suppress_privacy.html#%E5%BC%95%E5%85%A5%E6%8A%91%E5%88%B6%E9%9A%90%E7%A7%81%E8%AE%AD%E7%BB%83>`_。
+    详情请查看： `应用抑制隐私机制保护用户隐私
+    <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_suppress_privacy.html#%E5%BC%95%E5%85%A5%E6%8A%91%E5%88%B6%E9%9A%90%E7%A7%81%E8%AE%AD%E7%BB%83>`_。
 
     **参数：**
 
@@ -26,7 +27,7 @@ mindarmour.privacy.sup_privacy
 
     完整的模型训练功能。抑制隐私函数嵌入到重载的mindspore.train.model.Model中。
 
-    有关详细信息，请查看： `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_suppress_privacy.html>`_。
+    有关详细信息，请查看： `应用抑制隐私机制保护用户隐私 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_suppress_privacy.html>`_。
 
     **参数：**
 
@@ -47,7 +48,7 @@ mindarmour.privacy.sup_privacy
 
     SuppressCtrl机制的工厂类。
 
-    详情请查看： `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_suppress_privacy.html#%E5%BC%95%E5%85%A5%E6%8A%91%E5%88%B6%E9%9A%90%E7%A7%81%E8%AE%AD%E7%BB%83>`_。
+    详情请查看： `应用抑制隐私机制保护用户隐私 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_suppress_privacy.html#%E5%BC%95%E5%85%A5%E6%8A%91%E5%88%B6%E9%9A%90%E7%A7%81%E8%AE%AD%E7%BB%83>`_。
 
     .. py:method:: create(networks, mask_layers, policy='local_train', end_epoch=10, batch_num=20, start_epoch=3, mask_times=1000, lr=0.05, sparse_end=0.90, sparse_start=0.0)
 
@@ -72,7 +73,7 @@ mindarmour.privacy.sup_privacy
 
     完成抑制隐私操作，包括计算抑制比例，找到应该抑制的参数，并永久抑制这些参数。
 
-    详情请查看： `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_suppress_privacy.html#%E5%BC%95%E5%85%A5%E6%8A%91%E5%88%B6%E9%9A%90%E7%A7%81%E8%AE%AD%E7%BB%83>`_。
+    详情请查看： `应用抑制隐私机制保护用户隐私 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_suppress_privacy.html#%E5%BC%95%E5%85%A5%E6%8A%91%E5%88%B6%E9%9A%90%E7%A7%81%E8%AE%AD%E7%BB%83>`_。
 
     **参数：**
 
