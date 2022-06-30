@@ -49,6 +49,7 @@ mindarmour.privacy.evaluation
         - **dataset_train** (minspore.dataset) - 目标模型的训练数据集。
         - **dataset_test** (minspore.dataset) - 目标模型的测试集。
         - **attack_config** (Union[list, tuple]) - 攻击模型的参数设置。格式为
+
             .. code-block:: python
 
                 attack_config =
