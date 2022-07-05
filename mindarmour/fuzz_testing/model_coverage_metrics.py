@@ -344,13 +344,13 @@ class SuperNeuronActivateCoverage(CoverageMetrics):
 
     def get_metrics(self, dataset):
         """
-        Get the metric of 'strong neuron activation coverage'.
+        Get the metric of 'super neuron activation coverage'.
 
         Args:
             dataset (numpy.ndarray): Dataset used to calculate coverage metrics.
 
         Returns:
-            float, the metric of 'strong neuron activation coverage'.
+            float, the metric of 'super neuron activation coverage'.
 
         Examples:
             >>> from mindspore.common.initializer import TruncatedNormal

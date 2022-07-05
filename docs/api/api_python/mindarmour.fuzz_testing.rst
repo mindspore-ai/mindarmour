@@ -58,15 +58,15 @@ mindarmour.fuzz_testing
 
         **异常：**
 
-        - **ValueError** - 参数'Coverage'必须是CoverageMetrics的子类。
+        - **ValueError** - 参数 `coverage` 必须是CoverageMetrics的子类。
         - **ValueError** - 初始种子队列为空。
-        - **ValueError** - 初始种子队列中的种子不是包含两个元素。
+        - **ValueError** - `initial_seeds` 中的种子未包含两个元素。
 
 .. py:class:: mindarmour.fuzz_testing.CoverageMetrics(model, incremental=False, batch_size=32)
 
     计算覆盖指标的神经元覆盖类的抽象基类。
 
-    众所周知，训练后网络的每个神经元输出有一个输出范围（我们称之为原始范围），测试数据集用于估计训练网络的准确性。然而，不同的测试数据集，神经元的输出分布会有所不同。因此，与传统模糊测试类似，模型模糊测试意味着测试这些神经元的输出，并评估在测试数据集上神经元输出值占原始范围的比例。
+    训练后网络的每个神经元输出有一个输出范围（我们称之为原始范围），测试数据集用于估计训练网络的准确性。然而，不同的测试数据集，神经元的输出分布会有所不同。因此，与传统模糊测试类似，模型模糊测试意味着测试这些神经元的输出，并评估在测试数据集上神经元输出值占原始范围的比例。
 
     参考文献： `DeepGauge: Multi-Granularity Testing Criteria for Deep Learning Systems <https://arxiv.org/abs/1803.07519>`_。
 
@@ -102,6 +102,7 @@ mindarmour.fuzz_testing
     - **batch_size** (int) - 模糊测试批次中的样本数。默认值：32。
 
     .. py:method:: get_metrics(dataset)
+
         获取神经元覆盖率的指标：激活的神经元占网络中神经元总数的比例。
 
         **参数：**
@@ -114,12 +115,12 @@ mindarmour.fuzz_testing
 
 .. py:class:: mindarmour.fuzz_testing.TopKNeuronCoverage(model, top_k=3, incremental=False, batch_size=32)
 
-    计算前k个激活神经元的覆盖率。当隐藏层神经元的输出值在最大的'Top-k'范围内，神经元就会被激活。'Top k'神经元覆盖率等于网络中激活神经元占总神经元的比例。
+    计算前k个激活神经元的覆盖率。当隐藏层神经元的输出值在最大的 `top_k` 范围内，神经元就会被激活。`top_k` 神经元覆盖率等于网络中激活神经元占总神经元的比例。
 
     **参数：**
 
     - **model** (Model) - 被测模型。
-    - **top_k** (int) - 当隐藏层神经元的输出值在最大的'Top-k'范围内，神经元就会被激活。默认值：3。
+    - **top_k** (int) - 当隐藏层神经元的输出值在最大的 `top_k` 范围内，神经元就会被激活。默认值：3。
     - **incremental** (bool) - 指标将以增量方式计算。默认值：False。
     - **batch_size** (int) - 模糊测试批次中的样本数。默认值：32。
 
