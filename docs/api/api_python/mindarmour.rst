@@ -129,7 +129,7 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
 
     .. py:method:: batch_defense(inputs, labels, batch_size=32, epochs=5)
 
-        带有批量样本的防御模型。
+        对输入进行批量防御操作。
 
         **参数：**
 
@@ -140,15 +140,15 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
 
         **返回：**
 
-        - **numpy.ndarray** - 批处理防御操作的损失。
+        - **numpy.ndarray** - `batch_defense` 操作的损失。
 
         **异常：**
 
-        - **ValueError** - batch_size为0。
+        - **ValueError** - `batch_size` 为0。
 
     .. py:method:: defense(inputs, labels)
 
-        带样本的防御模型。
+        对输入进行防御操作。
 
         **参数：**
 
@@ -221,21 +221,22 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
 
     DPModel用于构建差分隐私训练的模型。
 
-    这个类就是重载Mindpore.train.model.Model。
+    此类重载 :class:`mindspore.Model`。
 
     详情请查看： `应用差分隐私机制保护用户隐私 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_。
 
     **参数：**
 
     - **micro_batches** (int) - 从原始批次拆分的小批次数。默认值：2。
-    - **norm_bound** (float) - 用于剪裁绑定，如果设置为1，将返回原始数据。默认值：1.0。
-    - **noise_mech** (float) - 对象可以生成不同类型的噪音。默认值：None。
+    - **norm_bound** (float) - 用于剪裁的约束，如果设置为1，将返回原始数据。默认值：1.0。
+    - **noise_mech** (Mechanisms) - 对象可以生成不同类型的噪音。默认值：None。
     - **clip_mech** (Mechanisms) - 该对象用于更新自适应剪裁。默认值：None。
+    - **optimizer** (Cell) - 差分隐私训练用到的优化器，可以是MindSpore提供的原装优化器或者'DPOptimizerClassFatory'构造的差分隐私优化器。默认值：None。
 
     **异常：**
 
-    - **ValueError** - DPOptimizer和noise_mech都为None或非None。
-    - **ValueError** - noise_mech或DPOtimizer的mech方法是自适应的，而clip_mech不是None。
+    - **ValueError** - `optimizer` 和 `noise_mech` 都为None或都为非None。
+    - **ValueError** - `noise_mech` 或 `optimizer` 的'mech'方法是自适应的，而clip_mech不是None。
 
 .. py:class:: mindarmour.MembershipInference(model, n_jobs=-1)
 
@@ -315,8 +316,8 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
     **异常：**
 
     - **TypeError** - 网络类型不是Cell。
-    - **ValueError** - input_shape的值都不是正int。
-    - **ValueError** - loss_weights的值都不是正值。
+    - **ValueError** - `input_shape` 的值都不是正int。
+    - **ValueError** - `loss_weights` 的值都不是正值。
 
     .. py:method:: evaluate(original_images, inversion_images, labels=None, new_network=None)
 
@@ -326,8 +327,8 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
 
         - **original_images** (numpy.ndarray) - 原始图像，其形状应为(img_num, channels, img_width, img_height)。
         - **inversion_images** (numpy.ndarray) - 还原图像，其形状应为(img_num, channels, img_width, img_height)。
-        - **labels** (numpy.ndarray) - 原始图像的ground truth标签。默认值：None。
-        - **new_network** (Cell) - 其结构包含self._network所有部分的网络。_network，但加载了不同的模型文件。默认值：None。
+        - **labels** (numpy.ndarray) - 原始图像的ground-truth标签。默认值：None。
+        - **new_network** (Cell) - 其结构包含self._network所有部分的网络，但加载了不同的模型文件。默认值：None。
 
         **返回：**
 
@@ -342,7 +343,7 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
         **参数：**
 
         - **target_features** (numpy.ndarray) - 原始图像的深度表示。 `target_features` 的第一个维度应该是img_num。
-          需要注意的是，如果img_num等于1，则target_features的形状应该是(1, dim2, dim3, ...)。
+          需要注意的是，如果img_num等于1，则 `target_features` 的形状应该是(1, dim2, dim3, ...)。
         - **iters** (int) - 逆向攻击的迭代次数，应为正整数。默认值：100。
 
         **返回：**
@@ -351,8 +352,8 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
 
         **异常：**
 
-        - **TypeError** - target_features的类型不是numpy.ndarray。
-        - **ValueError** - iters的值都不是正int.Z
+        - **TypeError** - `target_features` 的类型不是numpy.ndarray。
+        - **ValueError** - `iters` 的值都不是正int.Z
 
 .. py:class:: mindarmour.ConceptDriftCheckTimeSeries(window_size=100, rolling_window=10, step=10, threshold_index=1.5, need_label=False)
 
@@ -370,7 +371,7 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
 
     .. py:method:: concept_check(data)
 
-        在数据系列中查找概念漂移位置。
+        在数据序列中查找概念漂移位置。
 
         **参数：**
 
