@@ -53,7 +53,7 @@ class SuppressPrivacyFactory:
             policy (str): Training policy for suppress privacy training. Default: "local_train", means local training.
             end_epoch (int): The last epoch in suppress operations, 0<start_epoch<=end_epoch<=100. Default: 10.
                 This end_epoch parameter should be same as 'epoch' parameter of mindspore.train.model.train().
-            batch_num (int): The num of batch in an epoch, should be equal to num_samples/batch_size. Default: 20.
+            batch_num (int): The num of batches in an epoch, should be equal to num_samples/batch_size. Default: 20.
             start_epoch (int): The first epoch in suppress operations, 0<start_epoch<=end_epoch<=100. Default: 3.
             mask_times (int): The num of suppress operations. Default: 1000.
             lr (Union[float, int]): Learning rate, should be unchanged during training. 0<lr<=0.50. Default: 0.05.
@@ -772,9 +772,9 @@ class MaskLayerDes:
                 for layer in networks.get_parameters(expand=True):
                     if layer.name == "conv": ...
 
-        grad_idx (int): Grad layer index, get mask layer's index in grad tuple.You can refer to the construct function
-            of TrainOneStepCell in mindarmour/privacy/sup_privacy/train/model.py to get the index of some specified
-            grad layers (print in PYNATIVE_MODE).
+        grad_idx (int): Mask layer's index in grad tuple.You can refer to the construct function
+            of TrainOneStepCell in mindarmour/privacy/sup_privacy/train/model.py to print the index of some specified
+            grad layers in PYNATIVE_MODE.
         is_add_noise (bool): If True, the weight of this layer can add noise.
             If False, the weight of this layer can not add noise.
             If parameter num is greater than 100000, is_add_noise has no effect.
