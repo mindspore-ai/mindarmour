@@ -52,7 +52,7 @@ class HopSkipJumpAttack(Attack):
         max_num_evals (int): The maximum number of evaluations for gradient
             estimation. Default: 1000.
         stepsize_search (str): Indicating how to search for stepsize; Possible
-            values are 'geometric_progression', 'grid_search', 'geometric_progression'.
+            values are 'geometric_progression', 'grid_search'.
             Default: 'geometric_progression'.
         num_iterations (int): The number of iterations. Default: 20.
         gamma (float): Used to set binary search threshold theta. Default: 1.0.

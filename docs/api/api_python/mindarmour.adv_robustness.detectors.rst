@@ -1,7 +1,7 @@
 mindarmour.adv_robustness.detectors
 ===================================
 
-此模块包括用于区分对抗样本和良性样本的检测器方法。
+此模块是用于区分对抗样本和良性样本的检测器方法。
 
 .. py:class:: mindarmour.adv_robustness.detectors.ErrorBasedDetector(auto_encoder, false_positive_rate=0.01, bounds=(0.0, 1.0))
 
@@ -11,7 +11,7 @@ mindarmour.adv_robustness.detectors
 
     **参数：**
 
-    - **auto_encoder** (Model) - 一个（训练过的）自动编码器，通过减少编码表示输入。
+    - **auto_encoder** (Model) - 一个（训练过的）自动编码器，对输入图片进行重构。
     - **false_positive_rate** (float) - 检测器的误报率。默认值：0.01。
     - **bounds** (tuple) - (clip_min, clip_max)。默认值：(0.0, 1.0)。
 
@@ -54,7 +54,7 @@ mindarmour.adv_robustness.detectors
 
     .. py:method:: set_threshold(threshold)    
 
-        设置参数阈值。
+        设置阈值。
 
         **参数：**
 
@@ -106,6 +106,8 @@ mindarmour.adv_robustness.detectors
 
 .. py:class:: mindarmour.adv_robustness.detectors.RegionBasedDetector(model, number_points=10, initial_radius=0.0, max_radius=1.0, search_step=0.01, degrade_limit=0.0, sparse=False)
 
+    基于区域的检测器利用对抗样本靠近分类边界的事实，并通过集成给定示例周围的信息，以检测输入是否为对抗样本。
+
     参考文献： `Mitigating evasion attacks to deep neural networks via region-based classification <https://arxiv.org/abs/1709.05583>`_。
 
     **参数：**
@@ -114,7 +116,7 @@ mindarmour.adv_robustness.detectors
     - **number_points** (int) - 从原始样本的超立方体生成的样本数。默认值：10。
     - **initial_radius** (float) - 超立方体的初始半径。默认值：0.0。
     - **max_radius** (float) - 超立方体的最大半径。默认值：1.0。
-    - **search_step** (float) - 搜索半径期间增量。默认值：0.01。
+    - **search_step** (float) - 半径搜索增量。默认值：0.01。
     - **degrade_limit** (float) - 分类精度的可接受下降。默认值：0.0。
     - **sparse** (bool) - 如果为True，则输入标签为稀疏编码。如果为False，则输入标签为onehot编码。默认值：False。
 
@@ -173,7 +175,7 @@ mindarmour.adv_robustness.detectors
 
         **返回：**
 
-        - **numpy.ndarray** - 超立方体对应于每个样本。
+        - **numpy.ndarray** - 每个样本对应的超立方体。
 
 .. py:class:: mindarmour.adv_robustness.detectors.SpatialSmoothing(model, ksize=3, is_local_smooth=True, metric='l1', false_positive_ratio=0.05)
 
@@ -198,7 +200,7 @@ mindarmour.adv_robustness.detectors
 
         **返回：**
 
-        - **list[int]** - 样本是否具有对抗性。如果res[i]=1，则索引为i的输入样本是对抗性的。
+        - **list[int]** - 样本是否具有对抗性。如果res[i]=1，则索引为i的输入样本是对抗样本。
 
     .. py:method:: detect_diff(inputs)    
 
@@ -227,13 +229,15 @@ mindarmour.adv_robustness.detectors
 
     .. py:method:: set_threshold(threshold)    
 
-        设置参数阈值。
+        设置阈值。
 
         **参数：**
 
         - **threshold** (float) - 检测阈值。
 
 .. py:class:: mindarmour.adv_robustness.detectors.EnsembleDetector(detectors, policy='vote')
+
+    集合检测器，通过检测器列表从输入样本中检测对抗样本。
 
     **参数：**
 
@@ -250,7 +254,7 @@ mindarmour.adv_robustness.detectors
 
         **返回：**
 
-        - **list[int]** - 样本是否具有对抗性。如果res[i]=1，则索引为i的输入样本是对抗性的。
+        - **list[int]** - 样本是否具有对抗性。如果res[i]=1，则索引为i的输入样本是对抗样本。
 
         **异常：**
 
@@ -262,7 +266,7 @@ mindarmour.adv_robustness.detectors
 
         **参数：**
 
-        - **inputs** (Union[numpy.ndarray, list, tuple]) - 数据被用作创建对抗样本的引用。
+        - **inputs** (Union[numpy.ndarray, list, tuple]) - 用于创建对抗样本。
 
         **异常：**
 
@@ -288,7 +292,7 @@ mindarmour.adv_robustness.detectors
 
         **参数：**
 
-        - **inputs** (Union[numpy.ndarray, list, tuple]) - 数据被用作创建对抗样本的引用。
+        - **inputs** (Union[numpy.ndarray, list, tuple]) - 用于创建对抗样本。
 
         **异常：**
 
@@ -305,8 +309,12 @@ mindarmour.adv_robustness.detectors
     - **trans_model** (Model) - 一个MindSpore模型，将输入数据编码为低维向量。
     - **max_k_neighbor** (int) - 最近邻的最大数量。默认值：1000。
     - **chunk_size** (int) - 缓冲区大小。默认值：1000。
-    - **max_buffer_size** (int) - 最大缓冲区大小。默认值：10000。默认值：False。
-    - **tuning** (bool) - 计算k个最近邻的平均距离，如果'tuning'为true，k=K。如果为False，k=1,...,K。默认值：False。
+    - **max_buffer_size** (int) - 最大缓冲区大小。默认值：10000。
+    - **tuning** (bool) - 计算k个最近邻的平均距离。
+
+      - 如果'tuning'为true，k= `max_k_neighbor` 。
+      - 如果为False，k=1,..., `max_k_neighbor` 。默认值：False。
+
     - **fpr** (float) - 合法查询序列上的误报率。默认值：0.001
 
     .. py:method:: clear_buffer()    
@@ -319,11 +327,11 @@ mindarmour.adv_robustness.detectors
 
         **参数：**
 
-        - **inputs** (numpy.ndarray) - 查询顺序。
+        - **inputs** (numpy.ndarray) - 查询序列。
 
         **异常：**
 
-        - **ValueError** - 阈值或num_of_neighbors的参数不可用。
+        - **ValueError** - 阈值或set_threshold方法中 `num_of_neighbors` 参数不可用。
 
     .. py:method:: detect_diff(inputs)    
 
@@ -331,11 +339,11 @@ mindarmour.adv_robustness.detectors
 
         **参数：**
 
-        - **inputs** (Union[numpy.ndarray, list, tuple]) - 数据被用作创建对抗样本的引用。
+        - **inputs** (Union[numpy.ndarray, list, tuple]) - 用于创建对抗样本。
 
         **异常：**
 
-        - **NotImplementedError** - 此函数在类 `SimilarityDetector` 中不可用。
+        - **NotImplementedError** - 此函数在 `SimilarityDetector` 类（class）中不可用。
 
     .. py:method:: fit(inputs, labels=None)    
 
@@ -351,11 +359,11 @@ mindarmour.adv_robustness.detectors
 
         - **list[int]** - 最近邻的数量。
 
-        - **list[float]** - 不同K的计算阈值。
+        - **list[float]** - 不同k的阈值。
 
         **异常：**
 
-        - **ValueError** - 训练数据个数小于max_k_neighbor!
+        - **ValueError** - 训练数据个数小于 `max_k_neighbor`。
 
     .. py:method:: get_detected_queries()    
 
@@ -373,7 +381,7 @@ mindarmour.adv_robustness.detectors
 
         - **list[int]** - 相邻检测之间的查询数。
 
-    .. py:method:: set_threshold(threshold, num_of_neighbors)    
+    .. py:method:: set_threshold(num_of_neighbors, threshold)    
 
         设置参数num_of_neighbors和threshold。
 
@@ -388,8 +396,8 @@ mindarmour.adv_robustness.detectors
 
         **参数：**
 
-        - **inputs** (Union[numpy.ndarray, list, tuple]) - 数据被用作创建对抗样本的引用。
+        - **inputs** (Union[numpy.ndarray, list, tuple]) - 用于创建对抗样本。
 
         **异常：**
 
-        - **NotImplementedError** - 此函数在类 `SimilarityDetector` 中不可用。
+        - **NotImplementedError** - 此函数在 `SimilarityDetector` 类（class）中不可用。

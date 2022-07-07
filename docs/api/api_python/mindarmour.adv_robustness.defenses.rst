@@ -10,7 +10,7 @@ mindarmour.adv_robustness.defenses
     **参数：**
 
     - **network** (Cell) - 要防御的MindSpore网络。
-    - **loss_fn** (Functions) - 损失函数。默认值：None。
+    - **loss_fn** (Union[Loss, None]) - 损失函数。默认值：None。
     - **optimizer** (Cell) - 用于训练网络的优化器。默认值：None。
 
     .. py:method:: defense(inputs, labels)
@@ -33,15 +33,15 @@ mindarmour.adv_robustness.defenses
     **参数：**
 
     - **network** (Cell) - 要防御的MindSpore网络。
-    - **attacks** (list[Attack]) - 攻击方法列表。
-    - **loss_fn** (Functions) - 损失函数。默认值：None。
+    - **attacks** (list[Attack]) - 攻击方法序列。
+    - **loss_fn** (Union[Loss, None]) - 损失函数。默认值：None。
     - **optimizer** (Cell) - 用于训练网络的优化器。默认值：None。
     - **bounds** (tuple) - 数据的上下界。以(clip_min, clip_max)的形式出现。默认值：(0.0, 1.0)。
-    - **replace_ratio** (float) - 用对抗性替换原始样本的比率，必须在0到1之间。默认值：0.5。
+    - **replace_ratio** (float) - 用对抗样本替换原始样本的比率，必须在0到1之间。默认值：0.5。
 
     **异常：**
 
-    - **ValueError** - 替换比率不在0和1之间。
+    - **ValueError** - `replace_ratio` 不在0和1之间。
 
     .. py:method:: defense(inputs, labels)
 
@@ -60,12 +60,12 @@ mindarmour.adv_robustness.defenses
 
     基于FGSM的对抗性训练。
 
-    参考文献：`A. Kurakin, et al., "Adversarial machine learning at scale," in ICLR, 2017. <https://arxiv.org/abs/1611.01236>`_ 。
+    参考文献：`A. Kurakin, et al., "Adversarial machine learning at scale," in ICLR, 2017 <https://arxiv.org/abs/1611.01236>`_。
 
     **参数：**
 
     - **network** (Cell) - 要防御的MindSpore网络。
-    - **loss_fn** (Functions) - 损失函数。默认值：None。
+    - **loss_fn** (Union[Loss, None]) - 损失函数。默认值：None。
     - **optimizer** (Cell)：用于训练网络的优化器。默认值：None。
     - **bounds** (tuple) - 数据的上下界。以(clip_min, clip_max)的形式出现。默认值：(0.0, 1.0)。
     - **replace_ratio** (float) - 用对抗样本替换原始样本的比率。默认值：0.5。
@@ -75,12 +75,12 @@ mindarmour.adv_robustness.defenses
 
     基于PGD的对抗性训练。
 
-    参考文献：`A. Madry, et al., "Towards deep learning models resistant to adversarial attacks," in ICLR, 2018. <https://arxiv.org/abs/1611.01236>`_ 。
+    参考文献：`A. Madry, et al., "Towards deep learning models resistant to adversarial attacks," in ICLR, 2018 <https://arxiv.org/abs/1611.01236>`_。
 
     **参数：**
 
     - **network** (Cell) - 要防御的MindSpore网络。
-    - **loss_fn** (Functions) - 损失函数。默认值：None。
+    - **loss_fn** (Union[Loss, None]) - 损失函数。默认值：None。
     - **optimizer** (Cell) - 用于训练网络的优化器。默认值：None。
     - **bounds** (tuple) - 输入数据的上下界。以(clip_min, clip_max)的形式出现。默认值：(0.0, 1.0)。
     - **replace_ratio** (float) - 用对抗样本替换原始样本的比率。默认值：0.5。
@@ -96,12 +96,12 @@ mindarmour.adv_robustness.defenses
     **参数：**
 
     - **network** (Cell) - 要防御的MindSpore网络。
-    - **attacks** (list[Attack]) - 攻击方法列表。
-    - **loss_fn** (Functions) - 损失函数。默认值：None。
+    - **attacks** (list[Attack]) - 攻击方法序列。
+    - **loss_fn** (Union[Loss, None]) - 损失函数。默认值：None。
     - **optimizer** (Cell) - 用于训练网络的优化器。默认值：None。
     - **bounds** (tuple) - 数据的上下界。以(clip_min, clip_max)的形式出现。默认值：(0.0, 1.0)。
-    - **replace_ratio** (float) - 用对抗性替换原始样本的比率，必须在0到1之间。默认值：0.5。
+    - **replace_ratio** (float) - 用对抗样本替换原始样本的比率，必须在0到1之间。默认值：0.5。
 
     **异常：**
 
-    - **ValueError** - `bounds` 不在0和1之间。
+    - **ValueError** - `replace_ratio` 不在0和1之间。

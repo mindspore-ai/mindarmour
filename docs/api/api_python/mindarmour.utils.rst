@@ -119,6 +119,7 @@ MindArmour的工具方法。
         **参数：**
 
         - **data** (Tensor) - 数据由输入和权重组成。
+
           - inputs: 网络的输入。
           - weight: 每个梯度的权重，'weight'与'labels'的shape相同。
 

@@ -41,10 +41,8 @@ class ErrorBasedDetector(Detector):
     <https://arxiv.org/abs/1705.09064>`_
 
     Args:
-        auto_encoder (Model): An (trained) auto encoder which
-            represents the input by reduced encoding.
-        false_positive_rate (float): Detector's false positive rate.
-            Default: 0.01.
+        auto_encoder (Model): An (trained) auto encoder which reconstructs the input image.
+        false_positive_rate (float): Detector's false positive rate. Default: 0.01.
         bounds (tuple): (clip_min, clip_max). Default: (0.0, 1.0).
 
     Examples:
