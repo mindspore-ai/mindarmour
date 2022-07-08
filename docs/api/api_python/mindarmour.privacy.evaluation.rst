@@ -5,10 +5,9 @@ mindarmour.privacy.evaluation
 
 .. py:class:: mindarmour.privacy.evaluation.MembershipInference(model, n_jobs=-1)
 
-    成员推理是由Shokri、Stronati、Song和Shmatikov提出的一种用于推断用户隐私数据的灰盒攻击。它需要训练样本的loss或logits结果。
-    （隐私是指单个用户的一些敏感属性）。
+    成员推理是由Shokri、Stronati、Song和Shmatikov提出的一种用于推断用户隐私数据的灰盒攻击。它需要训练样本的loss或logits结果，隐私是指单个用户的一些敏感属性。
 
-    有关详细信息，请参见： `教程 <https://mindspore.cn/mindarmour/docs/en/master/test_model_security_membership_inference.html>`_。
+    有关详细信息，请参见： `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/test_model_security_membership_inference.html>`_。
 
     参考文献：`Reza Shokri, Marco Stronati, Congzheng Song, Vitaly Shmatikov. Membership Inference Attacks against Machine Learning Models. 2017. <https://arxiv.org/abs/1610.05820v2>`_。
 
@@ -19,9 +18,9 @@ mindarmour.privacy.evaluation
 
     **异常：**
 
-    - **TypeError** - 模型的类型不是Mindpore.train.Model。
-    - **TypeError** - n_jobs的类型不是int。
-    - **ValueError** - n_jobs的值既不是-1，也不是正整数。
+    - **TypeError** - 模型的类型不是 :class:`mindspore.Model` 。
+    - **TypeError** - `n_jobs` 的类型不是int。
+    - **ValueError** - `n_jobs` 的值既不是-1，也不是正整数。
 
     .. py:method:: eval(dataset_train, dataset_test, metrics)
 
@@ -42,14 +41,11 @@ mindarmour.privacy.evaluation
 
         根据配置，使用输入数据集训练攻击模型。
 
-        将攻击模型保存至self._attack_list。
-
         **参数：**
 
         - **dataset_train** (minspore.dataset) - 目标模型的训练数据集。
         - **dataset_test** (minspore.dataset) - 目标模型的测试集。
         - **attack_config** (Union[list, tuple]) - 攻击模型的参数设置。格式为
-
             .. code-block:: python
 
                 attack_config =
@@ -57,19 +53,20 @@ mindarmour.privacy.evaluation
                      {"method": "lr", "params": {"C": np.logspace(-4, 2, 10)}}]
 
           - 支持的方法有knn、lr、mlp和rf，每个方法的参数必须在可变参数的范围内。参数实现的提示可在下面找到：
-            - `KNN <https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html>`_,
-            - `LR <https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html>`_,
-            - `RF <https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html>`_,
-            - `MLP <https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPRegressor.html>`_.
+
+            - `KNN <https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html>`_
+            - `LR <https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html>`_
+            - `RF <https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html>`_
+            - `MLP <https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPRegressor.html>`_
 
         **异常：**
 
-        - **KeyError** - attack_config中的配置没有键{"method", "params"}。
-        - **NameError** - attack_config中的方法（不区分大小写）不在["lr", "knn", "rf", "mlp"]中。
+        - **KeyError** - `attack_config` 中的配置没有键{"method", "params"}。
+        - **NameError** - `attack_config` 中的方法（不区分大小写）不在["lr", "knn", "rf", "mlp"]中。
 
 .. py:class:: mindarmour.privacy.evaluation.ImageInversionAttack(network, input_shape, input_bound, loss_weights=(1, 0.2, 5))
 
-    一种用于通过还原图像的深层表达来重建图像的攻击方法。
+    一种通过还原图像的深层表达来重建图像的攻击方法。
 
     参考文献：`Aravindh Mahendran, Andrea Vedaldi. Understanding Deep Image Representations by Inverting Them. 2014. <https://arxiv.org/pdf/1412.0035.pdf>`_。
 
@@ -83,8 +80,8 @@ mindarmour.privacy.evaluation
     **异常：**
 
     - **TypeError** - 网络类型不是Cell。
-    - **ValueError** - input_shape的值都不是正int。
-    - **ValueError** - loss_weights的值都不是正值。
+    - **ValueError** - `input_shape` 的值有非正整数。
+    - **ValueError** - `loss_weights` 的值有非正数。
 
     .. py:method:: evaluate(original_images, inversion_images, labels=None, new_network=None)
 
@@ -95,17 +92,17 @@ mindarmour.privacy.evaluation
         - **original_images** (numpy.ndarray) - 原始图像，其形状应为(img_num, channels, img_width, img_height)。
         - **inversion_images** (numpy.ndarray) - 还原图像，其形状应为(img_num, channels, img_width, img_height)。
         - **labels** (numpy.ndarray) - 原始图像的ground truth标签。默认值：None。
-        - **new_network** (Cell) - 其结构包含self._network所有部分的网络。_network，但加载了不同的模型文件。默认值：None。
+        - **new_network** (Cell) - 其结构包含self._network中所有网络，但加载了不同的模型文件。默认值：None。
 
         **返回：**
 
         - **float** - l2距离。
         - **float** - 平均ssim值。
-        - **Union[float, None]** - 平均置信度。如果labels或new_network为 None，则该值为None。
+        - **Union[float, None]** - 平均置信度。如果 `labels` 或 `new_network` 为None，则该值为None。
 
     .. py:method:: generate(target_features, iters=100)
 
-        根据target_features重建图像。
+        根据 `target_features` 重建图像。
 
         **参数：**
 
@@ -119,5 +116,5 @@ mindarmour.privacy.evaluation
         **异常：**
 
         - **TypeError** - target_features的类型不是numpy.ndarray。
-        - **ValueError** - iters的值都不是正int.Z
+        - **ValueError** - `iters` 的值都不是正整数.
 

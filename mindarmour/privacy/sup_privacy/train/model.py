@@ -56,15 +56,14 @@ def tensor_grad_scale(scale, grad):
 
 class SuppressModel(Model):
     """
-    Complete model train function. The suppress privacy function is embedded into the overload
-    mindspore.train.model.Model.
+    Suppress privacy training model, which is overload from mindspore.train.model.Model.
 
     For details, please check `Protecting User Privacy with Suppress Privacy
     <https://mindspore.cn/mindarmour/docs/en/master/protect_user_privacy_with_suppress_privacy.html>`_.
 
     Args:
         network (Cell): The training network.
-        loss_fn (Cell): Computes softmax cross entropy between logits and labels.
+        loss_fn (Cell): Loss function of optimizers.
         optimizer (Optimizer): optimizer instance.
         kwargs: Keyword parameters used for creating a suppress model.
     """

@@ -228,19 +228,21 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
     **参数：**
 
     - **micro_batches** (int) - 从原始批次拆分的小批次数。默认值：2。
-    - **norm_bound** (float) - 用于剪裁的约束，如果设置为1，将返回原始数据。默认值：1.0。
-    - **noise_mech** (Mechanisms) - 对象可以生成不同类型的噪音。默认值：None。
-    - **clip_mech** (Mechanisms) - 该对象用于更新自适应剪裁。默认值：None。
-    - **optimizer** (Cell) - 差分隐私训练用到的优化器，可以是MindSpore提供的原装优化器或者'DPOptimizerClassFatory'构造的差分隐私优化器。默认值：None。
+    - **norm_bound** (float) - 用于裁剪的约束，如果设置为1，将返回原始数据。默认值：1.0。
+    - **noise_mech** (Mechanisms) - 用于生成不同类型的噪音。默认值：None。
+    - **clip_mech** (Mechanisms) - 用于更新自适应剪裁。默认值：None。
+    - **optimizer** (Cell) - 用于更新差分隐私训练过程中的模型权重值。默认值：nn.Momentum。
 
     **异常：**
 
-    - **ValueError** - `optimizer` 和 `noise_mech` 都为None或都为非None。
-    - **ValueError** - `noise_mech` 或 `optimizer` 的'mech'方法是自适应的，而clip_mech不是None。
+    - **ValueError** - `optimizer` 值为None。
+    - **ValueError** - `optimizer` 不是DPOptimizer，且 `noise_mech` 为None。
+    - **ValueError** - `optimizer` 是DPOptimizer，且 `noise_mech` 非None。
+    - **ValueError** - `noise_mech` 或DPOptimizer的mech方法是自适应的，而 `clip_mech` 不是None。
 
 .. py:class:: mindarmour.MembershipInference(model, n_jobs=-1)
 
-    成员推理是由Shokri、Stronati、Song和Shmatikov提出的一种用于推测用户隐私数据的灰盒攻击。它需要训练样本的loss或logits结果。（隐私是指单个用户的一些敏感属性）。
+    成员推理是由Shokri、Stronati、Song和Shmatikov提出的一种用于推测用户隐私数据的灰盒攻击。它需要训练样本的loss或logits结果，隐私是指单个用户的一些敏感属性。
 
     有关详细信息，请参见：`使用成员推理测试模型安全性 <https://mindspore.cn/mindarmour/docs/zh-CN/master/test_model_security_membership_inference.html>`_。
 
@@ -254,8 +256,8 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
     **异常：**
 
     - **TypeError** - 模型的类型不是Mindspore.Model。
-    - **TypeError** - n_jobs的类型不是int。
-    - **ValueError** - n_jobs的值既不是-1，也不是正整数。
+    - **TypeError** - `n_jobs` 的类型不是int。
+    - **ValueError** - `n_jobs` 的值既不是-1，也不是正整数。
 
     .. py:method:: eval(dataset_train, dataset_test, metrics)
 
@@ -276,8 +278,6 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
 
         根据配置，使用输入数据集训练攻击模型。
 
-        将攻击模型保存至self._attack_list。
-
         **参数：**
 
         - **dataset_train** (minspore.dataset) - 目标模型的训练数据集。
@@ -290,19 +290,20 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
                      {"method": "lr", "params": {"C": np.logspace(-4, 2, 10)}}]
 
           - 支持的方法有knn、lr、mlp和rf，每个方法的参数必须在可变参数的范围内。参数实现的提示可在下面找到：
-            - `KNN <https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html>`_ ，
-            - `LR <https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html>`_ ，
-            - `RF <https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html>`_ ，
-            - `MLP <https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPRegressor.html>`_ 。
+
+            - `KNN <https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html>`_
+            - `LR <https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html>`_
+            - `RF <https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html>`_
+            - `MLP <https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPRegressor.html>`_
 
         **异常：**
 
-        - **KeyError** - attack_config中的配置没有键{"method", "params"}。
-        - **NameError** - attack_config中的方法（不区分大小写）不在["lr", "knn", "rf", "mlp"]中。
+        - **KeyError** - `attack_config` 中的配置没有键{"method", "params"}。
+        - **NameError** - `attack_config` 中的方法（不区分大小写）不在["lr", "knn", "rf", "mlp"]中。
 
 .. py:class:: mindarmour.ImageInversionAttack(network, input_shape, input_bound, loss_weights=(1, 0.2, 5))
 
-    一种用于通过还原图像的深层表达来重建图像的攻击方法。
+    一种通过还原图像的深层表达来重建图像的攻击方法。
 
     参考文献：`Aravindh Mahendran, Andrea Vedaldi. Understanding Deep Image Representations by Inverting Them. 2014. <https://arxiv.org/pdf/1412.0035.pdf>`_。
 
@@ -316,8 +317,8 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
     **异常：**
 
     - **TypeError** - 网络类型不是Cell。
-    - **ValueError** - `input_shape` 的值都不是正int。
-    - **ValueError** - `loss_weights` 的值都不是正值。
+    - **ValueError** - `input_shape` 的值有非正整数。
+    - **ValueError** - `loss_weights` 的值有非正数。
 
     .. py:method:: evaluate(original_images, inversion_images, labels=None, new_network=None)
 
@@ -327,8 +328,8 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
 
         - **original_images** (numpy.ndarray) - 原始图像，其形状应为(img_num, channels, img_width, img_height)。
         - **inversion_images** (numpy.ndarray) - 还原图像，其形状应为(img_num, channels, img_width, img_height)。
-        - **labels** (numpy.ndarray) - 原始图像的ground-truth标签。默认值：None。
-        - **new_network** (Cell) - 其结构包含self._network所有部分的网络，但加载了不同的模型文件。默认值：None。
+        - **labels** (numpy.ndarray) - 原始图像的ground truth标签。默认值：None。
+        - **new_network** (Cell) - 其结构包含self._network中所有网络，但加载了不同的模型文件。默认值：None。
 
         **返回：**
 
@@ -338,7 +339,7 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
 
     .. py:method:: generate(target_features, iters=100)
 
-        根据target_features重建图像。
+        根据 `target_features` 重建图像。
 
         **参数：**
 
@@ -352,8 +353,8 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
 
         **异常：**
 
-        - **TypeError** - `target_features` 的类型不是numpy.ndarray。
-        - **ValueError** - `iters` 的值都不是正int.Z
+        - **TypeError** - target_features的类型不是numpy.ndarray。
+        - **ValueError** - `iters` 的有非正整数.
 
 .. py:class:: mindarmour.ConceptDriftCheckTimeSeries(window_size=100, rolling_window=10, step=10, threshold_index=1.5, need_label=False)
 
@@ -366,7 +367,7 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
     - **window_size** (int) - 概念窗口的大小，不小于10。如果给定输入数据，window_size在[10, 1/3*len(input data)]中。如果数据是周期性的，通常window_size等于2-5个周期，例如，对于月/周数据，30/7天的数据量是一个周期。默认值：100。
     - **rolling_window** (int) - 平滑窗口大小，在[1, window_size]中。默认值：10。
     - **step** (int) - 滑动窗口的跳跃长度，在[1, window_size]中。默认值：10。
-    - **threshold_index** (float) - 阈值索引，:math:`(-\infty, +\infty)`。默认值：1.5。
+    - **threshold_index** (float) - 阈值索引，:math:`(-\infty, +\infty)` 。默认值：1.5。
     - **need_label** (bool) - False或True。如果need_label=True，则需要概念漂移标签。默认值：False。
 
     .. py:method:: concept_check(data)

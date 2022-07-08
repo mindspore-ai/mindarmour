@@ -95,8 +95,8 @@ def _softmax_cross_entropy(logits, labels, epsilon=1e-12):
 class MembershipInference:
     """
     Proposed by Shokri, Stronati, Song and Shmatikov, membership inference is a grey-box attack
-    for inferring user's privacy data. It requires loss or logits results of the training samples.
-    (Privacy refers to some sensitive attributes of a single user).
+    for inferring user's privacy data. It requires loss or logits results of the training samples. Privacy refers
+    to some sensitive attributes of a single user.
 
     For details, please refer to the `Using Membership Inference to Test Model Security
     <https://mindspore.cn/mindarmour/docs/en/master/test_model_security_membership_inference.html>`_.
@@ -171,7 +171,6 @@ class MembershipInference:
     def train(self, dataset_train, dataset_test, attack_config):
         """
         Depending on the configuration, use the input dataset to train the attack model.
-        Save the attack model to self._attack_list.
 
         Args:
             dataset_train (mindspore.dataset): The training dataset for the target model.

@@ -13,7 +13,7 @@ mindarmour.privacy.sup_privacy
     **参数：**
 
     - **model** (SuppressModel) - SuppressModel 实例。
-    - **suppress_ctrl** (SuppressCtrl) - SuppressCtrl实例。
+    - **suppress_ctrl** (SuppressCtrl) - SuppressCtrl 实例。
 
     .. py:method:: step_end(run_context)
 
@@ -25,14 +25,14 @@ mindarmour.privacy.sup_privacy
 
 .. py:class:: mindarmour.privacy.sup_privacy.SuppressModel(network, loss_fn, optimizer, **kwargs)
 
-    完整的模型训练功能。抑制隐私函数嵌入到重载的mindspore.train.model.Model中。
+    抑制隐私训练器，重载自 :class:`mindspore.Model` 。
 
     有关详细信息，请查看： `应用抑制隐私机制保护用户隐私 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_suppress_privacy.html>`_。
 
     **参数：**
 
     - **network** (Cell) - 要训练的神经网络模型。
-    - **loss_fn** (Cell) - 计算logits和labels之间的softmax交叉熵。
+    - **loss_fn** (Cell) - 优化器的损失函数。
     - **optimizer** (Optimizer) - 优化器实例。
     - **kwargs** - 创建抑制模型时使用的关键字参数。
 
@@ -80,7 +80,7 @@ mindarmour.privacy.sup_privacy
     - **networks** (Cell) - 要训练的神经网络模型。
     - **mask_layers** (list) - 需要抑制的层的描述。
     - **end_epoch** (int) - 最后一次抑制操作对应的epoch序号。
-    - **batch_num** (int) - 一个epoch中的grad操作的数量。
+    - **batch_num** (int) - 一个epoch中的batch数量。
     - **start_epoch** (int) - 第一个抑制操作对应的epoch序号。
     - **mask_times** (int) - 抑制操作的数量。
     - **lr** (Union[float, int]) - 学习率。
@@ -114,7 +114,7 @@ mindarmour.privacy.sup_privacy
 
     .. py:method:: calc_theoretical_sparse_for_conv()
 
-        计算con1层和con2层的掩码矩阵的实际稀疏性。
+        计算卷积层的掩码矩阵的实际稀疏性。
 
     .. py:method:: print_paras()
 
@@ -171,7 +171,7 @@ mindarmour.privacy.sup_privacy
 
 .. py:class:: mindarmour.privacy.sup_privacy.MaskLayerDes(layer_name, grad_idx, is_add_noise, is_lower_clip, min_num, upper_bound=1.20)
 
-    描述需要抑制的层。
+    对抑制目标层的描述。
 
     **参数：**
 
@@ -181,9 +181,9 @@ mindarmour.privacy.sup_privacy
             for layer in networks.get_parameters(expand=True):
                 if layer.name == "conv": ...
 
-    - **grad_idx** (int) - Grad层索引，在grad元组中获取掩码层的索引。您可以参考mindarmour/privacy/sup_privacy/train/model.py中TrainOneStepCell的构造函数，获取某些指定的grad层的索引（在PYNATIVE_MODE中打印）。
-    - **is_add_noise** (bool) - 如果为True，则此层的权重可以添加噪声。如果为False，则此层的权重不能添加噪声。如果参数num大于100000，则is_add_noise无效。
+    - **grad_idx** (int) - 掩码层在梯度元组中的索引。可参考 `model.py <https://gitee.com/mindspore/mindarmour/blob/master/mindarmour/privacy/sup_privacy/train/model.py>`_ 中TrainOneStepCell的构造函数，在PYNATIVE_MODE模式下打印某些层的索引值。
+    - **is_add_noise** (bool) - 如果为True，则此层的权重可以添加噪声。如果为False，则此层的权重不能添加噪声。如果参数num大于100000，则　`is_add_noise` 无效。
     - **is_lower_clip** (bool) - 如果为True，则此层的权重将被剪裁到大于下限值。如果为False，此层的权重不会被要求大于下限制。如果参数num大于100000，则is_lower_clip无效。
-    - **min_num** (int) - 未抑制的剩余权重数。如果min_num小于（参数num*SupperssCtrl.sparse_end），则min_num无效。
+    - **min_num** (int) - 未抑制的剩余权重数。如果min_num小于（参数总数量 *　`SupperssCtrl.sparse_end` ），则min_num无效。
     - **upper_bound** (Union[float, int]) - 此层权重的最大abs值，默认值：1.20。如果参数num大于100000，则upper_bound无效。
 
