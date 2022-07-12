@@ -28,16 +28,16 @@ TAG = 'Image Luminance'
 
 
 class Contrast(_NaturalPerturb):
-    """
+    r"""
     Contrast of an image.
 
     Args:
-        alpha (Union[float, int]): Control the contrast of an image. :math:`out_image = in_image*alpha+beta`.
+        alpha (Union[float, int]): Control the contrast of an image. :math:`out\_image = in\_image*alpha+beta`.
             Suggested value range in [0.2, 2].
         beta (Union[float, int]): Delta added to alpha. Default: 0.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
 
-    Example:
+    Examples:
         >>> img = cv2.imread('1.png')
         >>> img = np.array(img)
         >>> alpha = 0.1

@@ -37,7 +37,7 @@ class Translate(_NaturalPerturb):
             in [-0.1, 0.1].
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
 
-    Example:
+    Examples:
         >>> img = cv2.imread('1.png')
         >>> img = np.array(img)
         >>> x_bias = 0.1
@@ -84,7 +84,7 @@ class Scale(_NaturalPerturb):
             abs(factor_y - factor_x) < 0.5.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
 
-    Example:
+    Examples:
         >>> img = cv2.imread('1.png')
         >>> img = np.array(img)
         >>> factor_x = 0.7
@@ -131,7 +131,7 @@ class Shear(_NaturalPerturb):
         direction (str): Direction of deformation. Optional value is 'vertical' or 'horizontal'.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
 
-    Example:
+    Examples:
         >>> img = cv2.imread('1.png')
         >>> img = np.array(img)
         >>> factor = 0.2
@@ -186,7 +186,7 @@ class Rotate(_NaturalPerturb):
         angle (Union[float, int]): Degrees of counter clockwise. Suggested value range in [-60, 60].
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
 
-    Example:
+    Examples:
         >>> img = cv2.imread('1.png')
         >>> img = np.array(img)
         >>> angle = 20
@@ -240,7 +240,7 @@ class Perspective(_NaturalPerturb):
         dst_pos (list): The point coordinates of the 4 points in ori_pos after perspective transformation.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
 
-    Example:
+    Examples:
         >>> img = cv2.imread('1.png')
         >>> img = np.array(img)
         >>> ori_pos = [[0, 0], [0, 800], [800, 0], [800, 800]]
