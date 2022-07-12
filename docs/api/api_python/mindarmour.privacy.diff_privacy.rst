@@ -274,7 +274,7 @@ mindarmour.privacy.diff_privacy
 
         - **policy** (str) - 选择机制类型。
 
-.. py:class:: mindarmour.privacy.diff_privacy.DPModel(micro_batches=2, norm_bound=1.0, noise_mech=None, clip_mech=None, **kwargs)
+.. py:class:: mindarmour.privacy.diff_privacy.DPModel(micro_batches=2, norm_bound=1.0, noise_mech=None, clip_mech=None, optimizer=nn.Momentum, **kwargs)
 
     DPModel用于构建差分隐私训练的模型。
     
