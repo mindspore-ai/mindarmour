@@ -217,7 +217,7 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
         - **ValueError** - 初始种子队列为空。
         - **ValueError** - 初始种子队列中的种子不是包含两个元素。
 
-.. py:class:: mindarmour.DPModel(micro_batches=2, norm_bound=1.0, noise_mech=None, clip_mech=None, **kwargs)
+.. py:class:: mindarmour.DPModel(micro_batches=2, norm_bound=1.0, noise_mech=None, clip_mech=None, optimizer=nn.Momentum, **kwargs)
 
     DPModel用于构建差分隐私训练的模型。
 
