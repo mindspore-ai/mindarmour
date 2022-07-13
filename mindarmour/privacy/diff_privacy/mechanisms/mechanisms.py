@@ -39,7 +39,9 @@ class ClipMechanismsFactory:
     Wrapper of clip noise generating mechanisms. It supports Adaptive Clipping with
     Gaussian Random Noise for now.
 
-    For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_.
+    For details, please check `Tutorial
+    <https://mindspore.cn/mindarmour/docs/zh-CN/r1.8/protect_user_privacy_with_differential_privacy
+    .html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_.
 
     """
 
@@ -100,7 +102,9 @@ class NoiseMechanismsFactory:
     Wrapper of noise generating mechanisms. It supports Gaussian Random Noise and
     Adaptive Gaussian Random Noise for now.
 
-    For details, please check `Tutorial <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_.
+    For details, please check `Tutorial
+    <https://mindspore.cn/mindarmour/docs/zh-CN/r1.8/protect_user_privacy_with_differential_privacy
+    .html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_.
 
     """
     def __init__(self):

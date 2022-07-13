@@ -88,7 +88,7 @@ mindarmour.privacy.diff_privacy
 
     噪声产生机制的工厂类。它目前支持高斯随机噪声（Gaussian Random Noise）和自适应高斯随机噪声（Adaptive Gaussian Random Noise）。
 
-    详情请查看： `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_。
+    详情请查看： `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/r1.8/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_。
 
     .. py:method:: create(mech_name, norm_bound=1.0, initial_noise_multiplier=1.0, seed=0, noise_decay_rate=6e-6, decay_policy=None)
 
@@ -113,7 +113,7 @@ mindarmour.privacy.diff_privacy
 
     梯度剪裁机制的工厂类。它目前支持高斯随机噪声（Gaussian Random Noise）的自适应剪裁（Adaptive Clipping）。
 
-    详情请查看： `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_。
+    详情请查看： `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/r1.8/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_。
 
     .. py:method:: create(mech_name, decay_policy='Linear', learning_rate=0.001, target_unclipped_quantile=0.9, fraction_stddev=0.01, seed=0)
 
@@ -138,7 +138,7 @@ mindarmour.privacy.diff_privacy
 
     DP训练隐私监视器的工厂类。
 
-    详情请查看： `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_。
+    详情请查看： `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/r1.8/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_。
 
     .. py:method:: create(policy, *args, **kwargs)
 
@@ -163,7 +163,7 @@ mindarmour.privacy.diff_privacy
     .. math::
         (ε'+\frac{log(1/δ)}{α-1}, δ)
 
-    详情请查看： `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_。
+    详情请查看： `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/r1.8/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_。
 
     参考文献： `Rényi Differential Privacy of the Sampled Gaussian Mechanism <https://arxiv.org/abs/1908.10530>`_。
 
@@ -207,7 +207,7 @@ mindarmour.privacy.diff_privacy
 
     注意，ZCDPMonitor不适合子采样噪声机制（如NoiseAdaGaussianRandom和NoiseGaussianRandom）。未来将开发zCDP的匹配噪声机制。
 
-    详情请查看：  `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_。
+    详情请查看：  `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/r1.8/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_。
 
     参考文献：`Concentrated Differentially Private Gradient Descent with Adaptive per-Iteration Privacy Budget <https://arxiv.org/abs/1808.09501>`_。
 
@@ -277,7 +277,7 @@ mindarmour.privacy.diff_privacy
     
     这个类重载自Mindpore.train.model.Model。
 
-    详情请查看： `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_。
+    详情请查看： `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/r1.8/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_。
 
     **参数：**
 
