@@ -35,7 +35,7 @@ class UniformNoise(_NaturalPerturb):
             [0.001, 0.15].
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
 
-    Example:
+    Examples:
         >>> img = cv2.imread('1.png')
         >>> img = np.array(img)
         >>> factor = 0.1
@@ -80,7 +80,7 @@ class GaussianNoise(_NaturalPerturb):
             [0.001, 0.15].
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
 
-    Example:
+    Examples:
         >>> img = cv2.imread('1.png')
         >>> img = np.array(img)
         >>> factor = 0.1
@@ -124,7 +124,7 @@ class SaltAndPepperNoise(_NaturalPerturb):
             [0.001, 0.15].
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
 
-    Example:
+    Examples:
         >>> img = cv2.imread('1.png')
         >>> img = np.array(img)
         >>> factor = 0.1

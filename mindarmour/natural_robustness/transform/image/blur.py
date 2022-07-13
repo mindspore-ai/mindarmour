@@ -34,7 +34,7 @@ class GaussianBlur(_NaturalPerturb):
         ksize (int): Size of gaussian kernel, this value must be non-negnative.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
 
-    Example:
+    Examples:
         >>> img = cv2.imread('1.png')
         >>> img = np.array(img)
         >>> ksize = 5
@@ -74,11 +74,11 @@ class MotionBlur(_NaturalPerturb):
 
     Args:
         degree (int): Degree of blur. This value must be positive. Suggested value range in [1, 15].
-        angle: (union[float, int]): Direction of motion blur. Angle=0 means up and down motion blur. Angle is
+        angle (union[float, int]): Direction of motion blur. Angle=0 means up and down motion blur. Angle is
             counterclockwise.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
 
-    Example:
+    Examples:
         >>> img = cv2.imread('1.png')
         >>> img = np.array(img)
         >>> angle = 0
@@ -132,7 +132,7 @@ class GradientBlur(_NaturalPerturb):
         center (bool): Blurred or clear at the center of a specified point.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
 
-    Example:
+    Examples:
         >>> img = cv2.imread('xx.png')
         >>> img = np.array(img)
         >>> number = 5
