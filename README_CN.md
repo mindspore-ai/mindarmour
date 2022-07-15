@@ -72,7 +72,7 @@ Fuzz Testing模块的架构图如下：
 - 硬件平台为Ascend、GPU或CPU。
 - 参考[MindSpore安装指南](https://www.mindspore.cn/install)，完成MindSpore的安装。  
     MindArmour与MindSpore的版本需保持一致。
-- 其余依赖请参见[setup.py](https://gitee.com/mindspore/mindarmour/blob/master/setup.py)。
+- 其余依赖请参见[setup.py](https://gitee.com/mindspore/mindarmour/blob/r1.8/setup.py)。
 
 ### 安装
 
@@ -97,7 +97,7 @@ Fuzz Testing模块的架构图如下：
 pip install https://ms-release.obs.cn-north-4.myhuaweicloud.com/{version}/MindArmour/{arch}/mindarmour-{version}-cp37-cp37m-linux_{arch}.whl --trusted-host ms-release.obs.cn-north-4.myhuaweicloud.com -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
-> - 在联网状态下，安装whl包时会自动下载MindArmour安装包的依赖项（依赖项详情参见[setup.py](https://gitee.com/mindspore/mindarmour/blob/master/setup.py)），其余情况需自行安装。
+> - 在联网状态下，安装whl包时会自动下载MindArmour安装包的依赖项（依赖项详情参见[setup.py](https://gitee.com/mindspore/mindarmour/blob/r1.8/setup.py)），其余情况需自行安装。
 > - `{version}`表示MindArmour版本号，例如下载1.0.1版本MindArmour时，`{version}`应写为1.0.1。  
 > - `{arch}`表示系统架构，例如使用的Linux系统是x86架构64位时，`{arch}`应写为`x86_64`。如果系统是ARM架构64位，则写为`aarch64`。
 

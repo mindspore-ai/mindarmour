@@ -75,7 +75,7 @@ The architecture is shown as follow：
 - The hardware platform should be Ascend, GPU or CPU.
 - See our [MindSpore Installation Guide](https://www.mindspore.cn/install) to install MindSpore.  
     The versions of MindArmour and MindSpore must be consistent.
-- All other dependencies are included in [setup.py](https://gitee.com/mindspore/mindarmour/blob/master/setup.py).
+- All other dependencies are included in [setup.py](https://gitee.com/mindspore/mindarmour/blob/r1.8/setup.py).
 
 ### Installation
 
@@ -100,7 +100,7 @@ The architecture is shown as follow：
 pip install https://ms-release.obs.cn-north-4.myhuaweicloud.com/{version}/MindArmour/{arch}/mindarmour-{version}-cp37-cp37m-linux_{arch}.whl --trusted-host ms-release.obs.cn-north-4.myhuaweicloud.com -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
-> - When the network is connected, dependency items are automatically downloaded during .whl package installation. (For details about other dependency items, see [setup.py](https://gitee.com/mindspore/mindarmour/blob/master/setup.py)). In other cases, you need to manually install dependency items.
+> - When the network is connected, dependency items are automatically downloaded during .whl package installation. (For details about other dependency items, see [setup.py](https://gitee.com/mindspore/mindarmour/blob/r1.8/setup.py)). In other cases, you need to manually install dependency items.
 > - `{version}` denotes the version of MindArmour. For example, when you are downloading MindArmour 1.0.1, `{version}` should be 1.0.1.
 > - `{arch}` denotes the system architecture. For example, the Linux system you are using is x86 architecture 64-bit, `{arch}` should be `x86_64`. If the system is ARM architecture 64-bit, then it should be `aarch64`.
 

@@ -36,7 +36,7 @@ class SuppressPrivacyFactory:
     Factory class of SuppressCtrl mechanisms.
 
     For details, please check `Protecting User Privacy with Suppress Privacy
-    <https://mindspore.cn/mindarmour/docs/en/master/protect_user_privacy_with_suppress_privacy.html>`_.
+    <https://mindspore.cn/mindarmour/docs/en/r1.8/protect_user_privacy_with_suppress_privacy.html>`_.
     """
 
     def __init__(self):
@@ -120,7 +120,7 @@ class SuppressCtrl(Cell):
     parameters permanently.
 
     For details, please check `Protecting User Privacy with Suppress Privacy
-    <https://mindspore.cn/mindarmour/docs/en/master/protect_user_privacy_with_suppress_privacy.html>`_.
+    <https://mindspore.cn/mindarmour/docs/en/r1.8/protect_user_privacy_with_suppress_privacy.html>`_.
 
     Args:
         networks (Cell): The training network.

@@ -32,7 +32,7 @@ class FaultInjector:
     performance and reliability of the model.
 
     For details, please check `Implementing the Model Fault Injection and Evaluation
-    <https://mindspore.cn/mindarmour/docs/en/master/fault_injection.html>`_.
+    <https://mindspore.cn/mindarmour/docs/en/r1.8/fault_injection.html>`_.
 
     Args:
         model (Model): The model need to be evaluated.
