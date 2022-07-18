@@ -1,5 +1,19 @@
 # MindArmour Release Notes
 
+## MindArmour 1.8.0 Release Notes
+
+### API Change
+
+* Add Chinese version of all existed api.
+
+### Contributors
+
+Thanks goes to these wonderful people:
+
+Zhang Shukun, Liu Zhidan, Jin Xiulang, Liu Liu, Tang Cong, Yangyuan.
+
+Contributions of any kind are welcome!
+
 ## MindArmour 1.7.0 Release Notes
 
 ### Major Features and Improvements
