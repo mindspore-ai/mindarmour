@@ -108,6 +108,8 @@ MindArmour的可靠性方法。
 
     .. py:method:: get_optimal_threshold(label, ds_eval)
 
+        获取最佳阈值。尝试找到一个最佳阈值来检测OOD样本。最佳阈值由标记的数据集 `ds_eval` 计算。
+
         参数：
             - **label** (numpy.ndarray) - 区分图像是否为分布内或分布外的标签。
             - **ds_eval** (numpy.ndarray) - 帮助查找阈值的测试数据集。

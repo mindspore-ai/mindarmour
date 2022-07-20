@@ -54,7 +54,6 @@ from ..mechanisms.mechanisms import _MechanismsParamsUpdater
 LOGGER = LogUtil.get_instance()
 TAG = 'DP model'
 
-GRADIENT_CLIP_TYPE = 1
 _grad_scale = C.MultitypeFuncGraph("grad_scale")
 _reciprocal = P.Reciprocal()
 
@@ -76,8 +75,8 @@ class DPModel(Model):
     Args:
         micro_batches (int): The number of small batches split from an original
             batch. Default: 2.
-        norm_bound (float): Use to clip the bound, if set 1, will return the
-            original data. Default: 1.0.
+        norm_bound (float): The norm bound that is used to clip the gradient of
+         each sample. Default: 1.0.
         noise_mech (Mechanisms): The object can generate the different type of
             noise. Default: None.
         clip_mech (Mechanisms): The object is used to update the adaptive clip.
@@ -275,9 +274,10 @@ class _ClipGradients(nn.Cell):
     Clip gradients.
 
     Inputs:
-        grads (tuple[Tensor]): Gradients.
-        clip_type (int): The way to clip, 0 for 'value', 1 for 'norm'.
-        clip_value (float): Specifies how much to clip.
+        grads (tuple[Tensor]): Gradients to clip.
+        clip_norm (float): The l2-norm bound used to clip the gradients.
+        cur_norm (float): The l2-norm of grads. If None, the norm will be
+            calculated in this function. Default: None.
 
     Outputs:
         tuple[Tensor], clipped gradients.
@@ -285,24 +285,29 @@ class _ClipGradients(nn.Cell):
 
     def __init__(self):
         super(_ClipGradients, self).__init__()
-        self.clip_by_norm = nn.ClipByNorm()
-        self.dtype = P.DType()
+        self._add = P.Add()
+        self._reduce_sum = P.ReduceSum()
+        self._square_all = P.Square()
+        self._sqrt = P.Sqrt()
 
-    def construct(self, grads, clip_type, clip_value):
+    def construct(self, grads, clip_norm, cur_norm=None):
         """
         construct a compute flow.
         """
-        if clip_type not in (0, 1):
+        if cur_norm is None:
+            # calculate current l2-norm of grads
+            square_sum = Tensor(0, mstype.float32)
+            for grad in grads:
+                square_sum = self._add(square_sum, self._reduce_sum(self._square_all(grad)))
+            cur_norm = self._sqrt(square_sum)
+
+        if cur_norm <= clip_norm:
             return grads
 
         new_grads = ()
         for grad in grads:
-            if clip_type == 0:
-                norm = C.clip_by_value(grad, -clip_value, clip_value)
-            else:
-                norm = self.clip_by_norm(grad, clip_value)
-            new_grads = new_grads + (norm,)
-
+            clipped_grad = grad * (clip_norm / cur_norm)
+            new_grads = new_grads + (clipped_grad,)
         return new_grads
 
 
@@ -339,8 +344,8 @@ class _TrainOneStepWithLossScaleCell(Cell):
             Default: None.
         micro_batches (int): The number of small batches split from an original
             batch. Default: None.
-        norm_bound (Tensor): Use to clip the bound, if set 1, will return the
-            original data. Default: 1.0.
+        norm_bound (Tensor): The norm bound that is used to clip the gradient of
+         each sample. Default: 1.0.
         noise_mech (Mechanisms): The object can generate the different type of
             noise. Default: None.
 
@@ -466,8 +471,8 @@ class _TrainOneStepWithLossScaleCell(Cell):
         beta = self._add(beta,
                          self._cast(self._less(norm_grad, self._norm_bound),
                                     mstype.float32))
-        record_grad = self._clip_by_global_norm(record_grad, GRADIENT_CLIP_TYPE,
-                                                self._norm_bound)
+        record_grad = self._clip_by_global_norm(record_grad,
+                                                self._norm_bound, norm_grad)
         grads = record_grad
         total_loss = loss
         for i in range(1, self._micro_batches):
@@ -488,8 +493,7 @@ class _TrainOneStepWithLossScaleCell(Cell):
                                         mstype.float32))
 
             record_grad = self._clip_by_global_norm(record_grad,
-                                                    GRADIENT_CLIP_TYPE,
-                                                    self._norm_bound)
+                                                    self._norm_bound, norm_grad)
             grads = self._tuple_add(grads, record_grad)
             total_loss = P.Add()(total_loss, loss)
         loss = P.Div()(total_loss, self._micro_float)
@@ -560,8 +564,8 @@ class _TrainOneStepCell(Cell):
             propagation. Default value is 1.0.
         micro_batches (int): The number of small batches split from an original
             batch. Default: None.
-        norm_bound (Tensor): Use to clip the bound, if set 1, will return the
-            original data. Default: 1.0.
+        norm_bound (Tensor): The norm bound that is used to clip the gradient of
+         each sample. Default: 1.0.
         noise_mech (Mechanisms): The object can generate the different type
             of noise. Default: None.
         clip_mech (Mechanisms): The object is used to update the adaptive clip.
@@ -644,20 +648,22 @@ class _TrainOneStepCell(Cell):
         sens = P.Fill()(P.DType()(loss), P.Shape()(loss), self.sens)
         record_grad = self.grad(self.network, weights)(record_datas[0],
                                                        record_labels[0], sens)
-        beta = self._zero
+
+        # calcu norm_grad
+        square_sum = self._zero
+        for grad in record_grad:
+            square_sum = self._add(square_sum, self._reduce_sum(self._square_all(grad)))
+        norm_grad = self._sqrt(square_sum)
+
         # calcu beta
+        beta = self._zero
         if self._clip_mech is not None:
-            square_sum = self._zero
-            for grad in record_grad:
-                square_sum = self._add(square_sum,
-                                       self._reduce_sum(self._square_all(grad)))
-            norm_grad = self._sqrt(square_sum)
             beta = self._add(beta,
                              self._cast(self._less(norm_grad, self._norm_bound),
                                         mstype.float32))
 
-        record_grad = self._clip_by_global_norm(record_grad, GRADIENT_CLIP_TYPE,
-                                                self._norm_bound)
+        record_grad = self._clip_by_global_norm(record_grad,
+                                                self._norm_bound, norm_grad)
         grads = record_grad
         total_loss = loss
         for i in range(1, self._micro_batches):
@@ -666,20 +672,22 @@ class _TrainOneStepCell(Cell):
             record_grad = self.grad(self.network, weights)(record_datas[i],
                                                            record_labels[i],
                                                            sens)
+
+            # calcu norm_grad
+            square_sum = self._zero
+            for grad in record_grad:
+                square_sum = self._add(square_sum,
+                                       self._reduce_sum(self._square_all(grad)))
+            norm_grad = self._sqrt(square_sum)
+
             # calcu beta
             if self._clip_mech is not None:
-                square_sum = self._zero
-                for grad in record_grad:
-                    square_sum = self._add(square_sum,
-                                           self._reduce_sum(self._square_all(grad)))
-                norm_grad = self._sqrt(square_sum)
                 beta = self._add(beta,
                                  self._cast(self._less(norm_grad, self._norm_bound),
                                             mstype.float32))
 
             record_grad = self._clip_by_global_norm(record_grad,
-                                                    GRADIENT_CLIP_TYPE,
-                                                    self._norm_bound)
+                                                    self._norm_bound, norm_grad)
             grads = self._tuple_add(grads, record_grad)
             total_loss = P.Add()(total_loss, loss)
         loss = self._div(total_loss, self._micro_float)

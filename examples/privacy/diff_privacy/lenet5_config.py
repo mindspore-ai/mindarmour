@@ -33,7 +33,7 @@ mnist_cfg = edict({
     'dataset_sink_mode': False,  # whether deliver all training data to device one time
     'micro_batches': 32,  # the number of small batches split from an original batch
     'norm_bound': 1.0,  # the clip bound of the gradients of model's training parameters
-    'initial_noise_multiplier': 0.05,  # the initial multiplication coefficient of the noise added to training
+    'initial_noise_multiplier': 1.0,  # the initial multiplication coefficient of the noise added to training
     # parameters' gradients
     'noise_mechanisms': 'Gaussian',  # the method of adding noise in gradients while training
     'clip_mechanisms': 'Gaussian',  # the method of adaptive clipping gradients while training
@@ -41,5 +41,6 @@ mnist_cfg = edict({
     'clip_learning_rate': 0.001, # Learning rate of update norm clip.
     'target_unclipped_quantile': 0.9, # Target quantile of norm clip.
     'fraction_stddev': 0.01, # The stddev of Gaussian normal which used in empirical_fraction.
-    'optimizer': 'Momentum'  # the base optimizer used for Differential privacy training
+    'optimizer': 'Momentum',  # the base optimizer used for Differential privacy training
+    'target_delta': 1e-5   # the target delta budget for DP training
 })
