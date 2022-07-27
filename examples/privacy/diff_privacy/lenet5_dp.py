@@ -134,6 +134,7 @@ if __name__ == "__main__":
                                                batch_size=cfg.batch_size,
                                                initial_noise_multiplier=cfg.initial_noise_multiplier,
                                                per_print_times=234,
+                                               target_delta=cfg.target_delta,
                                                noise_decay_mode=None)
     # Create the DP model for training.
     model = DPModel(micro_batches=cfg.micro_batches,
