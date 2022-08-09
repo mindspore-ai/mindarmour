@@ -170,6 +170,7 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
     - **target_model** (Model) - 目标模糊模型。
 
     .. py:method:: fuzzing(mutate_config, initial_seeds, coverage, evaluate=True, max_iters=10000, mutate_num_per_seed=20)
+
         深度神经网络的模糊测试。
 
         **参数：**
