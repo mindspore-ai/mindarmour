@@ -161,6 +161,7 @@ mindarmour.privacy.sup_privacy
 
     参数：
         - **layer_name** (str) - 层名称，如下获取一个层的名称：
+
             .. code-block::
 
                 for layer in networks.get_parameters(expand=True):
