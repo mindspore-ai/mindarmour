@@ -17,10 +17,11 @@ mindarmour.fuzz_testing
         深度神经网络的模糊测试。
 
         参数：
-            - **mutate_config** (list) - 变异方法配置。格式为:
+            - **mutate_config** (list) - 变异方法配置。格式为：
+
                 .. code-block:: python
 
-                    mutate_config = 
+                    mutate_config = [
                         {'method': 'GaussianBlur',
                          'params': {'ksize': [1, 2, 3, 5], 'auto_param': [True, False]}},
                         {'method': 'UniformNoise',
@@ -32,11 +33,11 @@ mindarmour.fuzz_testing
                         {'method': 'Rotate',
                          'params': {'angle': [20, 90], 'auto_param': [False, True]}},
                         {'method': 'FGSM',
-                         'params': {'eps': [0.3, 0.2, 0.4], 'alpha': [0.1], 'bounds': [(0, 1)]}}]
+                         'params': {'eps': [0.3, 0.2, 0.4], 'alpha': [0.1], 'bounds': [(0, 1)]}}
                         ...]
 
               - 支持的方法在列表 `self._strategies` 中，每个方法的参数必须在可选参数的范围内。支持的方法分为两种类型：
-              - 首先，自然鲁棒性方法包括：'Translate', 'Scale'、'Shear'、'Rotate'、'Perspective'、'Curve'、'GaussianBlur'、'MotionBlur'、'GradientBlur'、'Contrast'、'GradientLuminance'、'UniformNoise'、'GaussianNoise'、'SaltAndPepperNoise'、'NaturalNoise'。
+              - 首先，自然鲁棒性方法包括：'Translate'、'Scale'、'Shear'、'Rotate'、'Perspective'、'Curve'、'GaussianBlur'、'MotionBlur'、'GradientBlur'、'Contrast'、'GradientLuminance'、'UniformNoise'、'GaussianNoise'、'SaltAndPepperNoise'、'NaturalNoise'。
               - 其次，对抗样本攻击方式包括：'FGSM'、'PGD'和'MDIM'。'FGSM'、'PGD'和'MDIM'分别是 FastGradientSignMethod、ProjectedGradientDent和MomentumDiverseInputIterativeMethod的缩写。 `mutate_config` 必须包含在['Contrast', 'GradientLuminance', 'GaussianBlur', 'MotionBlur', 'GradientBlur', 'UniformNoise', 'GaussianNoise', 'SaltAndPepperNoise', 'NaturalNoise']中的方法。
 
               - 第一类方法的参数设置方式可以在'mindarmour/natural_robustness/transform/image'中看到。第二类方法参数配置参考 `self._attack_param_checklists` 。

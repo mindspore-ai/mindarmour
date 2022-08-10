@@ -151,7 +151,8 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
         深度神经网络的模糊测试。
 
         参数：
-            - **mutate_config** (list) - 变异方法配置。格式为:
+            - **mutate_config** (list) - 变异方法配置。格式为：
+
                 .. code-block:: python
    
                     mutate_config = 
@@ -250,11 +251,12 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
         参数：
             - **dataset_train** (minspore.dataset) - 目标模型的训练数据集。
             - **dataset_test** (minspore.dataset) - 目标模型的测试集。
-            - **attack_config** (Union[list, tuple]) - 攻击模型的参数设置。格式为:
+            - **attack_config** (Union[list, tuple]) - 攻击模型的参数设置。格式为：
+
                 .. code-block::
 
-                    attack_config = 
-                        [{"method": "knn", "params": {"n_neighbors": [3, 5, 7]}},
+                    attack_config = [
+                        {"method": "knn", "params": {"n_neighbors": [3, 5, 7]}},
                          {"method": "lr", "params": {"C": np.logspace(-4, 2, 10)}}]
 
               - 支持的方法有knn、lr、mlp和rf，每个方法的参数必须在可变参数的范围内。参数实现的提示可在下面找到：
