@@ -2,6 +2,21 @@
 
 [View English](./RELEASE.md)
 
+## MindArmour 1.8.1 Release Notes
+
+### Bug fixes
+
+* [BUGFIX] 修复PGD实现误差
+* [BUGFIX] 修复JSMA实现误差
+
+### 贡献
+
+感谢以下人员做出的贡献：
+
+Zhang Shukun, Liu Zhidan, Jin Xiulang, Liu Liu, Tang Cong, Yangyuan.
+
+欢迎以任何形式对项目提供贡献！
+
 ## MindArmour 1.8.0 Release Notes
 
 ### API Change
