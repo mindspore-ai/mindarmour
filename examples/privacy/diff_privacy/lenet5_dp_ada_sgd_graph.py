@@ -122,7 +122,8 @@ if __name__ == "__main__":
                                                num_samples=60000,
                                                batch_size=cfg.batch_size,
                                                initial_noise_multiplier=cfg.initial_noise_multiplier,
-                                               per_print_times=234)
+                                               per_print_times=234,
+                                               target_delta=1e-5)
     # Create the DP model for training.
     model = DPModel(micro_batches=cfg.micro_batches,
                     norm_bound=cfg.norm_bound,
