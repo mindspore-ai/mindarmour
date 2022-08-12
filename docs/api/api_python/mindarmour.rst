@@ -152,7 +152,6 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
 
         参数：
             - **mutate_config** (list) - 变异方法配置。格式为：
-
                 .. code-block:: python
    
                     mutate_config = 
