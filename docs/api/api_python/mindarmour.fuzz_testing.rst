@@ -18,7 +18,6 @@ mindarmour.fuzz_testing
 
         参数：
             - **mutate_config** (list) - 变异方法配置。格式为：
-
                 .. code-block:: python
 
                     mutate_config = [
