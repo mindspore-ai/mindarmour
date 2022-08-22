@@ -33,6 +33,7 @@ class GaussianBlur(_NaturalPerturb):
     Args:
         ksize (int): Size of gaussian kernel, this value must be non-negnative.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
+            Default: False.
 
     Examples:
         >>> img = cv2.imread('1.png')
@@ -77,6 +78,7 @@ class MotionBlur(_NaturalPerturb):
         angle (union[float, int]): Direction of motion blur. Angle=0 means up and down motion blur. Angle is
             counterclockwise.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
+            Default: False.
 
     Examples:
         >>> img = cv2.imread('1.png')
@@ -131,6 +133,7 @@ class GradientBlur(_NaturalPerturb):
         kernel_num (int): Number of blur kernels. Suggested value range in [1, 8].
         center (bool): Blurred or clear at the center of a specified point.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
+            Default: False.
 
     Examples:
         >>> img = cv2.imread('xx.png')

@@ -36,6 +36,7 @@ class Contrast(_NaturalPerturb):
             Suggested value range in [0.2, 2].
         beta (Union[float, int]): Delta added to alpha. Default: 0.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
+            Default: False.
 
     Examples:
         >>> img = cv2.imread('1.png')
@@ -212,6 +213,7 @@ class GradientLuminance(_NaturalPerturb):
             range in [0.1, 0.9].
         mode (str): Gradient mode, value must be in ['circle', 'horizontal', 'vertical'].
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
+            Default: False.
 
     Examples:
         >>> img = cv2.imread('x.png')

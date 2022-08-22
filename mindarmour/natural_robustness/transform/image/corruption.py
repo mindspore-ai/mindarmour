@@ -34,6 +34,7 @@ class UniformNoise(_NaturalPerturb):
         factor (float): Noise density, the proportion of noise points per unit pixel area. Suggested value range in
             [0.001, 0.15].
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
+            Default: False.
 
     Examples:
         >>> img = cv2.imread('1.png')
@@ -79,6 +80,7 @@ class GaussianNoise(_NaturalPerturb):
         factor (float): Noise density, the proportion of noise points per unit pixel area. Suggested value range in
             [0.001, 0.15].
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
+            Default: False.
 
     Examples:
         >>> img = cv2.imread('1.png')
@@ -123,6 +125,7 @@ class SaltAndPepperNoise(_NaturalPerturb):
         factor (float): Noise density, the proportion of noise points per unit pixel area. Suggested value range in
             [0.001, 0.15].
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
+            Default: False.
 
     Examples:
         >>> img = cv2.imread('1.png')
@@ -171,6 +174,7 @@ class NaturalNoise(_NaturalPerturb):
         k_x_range (union[list, tuple]): Value range of the noise block length.
         k_y_range (union[list, tuple]): Value range of the noise block width.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
+            Default: False.
 
     Examples:
         >>> img = cv2.imread('xx.png')
