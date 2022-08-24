@@ -36,6 +36,7 @@ class Translate(_NaturalPerturb):
         y_bias (Union[int, float]): Y-direction translation,  y = y + y_bias*image_length. Suggested value range
             in [-0.1, 0.1].
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
+            Default: False.
 
     Examples:
         >>> img = cv2.imread('1.png')
@@ -83,6 +84,7 @@ class Scale(_NaturalPerturb):
         factor_y (Union[float, int]): Rescale in Y-direction, y=factor_y*y. Suggested value range in [0.5, 1] and
             abs(factor_y - factor_x) < 0.5.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
+            Default: False.
 
     Examples:
         >>> img = cv2.imread('1.png')
@@ -123,13 +125,14 @@ class Scale(_NaturalPerturb):
 
 class Shear(_NaturalPerturb):
     """
-    Shear an image, for each pixel (x, y) in the sheared image, the new value is taken from a position
-    (x+factor_x*y, factor_y*x+y) in the origin image. Then the sheared image will be rescaled to fit original size.
+    Shear an image, the mapping between sheared image and origin image is (new_x, new_y) = (x+factor_x*y, factor_y*x+y).
+    Then the sheared image will be rescaled to fit original size.
 
     Args:
         factor (Union[float, int]): Shear rate in shear direction. Suggested value range in [0.05, 0.5].
         direction (str): Direction of deformation. Optional value is 'vertical' or 'horizontal'.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
+            Default: False.
 
     Examples:
         >>> img = cv2.imread('1.png')
@@ -185,6 +188,7 @@ class Rotate(_NaturalPerturb):
     Args:
         angle (Union[float, int]): Degrees of counter clockwise. Suggested value range in [-60, 60].
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
+            Default: False.
 
     Examples:
         >>> img = cv2.imread('1.png')
@@ -239,6 +243,7 @@ class Perspective(_NaturalPerturb):
         ori_pos (list): Four points in original image.
         dst_pos (list): The point coordinates of the 4 points in ori_pos after perspective transformation.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
+            Default: False.
 
     Examples:
         >>> img = cv2.imread('1.png')
@@ -292,12 +297,12 @@ class Curve(_NaturalPerturb):
     Curve picture using sin method.
 
     Args:
-        curves (union[float, int]): Divide width to curves of `2*math.pi`, which means how many curve cycles. Suggested
-            value range in [0.1. 5].
+        curves (union[float, int]): Number of curve cycles. Suggested value range in [0.1, 5].
         depth (union[float, int]): Amplitude of sin method. Suggested value not exceed 1/10 of the length of the
             picture.
         mode (str): Direction of deformation. Optional value is 'vertical' or 'horizontal'.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
+            Default: False.
 
     Examples:
         >>> img = cv2.imread('x.png')
