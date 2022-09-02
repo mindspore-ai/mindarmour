@@ -2,6 +2,20 @@
 
 [View English](./RELEASE.md)
 
+## MindArmour 1.9.0 Release Notes
+
+### API Change
+
+* 增加自然鲁棒性特性的api中文版本
+
+### 贡献
+
+感谢以下人员做出的贡献：
+
+Liu Zhidan, Zhang Shukun, Jin Xiulang, Liu Liu, Tang Cong, Yangyuan.
+
+欢迎以任何形式对项目提供贡献！
+
 ## MindArmour 1.8.0 Release Notes
 
 ### API Change

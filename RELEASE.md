@@ -1,5 +1,19 @@
 # MindArmour Release Notes
 
+## MindArmour 1.9.0 Release Notes
+
+### API Change
+
+* Add Chinese version api of natural robustness feature.
+
+### Contributors
+
+Thanks goes to these wonderful people:
+
+Liu Zhidan, Zhang Shukun, Jin Xiulang, Liu Liu, Tang Cong, Yangyuan.
+
+Contributions of any kind are welcome!
+
 ## MindArmour 1.8.0 Release Notes
 
 ### API Change
