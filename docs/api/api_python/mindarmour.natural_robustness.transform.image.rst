@@ -22,7 +22,7 @@ mindarmour.natural_robustness.transform.image
         - **start_point** (union[tuple, list]) - 渐变中心的二维坐标。
         - **scope** (float) - 渐变的范围。值越大，渐变范围越大。默认值：0.3。
         - **pattern** (str) - 深色或浅色，此值必须在['light', 'dark']中。
-        - **bright_rate** (float) - 控制亮度。值越大，梯度范围越大。如果参数`pattern`为'light'，建议值范围为[0.1, 0.7]，如果参数`pattern`为'dark'，建议值范围为[0.1, 0.9]。
+        - **bright_rate** (float) - 控制亮度。值越大，梯度范围越大。如果参数 `pattern` 为'light'，建议值范围为[0.1, 0.7]，如果参数 `pattern` 为'dark'，建议值范围为[0.1, 0.9]。
         - **mode** (str) - 渐变模式，值必须在['circle', 'horizontal', 'vertical']中。
         - **auto_param** (bool) - 自动选择参数。在保留图像的语义的范围内自动选择参数。默认值：False。
 
