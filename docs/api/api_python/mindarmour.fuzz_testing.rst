@@ -18,22 +18,23 @@ mindarmour.fuzz_testing
 
         参数：
             - **mutate_config** (list) - 变异方法配置。格式为：
-                .. code-block:: python
 
-                    mutate_config = [
-                        {'method': 'GaussianBlur',
-                         'params': {'ksize': [1, 2, 3, 5], 'auto_param': [True, False]}},
-                        {'method': 'UniformNoise',
-                         'params': {'factor': [0.1, 0.2, 0.3], 'auto_param': [False, True]}},
-                        {'method': 'GaussianNoise',
-                         'params': {'factor': [0.1, 0.2, 0.3], 'auto_param': [False, True]}},
-                        {'method': 'Contrast',
-                         'params': {'alpha': [0.5, 1, 1.5], 'beta': [-10, 0, 10], 'auto_param': [False, True]}},
-                        {'method': 'Rotate',
-                         'params': {'angle': [20, 90], 'auto_param': [False, True]}},
-                        {'method': 'FGSM',
-                         'params': {'eps': [0.3, 0.2, 0.4], 'alpha': [0.1], 'bounds': [(0, 1)]}}
-                        ...]
+              .. code-block:: python
+
+                  mutate_config = [
+                      {'method': 'GaussianBlur',
+                       'params': {'ksize': [1, 2, 3, 5], 'auto_param': [True, False]}},
+                      {'method': 'UniformNoise',
+                       'params': {'factor': [0.1, 0.2, 0.3], 'auto_param': [False, True]}},
+                      {'method': 'GaussianNoise',
+                       'params': {'factor': [0.1, 0.2, 0.3], 'auto_param': [False, True]}},
+                      {'method': 'Contrast',
+                       'params': {'alpha': [0.5, 1, 1.5], 'beta': [-10, 0, 10], 'auto_param': [False, True]}},
+                      {'method': 'Rotate',
+                       'params': {'angle': [20, 90], 'auto_param': [False, True]}},
+                      {'method': 'FGSM',
+                       'params': {'eps': [0.3, 0.2, 0.4], 'alpha': [0.1], 'bounds': [(0, 1)]}}
+                      ...]
 
               - 支持的方法在列表 `self._strategies` 中，每个方法的参数必须在可选参数的范围内。支持的方法分为两种类型：
               - 首先，自然鲁棒性方法包括：'Translate'、'Scale'、'Shear'、'Rotate'、'Perspective'、'Curve'、'GaussianBlur'、'MotionBlur'、'GradientBlur'、'Contrast'、'GradientLuminance'、'UniformNoise'、'GaussianNoise'、'SaltAndPepperNoise'、'NaturalNoise'。

@@ -152,22 +152,23 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
 
         参数：
             - **mutate_config** (list) - 变异方法配置。格式为：
-                .. code-block:: python
+
+              .. code-block:: python
    
-                    mutate_config = 
-                        [{'method': 'GaussianBlur',
-                          'params': {'ksize': [1, 2, 3, 5], 'auto_param': [True, False]}},
-                         {'method': 'UniformNoise',
-                          'params': {'factor': [0.1, 0.2, 0.3], 'auto_param': [False, True]}},
-                         {'method': 'GaussianNoise',
-                          'params': {'factor': [0.1, 0.2, 0.3], 'auto_param': [False, True]}},
-                         {'method': 'Contrast',
-                          'params': {'alpha': [0.5, 1, 1.5], 'beta': [-10, 0, 10], 'auto_param': [False, True]}},
-                         {'method': 'Rotate',
-                          'params': {'angle': [20, 90], 'auto_param': [False, True]}},
-                         {'method': 'FGSM',
-                          'params': {'eps': [0.3, 0.2, 0.4], 'alpha': [0.1], 'bounds': [(0, 1)]}}]
-                        ...]
+                  mutate_config = 
+                      [{'method': 'GaussianBlur',
+                        'params': {'ksize': [1, 2, 3, 5], 'auto_param': [True, False]}},
+                       {'method': 'UniformNoise',
+                        'params': {'factor': [0.1, 0.2, 0.3], 'auto_param': [False, True]}},
+                       {'method': 'GaussianNoise',
+                        'params': {'factor': [0.1, 0.2, 0.3], 'auto_param': [False, True]}},
+                       {'method': 'Contrast',
+                        'params': {'alpha': [0.5, 1, 1.5], 'beta': [-10, 0, 10], 'auto_param': [False, True]}},
+                       {'method': 'Rotate',
+                        'params': {'angle': [20, 90], 'auto_param': [False, True]}},
+                       {'method': 'FGSM',
+                        'params': {'eps': [0.3, 0.2, 0.4], 'alpha': [0.1], 'bounds': [(0, 1)]}}]
+                      ...]
 
               - 支持的方法在列表 `self._strategies` 中，每个方法的参数必须在可选参数的范围内。支持的方法分为两种类型：
               - 首先，自然鲁棒性方法包括：'Translate', 'Scale'、'Shear'、'Rotate'、'Perspective'、'Curve'、'GaussianBlur'、'MotionBlur'、'GradientBlur'、'Contrast'、'GradientLuminance'、'UniformNoise'、'GaussianNoise'、'SaltAndPepperNoise'、'NaturalNoise'。
@@ -252,11 +253,11 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
             - **dataset_test** (minspore.dataset) - 目标模型的测试集。
             - **attack_config** (Union[list, tuple]) - 攻击模型的参数设置。格式为：
 
-                .. code-block::
+              .. code-block::
 
-                    attack_config = [
-                        {"method": "knn", "params": {"n_neighbors": [3, 5, 7]}},
-                         {"method": "lr", "params": {"C": np.logspace(-4, 2, 10)}}]
+                  attack_config = [
+                      {"method": "knn", "params": {"n_neighbors": [3, 5, 7]}},
+                      {"method": "lr", "params": {"C": np.logspace(-4, 2, 10)}}]
 
               - 支持的方法有knn、lr、mlp和rf，每个方法的参数必须在可变参数的范围内。参数实现的提示可在下面找到：
 
