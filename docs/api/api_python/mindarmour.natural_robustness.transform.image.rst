@@ -83,7 +83,7 @@ mindarmour.natural_robustness.transform.image
     图像添加自然噪声。
 
     参数：
-        - **factor** (float) - 噪声密度，单位像素区域添加噪声的比例。建议取值范围：[0.00001, 0.001]。
+        - **ratio** (float) - 噪声密度，单位像素区域添加噪声的比例。建议取值范围：[0.00001, 0.001]。
         - **k_x_range** (union[list, tuple]) - 噪声块长度的取值范围。
         - **k_y_range** (union[list, tuple]) - 噪声块宽度的取值范围。
         - **auto_param** (bool) - 自动选择参数。在保留图像的语义的范围内自动选择参数。默认值：False。
