@@ -223,17 +223,6 @@ mindarmour.adv_robustness.attacks
         - **prob** (float) - 对输入样本的转换概率。默认值：0.5。
         - **loss_fn** (Union[Loss, None]) - 用于优化的损失函数。如果为None，则输入网络已配备损失函数。默认值：None。
 
-    .. py:method:: generate(inputs, labels)
-
-        基于多样性输入迭代法生成对抗样本。
-
-        参数：
-            - **inputs** (Union[numpy.ndarray, tuple]) - 良性输入样本，用于创建对抗样本。
-            - **labels** (Union[numpy.ndarray, tuple]) - 原始/目标标签。若每个输入有多个标签，将它包装在元组中。
-
-        返回：
-            - **numpy.ndarray** - 生成的对抗样本。
-
 .. py:class:: mindarmour.adv_robustness.attacks.MomentumDiverseInputIterativeMethod(network, eps=0.3, bounds=(0.0, 1.0), is_targeted=False, norm_level='l1', prob=0.5, loss_fn=None)
 
     动量多样性输入迭代法（Momentum Diverse Input Iterative Method）攻击是一种动量迭代法，在每次迭代时对输入数据应用随机变换。对输入数据的这种转换可以提高对抗样本的可转移性。
