@@ -91,11 +91,11 @@ mindarmour.privacy.diff_privacy
             - **noise_decay_rate** (float) - 控制噪声衰减的超参数。默认值：6e-6。
             - **decay_policy** (str) - 衰减策略。如果decay_policy为None，则不需要更新参数。默认值：None。
 
-        异常：
-            - **NameError** - `mech_name` 必须在['Gaussian', 'AdaGaussian']中。
-
         返回：
             - **Mechanisms** - 产生的噪声类别机制。
+
+        异常：
+            - **NameError** - `mech_name` 必须在['Gaussian', 'AdaGaussian']中。
 
 .. py:class:: mindarmour.privacy.diff_privacy.ClipMechanismsFactory
 
@@ -113,11 +113,13 @@ mindarmour.privacy.diff_privacy
             - **fraction_stddev** (float) - 高斯正态的stddev，用于empirical_fraction，公式为 :math:`empirical\_fraction + N(0, fraction\_stddev)` 。默认值：0.01。
             - **seed** (int) - 原始随机种子，如果seed=0随机正态将使用安全随机数。如果seed!=0随机正态将使用给定的种子生成值。默认值：0。
 
+        返回：
+            - **Mechanisms** - 产生的噪声类别机制。 
+
         异常：
             - **NameError** - `mech_name` 必须在['Gaussian']中。
 
-        返回：
-            - **Mechanisms** - 产生的噪声类别机制。
+        
 
 .. py:class:: mindarmour.privacy.diff_privacy.PrivacyMonitorFactory
 
