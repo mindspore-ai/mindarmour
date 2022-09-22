@@ -99,7 +99,7 @@ class MembershipInference:
     to some sensitive attributes of a single user.
 
     For details, please refer to the `Using Membership Inference to Test Model Security
-    <https://mindspore.cn/mindarmour/docs/en/master/test_model_security_membership_inference.html>`_.
+    <https://mindspore.cn/mindarmour/docs/en/r1.9/test_model_security_membership_inference.html>`_.
 
     References: `Reza Shokri, Marco Stronati, Congzheng Song, Vitaly Shmatikov.
     Membership Inference Attacks against Machine Learning Models. 2017.
