@@ -23,11 +23,11 @@ class NaturalAdversarialDefense(AdversarialDefenseWithAttacks):
     Adversarial training based on FGSM.
 
     Reference: `A. Kurakin, et al., "Adversarial machine learning at scale," in
-    ICLR, 2017. <https://arxiv.org/abs/1611.01236>`_
+    ICLR, 2017. <https://arxiv.org/abs/1611.01236>`_.
 
     Args:
         network (Cell): A MindSpore network to be defensed.
-        loss_fn (Functions): Loss function. Default: None.
+        loss_fn (Union[Loss, None]): Loss function. Default: None.
         optimizer (Cell): Optimizer used to train the network. Default: None.
         bounds (tuple): Upper and lower bounds of data. In form of (clip_min,
             clip_max). Default: (0.0, 1.0).

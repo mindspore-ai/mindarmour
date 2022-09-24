@@ -23,11 +23,11 @@ class ProjectedAdversarialDefense(AdversarialDefenseWithAttacks):
     Adversarial training based on PGD.
 
     Reference: `A. Madry, et al., "Towards deep learning models resistant to
-    adversarial attacks," in ICLR, 2018. <https://arxiv.org/abs/1611.01236>`_
+    adversarial attacks," in ICLR, 2018. <https://arxiv.org/abs/1611.01236>`_.
 
     Args:
         network (Cell): A MindSpore network to be defensed.
-        loss_fn (Functions): Loss function. Default: None.
+        loss_fn (Union[Loss, None]): Loss function. Default: None.
         optimizer (Cell): Optimizer used to train the nerwork. Default: None.
         bounds (tuple): Upper and lower bounds of input data. In form of
             (clip_min, clip_max). Default: (0.0, 1.0).

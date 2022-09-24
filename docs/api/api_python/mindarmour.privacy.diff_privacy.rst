@@ -8,10 +8,10 @@ mindarmour.privacy.diff_privacy
     基于 :math:`mean=0` 以及 :math:`standard\_deviation = norm\_bound * initial\_noise\_multiplier` 的高斯分布产生噪声。
 
     参数：
-        - **norm_bound** (float)- 梯度的l2范数的裁剪范围。默认值：1.0。
-        - **initial_noise_multiplier** (float)- 高斯噪声标准偏差除以 `norm_bound` 的比率，将用于计算隐私预算。默认值：1.0。
-        - **seed** (int)- 原始随机种子，如果seed=0随机正态将使用安全随机数。如果seed!=0随机正态将使用给定的种子生成值。默认值：0。
-        - **decay_policy** (str)- 衰减策略。默认值：None。
+        - **norm_bound** (float) - 梯度的l2范数的裁剪范围。默认值：1.0。
+        - **initial_noise_multiplier** (float) - 高斯噪声标准偏差除以 `norm_bound` 的比率，将用于计算隐私预算。默认值：1.0。
+        - **seed** (int) - 原始随机种子，如果seed=0随机正态将使用安全随机数。如果seed!=0随机正态将使用给定的种子生成值。默认值：0。
+        - **decay_policy** (str) - 衰减策略。默认值：None。
 
     .. py:method:: construct(gradients)
 
