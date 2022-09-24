@@ -173,7 +173,7 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
               - 首先，自然鲁棒性方法包括：'Translate', 'Scale'、'Shear'、'Rotate'、'Perspective'、'Curve'、'GaussianBlur'、'MotionBlur'、'GradientBlur'、'Contrast'、'GradientLuminance'、'UniformNoise'、'GaussianNoise'、'SaltAndPepperNoise'、'NaturalNoise'。
               - 其次，对抗样本攻击方式包括：'FGSM'、'PGD'和'MDIM'。'FGSM'、'PGD'和'MDIM'分别是 FastGradientSignMethod、ProjectedGradientDent和MomentumDiverseInputIterativeMethod的缩写。 `mutate_config` 必须包含在['Contrast', 'GradientLuminance', 'GaussianBlur', 'MotionBlur', 'GradientBlur', 'UniformNoise', 'GaussianNoise', 'SaltAndPepperNoise', 'NaturalNoise']中的方法。
 
-              - 第一类方法的参数设置方式可以在 `mindarmour/natural_robustness/transform/image <https://gitee.com/mindspore/mindarmour/tree/master/mindarmour/natural_robustness/transform/image>`_ 中看到。第二类方法参数配置参考 `self._attack_param_checklists` 。
+              - 第一类方法的参数设置方式可以在 `mindarmour/natural_robustness/transform/image <https://gitee.com/mindspore/mindarmour/tree/r1.9/mindarmour/natural_robustness/transform/image>`_ 中看到。第二类方法参数配置参考 `self._attack_param_checklists` 。
             - **initial_seeds** (list[list]) - 用于生成变异样本的初始种子队列。初始种子队列的格式为[[image_data, label], [...], ...]，且标签必须为one-hot。
             - **coverage** (CoverageMetrics) - 神经元覆盖率指标类。
             - **evaluate** (bool) - 是否返回评估报告。默认值：True。
@@ -198,7 +198,7 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
 
     此类重载 :class:`mindspore.Model`。
 
-    详情请查看： `应用差分隐私机制保护用户隐私 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_。
+    详情请查看： `应用差分隐私机制保护用户隐私 <https://mindspore.cn/mindarmour/docs/zh-CN/r1.9/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_。
 
     参数：
         - **micro_batches** (int) - 从原始批次拆分的小批次数。默认值：2。
@@ -217,7 +217,7 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
 
     成员推理是由Shokri、Stronati、Song和Shmatikov提出的一种用于推测用户隐私数据的灰盒攻击。它需要训练样本的loss或logits结果，隐私是指单个用户的一些敏感属性。
 
-    有关详细信息，请参见：`使用成员推理测试模型安全性 <https://mindspore.cn/mindarmour/docs/zh-CN/master/test_model_security_membership_inference.html>`_。
+    有关详细信息，请参见：`使用成员推理测试模型安全性 <https://mindspore.cn/mindarmour/docs/zh-CN/r1.9/test_model_security_membership_inference.html>`_。
 
     参考文献：`Reza Shokri, Marco Stronati, Congzheng Song, Vitaly Shmatikov. Membership Inference Attacks against Machine Learning Models. 2017. <https://arxiv.org/abs/1610.05820v2>`_。
 
@@ -321,7 +321,7 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
 
     概念漂移检查时间序列（ConceptDriftCheckTimeSeries）用于样本序列分布变化检测。
 
-    有关详细信息，请查看： `实现时序数据概念漂移检测应用 <https://mindspore.cn/mindarmour/docs/zh-CN/master/concept_drift_time_series.html>`_。
+    有关详细信息，请查看： `实现时序数据概念漂移检测应用 <https://mindspore.cn/mindarmour/docs/zh-CN/r1.9/concept_drift_time_series.html>`_。
 
     参数：
         - **window_size** (int) - 概念窗口的大小，不小于10。如果给定输入数据，window_size在[10, 1/3*len(input data)]中。如果数据是周期性的，通常window_size等于2-5个周期，例如，对于月/周数据，30/7天的数据量是一个周期。默认值：100。

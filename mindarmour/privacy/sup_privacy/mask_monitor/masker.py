@@ -28,7 +28,7 @@ class SuppressMasker(Callback):
     """
     Periodicity check suppress privacy function status and toggle suppress operation.
     For details, please check `Protecting User Privacy with Suppression Privacy
-    <https://mindspore.cn/mindarmour/docs/en/master/protect_user_privacy_with_suppress_privacy.html>`_.
+    <https://mindspore.cn/mindarmour/docs/en/r1.9/protect_user_privacy_with_suppress_privacy.html>`_.
 
     Args:
         model (SuppressModel):  SuppressModel instance.
