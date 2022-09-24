@@ -96,7 +96,7 @@ class DeepFool(Attack):
     sample to the nearest classification boundary and crossing the boundary.
 
     Reference: `DeepFool: a simple and accurate method to fool deep neural
-    networks <https://arxiv.org/abs/1511.04599>`_
+    networks <https://arxiv.org/abs/1511.04599>`_.
 
     Args:
         network (Cell): Target model.
@@ -109,7 +109,7 @@ class DeepFool(Attack):
         max_iters (int): Max iterations, which should be
             greater than zero. Default: 50.
         overshoot (float): Overshoot parameter. Default: 0.02.
-        norm_level (Union[int, str]): Order of the vector norm. Possible values: np.inf
+        norm_level (Union[int, str, numpy.inf]): Order of the vector norm. Possible values: np.inf
             or 2. Default: 2.
         bounds (Union[tuple, list]): Upper and lower bounds of data range. In form of (clip_min,
             clip_max). Default: None.
