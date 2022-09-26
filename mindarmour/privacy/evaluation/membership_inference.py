@@ -103,7 +103,7 @@ class MembershipInference:
 
     References: `Reza Shokri, Marco Stronati, Congzheng Song, Vitaly Shmatikov.
     Membership Inference Attacks against Machine Learning Models. 2017.
-    <https://arxiv.org/abs/1610.05820v2>`_
+    <https://arxiv.org/abs/1610.05820v2>`_.
 
     Args:
         model (Model): Target model.

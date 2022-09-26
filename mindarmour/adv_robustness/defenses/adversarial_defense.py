@@ -32,7 +32,7 @@ class AdversarialDefense(Defense):
 
     Args:
         network (Cell): A MindSpore network to be defensed.
-        loss_fn (Functions): Loss function. Default: None.
+        loss_fn (Union[Loss, None]): Loss function. Default: None.
         optimizer (Cell): Optimizer used to train the network. Default: None.
 
     Examples:
@@ -105,7 +105,7 @@ class AdversarialDefenseWithAttacks(AdversarialDefense):
     Args:
         network (Cell): A MindSpore network to be defensed.
         attacks (list[Attack]): List of attack method.
-        loss_fn (Functions): Loss function. Default: None.
+        loss_fn (Union[Loss, None]): Loss function. Default: None.
         optimizer (Cell): Optimizer used to train the network. Default: None.
         bounds (tuple): Upper and lower bounds of data. In form of (clip_min,
             clip_max). Default: (0.0, 1.0).
@@ -204,7 +204,7 @@ class EnsembleAdversarialDefense(AdversarialDefenseWithAttacks):
     Args:
         network (Cell): A MindSpore network to be defensed.
         attacks (list[Attack]): List of attack method.
-        loss_fn (Functions): Loss function. Default: None.
+        loss_fn (Union[Loss, None]): Loss function. Default: None.
         optimizer (Cell): Optimizer used to train the network. Default: None.
         bounds (tuple): Upper and lower bounds of data. In form of (clip_min,
             clip_max). Default: (0.0, 1.0).

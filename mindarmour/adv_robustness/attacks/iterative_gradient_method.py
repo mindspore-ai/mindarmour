@@ -115,7 +115,7 @@ class IterativeGradientMethod(Attack):
         bounds (tuple): Upper and lower bounds of data, indicating the data range.
             In form of (clip_min, clip_max). Default: (0.0, 1.0).
         nb_iter (int): Number of iteration. Default: 5.
-        loss_fn (Loss): Loss function for optimization. If None, the input network \
+        loss_fn (Union[Loss, None]): Loss function for optimization. If None, the input network \
             is already equipped with loss function. Default: None.
     """
     def __init__(self, network, eps=0.3, eps_iter=0.1, bounds=(0.0, 1.0), nb_iter=5,
@@ -162,7 +162,7 @@ class BasicIterativeMethod(IterativeGradientMethod):
     adversarial examples.
 
     References: `A. Kurakin, I. Goodfellow, and S. Bengio, "Adversarial examples
-    in the physical world," in ICLR, 2017 <https://arxiv.org/abs/1607.02533>`_
+    in the physical world," in ICLR, 2017 <https://arxiv.org/abs/1607.02533>`_.
 
     Args:
         network (Cell): Target model.
@@ -175,7 +175,7 @@ class BasicIterativeMethod(IterativeGradientMethod):
         is_targeted (bool): If True, targeted attack. If False, untargeted
             attack. Default: False.
         nb_iter (int): Number of iteration. Default: 5.
-        loss_fn (Loss): Loss function for optimization. If None, the input network \
+        loss_fn (Union[Loss, None]): Loss function for optimization. If None, the input network \
             is already equipped with loss function. Default: None.
 
     Examples:
@@ -263,7 +263,7 @@ class MomentumIterativeMethod(IterativeGradientMethod):
 
 
     References: `Y. Dong, et al., "Boosting adversarial attacks with
-    momentum," arXiv:1710.06081, 2017 <https://arxiv.org/abs/1710.06081>`_
+    momentum," arXiv:1710.06081, 2017 <https://arxiv.org/abs/1710.06081>`_.
 
     Args:
         network (Cell): Target model.
@@ -277,9 +277,9 @@ class MomentumIterativeMethod(IterativeGradientMethod):
             attack. Default: False.
         nb_iter (int): Number of iteration. Default: 5.
         decay_factor (float): Decay factor in iterations. Default: 1.0.
-        norm_level (Union[int, numpy.inf]): Order of the norm. Possible values:
+        norm_level (Union[int, str, numpy.inf]): Order of the norm. Possible values:
             np.inf, 1 or 2. Default: 'inf'.
-        loss_fn (Loss): Loss function for optimization. If None, the input network \
+        loss_fn (Union[Loss, None]): Loss function for optimization. If None, the input network \
             is already equipped with loss function. Default: None.
 
     Examples:
@@ -407,7 +407,7 @@ class ProjectedGradientDescent(BasicIterativeMethod):
     the attack proposed by Madry et al. for adversarial training.
 
     References: `A. Madry, et al., "Towards deep learning models resistant to
-    adversarial attacks," in ICLR, 2018 <https://arxiv.org/abs/1706.06083>`_
+    adversarial attacks," in ICLR, 2018 <https://arxiv.org/abs/1706.06083>`_.
 
     Args:
         network (Cell): Target model.
@@ -420,9 +420,9 @@ class ProjectedGradientDescent(BasicIterativeMethod):
         is_targeted (bool): If True, targeted attack. If False, untargeted
             attack. Default: False.
         nb_iter (int): Number of iteration. Default: 5.
-        norm_level (Union[int, numpy.inf]): Order of the norm. Possible values:
+        norm_level (Union[int, str, numpy.inf]): Order of the norm. Possible values:
             np.inf, 1 or 2. Default: 'inf'.
-        loss_fn (Loss): Loss function for optimization. If None, the input network \
+        loss_fn (Union[Loss, None]): Loss function for optimization. If None, the input network \
             is already equipped with loss function. Default: None.
 
     Examples:
@@ -503,7 +503,7 @@ class DiverseInputIterativeMethod(BasicIterativeMethod):
     on the input data could improve the transferability of the adversarial examples.
 
     References: `Xie, Cihang and Zhang, et al., "Improving Transferability of
-    Adversarial Examples With Input Diversity," in CVPR, 2019 <https://arxiv.org/abs/1803.06978>`_
+    Adversarial Examples With Input Diversity," in CVPR, 2019 <https://arxiv.org/abs/1803.06978>`_.
 
     Args:
         network (Cell): Target model.
@@ -514,7 +514,7 @@ class DiverseInputIterativeMethod(BasicIterativeMethod):
         is_targeted (bool): If True, targeted attack. If False, untargeted
             attack. Default: False.
         prob (float): Transformation probability. Default: 0.5.
-        loss_fn (Loss): Loss function for optimization. If None, the input network \
+        loss_fn (Union[Loss, None]): Loss function for optimization. If None, the input network \
             is already equipped with loss function. Default: None.
 
     Examples:
@@ -558,7 +558,7 @@ class MomentumDiverseInputIterativeMethod(MomentumIterativeMethod):
 
 
     References: `Xie, Cihang and Zhang, et al., "Improving Transferability of
-    Adversarial Examples With Input Diversity," in CVPR, 2019 <https://arxiv.org/abs/1803.06978>`_
+    Adversarial Examples With Input Diversity," in CVPR, 2019 <https://arxiv.org/abs/1803.06978>`_.
 
     Args:
         network (Cell): Target model.
@@ -568,10 +568,10 @@ class MomentumDiverseInputIterativeMethod(MomentumIterativeMethod):
             In form of (clip_min, clip_max). Default: (0.0, 1.0).
         is_targeted (bool): If True, targeted attack. If False, untargeted
             attack. Default: False.
-        norm_level (Union[int, numpy.inf]): Order of the norm. Possible values:
+        norm_level (Union[int, str, numpy.inf]): Order of the norm. Possible values:
             np.inf, 1 or 2. Default: 'l1'.
         prob (float): Transformation probability. Default: 0.5.
-        loss_fn (Loss): Loss function for optimization. If None, the input network \
+        loss_fn (Union[Loss, None]): Loss function for optimization. If None, the input network \
             is already equipped with loss function. Default: None.
 
     Examples:

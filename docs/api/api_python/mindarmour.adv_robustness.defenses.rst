@@ -58,7 +58,7 @@ mindarmour.adv_robustness.defenses
     参数：
         - **network** (Cell) - 要防御的MindSpore网络。
         - **loss_fn** (Union[Loss, None]) - 损失函数。默认值：None。
-        - **optimizer** (Cell)：用于训练网络的优化器。默认值：None。
+        - **optimizer** (Cell) - 用于训练网络的优化器。默认值：None。
         - **bounds** (tuple) - 数据的上下界。以(clip_min, clip_max)的形式出现。默认值：(0.0, 1.0)。
         - **replace_ratio** (float) - 用对抗样本替换原始样本的比率。默认值：0.5。
         - **eps** (float) - 攻击方法（FGSM）的步长。默认值：0.1。

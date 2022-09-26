@@ -130,21 +130,21 @@ class FastGradientMethod(GradientMethod):
 
     References: `I. J. Goodfellow, J. Shlens, and C. Szegedy, "Explaining
     and harnessing adversarial examples," in ICLR, 2015.
-    <https://arxiv.org/abs/1412.6572>`_
+    <https://arxiv.org/abs/1412.6572>`_.
 
     Args:
         network (Cell): Target model.
         eps (float): Proportion of single-step adversarial perturbation generated
             by the attack to data range. Default: 0.07.
-        alpha (float): Proportion of single-step random perturbation to data range.
+        alpha (Union[float, None]): Proportion of single-step random perturbation to data range.
             Default: None.
         bounds (tuple): Upper and lower bounds of data, indicating the data range.
             In form of (clip_min, clip_max). Default: (0.0, 1.0).
-        norm_level (Union[int, numpy.inf]): Order of the norm.
+        norm_level (Union[int, str, numpy.inf]): Order of the norm.
             Possible values: np.inf, 1 or 2. Default: 2.
         is_targeted (bool): If True, targeted attack. If False, untargeted
             attack. Default: False.
-        loss_fn (Loss): Loss function for optimization. If None, the input network \
+        loss_fn (Union[loss, None]): Loss function for optimization. If None, the input network \
             is already equipped with loss function. Default: None.
 
     Examples:
@@ -207,7 +207,7 @@ class RandomFastGradientMethod(FastGradientMethod):
 
     References: `Florian Tramer, Alexey Kurakin, Nicolas Papernot, "Ensemble
     adversarial training: Attacks and defenses" in ICLR, 2018
-    <https://arxiv.org/abs/1705.07204>`_
+    <https://arxiv.org/abs/1705.07204>`_.
 
     Args:
         network (Cell): Target model.
@@ -217,11 +217,11 @@ class RandomFastGradientMethod(FastGradientMethod):
             Default: 0.035.
         bounds (tuple): Upper and lower bounds of data, indicating the data range.
             In form of (clip_min, clip_max). Default: (0.0, 1.0).
-        norm_level (Union[int, numpy.inf]): Order of the norm.
+        norm_level (Union[int, str, numpy.inf]): Order of the norm.
             Possible values: np.inf, 1 or 2. Default: 2.
         is_targeted (bool): If True, targeted attack. If False, untargeted
             attack. Default: False.
-        loss_fn (Loss): Loss function for optimization. If None, the input network \
+        loss_fn (Union[loss, None]): Loss function for optimization. If None, the input network \
             is already equipped with loss function. Default: None.
 
     Raises:
@@ -264,19 +264,19 @@ class FastGradientSignMethod(GradientMethod):
 
     References: `Ian J. Goodfellow, J. Shlens, and C. Szegedy, "Explaining
     and harnessing adversarial examples," in ICLR, 2015
-    <https://arxiv.org/abs/1412.6572>`_
+    <https://arxiv.org/abs/1412.6572>`_.
 
     Args:
         network (Cell): Target model.
         eps (float): Proportion of single-step adversarial perturbation generated
             by the attack to data range. Default: 0.07.
-        alpha (float): Proportion of single-step random perturbation to data range.
+        alpha (Union[float, None]): Proportion of single-step random perturbation to data range.
             Default: None.
         bounds (tuple): Upper and lower bounds of data, indicating the data range.
             In form of (clip_min, clip_max). Default: (0.0, 1.0).
         is_targeted (bool): If True, targeted attack. If False, untargeted
             attack. Default: False.
-        loss_fn (Loss): Loss function for optimization. If None, the input network \
+        loss_fn (Union[Loss, None]): Loss function for optimization. If None, the input network \
             is already equipped with loss function. Default: None.
 
     Examples:
@@ -338,7 +338,7 @@ class RandomFastGradientSignMethod(FastGradientSignMethod):
     to create adversarial noises.
 
     References: `F. Tramer, et al., "Ensemble adversarial training: Attacks
-    and defenses," in ICLR, 2018 <https://arxiv.org/abs/1705.07204>`_
+    and defenses," in ICLR, 2018 <https://arxiv.org/abs/1705.07204>`_.
 
     Args:
         network (Cell): Target model.
@@ -350,7 +350,7 @@ class RandomFastGradientSignMethod(FastGradientSignMethod):
             In form of (clip_min, clip_max). Default: (0.0, 1.0).
         is_targeted (bool): True: targeted attack. False: untargeted attack.
             Default: False.
-        loss_fn (Loss): Loss function for optimization. If None, the input network \
+        loss_fn (Union[Loss, None]): Loss function for optimization. If None, the input network \
             is already equipped with loss function. Default: None.
 
     Raises:
@@ -391,17 +391,17 @@ class LeastLikelyClassMethod(FastGradientSignMethod):
     least-likely class to generate the adversarial examples.
 
     References: `F. Tramer, et al., "Ensemble adversarial training: Attacks
-    and defenses," in ICLR, 2018 <https://arxiv.org/abs/1705.07204>`_
+    and defenses," in ICLR, 2018 <https://arxiv.org/abs/1705.07204>`_.
 
     Args:
         network (Cell): Target model.
         eps (float): Proportion of single-step adversarial perturbation generated
             by the attack to data range. Default: 0.07.
-        alpha (float): Proportion of single-step random perturbation to data range.
+        alpha (Union[float, None]): Proportion of single-step random perturbation to data range.
             Default: None.
         bounds (tuple): Upper and lower bounds of data, indicating the data range.
             In form of (clip_min, clip_max). Default: (0.0, 1.0).
-        loss_fn (Loss): Loss function for optimization. If None, the input network \
+        loss_fn (Union[Loss, None]): Loss function for optimization. If None, the input network \
             is already equipped with loss function. Default: None.
 
     Examples:
@@ -439,7 +439,7 @@ class RandomLeastLikelyClassMethod(FastGradientSignMethod):
     targets the least-likely class to generate the adversarial examples.
 
     References: `F. Tramer, et al., "Ensemble adversarial training: Attacks
-    and defenses," in ICLR, 2018 <https://arxiv.org/abs/1705.07204>`_
+    and defenses," in ICLR, 2018 <https://arxiv.org/abs/1705.07204>`_.
 
     Args:
         network (Cell): Target model.
@@ -449,7 +449,7 @@ class RandomLeastLikelyClassMethod(FastGradientSignMethod):
             Default: 0.035.
         bounds (tuple): Upper and lower bounds of data, indicating the data range.
             In form of (clip_min, clip_max). Default: (0.0, 1.0).
-        loss_fn (Loss): Loss function for optimization. If None, the input network \
+        loss_fn (Union[Loss, None]): Loss function for optimization. If None, the input network \
             is already equipped with loss function. Default: None.
 
     Raises:

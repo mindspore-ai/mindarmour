@@ -237,8 +237,8 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
         评估指标应由metrics规定。
 
         参数：
-            - **dataset_train** (minspore.dataset) - 目标模型的训练数据集。
-            - **dataset_test** (minspore.dataset) - 目标模型的测试数据集。
+            - **dataset_train** (mindspore.dataset) - 目标模型的训练数据集。
+            - **dataset_test** (mindspore.dataset) - 目标模型的测试数据集。
             - **metrics** (Union[list, tuple]) - 评估指标。指标的值必须在["precision", "accuracy", "recall"]中。默认值：["precision"]。
 
         返回：
@@ -249,8 +249,8 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
         根据配置，使用输入数据集训练攻击模型。
 
         参数：
-            - **dataset_train** (minspore.dataset) - 目标模型的训练数据集。
-            - **dataset_test** (minspore.dataset) - 目标模型的测试集。
+            - **dataset_train** (mindspore.dataset) - 目标模型的训练数据集。
+            - **dataset_test** (mindspore.dataset) - 目标模型的测试集。
             - **attack_config** (Union[list, tuple]) - 攻击模型的参数设置。格式为：
 
               .. code-block::
