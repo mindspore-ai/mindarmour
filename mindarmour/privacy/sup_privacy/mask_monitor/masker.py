@@ -36,8 +36,8 @@ class SuppressMasker(Callback):
 
     Examples:
         >>> import mindspore.nn as nn
-        >>> import mindspore.ops.operations as P
-        >>> from mindspore import context
+        >>> import mindspore as ms
+        >>> from mindspore import set_context, ops
         >>> from mindspore.nn import Accuracy
         >>> from mindarmour.privacy.sup_privacy import SuppressModel
         >>> from mindarmour.privacy.sup_privacy import SuppressMasker
@@ -46,14 +46,14 @@ class SuppressMasker(Callback):
         >>> class Net(nn.Cell):
         ...     def __init__(self):
         ...         super(Net, self).__init__()
-        ...         self._softmax = P.Softmax()
+        ...         self._softmax = ops.Softmax()
         ...         self._Dense = nn.Dense(10,10)
-        ...         self._squeeze = P.Squeeze(1)
+        ...         self._squeeze = ops.Squeeze(1)
         ...     def construct(self, inputs):
         ...         out = self._softmax(inputs)
         ...         out = self._Dense(out)
         ...         return self._squeeze(out)
-        >>> context.set_context(mode=context.PYNATIVE_MODE, device_target="GPU")
+        >>> set_context(mode=ms.PYNATIVE_MODE, device_target="GPU")
         >>> network = Net()
         >>> masklayers = []
         >>> masklayers.append(MaskLayerDes("_Dense.weight", 0, False, True, 10))
