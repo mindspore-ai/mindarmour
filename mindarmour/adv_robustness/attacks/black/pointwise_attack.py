@@ -35,14 +35,14 @@ class PointWiseAttack(Attack):
 
     References: `L. Schott, J. Rauber, M. Bethge, W. Brendel: "Towards the
     first adversarially robust neural network model on MNIST", ICLR (2019)
-    <https://arxiv.org/abs/1805.09190>`_
+    <https://arxiv.org/abs/1805.09190>`_.
 
     Args:
         model (BlackModel): Target model.
         max_iter (int): Max rounds of iteration to generate adversarial image. Default: 1000.
         search_iter (int): Max rounds of binary search. Default: 10.
         is_targeted (bool): If True, targeted attack. If False, untargeted attack. Default: False.
-        init_attack (Attack): Attack used to find a starting point. Default: None.
+        init_attack (Union[Attack, None]): Attack used to find a starting point. Default: None.
         sparse (bool): If True, input labels are sparse-encoded. If False, input labels are one-hot-encoded.
             Default: True.
 
