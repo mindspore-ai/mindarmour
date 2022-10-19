@@ -76,6 +76,17 @@ Fuzz Testing模块的架构图如下：
 
 ### 安装
 
+#### MindSpore版本依赖关系
+
+由于MindArmour与MindSpore有依赖关系，请按照下表所示的对应关系，在[MindSpore下载页面](https://www.mindspore.cn/versions)下载并安装对应的whl包。
+
+| MindArmour | 分支                                                      | MindSpore |
+| ---------- | --------------------------------------------------------- | --------- |
+| 2.0.0      | [r2.0](https://gitee.com/mindspore/mindarmour/tree/r2.0/) | 1.7.0 -   |
+| 1.9.0      | [r1.9](https://gitee.com/mindspore/mindarmour/tree/r1.9/) | 1.7.0 -   |
+| 1.8.0      | [r1.8](https://gitee.com/mindspore/mindarmour/tree/r1.8/) | 1.7.0 -   |
+| 1.7.0      | [r1.7](https://gitee.com/mindspore/mindarmour/tree/r1.7/) | r1.7      |
+
 #### 源码安装
 
 1. 从Gitee下载源码。
