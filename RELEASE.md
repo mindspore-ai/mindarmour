@@ -1,5 +1,19 @@
 # MindArmour Release Notes
 
+## MindArmour 2.0.0 Release Notes
+
+### API Change
+
+* Add version check with MindSpore.
+
+### Contributors
+
+Thanks goes to these wonderful people:
+
+Liu Zhidan, Zhang Shukun, Liu Liu, Tang Cong.
+
+Contributions of any kind are welcome!
+
 ## MindArmour 1.9.0 Release Notes
 
 ### API Change

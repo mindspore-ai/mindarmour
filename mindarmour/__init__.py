@@ -27,6 +27,7 @@ from .privacy.sup_privacy.train.model import SuppressModel
 from .privacy.sup_privacy.mask_monitor.masker import SuppressMasker
 from .privacy.evaluation.inversion_attack import ImageInversionAttack
 from .reliability.concept_drift.concept_drift_check_time_series import ConceptDriftCheckTimeSeries
+from .utils import logger
 
 __all__ = ['Attack',
            'BlackModel',
@@ -40,3 +41,53 @@ __all__ = ['Attack',
            'SuppressMasker',
            'ImageInversionAttack',
            'ConceptDriftCheckTimeSeries']
+
+
+def _mindspore_version_check():
+    """
+    Do the MindSpore version check for MindArmour. If the
+    MindSpore can not be imported, it will raise ImportError. If its
+    version is not compatibale with current MindArmour verision,
+    it will print a warning.
+
+    Raise:
+        ImportError: If the MindSpore can not be imported.
+    """
+    try:
+        from mindarmour.version import __version__
+        ma_version = __version__[:3]
+    except ModuleNotFoundError:
+        logger.warning(f"Get MindArmour version failed")
+        return
+
+    try:
+        import mindspore as ms
+    except (ImportError, ModuleNotFoundError):
+        print("Can not find MindSpore in current environment. Please install "
+              "MindSpore before using MindSpore Reinforcement, by following "
+              "the instruction at https://www.mindspore.cn/install")
+        raise
+
+    ms_ma_version_match = {'1.7': ['1.7'],
+                           '1.8': ['1.7', '1.8', '1.9', '2.0'],
+                           '1.9': ['1.7', '1.8', '1.9', '2.0'],
+                           '2.0': ['1.7', '1.8', '1.9', '2.0']}
+
+    ms_version = ms.__version__[:3]
+    required_mindspore_verision = ms_ma_version_match.get(ma_version[:3])
+
+    if ms_version not in required_mindspore_verision:
+        logger.warning("Current version of MindSpore is not compatible with MindArmour. "
+                       "Some functions might not work or even raise error. Please install MindSpore "
+                       "version in {}. For more details about dependency setting, please check "
+                       "the instructions at MindSpore official website https://www.mindspore.cn/install "
+                       "or check the README.md at https://gitee.com/mindspore/mindarmour".format(
+                           required_mindspore_verision))
+        warning_countdown = 3
+        for i in range(warning_countdown, 0, -1):
+            logger.warning(
+                f"Please pay attention to the above warning, countdown: {i}")
+            time.sleep(1)
+
+
+_mindspore_version_check()

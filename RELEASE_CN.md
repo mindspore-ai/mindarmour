@@ -2,6 +2,20 @@
 
 [View English](./RELEASE.md)
 
+## MindArmour 2.0.0 Release Notes
+
+### API Change
+
+* 增加与MindSpore的版本校验关系。
+
+### 贡献
+
+感谢以下人员做出的贡献：
+
+Liu Zhidan, Zhang Shukun, Liu Liu, Tang Cong.
+
+欢迎以任何形式对项目提供贡献！
+
 ## MindArmour 1.9.0 Release Notes
 
 ### API Change
