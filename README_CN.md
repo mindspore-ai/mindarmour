@@ -82,9 +82,9 @@ Fuzz Testing模块的架构图如下：
 
 | MindArmour | 分支                                                      | MindSpore |
 | ---------- | --------------------------------------------------------- | --------- |
-| 2.0.0      | [r2.0](https://gitee.com/mindspore/mindarmour/tree/r2.0/) | 1.7.0 -   |
-| 1.9.0      | [r1.9](https://gitee.com/mindspore/mindarmour/tree/r1.9/) | 1.7.0 -   |
-| 1.8.0      | [r1.8](https://gitee.com/mindspore/mindarmour/tree/r1.8/) | 1.7.0 -   |
+| 2.0.0      | [r2.0](https://gitee.com/mindspore/mindarmour/tree/r2.0/) | >=1.7.0   |
+| 1.9.0      | [r1.9](https://gitee.com/mindspore/mindarmour/tree/r1.9/) | >=1.7.0   |
+| 1.8.0      | [r1.8](https://gitee.com/mindspore/mindarmour/tree/r1.8/) | >=1.7.0   |
 | 1.7.0      | [r1.7](https://gitee.com/mindspore/mindarmour/tree/r1.7/) | r1.7      |
 
 #### 源码安装
