@@ -32,13 +32,14 @@ class Contrast(_NaturalPerturb):
     Contrast of an image.
 
     Args:
-        alpha (Union[float, int]): Control the contrast of an image. :math:`out\_image = in\_image*alpha+beta`.
-            Suggested value range in [0.2, 2].
+        alpha (Union[float, int]): Control the contrast of an image. :math:`out\_image = in\_image \times alpha+beta`.
+            Suggested value range in [0.2, 2]. Default: 1.
         beta (Union[float, int]): Delta added to alpha. Default: 0.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
             Default: False.
 
     Examples:
+        >>> import cv2
         >>> img = cv2.imread('1.png')
         >>> img = np.array(img)
         >>> alpha = 0.1
@@ -206,16 +207,17 @@ class GradientLuminance(_NaturalPerturb):
         color_start (union[tuple, list]): Color of gradient center. Default:(0, 0, 0).
         color_end (union[tuple, list]):  Color of gradient edge. Default:(255, 255, 255).
         start_point (union[tuple, list]): 2D coordinate of gradient center.
-        scope (float): Range of the gradient. A larger value indicates a larger gradient range. Default: 0.3.
-        pattern (str): Dark or light, this value must be in ['light', 'dark'].
+        scope (float): Range of the gradient. A larger value indicates a larger gradient range. Default: 0.5.
+        pattern (str): Dark or light, this value must be in ['light', 'dark']. Default: 'light'.
         bright_rate (float): Control brightness. A larger value indicates a larger gradient range. If parameter
             'pattern' is 'light', Suggested value range in [0.1, 0.7], if parameter 'pattern' is 'dark', Suggested value
-            range in [0.1, 0.9].
-        mode (str): Gradient mode, value must be in ['circle', 'horizontal', 'vertical'].
+            range in [0.1, 0.9]. Default: 0.3.
+        mode (str): Gradient mode, value must be in ['circle', 'horizontal', 'vertical']. Default: 'circle'.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
             Default: False.
 
     Examples:
+        >>> import cv2
         >>> img = cv2.imread('x.png')
         >>> height, width = img.shape[:2]
         >>> point = (height // 4, width // 2)
