@@ -32,13 +32,14 @@ class Translate(_NaturalPerturb):
 
     Args:
         x_bias (Union[int, float]): X-direction translation, x = x + x_bias*image_width. Suggested value range
-            in [-0.1, 0.1].
+            in [-0.1, 0.1]. Default: 0.
         y_bias (Union[int, float]): Y-direction translation,  y = y + y_bias*image_length. Suggested value range
-            in [-0.1, 0.1].
+            in [-0.1, 0.1]. Default: 0.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
             Default: False.
 
     Examples:
+        >>> import cv2
         >>> img = cv2.imread('1.png')
         >>> img = np.array(img)
         >>> x_bias = 0.1
@@ -80,13 +81,14 @@ class Scale(_NaturalPerturb):
 
     Args:
         factor_x (Union[float, int]): Rescale in X-direction, x=factor_x*x. Suggested value range in [0.5, 1] and
-            abs(factor_y - factor_x) < 0.5.
+            abs(factor_y - factor_x) < 0.5. Default: 1.
         factor_y (Union[float, int]): Rescale in Y-direction, y=factor_y*y. Suggested value range in [0.5, 1] and
-            abs(factor_y - factor_x) < 0.5.
+            abs(factor_y - factor_x) < 0.5. Default: 1.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
             Default: False.
 
     Examples:
+        >>> import cv2
         >>> img = cv2.imread('1.png')
         >>> img = np.array(img)
         >>> factor_x = 0.7
@@ -129,12 +131,13 @@ class Shear(_NaturalPerturb):
     Then the sheared image will be rescaled to fit original size.
 
     Args:
-        factor (Union[float, int]): Shear rate in shear direction. Suggested value range in [0.05, 0.5].
-        direction (str): Direction of deformation. Optional value is 'vertical' or 'horizontal'.
+        factor (Union[float, int]): Shear rate in shear direction. Suggested value range in [0.05, 0.5]. Default: 0.2.
+        direction (str): Direction of deformation. Optional value is 'vertical' or 'horizontal'. Default: 'horizontal'.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
             Default: False.
 
     Examples:
+        >>> import cv2
         >>> img = cv2.imread('1.png')
         >>> img = np.array(img)
         >>> factor = 0.2
@@ -186,11 +189,12 @@ class Rotate(_NaturalPerturb):
     Rotate an image of counter clockwise around its center.
 
     Args:
-        angle (Union[float, int]): Degrees of counter clockwise. Suggested value range in [-60, 60].
+        angle (Union[float, int]): Degrees of counter clockwise. Suggested value range in [-60, 60]. Default: 20.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
             Default: False.
 
     Examples:
+        >>> import cv2
         >>> img = cv2.imread('1.png')
         >>> img = np.array(img)
         >>> angle = 20
@@ -240,12 +244,13 @@ class Perspective(_NaturalPerturb):
     Perform perspective transformation on a given picture.
 
     Args:
-        ori_pos (list): Four points in original image.
-        dst_pos (list): The point coordinates of the 4 points in ori_pos after perspective transformation.
+        ori_pos (list[list[int]]): Four points in original image.
+        dst_pos (list[list[int]]): The point coordinates of the 4 points in `ori_pos` after perspective transformation.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
             Default: False.
 
     Examples:
+        >>> import cv2
         >>> img = cv2.imread('1.png')
         >>> img = np.array(img)
         >>> ori_pos = [[0, 0], [0, 800], [800, 0], [800, 800]]
@@ -297,14 +302,15 @@ class Curve(_NaturalPerturb):
     Curve picture using sin method.
 
     Args:
-        curves (union[float, int]): Number of curve cycles. Suggested value range in [0.1, 5].
+        curves (union[float, int]): Number of curve cycles. Suggested value range in [0.1, 5]. Default: 3.
         depth (union[float, int]): Amplitude of sin method. Suggested value not exceed 1/10 of the length of the
-            picture.
-        mode (str): Direction of deformation. Optional value is 'vertical' or 'horizontal'.
+            picture. Default: 10.
+        mode (str): Direction of deformation. Optional value is 'vertical' or 'horizontal'. Default: 'vertical'.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
             Default: False.
 
     Examples:
+        >>> import cv2
         >>> img = cv2.imread('x.png')
         >>> curves =1
         >>> depth = 10
