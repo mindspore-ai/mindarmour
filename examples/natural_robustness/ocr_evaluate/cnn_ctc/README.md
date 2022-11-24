@@ -468,7 +468,7 @@ accuracy:  0.8533
 | Speed                      | 1pc: 250 ms/step;  8pcs: 260 ms/step                          |
 | Total time                 | 1pc: 15 hours;  8pcs: 1.92 hours                          |
 | Parameters (M)             | 177                                                         |
-| Scripts                    | <https://gitee.com/mindspore/models/tree/r1.9/research/cv/cnnctc> |
+| Scripts                    | <https://gitee.com/mindspore/models/tree/r1.9/official/cv/cnnctc> |
 
 | Parameters                 | CNNCTC                                                   |
 | -------------------------- | ----------------------------------------------------------- |
@@ -483,7 +483,7 @@ accuracy:  0.8533
 | Speed                      | 1pc: 1180 ms/step;  8pcs: 1180 ms/step                          |
 | Total time                 | 1pc: 62.9 hours;  8pcs: 8.67 hours                          |
 | Parameters (M)             | 177                                                         |
-| Scripts                    | <https://gitee.com/mindspore/models/tree/r1.9/research/cv/cnnctc> |
+| Scripts                    | <https://gitee.com/mindspore/models/tree/r1.9/official/cv/cnnctc> |
 
 ### Evaluation Performance
 
