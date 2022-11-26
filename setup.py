@@ -133,7 +133,7 @@ setup(
         'scipy >= 1.5.2',
         'numpy >= 1.17.0',
         'matplotlib >= 3.2.1',
-        'pillow >= 7.2.0',
+        'pillow >= 9.3.0',
         'scikit-learn >= 0.23.1',
         'easydict >= 1.9',
         'opencv-python >= 4.1.2.30',
