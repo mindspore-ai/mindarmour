@@ -241,8 +241,7 @@ mindarmour.privacy.diff_privacy
 
     .. py:method:: set_mechanisms(policy, *args, **kwargs)
 
-        获取噪音机制对象。策略可以是'Gaussian'或'AdaGaussian'。候选的args和kwargs可以在mechanisms.py
-        的 :class:`NoiseMechanismsFactory` 类中看到。
+        获取噪音机制对象。策略可以是'Gaussian'或'AdaGaussian'。候选的args和kwargs可以在 `NoiseMechanismsFactory` 类中看到。
 
         参数：
             - **policy** (str) - 选择机制类型。
@@ -251,7 +250,7 @@ mindarmour.privacy.diff_privacy
 
     DPModel用于构建差分隐私训练的模型。
     
-    这个类重载自 :class:`mindspore.Model` 。
+    这个类重载自 `mindspore.train.Model` 。
 
     详情请查看： `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_。
 

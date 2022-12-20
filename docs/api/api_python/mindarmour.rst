@@ -197,7 +197,7 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
 
     DPModel用于构建差分隐私训练的模型。
 
-    此类重载 :class:`mindspore.Model`。
+    此类重载 `mindspore.train.Model`。
 
     详情请查看： `应用差分隐私机制保护用户隐私 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_。
 

@@ -63,11 +63,11 @@ class ClipMechanismsFactory:
                 random number. IF seed!=0 random normal will generate values using
                 given seed. Default: 0.
 
-        Raises:
-            NameError: `mech_name` must be in ['Gaussian'].
-
         Returns:
             Mechanisms, class of noise generated Mechanism.
+
+        Raises:
+            NameError: `mech_name` must be in ['Gaussian'].
 
         Examples:
             >>> from mindspore import Tensor
@@ -125,11 +125,11 @@ class NoiseMechanismsFactory:
             decay_policy(str): Mechanisms parameters update policy. If decay_policy is None, no
                 parameters need update. Default: None.
 
-        Raises:
-            NameError: `mech_name` must be in ['Gaussian', 'AdaGaussian'].
-
         Returns:
             Mechanisms, class of noise generated Mechanism.
+
+        Raises:
+            NameError: `mech_name` must be in ['Gaussian', 'AdaGaussian'].
 
         Examples:
             >>> from mindarmour.privacy.diff_privacy import NoiseMechanismsFactory
