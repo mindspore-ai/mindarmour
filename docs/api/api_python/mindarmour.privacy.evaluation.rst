@@ -16,7 +16,7 @@ mindarmour.privacy.evaluation
         - **n_jobs** (int) - 并行运行的任务数量。-1表示使用所有处理器，否则n_jobs的值必须为正整数。
 
     异常：
-        - **TypeError** - 模型的类型不是 :class:`mindspore.Model` 。
+        - **TypeError** - 模型的类型不是 `mindspore.train.Model` 。
         - **TypeError** - `n_jobs` 的类型不是int。
         - **ValueError** - `n_jobs` 的值既不是-1，也不是正整数。
 
