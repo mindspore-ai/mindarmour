@@ -27,14 +27,14 @@ TAG = 'Image Transformation'
 
 
 class Translate(_NaturalPerturb):
-    """
+    r"""
     Translate an image.
 
     Args:
-        x_bias (Union[int, float]): X-direction translation, x = x + x_bias*image_width. Suggested value range
-            in [-0.1, 0.1]. Default: 0.
-        y_bias (Union[int, float]): Y-direction translation,  y = y + y_bias*image_length. Suggested value range
-            in [-0.1, 0.1]. Default: 0.
+        x_bias (Union[int, float]): X-direction translation, :math:`x = x + x\_bias*image\_width`.
+            Suggested value range in [-0.1, 0.1]. Default: 0.
+        y_bias (Union[int, float]): Y-direction translation, :math:`y = y + y\_bias*image\_length`.
+            Suggested value range in [-0.1, 0.1]. Default: 0.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
             Default: False.
 
