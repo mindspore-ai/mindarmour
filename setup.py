@@ -130,7 +130,7 @@ setup(
         'build_py': BuildPy,
     },
     install_requires=[
-        'scipy >= 1.5.2',
+        'scipy >= 1.5.4',
         'numpy >= 1.17.0',
         'matplotlib >= 3.2.1',
         'pillow >= 9.3.0',
