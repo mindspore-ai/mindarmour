@@ -93,8 +93,8 @@ mindarmour.natural_robustness.transform.image
     图像平移。
 
     参数：
-        - **x_bias** (Union[int, float]) - X方向平移， :math:`x = x + x_bias \times image\_length` 。建议取值范围在[-0.1, 0.1]中。默认值：0。
-        - **y_bias** (Union[int, float]) - Y方向平移， :math:`y = y + y_bias \times image\_width` 。建议取值范围在[-0.1, 0.1]中。默认值：0。
+        - **x_bias** (Union[int, float]) - X方向平移， :math:`x = x + x\_bias \times image\_length` 。建议取值范围在[-0.1, 0.1]中。默认值：0。
+        - **y_bias** (Union[int, float]) - Y方向平移， :math:`y = y + y\_bias \times image\_width` 。建议取值范围在[-0.1, 0.1]中。默认值：0。
         - **auto_param** (bool) - 自动选择参数。在保留图像的语义的范围内自动选择参数。默认值：False。
 
 .. py:class:: mindarmour.natural_robustness.transform.image.Scale(factor_x=1, factor_y=1, auto_param=False)
