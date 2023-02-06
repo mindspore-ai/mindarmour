@@ -141,7 +141,7 @@ class DPModel(Model):
         # judge device_target, only GPU or Ascend is supported until now
         device = context.get_context("device_target")
         if device not in ["GPU", "Ascend"]:
-            msg = "'device_target' or DP training should be 'GPU' or 'Ascend', but got {}.".format(device)
+            msg = "'device_target' for DP training should be 'GPU' or 'Ascend', but got {}.".format(device)
             LOGGER.error(TAG, msg)
             raise ValueError(msg)
 
