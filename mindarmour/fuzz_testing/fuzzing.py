@@ -234,7 +234,7 @@ class Fuzzer:
                 {'method': 'Rotate',
                 'params': {'angle': [20, 90], 'auto_param': [False, True]}},
                 {'method': 'FGSM',
-                'params': {'eps': [0.3, 0.2, 0.4], 'alpha': [0.1], 'bounds': [(0, 1)]}}]
+                'params': {'eps': [0.3, 0.2, 0.4], 'alpha': [0.1], 'bounds': [(0, 1)]}}
                 ...].
                 The supported methods list is in `self._strategies`, and the params of each method must within the
                 range of optional parameters. Supported methods are grouped in two types: Firstly, natural robustness
