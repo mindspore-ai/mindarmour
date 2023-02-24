@@ -18,6 +18,8 @@ Out-of-Distribution detection module for images.
 import heapq
 import numpy as np
 from sklearn.cluster import KMeans
+
+import mindspore as ms
 from mindspore import Tensor
 from mindspore.train.summary.summary_record import _get_summary_tensor_data
 from mindarmour.utils._check_param import check_param_type, check_param_in_range
@@ -33,6 +35,9 @@ class OodDetector:
     """
 
     def __init__(self, model, ds_train):
+        mode = ms.get_context('mode')
+        if mode == "PYNATIVE_MODE":
+            raise ValueError(f"OodDetector Currently only supports GRAPH_MODE.")
         self.model = model
         self.ds_train = check_param_type('ds_train', ds_train, np.ndarray)
 
