@@ -12,12 +12,74 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """ check parameters for MindArmour. """
+
+from collections.abc import Iterable
 import numpy as np
 
 from .logger import LogUtil
 
 LOGGER = LogUtil.get_instance()
 TAG = 'check parameters'
+
+
+EQ = 1  # ==
+NE = 2  # !=
+LT = 3  # <
+LE = 4  # <=
+GT = 5  # >
+GE = 6  # >=
+# scalar range check
+INC_NEITHER = 7  # (), include neither
+INC_LEFT = 8  # [), include left
+INC_RIGHT = 9  # (], include right
+INC_BOTH = 10  # [], include both
+# collection in, not in
+IN = 11
+NOT_IN = 12
+
+
+def _check_binary_rel(val1, val2, rel):
+    """check binary relation"""
+    if rel == EQ:
+        return val1 == val2
+    if rel == NE:
+        return val1 != val2
+    if rel == LT:
+        return val1 < val2
+    if rel == LE:
+        return val1 <= val2
+    if rel == GT:
+        return val1 > val2
+    if rel == GE:
+        return val1 >= val2
+    if rel == IN:
+        return val1 in val2
+    if rel == NOT_IN:
+        return val1 not in val2
+
+    return False
+
+
+def _format_str_one_value(value, rel):
+    """format string"""
+    if rel == EQ:
+        return "= {}".format(value)
+    if rel == NE:
+        return "!= {}".format(value)
+    if rel == LT:
+        return "< {}".format(value)
+    if rel == LE:
+        return "<= {}".format(value)
+    if rel == GT:
+        return "> {}".format(value)
+    if rel == GE:
+        return ">= {}".format(value)
+    if rel == IN:
+        return "in {}".format(value)
+    if rel == NOT_IN:
+        return "not in {}".format(value)
+
+    return ""
 
 
 def _check_array_not_empty(arg_name, arg_value):
@@ -341,4 +403,45 @@ def check_param_bounds(arg_name, arg_value):
             format(arg_name, arg_value[0], arg_value[1])
         LOGGER.error(TAG, msg)
         raise ValueError(msg)
+    return arg_value
+
+
+def check_value_type(arg_name, arg_value, valid_types, prim_name=None):
+    """Checks whether a value is instance of some types."""
+    valid_types = valid_types if isinstance(valid_types, Iterable) else (valid_types,)
+
+    def raise_error_msg(cond, arg_value):
+        """func for raising error message when check failed"""
+        if not cond:
+            return
+        type_names = [t.__name__ if hasattr(t, '__name__') else str(t) for t in valid_types]
+        num_types = len(valid_types)
+        msg_prefix = f"For '{prim_name}', the" if prim_name else "The"
+        raise TypeError(f'{msg_prefix} type of \'{arg_name}\' should be {"one of " if num_types > 1 else ""}' \
+                        f'\'{type_names if num_types > 1 else type_names[0]}\', ' \
+                        f'but got type \'{type(arg_value).__name__}\'.')
+
+    # Notice: bool is subclass of int, so `check_value_type('x', True, [int])` will check fail, and
+    #         `check_value_type('x', True, [bool, int])` will check pass
+    cond = isinstance(arg_value, bool) and bool not in tuple(valid_types)
+    raise_error_msg(cond, arg_value)
+    if isinstance(arg_value, float) and float not in tuple(valid_types):
+        arg_value = round(arg_value, 6)
+    cond = not isinstance(arg_value, tuple(valid_types))
+    raise_error_msg(cond, arg_value)
+    return arg_value
+
+
+def check(arg_name, arg_value, value_name, value, rel=EQ, prim_name=None, excp_cls=ValueError):
+    """
+    Method for judging relation between two int values or list/tuple made up of ints.
+    This method is not suitable for judging relation between floats, since it does not consider float error.
+    """
+    def _check():
+        if not _check_binary_rel(arg_value, value, rel):
+            rel_str = _format_str_one_value(f'{value_name}: {value}', rel)
+            msg_prefix = f'For \'{prim_name}\', the' if prim_name else "The"
+            msg_subject = f"{msg_prefix} \'{arg_name}\'" if " " not in arg_name else f"{msg_prefix} {arg_name}"
+            raise excp_cls(f'{msg_subject} should be {rel_str}, but got {arg_value}.')
+    _check()
     return arg_value
