@@ -152,7 +152,7 @@ class ConceptDriftCheckTimeSeries:
         Find concept drift locations in a data series.
 
         Args:
-            data(numpy.ndarray): Input data. The shape of data could be (n,1) or (n,m).
+            data(numpy.ndarray): Input data. The shape of data could be :math:`(n,1)` or :math:`(n,m)`.
                 Note that each column (m columns) is one data series.
 
         Returns:
