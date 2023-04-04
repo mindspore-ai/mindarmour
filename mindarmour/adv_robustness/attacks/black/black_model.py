@@ -36,7 +36,7 @@ class BlackModel:
     def predict(self, inputs):
         """
         Predict using the user specified model. The shape of predict results
-        should be (m, n), where n represents the number of classes this model
+        should be :math:`(m, n)`, where n represents the number of classes this model
         classifies.
 
         Args:

@@ -101,7 +101,7 @@ class ImageInversionAttack:
     Args:
         network (Cell): The network used to infer images' deep representations.
         input_shape (tuple): Data shape of single network input, which should be in accordance with the given
-            network. The format of shape should be (channel, image_width, image_height).
+            network. The format of shape should be :math:`(channel, image_width, image_height)`.
         input_bound (Union[tuple, list]): The pixel range of original images, which should be like [minimum_pixel,
             maximum_pixel] or (minimum_pixel, maximum_pixel).
         loss_weights (Union[list, tuple]): Weights of three sub-loss in InversionLoss, which can be adjusted to
@@ -159,7 +159,7 @@ class ImageInversionAttack:
         Args:
             target_features (numpy.ndarray): Deep representations of original images. The first dimension of
                 target_features should be img_num. It should be noted that the shape of target_features should be
-                (1, dim2, dim3, ...) if img_num equals 1.
+                :math:`(1, dim2, dim3, ...)` if img_num equals 1.
             iters (int): iteration times of inversion attack, which should be positive integers. Default: 100.
 
         Returns:
@@ -204,10 +204,10 @@ class ImageInversionAttack:
         inferred by a new trained network.
 
         Args:
-            original_images (numpy.ndarray): Original images, whose shape should be (img_num, channels, img_width,
-                img_height).
-            inversion_images (numpy.ndarray): Inversion images, whose shape should be (img_num, channels, img_width,
-                img_height).
+            original_images (numpy.ndarray): Original images, whose shape should be
+                :math:`(img_num, channels, img_width, img_height)`.
+            inversion_images (numpy.ndarray): Inversion images, whose shape should be
+                :math:`(img_num, channels, img_width, img_height)`.
             labels (numpy.ndarray): Ground truth labels of original images. Default: None.
             new_network (Cell): A network whose structure contains all parts of self._network, but loaded with different
                 checkpoint file. Default: None.
