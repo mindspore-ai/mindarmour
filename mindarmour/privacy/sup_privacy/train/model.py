@@ -59,7 +59,7 @@ class SuppressModel(Model):
     Suppress privacy training model, which is overload from mindspore.train.model.Model.
 
     For details, please check `Protecting User Privacy with Suppress Privacy
-    <https://mindspore.cn/mindarmour/docs/en/master/protect_user_privacy_with_suppress_privacy.html>`_.
+    <https://mindspore.cn/mindarmour/docs/en/r2.0/protect_user_privacy_with_suppress_privacy.html>`_.
 
     Args:
         network (Cell): The training network.

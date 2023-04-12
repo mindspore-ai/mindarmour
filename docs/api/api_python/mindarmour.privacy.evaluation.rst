@@ -7,7 +7,7 @@ mindarmour.privacy.evaluation
 
     成员推理是由Shokri、Stronati、Song和Shmatikov提出的一种用于推断用户隐私数据的灰盒攻击。它需要训练样本的loss或logits结果，隐私是指单个用户的一些敏感属性。
 
-    有关详细信息，请参见： `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/test_model_security_membership_inference.html>`_。
+    有关详细信息，请参见： `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/r2.0/test_model_security_membership_inference.html>`_。
 
     参考文献：`Reza Shokri, Marco Stronati, Congzheng Song, Vitaly Shmatikov. Membership Inference Attacks against Machine Learning Models. 2017. <https://arxiv.org/abs/1610.05820v2>`_。
 
