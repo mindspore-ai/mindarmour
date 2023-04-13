@@ -69,7 +69,7 @@ class DPModel(Model):
     This class is overload mindspore.train.model.Model.
 
     For details, please check `Protecting User Privacy with Differential Privacy Mechanism
-    <https://mindspore.cn/mindarmour/docs/en/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_.
+    <https://mindspore.cn/mindarmour/docs/en/r2.0/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_.
 
     Args:
         micro_batches (int): The number of small batches split from an original

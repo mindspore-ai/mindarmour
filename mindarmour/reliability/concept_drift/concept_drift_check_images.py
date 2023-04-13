@@ -90,7 +90,7 @@ class OodDetectorFeatureCluster(OodDetector):
     image or not.
 
     For details, please check `Implementing the Concept Drift Detection Application of Image Data
-    <https://mindspore.cn/mindarmour/docs/en/master/concept_drift_images.html>`_.
+    <https://mindspore.cn/mindarmour/docs/en/r2.0/concept_drift_images.html>`_.
 
     Args:
         model (Model):The training model.

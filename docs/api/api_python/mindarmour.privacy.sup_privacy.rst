@@ -8,7 +8,7 @@ mindarmour.privacy.sup_privacy
     周期性检查抑制隐私功能状态和切换（启动/关闭）抑制操作。
 
     详情请查看： `应用抑制隐私机制保护用户隐私
-    <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_suppress_privacy.html#%E5%BC%95%E5%85%A5%E6%8A%91%E5%88%B6%E9%9A%90%E7%A7%81%E8%AE%AD%E7%BB%83>`_。
+    <https://mindspore.cn/mindarmour/docs/zh-CN/r2.0/protect_user_privacy_with_suppress_privacy.html#%E5%BC%95%E5%85%A5%E6%8A%91%E5%88%B6%E9%9A%90%E7%A7%81%E8%AE%AD%E7%BB%83>`_。
 
     参数：
         - **model** (SuppressModel) - SuppressModel 实例。
@@ -25,7 +25,7 @@ mindarmour.privacy.sup_privacy
 
     抑制隐私训练器，重载自 :class:`mindspore.Model` 。
 
-    有关详细信息，请查看： `应用抑制隐私机制保护用户隐私 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_suppress_privacy.html#%E5%BC%95%E5%85%A5%E6%8A%91%E5%88%B6%E9%9A%90%E7%A7%81%E8%AE%AD%E7%BB%83>`_。
+    有关详细信息，请查看： `应用抑制隐私机制保护用户隐私 <https://mindspore.cn/mindarmour/docs/zh-CN/r2.0/protect_user_privacy_with_suppress_privacy.html#%E5%BC%95%E5%85%A5%E6%8A%91%E5%88%B6%E9%9A%90%E7%A7%81%E8%AE%AD%E7%BB%83>`_。
 
     参数：
         - **network** (Cell) - 要训练的神经网络模型。
@@ -44,7 +44,7 @@ mindarmour.privacy.sup_privacy
 
     SuppressCtrl机制的工厂类。
 
-    详情请查看： `应用抑制隐私机制保护用户隐私 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_suppress_privacy.html#%E5%BC%95%E5%85%A5%E6%8A%91%E5%88%B6%E9%9A%90%E7%A7%81%E8%AE%AD%E7%BB%83>`_。
+    详情请查看： `应用抑制隐私机制保护用户隐私 <https://mindspore.cn/mindarmour/docs/zh-CN/r2.0/protect_user_privacy_with_suppress_privacy.html#%E5%BC%95%E5%85%A5%E6%8A%91%E5%88%B6%E9%9A%90%E7%A7%81%E8%AE%AD%E7%BB%83>`_。
 
     .. py:method:: create(networks, mask_layers, policy='local_train', end_epoch=10, batch_num=20, start_epoch=3, mask_times=1000, lr=0.05, sparse_end=0.90, sparse_start=0.0)
 
@@ -67,7 +67,7 @@ mindarmour.privacy.sup_privacy
 
     完成抑制隐私操作，包括计算抑制比例，找到应该抑制的参数，并永久抑制这些参数。
 
-    详情请查看： `应用抑制隐私机制保护用户隐私 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_suppress_privacy.html#%E5%BC%95%E5%85%A5%E6%8A%91%E5%88%B6%E9%9A%90%E7%A7%81%E8%AE%AD%E7%BB%83>`_。
+    详情请查看： `应用抑制隐私机制保护用户隐私 <https://mindspore.cn/mindarmour/docs/zh-CN/r2.0/protect_user_privacy_with_suppress_privacy.html#%E5%BC%95%E5%85%A5%E6%8A%91%E5%88%B6%E9%9A%90%E7%A7%81%E8%AE%AD%E7%BB%83>`_。
 
     参数：
         - **networks** (Cell) - 要训练的神经网络模型。
@@ -167,7 +167,7 @@ mindarmour.privacy.sup_privacy
               for layer in networks.get_parameters(expand=True):
                   if layer.name == "conv": ...
 
-        - **grad_idx** (int) - 掩码层在梯度元组中的索引。可参考 `model.py <https://gitee.com/mindspore/mindarmour/blob/master/mindarmour/privacy/sup_privacy/train/model.py>`_ 中TrainOneStepCell的构造函数，在PYNATIVE_MODE模式下打印某些层的索引值。
+        - **grad_idx** (int) - 掩码层在梯度元组中的索引。可参考 `model.py <https://gitee.com/mindspore/mindarmour/blob/r2.0/mindarmour/privacy/sup_privacy/train/model.py>`_ 中TrainOneStepCell的构造函数，在PYNATIVE_MODE模式下打印某些层的索引值。
         - **is_add_noise** (bool) - 如果为True，则此层的权重可以添加噪声。如果为False，则此层的权重不能添加噪声。如果参数num大于100000，则　`is_add_noise` 无效。
         - **is_lower_clip** (bool) - 如果为True，则此层的权重将被剪裁到大于下限值。如果为False，此层的权重不会被要求大于下限制。如果参数num大于100000，则is_lower_clip无效。
         - **min_num** (int) - 未抑制的剩余权重数。如果min_num小于（参数总数量 *　`SupperssCtrl.sparse_end` ），则min_num无效。
