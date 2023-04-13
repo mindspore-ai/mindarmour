@@ -17,8 +17,6 @@ suppress-basd privacy model.
 from easydict import EasyDict as edict
 
 from mindspore.train.model import Model
-from mindspore._checkparam import Validator as validator
-from mindspore._checkparam import Rel
 from mindspore.train.amp import _config_level
 from mindspore.common import dtype as mstype
 from mindspore.nn.wrap.cell_wrapper import _VirtualDatasetCell
@@ -36,7 +34,8 @@ from mindspore.parallel._utils import _get_device_num
 from mindspore.nn.wrap.grad_reducer import DistributedGradReducer
 from mindspore.nn import Cell
 from mindspore.nn.optim import SGD
-from mindarmour.utils._check_param import check_param_type
+from mindarmour.utils import _check_param as validator
+from mindarmour.utils._check_param import check_param_type, check, check_value_type
 from mindarmour.utils.logger import LogUtil
 from mindarmour.privacy.sup_privacy.sup_ctrl.conctrl import SuppressCtrl
 
@@ -144,9 +143,9 @@ class SuppressModel(Model):
                 scale the loss, or else scale the loss by LossScaleManager.
                 If set, overwrite the level setting.
         """
-        validator.check_value_type('network', network, nn.Cell, None)
-        validator.check_value_type('optimizer', optimizer, nn.Optimizer, None)
-        validator.check('level', level, "", ['O0', 'O2'], Rel.IN, None)
+        check_value_type('network', network, nn.Cell, None)
+        check_value_type('optimizer', optimizer, nn.Optimizer, None)
+        check('level', level, "", ['O0', 'O2'], validator.IN, None)
         self._check_kwargs(kwargs)
         config = dict(_config_level[level], **kwargs)
         config = edict(config)
