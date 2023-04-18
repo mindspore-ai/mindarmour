@@ -92,7 +92,7 @@ class InversionLoss(Cell):
 
 
 class ImageInversionAttack:
-    """
+    r"""
     An attack method used to reconstruct images by inverting their deep representations.
 
     References: `Aravindh Mahendran, Andrea Vedaldi. Understanding Deep Image Representations by Inverting Them.
@@ -101,7 +101,7 @@ class ImageInversionAttack:
     Args:
         network (Cell): The network used to infer images' deep representations.
         input_shape (tuple): Data shape of single network input, which should be in accordance with the given
-            network. The format of shape should be :math:`(channel, image_width, image_height)`.
+            network. The format of shape should be :math:`(channel, image\_width, image\_height)`.
         input_bound (Union[tuple, list]): The pixel range of original images, which should be like [minimum_pixel,
             maximum_pixel] or (minimum_pixel, maximum_pixel).
         loss_weights (Union[list, tuple]): Weights of three sub-loss in InversionLoss, which can be adjusted to
@@ -198,16 +198,16 @@ class ImageInversionAttack:
         return np.concatenate(np.array(inversion_images))
 
     def evaluate(self, original_images, inversion_images, labels=None, new_network=None):
-        """
+        r"""
         Evaluate the quality of inverted images by three index: the average L2 distance and SSIM value between
         original images and inversion images, and the average of inverted images' confidence on true labels of inverted
         inferred by a new trained network.
 
         Args:
             original_images (numpy.ndarray): Original images, whose shape should be
-                :math:`(img_num, channels, img_width, img_height)`.
+                :math:`(img\_num, channels, img\_width, img\_height)`.
             inversion_images (numpy.ndarray): Inversion images, whose shape should be
-                :math:`(img_num, channels, img_width, img_height)`.
+                :math:`(img\_num, channels, img\_width, img\_height)`.
             labels (numpy.ndarray): Ground truth labels of original images. Default: None.
             new_network (Cell): A network whose structure contains all parts of self._network, but loaded with different
                 checkpoint file. Default: None.
