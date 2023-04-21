@@ -127,7 +127,8 @@ class Scale(_NaturalPerturb):
 
 class Shear(_NaturalPerturb):
     """
-    Shear an image, the mapping between sheared image and origin image is (new_x, new_y) = (x+factor_x*y, factor_y*x+y).
+    Shear an image, the mapping between sheared image and origin image is
+    :math:`(new_x, new_y) = (x+factor_x \times y, factor_y \times x+y)`.
     Then the sheared image will be rescaled to fit original size.
 
     Args:
