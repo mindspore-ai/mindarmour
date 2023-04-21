@@ -50,7 +50,7 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
 
     .. py:method:: predict(inputs)
 
-        使用用户指定的模型进行预测。预测结果的shape应该是 :math:`(m,n)`，其中n表示此模型分类的类数。
+        使用用户指定的模型进行预测。预测结果的shape应该是 :math:`(m, n)`，其中n表示此模型分类的类数。
 
         参数：
             - **inputs** (numpy.ndarray) - 要预测的输入样本。
@@ -278,7 +278,7 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
 
     参数：
         - **network** (Cell) - 网络，用于推断图像的深层特征。
-        - **input_shape** (tuple) - 单个网络输入的数据shape，应与给定网络一致。shape的格式应为 :math:`(channel, image_width, image_height)`。
+        - **input_shape** (tuple) - 单个网络输入的数据shape，应与给定网络一致。shape的格式应为 :math:`(channel, image\_width, image\_height)`。
         - **input_bound** (Union[tuple, list]) - 原始图像的像素范围，应该像[minimum_pixel, maximum_pixel]或(minimum_pixel, maximum_pixel)。
         - **loss_weights** (Union[list, tuple]) - InversionLoss中三个子损失的权重，可以调整以获得更好的结果。默认值：(1, 0.2, 5)。
 
@@ -292,8 +292,8 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
         通过三个指标评估还原图像的质量：原始图像和还原图像之间的平均L2距离和SSIM值，以及新模型对还原图像的推理结果在真实标签上的置信度平均值。
 
         参数：
-            - **original_images** (numpy.ndarray) - 原始图像，其shape应为 :math:`(img_num, channels, img_width, img_height)`。
-            - **inversion_images** (numpy.ndarray) - 还原图像，其shape应为 :math:`(img_num, channels, img_width, img_height)`。
+            - **original_images** (numpy.ndarray) - 原始图像，其shape应为 :math:`(img\_num, channels, img\_width, img\_height)`。
+            - **inversion_images** (numpy.ndarray) - 还原图像，其shape应为 :math:`(img\_num, channels, img\_width, img\_height)`。
             - **labels** (numpy.ndarray) - 原始图像的ground truth标签。默认值：None。
             - **new_network** (Cell) - 其结构包含self._network中所有网络，但加载了不同的模型文件。默认值：None。
 
