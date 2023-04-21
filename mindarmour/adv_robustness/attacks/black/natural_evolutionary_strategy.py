@@ -54,29 +54,29 @@ class NES(Attack):
 
     Args:
         model (BlackModel): Target model to be attacked.
-        scene (str): Scene in 'Label_Only', 'Partial_Info' or 'Query_Limit'.
-        max_queries (int): Maximum query numbers to generate an adversarial example. Default: 10000.
+        scene (str): Scene in ``'Label_Only'``, ``'Partial_Info'`` or ``'Query_Limit'``.
+        max_queries (int): Maximum query numbers to generate an adversarial example. Default: ``10000``.
         top_k (int): For Partial-Info or Label-Only setting, indicating how much (Top-k) information is
-            available for the attacker. For Query-Limited setting, this input should be set as -1. Default: -1.
-        num_class (int): Number of classes in dataset. Default: 10.
-        batch_size (int): Batch size. Default: 128.
-        epsilon (float): Maximum perturbation allowed in attack. Default: 0.3.
-        samples_per_draw (int): Number of samples draw in antithetic sampling. Default: 128.
-        momentum (float): Momentum. Default: 0.9.
-        learning_rate (float): Learning rate. Default: 1e-3.
-        max_lr (float): Max Learning rate. Default: 5e-2.
-        min_lr (float): Min Learning rate. Default: 5e-4.
-        sigma (float): Step size of random noise. Default: 1e-3.
-        plateau_length (int): Length of plateau used in Annealing algorithm. Default: 20.
-        plateau_drop (float): Drop of plateau used in Annealing algorithm. Default: 2.0.
-        adv_thresh (float): Threshold of adversarial. Default: 0.25.
-        zero_iters (int): Number of points to use for the proxy score. Default: 10.
-        starting_eps (float): Starting epsilon used in Label-Only setting. Default: 1.0.
-        starting_delta_eps (float): Delta epsilon used in Label-Only setting. Default: 0.5.
-        label_only_sigma (float): Sigma used in Label-Only setting. Default: 1e-3.
-        conservative (int): Conservation used in epsilon decay, it will increase if no convergence. Default: 2.
-        sparse (bool): If True, input labels are sparse-encoded. If False,
-            input labels are one-hot-encoded. Default: True.
+            available for the attacker. For Query-Limited setting, this input should be set as ``-1``. Default: ``-1``.
+        num_class (int): Number of classes in dataset. Default: ``10``.
+        batch_size (int): Batch size. Default: ``128``.
+        epsilon (float): Maximum perturbation allowed in attack. Default: ``0.3``.
+        samples_per_draw (int): Number of samples draw in antithetic sampling. Default: ``128``.
+        momentum (float): Momentum. Default: ``0.9``.
+        learning_rate (float): Learning rate. Default: ``1e-3``.
+        max_lr (float): Max Learning rate. Default: ``5e-2``.
+        min_lr (float): Min Learning rate. Default: ``5e-4``.
+        sigma (float): Step size of random noise. Default: ``1e-3``.
+        plateau_length (int): Length of plateau used in Annealing algorithm. Default: ``20``.
+        plateau_drop (float): Drop of plateau used in Annealing algorithm. Default: ``2.0``.
+        adv_thresh (float): Threshold of adversarial. Default: ``0.25``.
+        zero_iters (int): Number of points to use for the proxy score. Default: ``10``.
+        starting_eps (float): Starting epsilon used in Label-Only setting. Default: ``1.0``.
+        starting_delta_eps (float): Delta epsilon used in Label-Only setting. Default: ``0.5``.
+        label_only_sigma (float): Sigma used in Label-Only setting. Default: ``1e-3``.
+        conservative (int): Conservation used in epsilon decay, it will increase if no convergence. Default: ``2``.
+        sparse (bool): If ``True``, input labels are sparse-encoded. If ``False``,
+            input labels are one-hot-encoded. Default: ``True``.
 
     Examples:
         >>> from mindspore import Tensor
@@ -167,9 +167,9 @@ class NES(Attack):
             - numpy.ndarray, query times for each sample.
 
         Raises:
-            ValueError: If the top_k less than 0 in Label-Only or Partial-Info setting.
-            ValueError: If the target_imgs is None in Label-Only or Partial-Info setting.
-            ValueError: If scene is not in ['Label_Only', 'Partial_Info', 'Query_Limit']
+            ValueError: If the `top_k` less than 0 in Label-Only or Partial-Info setting.
+            ValueError: If the `target_imgs` is ``None`` in Label-Only or Partial-Info setting.
+            ValueError: If `scene` is not ``'Label_Only'``, ``'Partial_Info'`` or ``'Query_Limit'``.
         """
         inputs, labels = check_pair_numpy_param('inputs', inputs, 'labels', labels)
         if not self._sparse:

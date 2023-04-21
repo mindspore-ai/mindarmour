@@ -53,15 +53,15 @@ class ClipMechanismsFactory:
         Args:
             mech_name(str): Clip noise generated strategy, support 'Gaussian' now.
             decay_policy(str): Decay policy of adaptive clipping, decay_policy must
-                be in ['Linear', 'Geometric']. Default: Linear.
-            learning_rate(float): Learning rate of update norm clip. Default: 0.001.
-            target_unclipped_quantile(float): Target quantile of norm clip. Default: 0.9.
+                be ``'Linear'`` or ``'Geometric'``. Default: ``'Linear'``.
+            learning_rate(float): Learning rate of update norm clip. Default: ``0.001``.
+            target_unclipped_quantile(float): Target quantile of norm clip. Default: ``0.9``.
             fraction_stddev(float): The stddev of Gaussian normal which used in
                 empirical_fraction, the formula is :math:`empirical\_fraction + N(0, fraction\_stddev)`.
-                Default: 0.01.
-            seed(int): Original random seed, if seed=0 random normal will use secure
-                random number. IF seed!=0 random normal will generate values using
-                given seed. Default: 0.
+                Default: ``0.01``.
+            seed(int): Original random seed, if `seed` is ``0`` random normal will use secure
+                random number. IF `seed` is not ``0`` random normal will generate values using
+                given seed. Default: ``0``.
 
         Returns:
             Mechanisms, class of noise generated Mechanism.
@@ -111,19 +111,19 @@ class NoiseMechanismsFactory:
                decay_policy=None):
         """
         Args:
-            mech_name(str): Noise generated strategy, could be 'Gaussian' or
-                'AdaGaussian'. Noise would be decayed with 'AdaGaussian' mechanism
-                while be constant with 'Gaussian' mechanism.
-            norm_bound(float): Clipping bound for the l2 norm of the gradients. Default: 1.0.
+            mech_name(str): Noise generated strategy, could be ``'Gaussian'`` or
+                ``'AdaGaussian'``. Noise would be decayed with ``'AdaGaussian'`` mechanism
+                while be constant with ``'Gaussian'`` mechanism.
+            norm_bound(float): Clipping bound for the l2 norm of the gradients. Default: ``1.0``.
             initial_noise_multiplier(float): Ratio of the standard deviation of
-                Gaussian noise divided by the norm_bound, which will be used to
-                calculate privacy spent. Default: 1.0.
-            seed(int): Original random seed, if seed=0 random normal will use secure
-                random number. IF seed!=0 random normal will generate values using
-                given seed. Default: 0.
-            noise_decay_rate(float): Hyper parameter for controlling the noise decay. Default: 6e-6.
-            decay_policy(str): Mechanisms parameters update policy. If decay_policy is None, no
-                parameters need update. Default: None.
+                Gaussian noise divided by the `norm_bound`, which will be used to
+                calculate privacy spent. Default: ``1.0``.
+            seed(int): Original random seed, if `seed` is ``0`` random normal will use secure
+                random number. IF `seed` is not ``0`` random normal will generate values using
+                given seed. Default: ``0``.
+            noise_decay_rate(float): Hyper parameter for controlling the noise decay. Default: ``6e-6``.
+            decay_policy(str): Mechanisms parameters update policy. If `decay_policy` is ``None``, no
+                parameters need update. Default: ``None``.
 
         Returns:
             Mechanisms, class of noise generated Mechanism.
@@ -174,14 +174,14 @@ class NoiseGaussianRandom(_Mechanisms):
 
     Args:
         norm_bound(float): Clipping bound for the l2 norm of the gradients.
-            Default: 1.0.
+            Default: ``1.0``.
         initial_noise_multiplier(float): Ratio of the standard deviation of
-            Gaussian noise divided by the norm_bound, which will be used to
-            calculate privacy spent. Default: 1.0.
-        seed(int): Original random seed, if seed=0, random normal will use secure
-            random number. If seed!=0, random normal will generate values using
-            given seed. Default: 0.
-        decay_policy(str): Mechanisms parameters update policy. Default: None.
+            Gaussian noise divided by the `norm_bound`, which will be used to
+            calculate privacy spent. Default: ``1.0``.
+        seed(int): Original random seed, if `seed` is ``0``, random normal will use secure
+            random number. If `seed` is not ``0``, random normal will generate values using
+            given seed. Default: ``0``.
+        decay_policy(str): Mechanisms parameters update policy. Default: ``None``.
 
     Examples:
         >>> from mindspore import Tensor
@@ -236,17 +236,17 @@ class NoiseAdaGaussianRandom(NoiseGaussianRandom):
 
     Args:
         norm_bound(float): Clipping bound for the l2 norm of the gradients.
-             Default: 1.0.
+             Default: ``1.0``.
         initial_noise_multiplier(float): Ratio of the standard deviation of
             Gaussian noise divided by the norm_bound, which will be used to
-            calculate privacy spent. Default: 1.0.
-        seed(int): Original random seed, if seed=0 random normal will use secure
-            random number. IF seed!=0 random normal will generate values using
-            given seed. Default: 0.
+            calculate privacy spent. Default: ``1.0``.
+        seed(int): Original random seed, if `seed` is ``0`` random normal will use secure
+            random number. IF `seed` is not ``0`` random normal will generate values using
+            given seed. Default: ``0``.
         noise_decay_rate(float): Hyper parameter for controlling the noise decay.
-            Default: 6e-6.
-        decay_policy(str): Noise decay strategy include 'Step', 'Time', 'Exp'.
-            Default: 'Exp'.
+            Default: ``6e-6``.
+        decay_policy(str): Noise decay strategy include ``'Step'``, ``'Time'``, ``'Exp'``.
+            Default: ``'Exp'``.
 
     Examples:
         >>> from mindspore import Tensor
@@ -356,16 +356,16 @@ class AdaClippingWithGaussianRandom(Cell):
     `target_unclipped_quantile`.
 
     Args:
-        decay_policy(str): Decay policy of adaptive clipping, decay_policy must
-            be in ['Linear', 'Geometric']. Default: 'Linear'.
-        learning_rate(float): Learning rate of update norm clip. Default: 0.001.
-        target_unclipped_quantile(float): Target quantile of norm clip. Default: 0.9.
+        decay_policy(str): Decay policy of adaptive clipping, `decay_policy` must
+            be ``'Linear'`` or ``'Geometric'``. Default: ``'Linear'``.
+        learning_rate(float): Learning rate of update norm clip. Default: ``0.001``.
+        target_unclipped_quantile(float): Target quantile of norm clip. Default: ``0.9``.
         fraction_stddev(float): The stddev of Gaussian normal which used in
             empirical_fraction, the formula is empirical_fraction + N(0, fraction_stddev).
-            Default: 0.01.
-        seed(int): Original random seed, if seed=0 random normal will use secure
-            random number. IF seed!=0 random normal will generate values using
-            given seed. Default: 0.
+            Default: ``0.01``.
+        seed(int): Original random seed, if `seed` is ``0`` random normal will use secure
+            random number. IF `seed` is not ``0`` random normal will generate values using
+            given seed. Default: ``0``.
 
     Returns:
         Tensor, undated norm clip .

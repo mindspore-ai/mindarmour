@@ -84,7 +84,7 @@ class OodDetector:
             ds_test (numpy.ndarray): The testing dataset.
 
         Returns:
-           - numpy.ndarray, the detection result. 0 means the data is not ood, 1 means the data is ood.
+           - numpy.ndarray, the detection result. ``0`` means the data is not ood, ``1`` means the data is ood.
         """
 
 
@@ -226,7 +226,7 @@ class OodDetectorFeatureCluster(OodDetector):
             ds_test (numpy.ndarray): The testing dataset.
 
         Returns:
-           - numpy.ndarray, the detection result. 0 means the data is not ood, 1 means the data is ood.
+           - numpy.ndarray, the detection result. ``0`` means the data is not ood, ``1`` means the data is ood.
         """
         score = self._get_ood_score(ds_test)
         result = []

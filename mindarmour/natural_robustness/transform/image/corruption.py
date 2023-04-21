@@ -32,9 +32,9 @@ class UniformNoise(_NaturalPerturb):
 
     Args:
         factor (float): Noise density, the proportion of noise points per unit pixel area. Suggested value range in
-            [0.001, 0.15]. Default: 0.1.
+            [0.001, 0.15]. Default: ``0.1``.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
-            Default: False.
+            Default: ``False``.
 
     Examples:
         >>> import cv2
@@ -79,9 +79,9 @@ class GaussianNoise(_NaturalPerturb):
 
     Args:
         factor (float): Noise density, the proportion of noise points per unit pixel area. Suggested value range in
-            [0.001, 0.15]. Default: 0.1.
+            [0.001, 0.15]. Default: ``0.1``.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
-            Default: False.
+            Default: ``False``.
 
     Examples:
         >>> import cv2
@@ -125,9 +125,9 @@ class SaltAndPepperNoise(_NaturalPerturb):
 
     Args:
         factor (float): Noise density, the proportion of noise points per unit pixel area. Suggested value range in
-            [0.001, 0.15]. Default: 0.
+            [0.001, 0.15]. Default: ``0``.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
-            Default: False.
+            Default: ``False``.
 
     Examples:
         >>> import cv2
@@ -174,10 +174,10 @@ class NaturalNoise(_NaturalPerturb):
     Args:
         ratio (float): Noise density, the proportion of noise blocks per unit pixel area. Suggested value range in
             [0.00001, 0.001].
-        k_x_range (union[list, tuple]): Value range of the noise block length. Default: (1, 5).
-        k_y_range (union[list, tuple]): Value range of the noise block width. Default: (3, 25).
+        k_x_range (union[list, tuple]): Value range of the noise block length. Default: ``(1, 5)``.
+        k_y_range (union[list, tuple]): Value range of the noise block width. Default: ``(3, 25)``.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
-            Default: False.
+            Default: ``False``.
 
     Examples:
         >>> import cv2

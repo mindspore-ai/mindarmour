@@ -27,13 +27,13 @@ class NaturalAdversarialDefense(AdversarialDefenseWithAttacks):
 
     Args:
         network (Cell): A MindSpore network to be defensed.
-        loss_fn (Union[Loss, None]): Loss function. Default: None.
-        optimizer (Cell): Optimizer used to train the network. Default: None.
+        loss_fn (Union[Loss, None]): Loss function. Default: ``None``.
+        optimizer (Cell): Optimizer used to train the network. Default: ``None``.
         bounds (tuple): Upper and lower bounds of data. In form of (clip_min,
-            clip_max). Default: (0.0, 1.0).
+            clip_max). Default: ``(0.0, 1.0)``.
         replace_ratio (float): Ratio of replacing original samples with
-            adversarial samples. Default: 0.5.
-        eps (float): Step size of the attack method(FGSM). Default: 0.1.
+            adversarial samples. Default: ``0.5``.
+        eps (float): Step size of the attack method(FGSM). Default: ``0.1``.
 
     Examples:
         >>> from mindspore.nn.optim.momentum import Momentum

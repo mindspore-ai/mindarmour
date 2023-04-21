@@ -27,19 +27,19 @@ class ProjectedAdversarialDefense(AdversarialDefenseWithAttacks):
 
     Args:
         network (Cell): A MindSpore network to be defensed.
-        loss_fn (Union[Loss, None]): Loss function. Default: None.
-        optimizer (Cell): Optimizer used to train the nerwork. Default: None.
+        loss_fn (Union[Loss, None]): Loss function. Default: ``None``.
+        optimizer (Cell): Optimizer used to train the nerwork. Default: ``None``.
         bounds (tuple): Upper and lower bounds of input data. In form of
-            (clip_min, clip_max). Default: (0.0, 1.0).
+            (clip_min, clip_max). Default: ``(0.0, 1.0)``.
         replace_ratio (float): Ratio of replacing original samples with
-            adversarial samples. Default: 0.5.
-        eps (float): PGD attack parameters, epsilon. Default: 0.3.
+            adversarial samples. Default: ``0.5``.
+        eps (float): PGD attack parameters, epsilon. Default: ``0.3``.
         eps_iter (int): PGD attack parameters, inner loop epsilon.
-            Default:0.1.
+            Default: ``0.1``.
         nb_iter (int): PGD attack parameters, number of iteration.
-            Default: 5.
-        norm_level (Union[int, char, numpy.inf]): Norm type. 1, 2, np.inf, 'l1', 'l2', 'np.inf' or 'inf'.
-            Default: 'inf'.
+            Default: ``5``.
+        norm_level (Union[int, char, numpy.inf]): Norm type. ``1``, ``2``, ``np.inf``,
+            ``'l1'``, ``'l2'``, ``'np.inf'`` or ``'inf'``. Default: ``'inf'``.
 
     Examples:
         >>> from mindspore.nn.optim.momentum import Momentum

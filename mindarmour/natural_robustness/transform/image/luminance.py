@@ -33,10 +33,10 @@ class Contrast(_NaturalPerturb):
 
     Args:
         alpha (Union[float, int]): Control the contrast of an image. :math:`out\_image = in\_image \times alpha+beta`.
-            Suggested value range in [0.2, 2]. Default: 1.
-        beta (Union[float, int]): Delta added to alpha. Default: 0.
+            Suggested value range in [0.2, 2]. Default: ``1``.
+        beta (Union[float, int]): Delta added to alpha. Default: ``0``.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
-            Default: False.
+            Default: ``False``.
 
     Examples:
         >>> import cv2
@@ -141,7 +141,7 @@ def _line_gradient_mask(image, start_pos=None, start_color=(0, 0, 0), end_color=
         start_pos (union[tuple, list]): 2D coordinate of gradient center.
         start_color (union([tuple, list])): Color of circle gradient center.
         end_color (union([tuple, list])): Color of circle gradient edge.
-        mode　(str): Direction of gradient. Optional value is 'vertical' or 'horizontal'.
+        mode　(str): Direction of gradient. Optional value is ``'vertical'`` or ``'horizontal'``.
 
     Returns:
         numpy.ndarray, gradients mask.
@@ -204,17 +204,18 @@ class GradientLuminance(_NaturalPerturb):
     Gradient adjusts the luminance of picture.
 
     Args:
-        color_start (union[tuple, list]): Color of gradient center. Default:(0, 0, 0).
-        color_end (union[tuple, list]):  Color of gradient edge. Default:(255, 255, 255).
+        color_start (union[tuple, list]): Color of gradient center. Default: ``(0, 0, 0)``.
+        color_end (union[tuple, list]):  Color of gradient edge. Default: ``(255, 255, 255)``.
         start_point (union[tuple, list]): 2D coordinate of gradient center.
-        scope (float): Range of the gradient. A larger value indicates a larger gradient range. Default: 0.5.
-        pattern (str): Dark or light, this value must be in ['light', 'dark']. Default: 'light'.
+        scope (float): Range of the gradient. A larger value indicates a larger gradient range. Default: ``0.5``.
+        pattern (str): Dark or light, this value must be ``'light'`` or ``'dark'``. Default: ``'light'``.
         bright_rate (float): Control brightness. A larger value indicates a larger gradient range. If parameter
-            'pattern' is 'light', Suggested value range in [0.1, 0.7], if parameter 'pattern' is 'dark', Suggested value
-            range in [0.1, 0.9]. Default: 0.3.
-        mode (str): Gradient mode, value must be in ['circle', 'horizontal', 'vertical']. Default: 'circle'.
+            `pattern` is ``'light'``, Suggested value range in [0.1, 0.7], if parameter `pattern` is ``'dark'``,
+            suggested value range in [0.1, 0.9]. Default: ``0.3``.
+        mode (str): Gradient mode, value must be ``'circle'``, ``'horizontal'`` or ``'vertical'``.
+            Default: ``'circle'``.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
-            Default: False.
+            Default: ``False``.
 
     Examples:
         >>> import cv2

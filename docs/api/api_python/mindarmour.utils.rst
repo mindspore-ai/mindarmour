@@ -58,7 +58,7 @@ MindArmour的工具方法。
 
     .. py:method:: set_level(level)
 
-        设置此logger的日志级别，级别必须是整数或字符串。支持的级别为 'NOTSET'(integer: 0)、'ERROR'(integer: 1-40)、'WARNING'('WARN', integer: 1-30)、'INFO'(integer: 1-20)以及'DEBUG'(integer: 1-10)
+        设置此logger的日志级别，级别必须是整数或字符串。支持的级别为 ``'NOTSET'(integer: 0)``、``'ERROR'(integer: 1-40)``、``'WARNING'('WARN', integer: 1-30)``、``'INFO'(integer: 1-20)`` 以及 ``'DEBUG'(integer: 1-10)``。
 
         例如，如果logger.set_level('WARNING')或logger.set_level(21)，则在运行时将打印脚本中的logger.warn()和logger.error()，而logger.info()或logger.debug()将不会打印。
 

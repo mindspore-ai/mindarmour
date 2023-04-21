@@ -41,12 +41,12 @@ class PrivacyMonitorFactory:
         Create a privacy monitor class.
 
         Args:
-            policy (str): Monitor policy, 'rdp' and 'zcdp' are supported
-                by now. If policy is 'rdp', the monitor will compute the
+            policy (str): Monitor policy, ``'rdp'`` and ``'zcdp'`` are supported
+                by now. If `policy` is ``'rdp'``, the monitor will compute the
                 privacy budget of DP training based on Renyi differential
-                privacy theory; If policy is 'zcdp', the monitor will compute
+                privacy theory; If `policy` is ``'zcdp'``, the monitor will compute
                 the privacy budget of DP training based on zero-concentrated
-                differential privacy theory. It's worth noting that 'zcdp'
+                differential privacy theory. It's worth noting that ``'zcdp'``
                 is not suitable for subsampling noise mechanism.
             args (Union[int, float, numpy.ndarray, list, str]): Parameters
                 used for creating a privacy monitor.
@@ -87,35 +87,36 @@ class RDPMonitor(Callback):
         batch_size (int): The number of samples in a batch while training.
         initial_noise_multiplier (Union[float, int]): Ratio of the standard
             deviation of Gaussian noise divided by the norm_bound, which will
-            be used to calculate privacy spent. Default: 1.5.
+            be used to calculate privacy spent. Default: ``1.5``.
         max_eps (Union[float, int, None]): The maximum acceptable epsilon
             budget for DP training, which is used for estimating the max
-            training epochs. 'None' means there is no limit to epsilon budget.
-            Default: 10.0.
+            training epochs. ``None`` means there is no limit to epsilon budget.
+            Default: ``10.0``.
         target_delta (Union[float, int, None]): Target delta budget for DP
             training. If target_delta is set to be δ, then the privacy budget
-            δ would be fixed during the whole training process. Default: 1e-3.
+            δ would be fixed during the whole training process. Default: ``1e-3``.
         max_delta (Union[float, int, None]): The maximum acceptable delta
             budget for DP training, which is used for estimating the max
             training epochs. Max_delta must be less than 1 and suggested
             to be less than 1e-3, otherwise overflow would be encountered.
-            'None' means there is no limit to delta budget. Default: None.
+            'None' means there is no limit to delta budget. Default: ``None``.
         target_eps (Union[float, int, None]): Target epsilon budget for DP
             training. If target_eps is set to be ε, then the privacy budget
-            ε would be fixed during the whole training process. Default: None.
+            ε would be fixed during the whole training process. Default: ``None``.
         orders (Union[None, list[int, float]]): Finite orders used for
             computing rdp, which must be greater than 1. The computation result
             of privacy budget would be different for various orders. In order
             to obtain a tighter (smaller) privacy budget estimation, a list
-            of orders could be tried. Default: None.
+            of orders could be tried. Default: ``None``.
         noise_decay_mode (Union[None, str]): Decay mode of adding noise while
-            training, which can be None, 'Time', 'Step' or 'Exp'. Default: 'Time'.
-        noise_decay_rate (float): Decay rate of noise while training. Default: 6e-4.
+            training, which can be ``None``, ``'Time'``, ``'Step'`` or ``'Exp'``.
+            Default: ``'Time'``.
+        noise_decay_rate (float): Decay rate of noise while training. Default: ``6e-4``.
         per_print_times　(int): The interval steps of computing and printing
-            the privacy budget. Default: 50.
-        dataset_sink_mode (bool): If True, all training data would be passed
-            to device(Ascend) one-time. If False, training data would be passed
-            to device after each step training. Default: False.
+            the privacy budget. Default: ``50``.
+        dataset_sink_mode (bool): If ``True``, all training data would be passed
+            to device(Ascend) one-time. If ``False``, training data would be passed
+            to device after each step training. Default: ``False``.
 
     Examples:
         >>> from mindarmour.privacy.diff_privacy import PrivacyMonitorFactory
@@ -380,21 +381,22 @@ class ZCDPMonitor(Callback):
         batch_size (int): The number of samples in a batch while training.
         initial_noise_multiplier (Union[float, int]): Ratio of the standard
             deviation of Gaussian noise divided by the norm_bound, which will
-            be used to calculate privacy spent. Default: 1.5.
+            be used to calculate privacy spent. Default: ``1.5``.
         max_eps (Union[float, int]): The maximum acceptable epsilon budget for
             DP training, which is used for estimating the max training epochs.
-            Default: 10.0.
+            Default: ``10.0``.
         target_delta (Union[float, int]): Target delta budget for DP training.
             If target_delta is set to be δ, then the privacy budget δ would be
-            fixed during the whole training process. Default: 1e-3.
+            fixed during the whole training process. Default: ``1e-3``.
         noise_decay_mode (Union[None, str]): Decay mode of adding noise while
-            training, which can be None, 'Time', 'Step' or 'Exp'. Default: 'Time'.
-        noise_decay_rate (float): Decay rate of noise while training. Default: 6e-4.
+            training, which can be ``None``, ``'Time'``, ``'Step'`` or ``'Exp'``.
+            Default: ``'Time'``.
+        noise_decay_rate (float): Decay rate of noise while training. Default: ``6e-4``.
         per_print_times　(int): The interval steps of computing and printing
-            the privacy budget. Default: 50.
-        dataset_sink_mode (bool): If True, all training data would be passed
-            to device(Ascend) one-time. If False, training data would be passed
-            to device after each step training. Default: False.
+            the privacy budget. Default: ``50``.
+        dataset_sink_mode (bool): If ``True``, all training data would be passed
+            to device(Ascend) one-time. If ``False``, training data would be passed
+            to device after each step training. Default: ``False``.
 
     Examples:
         >>> from mindarmour.privacy.diff_privacy import PrivacyMonitorFactory

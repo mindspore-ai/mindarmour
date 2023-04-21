@@ -105,12 +105,12 @@ class ImageInversionAttack:
         input_bound (Union[tuple, list]): The pixel range of original images, which should be like [minimum_pixel,
             maximum_pixel] or (minimum_pixel, maximum_pixel).
         loss_weights (Union[list, tuple]): Weights of three sub-loss in InversionLoss, which can be adjusted to
-            obtain better results. Default: (1, 0.2, 5).
+            obtain better results. Default: ``(1, 0.2, 5)``.
 
     Raises:
-        TypeError: If the type of network is not Cell.
-        ValueError: If any value of input_shape is not positive int.
-        ValueError: If any value of loss_weights is not positive value.
+        TypeError: If the type of `network` is not Cell.
+        ValueError: If any value of `input_shape` is not positive int.
+        ValueError: If any value of `loss_weights` is not positive value.
 
     Examples:
             >>> import mindspore.ops.operations as P
@@ -160,14 +160,14 @@ class ImageInversionAttack:
             target_features (numpy.ndarray): Deep representations of original images. The first dimension of
                 target_features should be img_num. It should be noted that the shape of target_features should be
                 :math:`(1, dim2, dim3, ...)` if img_num equals 1.
-            iters (int): iteration times of inversion attack, which should be positive integers. Default: 100.
+            iters (int): iteration times of inversion attack, which should be positive integers. Default: ``100``.
 
         Returns:
             numpy.ndarray, reconstructed images, which are expected to be similar to original images.
 
         Raises:
             TypeError: If the type of target_features is not numpy.ndarray.
-            ValueError: If any value of iters is not positive int.Z
+            ValueError: If any value of iters is not positive int.Z.
         """
         target_features = check_numpy_param('target_features', target_features)
         iters = check_int_positive('iters', iters)
@@ -208,9 +208,9 @@ class ImageInversionAttack:
                 :math:`(img\_num, channels, img\_width, img\_height)`.
             inversion_images (numpy.ndarray): Inversion images, whose shape should be
                 :math:`(img\_num, channels, img\_width, img\_height)`.
-            labels (numpy.ndarray): Ground truth labels of original images. Default: None.
+            labels (numpy.ndarray): Ground truth labels of original images. Default: ``None``.
             new_network (Cell): A network whose structure contains all parts of self._network, but loaded with different
-                checkpoint file. Default: None.
+                checkpoint file. Default: ``None``.
 
         Returns:
             - float, l2 distance.

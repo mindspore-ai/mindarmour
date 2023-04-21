@@ -33,11 +33,11 @@ class SaltAndPepperNoiseAttack(Attack):
 
     Args:
         model (BlackModel): Target model.
-        bounds (tuple): Upper and lower bounds of data. In form of (clip_min, clip_max). Default: (0.0, 1.0)
-        max_iter (int): Max iteration to generate an adversarial example. Default: 100
-        is_targeted (bool): If True, targeted attack. If False, untargeted attack. Default: False.
-        sparse (bool): If True, input labels are sparse-encoded. If False, input labels are one-hot-encoded.
-            Default: True.
+        bounds (tuple): Upper and lower bounds of data. In form of (clip_min, clip_max). Default: ``(0.0, 1.0)``.
+        max_iter (int): Max iteration to generate an adversarial example. Default: ``100``.
+        is_targeted (bool): If ``True``, targeted attack. If ``False``, untargeted attack. Default: ``False``.
+        sparse (bool): If ``True``, input labels are sparse-encoded. If ``False``, input labels are one-hot-encoded.
+            Default: ``True``.
 
     Examples:
         >>> from mindspore import Tensor

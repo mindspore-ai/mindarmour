@@ -107,13 +107,13 @@ class MembershipInference:
 
     Args:
         model (Model): Target model.
-        n_jobs (int): Number of jobs run in parallel. -1 means using all processors,
-            otherwise the value of n_jobs must be a positive integer.
+        n_jobs (int): Number of jobs run in parallel. ``-1`` means using all processors,
+            otherwise the value of `n_jobs` must be a positive integer.
 
     Raises:
-        TypeError: If type of model is not mindspore.train.Model.
-        TypeError: If type of n_jobs is not int.
-        ValueError: The value of n_jobs is neither -1 nor a positive integer.
+        TypeError: If type of model is not `mindspore.train.Model`.
+        TypeError: If type of `n_jobs` is not int.
+        ValueError: The value of `n_jobs` is neither ``-1`` nor a positive integer.
 
 
     Examples:
@@ -188,7 +188,8 @@ class MembershipInference:
 
         Raises:
             KeyError: If any config in attack_config doesn't have keys {"method", "params"}.
-            NameError: If the method(case insensitive) in attack_config is not in ["lr", "knn", "rf", "mlp"].
+            NameError: If the method(case insensitive) in attack_config is not ``"lr"``, ``"knn"``, ``"rf"``
+                or ``"mlp"``.
         """
         check_param_type("dataset_train", dataset_train, Dataset)
         check_param_type("dataset_test", dataset_test, Dataset)
@@ -209,7 +210,7 @@ class MembershipInference:
             dataset_train (mindspore.dataset): The training dataset for the target model.
             dataset_test (mindspore.dataset): The test dataset for the target model.
             metrics (Union[list, tuple]): Evaluation indicators. The value of metrics
-                must be in ["precision", "accuracy", "recall"]. Default: ["precision"].
+                must be ``"precision"``, ``"accuracy"`` or ``"recall"``. Default: ``"precision"``.
 
         Returns:
             list, each element contains an evaluation indicator for the attack model.

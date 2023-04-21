@@ -48,31 +48,31 @@ class HopSkipJumpAttack(Attack):
     Args:
         model (BlackModel): Target model.
         init_num_evals (int): The initial number of evaluations for gradient
-            estimation. Default: 100.
+            estimation. Default: ``100``.
         max_num_evals (int): The maximum number of evaluations for gradient
-            estimation. Default: 1000.
+            estimation. Default: ``1000``.
         stepsize_search (str): Indicating how to search for stepsize; Possible
-            values are 'geometric_progression', 'grid_search'.
-            Default: 'geometric_progression'.
-        num_iterations (int): The number of iterations. Default: 20.
-        gamma (float): Used to set binary search threshold theta. Default: 1.0.
+            values are ``'geometric_progression'``, ``'grid_search'``.
+            Default: ``'geometric_progression'``.
+        num_iterations (int): The number of iterations. Default: ``20``.
+        gamma (float): Used to set binary search threshold theta. Default: ``1.0``.
             For l2 attack the binary search threshold `theta` is
             :math:`gamma / d^{3/2}`. For linf attack is :math:`gamma / d^2`.
-            Default: 1.0.
-        constraint (str): The norm distance to optimize. Possible values are 'l2',
-            'linf'. Default: l2.
-        batch_size (int): Batch size. Default: 32.
+            Default: ``1.0``.
+        constraint (str): The norm distance to optimize. Possible values are ``'l2'``,
+            ``'linf'``. Default: ``'l2'``.
+        batch_size (int): Batch size. Default: ``32``.
         clip_min (float, optional): The minimum image component value.
-            Default: 0.
+            Default: ``0``.
         clip_max (float, optional): The maximum image component value.
-            Default: 1.
-        sparse (bool): If True, input labels are sparse-encoded. If False,
-            input labels are one-hot-encoded. Default: True.
+            Default: ``1``.
+        sparse (bool): If ``True``, input labels are sparse-encoded. If ``False``,
+            input labels are one-hot-encoded. Default: ``True``.
 
     Raises:
-        ValueError: If stepsize_search not in ['geometric_progression',
-            'grid_search']
-        ValueError: If constraint not in ['l2', 'linf']
+        ValueError: If `stepsize_search` is not ``'geometric_progression'`` or
+            ``'grid_search'``.
+        ValueError: If `constraint` is not ``'l2'`` or ``'linf'``.
 
     Examples:
         >>> from mindspore import Tensor

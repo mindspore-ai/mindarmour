@@ -9,8 +9,8 @@ mindarmour.adv_robustness.defenses
 
     参数：
         - **network** (Cell) - 要防御的MindSpore网络。
-        - **loss_fn** (Union[Loss, None]) - 损失函数。默认值：None。
-        - **optimizer** (Cell) - 用于训练网络的优化器。默认值：None。
+        - **loss_fn** (Union[Loss, None]) - 损失函数。默认值：``None``。
+        - **optimizer** (Cell) - 用于训练网络的优化器。默认值：``None``。
 
     .. py:method:: defense(inputs, labels)
 
@@ -30,10 +30,10 @@ mindarmour.adv_robustness.defenses
     参数：
         - **network** (Cell) - 要防御的MindSpore网络。
         - **attacks** (list[Attack]) - 攻击方法序列。
-        - **loss_fn** (Union[Loss, None]) - 损失函数。默认值：None。
-        - **optimizer** (Cell) - 用于训练网络的优化器。默认值：None。
-        - **bounds** (tuple) - 数据的上下界。以(clip_min, clip_max)的形式出现。默认值：(0.0, 1.0)。
-        - **replace_ratio** (float) - 用对抗样本替换原始样本的比率，必须在0到1之间。默认值：0.5。
+        - **loss_fn** (Union[Loss, None]) - 损失函数。默认值：``None``。
+        - **optimizer** (Cell) - 用于训练网络的优化器。默认值：``None``。
+        - **bounds** (tuple) - 数据的上下界。以(clip_min, clip_max)的形式出现。默认值：``(0.0, 1.0)``。
+        - **replace_ratio** (float) - 用对抗样本替换原始样本的比率，必须在0到1之间。默认值：``0.5``。
 
     异常：
         - **ValueError** - `replace_ratio` 不在0和1之间。
@@ -57,11 +57,11 @@ mindarmour.adv_robustness.defenses
 
     参数：
         - **network** (Cell) - 要防御的MindSpore网络。
-        - **loss_fn** (Union[Loss, None]) - 损失函数。默认值：None。
-        - **optimizer** (Cell) - 用于训练网络的优化器。默认值：None。
-        - **bounds** (tuple) - 数据的上下界。以(clip_min, clip_max)的形式出现。默认值：(0.0, 1.0)。
-        - **replace_ratio** (float) - 用对抗样本替换原始样本的比率。默认值：0.5。
-        - **eps** (float) - 攻击方法（FGSM）的步长。默认值：0.1。
+        - **loss_fn** (Union[Loss, None]) - 损失函数。默认值：``None``。
+        - **optimizer** (Cell) - 用于训练网络的优化器。默认值：``None``。
+        - **bounds** (tuple) - 数据的上下界。以(clip_min, clip_max)的形式出现。默认值：``(0.0, 1.0)``。
+        - **replace_ratio** (float) - 用对抗样本替换原始样本的比率。默认值：``0.5``。
+        - **eps** (float) - 攻击方法（FGSM）的步长。默认值：``0.1``。
 
 .. py:class:: mindarmour.adv_robustness.defenses.ProjectedAdversarialDefense(network, loss_fn=None, optimizer=None, bounds=(0.0, 1.0), replace_ratio=0.5, eps=0.3, eps_iter=0.1, nb_iter=5, norm_level='inf')
 
@@ -71,14 +71,14 @@ mindarmour.adv_robustness.defenses
 
     参数：
         - **network** (Cell) - 要防御的MindSpore网络。
-        - **loss_fn** (Union[Loss, None]) - 损失函数。默认值：None。
-        - **optimizer** (Cell) - 用于训练网络的优化器。默认值：None。
-        - **bounds** (tuple) - 输入数据的上下界。以(clip_min, clip_max)的形式出现。默认值：(0.0, 1.0)。
-        - **replace_ratio** (float) - 用对抗样本替换原始样本的比率。默认值：0.5。
-        - **eps** (float) - PGD攻击参数epsilon。默认值：0.3。
-        - **eps_iter** (int) - PGD攻击参数，内环epsilon。默认值：0.1。
-        - **nb_iter** (int) - PGD攻击参数，迭代次数。默认值：5。
-        - **norm_level** (Union[int, char, numpy.inf]) - 范数类型。可选值：1、2、np.inf、'l1'、'l2'、'np.inf' 或 'inf'。默认值：'inf'。
+        - **loss_fn** (Union[Loss, None]) - 损失函数。默认值：``None``。
+        - **optimizer** (Cell) - 用于训练网络的优化器。默认值：``None``。
+        - **bounds** (tuple) - 输入数据的上下界。以(clip_min, clip_max)的形式出现。默认值：``(0.0, 1.0)``。
+        - **replace_ratio** (float) - 用对抗样本替换原始样本的比率。默认值：``0.5``。
+        - **eps** (float) - PGD攻击参数epsilon。默认值：``0.3``。
+        - **eps_iter** (int) - PGD攻击参数，内环epsilon。默认值：``0.1``。
+        - **nb_iter** (int) - PGD攻击参数，迭代次数。默认值：``5``。
+        - **norm_level** (Union[int, char, numpy.inf]) - 范数类型。可选值：``1``、``2``、``np.inf``、``'l1'``、``'l2'``、``'np.inf'`` 或 ``'inf'``。默认值：``'inf'``。
 
 .. py:class:: mindarmour.adv_robustness.defenses.EnsembleAdversarialDefense(network, attacks, loss_fn=None, optimizer=None, bounds=(0.0, 1.0), replace_ratio=0.5)
 
@@ -87,10 +87,10 @@ mindarmour.adv_robustness.defenses
     参数：
         - **network** (Cell) - 要防御的MindSpore网络。
         - **attacks** (list[Attack]) - 攻击方法序列。
-        - **loss_fn** (Union[Loss, None]) - 损失函数。默认值：None。
-        - **optimizer** (Cell) - 用于训练网络的优化器。默认值：None。
-        - **bounds** (tuple) - 数据的上下界。以(clip_min, clip_max)的形式出现。默认值：(0.0, 1.0)。
-        - **replace_ratio** (float) - 用对抗样本替换原始样本的比率，必须在0到1之间。默认值：0.5。
+        - **loss_fn** (Union[Loss, None]) - 损失函数。默认值：``None``。
+        - **optimizer** (Cell) - 用于训练网络的优化器。默认值：``None``。
+        - **bounds** (tuple) - 数据的上下界。以(clip_min, clip_max)的形式出现。默认值：``(0.0, 1.0)``。
+        - **replace_ratio** (float) - 用对抗样本替换原始样本的比率，必须在0到1之间。默认值：``0.5``。
 
     异常：
         - **ValueError** - `replace_ratio` 不在0和1之间。

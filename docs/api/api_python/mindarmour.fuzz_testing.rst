@@ -43,9 +43,9 @@ mindarmour.fuzz_testing
               - 第一类方法的参数设置方式可以在'mindarmour/natural_robustness/transform/image'中看到。第二类方法参数配置参考 `self._attack_param_checklists` 。
             - **initial_seeds** (list[list]) - 用于生成变异样本的初始种子队列。初始种子队列的格式为[[image_data, label], [...], ...]，且标签必须为one-hot。
             - **coverage** (CoverageMetrics) - 神经元覆盖率指标类。
-            - **evaluate** (bool) - 是否返回评估报告。默认值：True。
-            - **max_iters** (int) - 选择要变异的种子的最大数量。默认值：10000。
-            - **mutate_num_per_seed** (int) - 每个种子的最大变异次数。默认值：20。
+            - **evaluate** (bool) - 是否返回评估报告。默认值：``True``。
+            - **max_iters** (int) - 选择要变异的种子的最大数量。默认值：``10000``。
+            - **mutate_num_per_seed** (int) - 每个种子的最大变异次数。默认值：``20``。
 
         返回：
             - **list** - 模糊测试生成的变异样本。
@@ -69,8 +69,8 @@ mindarmour.fuzz_testing
 
     参数：
         - **model** (Model) - 被测模型。
-        - **incremental** (bool) - 指标将以增量方式计算。默认值：False。
-        - **batch_size** (int) - 模糊测试批次中的样本数。默认值：32。
+        - **incremental** (bool) - 指标将以增量方式计算。默认值：``False``。
+        - **batch_size** (int) - 模糊测试批次中的样本数。默认值：``32``。
     
     .. py:method:: get_metrics(dataset)
 
@@ -90,9 +90,9 @@ mindarmour.fuzz_testing
 
     参数：
         - **model** (Model) - 被测模型。
-        - **threshold** (float) - 用于确定神经元是否激活的阈值。默认值：0.1。
-        - **incremental** (bool) - 指标将以增量方式计算。默认值：False。
-        - **batch_size** (int) - 模糊测试批次中的样本数。默认值：32。
+        - **threshold** (float) - 用于确定神经元是否激活的阈值。默认值：``0.1``。
+        - **incremental** (bool) - 指标将以增量方式计算。默认值：``False``。
+        - **batch_size** (int) - 模糊测试批次中的样本数。默认值：``32``。
 
     .. py:method:: get_metrics(dataset)
 
@@ -110,9 +110,9 @@ mindarmour.fuzz_testing
 
     参数：
         - **model** (Model) - 被测模型。
-        - **top_k** (int) - 当隐藏层神经元的输出值在最大的 `top_k` 范围内，神经元就会被激活。默认值：3。
-        - **incremental** (bool) - 指标将以增量方式计算。默认值：False。
-        - **batch_size** (int) - 模糊测试批次中的样本数。默认值：32。
+        - **top_k** (int) - 当隐藏层神经元的输出值在最大的 `top_k` 范围内，神经元就会被激活。默认值：``3``。
+        - **incremental** (bool) - 指标将以增量方式计算。默认值：``False``。
+        - **batch_size** (int) - 模糊测试批次中的样本数。默认值：``32``。
 
     .. py:method:: get_metrics(dataset)
 
@@ -131,8 +131,8 @@ mindarmour.fuzz_testing
     参数：
         - **model** (Model) - 等待测试的预训练模型。
         - **train_dataset** (numpy.ndarray) - 用于确定神经元输出边界的训练数据集。
-        - **incremental** (bool) - 指标将以增量方式计算。默认值：False。
-        - **batch_size** (int) - 模糊测试批次中的样本数。默认值：32。
+        - **incremental** (bool) - 指标将以增量方式计算。默认值：``False``。
+        - **batch_size** (int) - 模糊测试批次中的样本数。默认值：``32``。
 
     .. py:method:: get_metrics(dataset)
 
@@ -151,8 +151,8 @@ mindarmour.fuzz_testing
     参数：
         - **model** (Model) - 等待测试的预训练模型。
         - **train_dataset** (numpy.ndarray) - 用于确定神经元输出边界的训练数据集。
-        - **incremental** (bool) - 指标将以增量方式计算。默认值：False。
-        - **batch_size** (int) - 模糊测试批次中的样本数。默认值：32。
+        - **incremental** (bool) - 指标将以增量方式计算。默认值：``False``。
+        - **batch_size** (int) - 模糊测试批次中的样本数。默认值：``32``。
 
     .. py:method:: get_metrics(dataset)
 
@@ -171,9 +171,9 @@ mindarmour.fuzz_testing
     参数：
         - **model** (Model) - 等待测试的预训练模型。
         - **train_dataset** (numpy.ndarray) - 用于确定神经元输出边界的训练数据集。
-        - **segmented_num** (int) - 神经元输出间隔的分段部分数量。默认值：100。
-        - **incremental** (bool) - 指标将以增量方式计算。默认值：False。
-        - **batch_size** (int) - 模糊测试批次中的样本数。默认值：32。
+        - **segmented_num** (int) - 神经元输出间隔的分段部分数量。默认值：``100``。
+        - **incremental** (bool) - 指标将以增量方式计算。默认值：``False``。
+        - **batch_size** (int) - 模糊测试批次中的样本数。默认值：``32``。
 
     .. py:method:: get_metrics(dataset)
 

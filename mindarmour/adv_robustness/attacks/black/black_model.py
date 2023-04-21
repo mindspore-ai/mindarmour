@@ -60,13 +60,14 @@ class BlackModel:
             label (numpy.ndarray): For targeted attacks, label is intended
                 label of perturbed example. For untargeted attacks, label is
                 original label of corresponding unperturbed sample.
-            is_targeted (bool): For targeted/untargeted attacks, select True/False.
+            is_targeted (bool): For targeted/untargeted attacks, select ``True`` / ``False``.
 
         Returns:
             bool.
-                - If True, the input sample is adversarial.
 
-                - If False, the input sample is not adversarial.
+            - If ``True``, the input sample is adversarial.
+
+            - If ``False``, the input sample is not adversarial.
         """
         logits = self.predict(np.expand_dims(data, axis=0))[0]
         predicts = np.argmax(logits)

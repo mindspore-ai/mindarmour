@@ -37,14 +37,14 @@ class AttackEvaluate:
             samples.
         adv_preds (numpy.ndarray): Probability of all output classes of
             adversarial examples.
-        targeted (bool): If True, it is a targeted attack. If False, it is an
-            untargeted attack. Default: False.
+        targeted (bool): If ``True``, it is a targeted attack. If ``False``, it is an
+            untargeted attack. Default: ``False``.
         target_label (numpy.ndarray): Targeted classes of adversarial examples,
             which is one dimension whose size is adv_inputs.shape[0].
-            Default: None.
+            Default: ``None``.
 
     Raises:
-        ValueError: If target_label is None when targeted is True.
+        ValueError: If `target_label` is ``None`` when `targeted` is ``True``.
 
     Examples:
         >>> from mindarmour.adv_robustness.evaluations import AttackEvaluate

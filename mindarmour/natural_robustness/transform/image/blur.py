@@ -31,9 +31,9 @@ class GaussianBlur(_NaturalPerturb):
     Blurs the image using Gaussian blur filter.
 
     Args:
-        ksize (int): Size of gaussian kernel, this value must be non-negnative. Default: 2.
+        ksize (int): Size of gaussian kernel, this value must be non-negnative. Default: ``2``.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
-            Default: False.
+            Default: ``False``.
 
     Examples:
         >>> import cv2
@@ -75,11 +75,12 @@ class MotionBlur(_NaturalPerturb):
     Motion blur for a given image.
 
     Args:
-        degree (int): Degree of blur. This value must be positive. Suggested value range in [1, 15]. Default: 5.
+        degree (int): Degree of blur. This value must be positive. Suggested value range in [1, 15].
+            Default: ``5``.
         angle (union[float, int]): Direction of motion blur. Angle=0 means up and down motion blur. Angle is
-            counterclockwise. Default: 45.
+            counterclockwise. Default: ``45``.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
-            Default: False.
+            Default: ``False``.
 
     Examples:
         >>> import cv2
@@ -132,10 +133,10 @@ class GradientBlur(_NaturalPerturb):
 
     Args:
         point (union[tuple, list]): 2D coordinate of the Blur center point.
-        kernel_num (int): Number of blur kernels. Suggested value range in [1, 8]. Default: 3.
+        kernel_num (int): Number of blur kernels. Suggested value range in [1, 8]. Default: ``3``.
         center (bool): Blurred or clear at the center of a specified point.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
-            Default: False.
+            Default: ``False``.
 
     Examples:
         >>> import cv2

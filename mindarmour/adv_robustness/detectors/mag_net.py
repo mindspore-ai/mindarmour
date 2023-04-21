@@ -42,8 +42,8 @@ class ErrorBasedDetector(Detector):
 
     Args:
         auto_encoder (Model): An (trained) auto encoder which reconstructs the input image.
-        false_positive_rate (float): Detector's false positive rate. Default: 0.01.
-        bounds (tuple): (clip_min, clip_max). Default: (0.0, 1.0).
+        false_positive_rate (float): Detector's false positive rate. Default: ``0.01``.
+        bounds (tuple): (clip_min, clip_max). Default: ``(0.0, 1.0)``.
 
     Examples:
         >>> from mindspore.ops.operations import Add
@@ -84,7 +84,7 @@ class ErrorBasedDetector(Detector):
 
         Args:
             inputs (numpy.ndarray): Input samples.
-            labels (numpy.ndarray): Labels of input samples. Default: None.
+            labels (numpy.ndarray): Labels of input samples. Default: ``None``.
 
         Returns:
             float, threshold to distinguish adversarial samples from benign ones.
@@ -173,10 +173,10 @@ class DivergenceBasedDetector(ErrorBasedDetector):
     Args:
         auto_encoder (Model): Encoder model.
         model (Model): Targeted model.
-        option (str): Method used to calculate Divergence. Default: "jsd".
-        t (int): Temperature used to overcome numerical problem. Default: 1.
+        option (str): Method used to calculate Divergence. Default: ``"jsd"``.
+        t (int): Temperature used to overcome numerical problem. Default: ``1``.
         bounds (tuple): Upper and lower bounds of data.
-            In form of (clip_min, clip_max). Default: (0.0, 1.0).
+            In form of (clip_min, clip_max). Default: ``(0.0, 1.0)``.
 
     Examples:
         >>> import mindspore.ops.operations as P
