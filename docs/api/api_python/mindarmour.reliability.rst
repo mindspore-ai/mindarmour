@@ -11,8 +11,8 @@ MindArmour的可靠性方法。
 
     参数：
         - **model** (Model) - 需要评估模型。
-        - **fi_type** (list) - 故障注入的类型，包括'bitflips_random'（随机翻转）、'bitflips_designated'（翻转关键位）、'random'、'zeros'、'nan'、'inf'、'anti_activation'、'precision_loss'等。
-        - **fi_mode** (list) - 故障注入的模式。可选值：'single_layer'，'all_layer'。
+        - **fi_type** (list) - 故障注入的类型，包括 ``'bitflips_random'``（随机翻转）、``'bitflips_designated'``（翻转关键位）、``'random'``、``'zeros'``、``'nan'``、``'inf'``、``'anti_activation'``、``'precision_loss'`` 等。
+        - **fi_mode** (list) - 故障注入的模式。可选值：``'single_layer'``、``'all_layer'``。
         - **fi_size** (list) - 故障注入的次数，表示需要注入多少值。
 
     .. py:method:: kick_off(ds_data, ds_label, iter_times=100)
@@ -42,19 +42,19 @@ MindArmour的可靠性方法。
     <https://mindspore.cn/mindarmour/docs/zh-CN/master/concept_drift_time_series.html>`_。
 
     参数：
-        - **window_size** (int) - 概念窗口的大小，不小于10。如果给定输入数据， `window_size` 在[10, 1/3*len( `data` )]中。
-          如果数据是周期性的，通常 `window_size` 等于2-5个周期。例如，对于月/周数据，30/7天的数据量是一个周期。默认值：100。
-        - **rolling_window** (int) - 平滑窗口大小，在[1, `window_size` ]中。默认值：10。
-        - **step** (int) - 滑动窗口的跳跃长度，在[1, `window_size` ]中。默认值：10。
-        - **threshold_index** (float) - 阈值索引，:math:`(-\infty, +\infty)` 。默认值：1.5。
-        - **need_label** (bool) - False或True。如果 `need_label` =True，则需要概念漂移标签。默认值：False。
+        - **window_size** (int) - 概念窗口的大小，不小于10。如果给定输入数据， `window_size` 取值范围为[10, 1/3*len( `data` )]。
+          如果数据是周期性的，通常 `window_size` 等于2-5个周期。例如，对于月/周数据，30/7天的数据量是一个周期。默认值：``1.0``。
+        - **rolling_window** (int) - 平滑窗口大小，在[1, `window_size` ]中。默认值：``10``。
+        - **step** (int) - 滑动窗口的跳跃长度，取值范围为[1, `window_size` ]。默认值：``10``。
+        - **threshold_index** (float) - 阈值索引，:math:`(-\infty, +\infty)` 。默认值：``1.5``。
+        - **need_label** (bool) - 如果为 ``True``，则需要概念漂移标签。默认值：``False``。
 
     .. py:method:: concept_check(data)
 
         在数据序列中查找概念漂移位置。
 
         参数：
-            - **data** (numpy.ndarray) - 输入数据。数据的shape可以是(n,1)或(n,m)。
+            - **data** (numpy.ndarray) - 输入数据。数据的shape可以是 :math:`(n,1)` 或 :math:`(n,m)`。
               请注意，每列（m列）是一个数据序列。
 
         返回：
@@ -90,7 +90,7 @@ MindArmour的可靠性方法。
             - **ds_test** (numpy.ndarray) - 测试数据集。
 
         返回：
-            - **numpy.ndarray** - 检测结果。0表示数据不是ood，1表示数据是ood。
+            - **numpy.ndarray** - 检测结果。``0`` 表示数据不是ood，``1`` 表示数据是ood。
 
 .. py:class:: mindarmour.reliability.OodDetectorFeatureCluster(model, ds_train, n_cluster, layer)
 
@@ -102,7 +102,7 @@ MindArmour的可靠性方法。
         - **model** (Model) - 训练模型。
         - **ds_train** (numpy.ndarray) - 训练数据集。
         - **n_cluster** (int) - 聚类数量。取值属于[2,100]。
-          通常，n_cluster等于训练数据集的类号。如果OOD检测器在测试数据集中性能较差，我们可以适当增加n_cluster的值。
+          通常，`n_cluster` 等于训练数据集的类号。如果OOD检测器在测试数据集中性能较差，我们可以适当增加 `n_cluster` 的值。
         - **layer** (str) - 特征层的名称。layer (str)由'name[:Tensor]'表示，其中'name'由用户在训练模型时给出。
           请查看有关如何在'README.md'中命名模型层的更多详细信息。
 
@@ -126,4 +126,4 @@ MindArmour的可靠性方法。
             - **ds_test** (numpy.ndarray) - 测试数据集。
 
         返回：
-            - **numpy.ndarray** - 检测结果。0表示数据不是ood，1表示数据是ood。
+            - **numpy.ndarray** - 检测结果。``0`` 表示数据不是ood，``1`` 表示数据是ood。

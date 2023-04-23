@@ -8,10 +8,10 @@ mindarmour.privacy.diff_privacy
     基于 :math:`mean=0` 以及 :math:`standard\_deviation = norm\_bound * initial\_noise\_multiplier` 的高斯分布产生噪声。
 
     参数：
-        - **norm_bound** (float) - 梯度的l2范数的裁剪范围。默认值：1.0。
-        - **initial_noise_multiplier** (float) - 高斯噪声标准偏差除以 `norm_bound` 的比率，将用于计算隐私预算。默认值：1.0。
-        - **seed** (int) - 原始随机种子，如果seed=0随机正态将使用安全随机数。如果seed!=0随机正态将使用给定的种子生成值。默认值：0。
-        - **decay_policy** (str) - 衰减策略。默认值：None。
+        - **norm_bound** (float) - 梯度的l2范数的裁剪范围。默认值：``1.0``。
+        - **initial_noise_multiplier** (float) - 高斯噪声标准偏差除以 `norm_bound` 的比率，将用于计算隐私预算。默认值：``1.0``。
+        - **seed** (int) - 原始随机种子。如果值为 ``0``，随机正态将使用安全随机数，否则随机正态将使用给定的种子生成值。默认值：``0``。
+        - **decay_policy** (str) - 衰减策略。默认值：``None``。
 
     .. py:method:: construct(gradients)
 
@@ -25,15 +25,15 @@ mindarmour.privacy.diff_privacy
 
 .. py:class:: mindarmour.privacy.diff_privacy.NoiseAdaGaussianRandom(norm_bound=1.0, initial_noise_multiplier=1.0, seed=0, noise_decay_rate=6e-6, decay_policy='Exp')
 
-    自适应高斯噪声产生机制。噪音会随着训练而衰减。衰减模式可以是'Time'、'Step'、'Exp'。
+    自适应高斯噪声产生机制。噪音会随着训练而衰减。衰减模式可以是 ``'Time'``、``'Step'``、``'Exp'``。
     在模型训练过程中，将更新 `self._noise_multiplier` 。
 
     参数：
-        - **norm_bound** (float) - 梯度的l2范数的裁剪范围。默认值：1.0。
-        - **initial_noise_multiplier** (float) - 高斯噪声标准偏差除以 `norm_bound` 的比率，将用于计算隐私预算。默认值：1.0。
-        - **seed** (int) - 原始随机种子，如果seed=0随机正态将使用安全随机数。如果seed!=0随机正态将使用给定的种子生成值。默认值：0。
-        - **noise_decay_rate** (float) - 控制噪声衰减的超参数。默认值：6e-6。
-        - **decay_policy** (str) - 噪声衰减策略包括'Step'、'Time'、'Exp'。默认值：'Exp'。
+        - **norm_bound** (float) - 梯度的l2范数的裁剪范围。默认值：``1.0``。
+        - **initial_noise_multiplier** (float) - 高斯噪声标准偏差除以 `norm_bound` 的比率，将用于计算隐私预算。默认值：``1.0``。
+        - **seed** (int) - 原始随机种子。如果值为 ``0``，随机正态将使用安全随机数，否则随机正态将使用给定的种子生成值。默认值：``0``。
+        - **noise_decay_rate** (float) - 控制噪声衰减的超参数。默认值：``6e-6``。
+        - **decay_policy** (str) - 噪声衰减策略包括 ``'Step'``、``'Time'``、``'Exp'``。默认值：``'Exp'``。
 
     .. py:method:: construct(gradients)
 
@@ -55,11 +55,11 @@ mindarmour.privacy.diff_privacy
     其中，beta是值最多为 `target_unclipped_quantile` 的样本的经验分数。
 
     参数：
-        - **decay_policy** (str) - 自适应剪裁的衰变策略， `decay_policy` 必须在['Linear', 'Geometric']中。默认值：'Linear'。
-        - **learning_rate** (float) - 更新范数裁剪的学习率。默认值：0.001。
-        - **target_unclipped_quantile** (float) - 范数裁剪的目标分位数。默认值：0.9。
-        - **fraction_stddev** (float) - 高斯正态的stddev，用于 `empirical_fraction` ，公式为empirical_fraction + N(0, fraction_stddev)。默认值：0.01。
-        - **seed** (int) - 原始随机种子，如果seed=0随机正态将使用安全随机数。如果seed!=0随机正态将使用给定的种子生成值。默认值：0。
+        - **decay_policy** (str) - 自适应剪裁的衰变策略， `decay_policy` 必须为 ``'Linear'`` 或 ``'Geometric'``。默认值：``'Linear'``。
+        - **learning_rate** (float) - 更新范数裁剪的学习率。默认值：``0.001``。
+        - **target_unclipped_quantile** (float) - 范数裁剪的目标分位数。默认值：``0.9``。
+        - **fraction_stddev** (float) - 高斯正态的stddev，用于 `empirical_fraction` ，公式为empirical_fraction + N(0, fraction_stddev)。默认值：``0.01``。
+        - **seed** (int) - 原始随机种子。如果值为 ``0``，随机正态将使用安全随机数，否则随机正态将使用给定的种子生成值。默认值：``0``。
 
     返回：
         - **Tensor** - 更新后的梯度裁剪阈值。
@@ -84,18 +84,18 @@ mindarmour.privacy.diff_privacy
     .. py:method:: create(mech_name, norm_bound=1.0, initial_noise_multiplier=1.0, seed=0, noise_decay_rate=6e-6, decay_policy=None)
 
         参数：
-            - **mech_name** (str) - 噪声生成策略，可以是'Gaussian'或'AdaGaussian'。噪声在'AdaGaussian'机制下衰减，而在'Gaussian'机制下则恒定。
-            - **norm_bound** (float) - 梯度的l2范数的裁剪范围。默认值：1.0。
-            - **initial_noise_multiplier** (float) - 高斯噪声标准偏差除以 `norm_bound` 的比率，将用于计算隐私预算。默认值：1.0。
-            - **seed** (int) - 原始随机种子，如果seed=0随机正态将使用安全随机数。如果seed!=0随机正态将使用给定的种子生成值。默认值：0。
-            - **noise_decay_rate** (float) - 控制噪声衰减的超参数。默认值：6e-6。
-            - **decay_policy** (str) - 衰减策略。如果decay_policy为None，则不需要更新参数。默认值：None。
+            - **mech_name** (str) - 噪声生成策略，可以是 ``'Gaussian'`` 或 ``'AdaGaussian'``。噪声在 ``'AdaGaussian'`` 机制下衰减，而在 ``'Gaussian'`` 机制下则恒定。
+            - **norm_bound** (float) - 梯度的l2范数的裁剪范围。默认值：``1.0``。
+            - **initial_noise_multiplier** (float) - 高斯噪声标准偏差除以 `norm_bound` 的比率，将用于计算隐私预算。默认值：``1.0``。
+            - **seed** (int) - 原始随机种子。如果值为 ``0``，随机正态将使用安全随机数，否则随机正态将使用给定的种子生成值。默认值：``0``。
+            - **noise_decay_rate** (float) - 控制噪声衰减的超参数。默认值：``6e-6``。
+            - **decay_policy** (str) - 衰减策略。如果 `decay_policy` 为 ``None``，则不需要更新参数。默认值：``None``。
 
         返回：
             - **Mechanisms** - 产生的噪声类别机制。
 
         异常：
-            - **NameError** - `mech_name` 必须在['Gaussian', 'AdaGaussian']中。
+            - **NameError** - `mech_name` 必须为 ``'Gaussian'`` 或 ``'AdaGaussian'``。
 
 .. py:class:: mindarmour.privacy.diff_privacy.ClipMechanismsFactory
 
@@ -106,18 +106,18 @@ mindarmour.privacy.diff_privacy
     .. py:method:: create(mech_name, decay_policy='Linear', learning_rate=0.001, target_unclipped_quantile=0.9, fraction_stddev=0.01, seed=0)
 
         参数：
-            - **mech_name** (str) - 噪声裁剪生成策略，现支持'Gaussian'。
-            - **decay_policy** (str) - 自适应剪裁的衰变策略，decay_policy必须在['Linear', 'Geometric']中。默认值：Linear。
-            - **learning_rate** (float) - 更新范数裁剪的学习率。默认值：0.001。
-            - **target_unclipped_quantile** (float) - 范数裁剪的目标分位数。默认值：0.9。
-            - **fraction_stddev** (float) - 高斯正态的stddev，用于empirical_fraction，公式为 :math:`empirical\_fraction + N(0, fraction\_stddev)` 。默认值：0.01。
-            - **seed** (int) - 原始随机种子，如果seed=0随机正态将使用安全随机数。如果seed!=0随机正态将使用给定的种子生成值。默认值：0。
+            - **mech_name** (str) - 噪声裁剪生成策略，现支持 ``'Gaussian'``。
+            - **decay_policy** (str) - 自适应剪裁的衰变策略，``decay_policy`` 必须为 ``'Linear'`` 或 ``'Geometric'``。默认值：``'Linear'``。
+            - **learning_rate** (float) - 更新范数裁剪的学习率。默认值：``0.001``。
+            - **target_unclipped_quantile** (float) - 范数裁剪的目标分位数。默认值：``0.9``。
+            - **fraction_stddev** (float) - 高斯正态的stddev，用于empirical_fraction，公式为 :math:`empirical\_fraction + N(0, fraction\_stddev)` 。默认值：``0.01``。
+            - **seed** (int) - 原始随机种子。如果值为 ``0``，随机正态将使用安全随机数，否则随机正态将使用给定的种子生成值。默认值：``0``。
 
         返回：
             - **Mechanisms** - 产生的噪声类别机制。 
 
         异常：
-            - **NameError** - `mech_name` 必须在['Gaussian']中。
+            - **NameError** - `mech_name` 必须为 ``'Gaussian'``。
 
         
 
@@ -132,10 +132,10 @@ mindarmour.privacy.diff_privacy
         创建隐私预算监测类。
 
         参数：
-            - **policy** (str) - 监控策略，现支持'rdp'和'zcdp'。
+            - **policy** (str) - 监控策略，现支持 ``'rdp'`` 和 ``'zcdp'``。
 
-              - 如果策略为'rdp'，监控器将根据Renyi差分隐私（Renyi differential privacy，RDP）理论计算DP训练的隐私预算；
-              - 如果策略为'zcdp'，监控器将根据零集中差分隐私（zero-concentrated differential privacy，zCDP）理论计算DP训练的隐私预算。注意，'zcdp'不适合子采样噪声机制。
+              - 如果策略为 ``'rdp'``，监控器将根据Renyi差分隐私（Renyi differential privacy，RDP）理论计算DP训练的隐私预算；
+              - 如果策略为 ``'zcdp'``，监控器将根据零集中差分隐私（zero-concentrated differential privacy，zCDP）理论计算DP训练的隐私预算。注意，``'zcdp'`` 不适合子采样噪声机制。
             - **args** (Union[int, float, numpy.ndarray, list, str]) - 用于创建隐私监视器的参数。
             - **kwargs** (Union[int, float, numpy.ndarray, list, str]) - 用于创建隐私监视器的关键字参数。
 
@@ -156,16 +156,16 @@ mindarmour.privacy.diff_privacy
     参数：
         - **num_samples** (int) - 训练数据集中的样本总数。
         - **batch_size** (int) - 训练时批处理中的样本数。
-        - **initial_noise_multiplier** (Union[float, int]) - 高斯噪声标准偏差除以norm_bound的比率，将用于计算隐私预算。默认值：1.5。
-        - **max_eps** (Union[float, int, None]) - DP训练的最大可接受epsilon预算，用于估计最大训练epoch。'None'表示epsilon预算没有限制。默认值：10.0。
-        - **target_delta** (Union[float, int, None]) - DP训练的目标delta预算。如果 `target_delta` 设置为δ，则隐私预算δ将在整个训练过程中是固定的。默认值：1e-3。
-        - **max_delta** (Union[float, int, None]) - DP训练的最大可接受delta预算，用于估计最大训练epoch。 `max_delta` 必须小于1，建议小于1e-3，否则会溢出。'None'表示delta预算没有限制。默认值：None。
-        - **target_eps** (Union[float, int, None]) - DP训练的目标epsilon预算。如果target_eps设置为ε，则隐私预算ε将在整个训练过程中是固定的。默认值：None。
-        - **orders** (Union[None, list[int, float]]) - 用于计算rdp的有限阶数，必须大于1。不同阶的隐私预算计算结果会有所不同。为了获得更严格（更小）的隐私预算估计，可以尝试阶列表。默认值：None。
-        - **noise_decay_mode** (Union[None, str]) - 训练时添加噪音的衰减模式，可以是None、'Time'、'Step'、'Exp'。默认值：'Time'。
-        - **noise_decay_rate** (float) - 训练时噪音的衰变率。默认值：6e-4。
-        - **per_print_times** (int) - 计算和打印隐私预算的间隔步数。默认值：50。
-        - **dataset_sink_mode** (bool) - 如果为True，所有训练数据都将一次性传递到设备（Ascend）。如果为False，则训练数据将在每步训练后传递到设备。默认值：False。
+        - **initial_noise_multiplier** (Union[float, int]) - 高斯噪声标准偏差除以norm_bound的比率，将用于计算隐私预算。默认值：``1.5``。
+        - **max_eps** (Union[float, int, None]) - DP训练的最大可接受epsilon预算，用于估计最大训练epoch。``None`` 表示epsilon预算没有限制。默认值：``10.0``。
+        - **target_delta** (Union[float, int, None]) - DP训练的目标delta预算。如果 `target_delta` 设置为 ``δ``，则隐私预算 ``δ`` 将在整个训练过程中是固定的。默认值：``1e-3``。
+        - **max_delta** (Union[float, int, None]) - DP训练的最大可接受delta预算，用于估计最大训练epoch。 `max_delta` 必须小于1，建议小于1e-3，否则会溢出。``None`` 表示delta预算没有限制。默认值：``None``。
+        - **target_eps** (Union[float, int, None]) - DP训练的目标epsilon预算。如果 `target_eps` 设置为 ``ε``，则隐私预算 ``ε`` 将在整个训练过程中是固定的。默认值：``None``。
+        - **orders** (Union[None, list[int, float]]) - 用于计算rdp的有限阶数，必须大于1。不同阶的隐私预算计算结果会有所不同。为了获得更严格（更小）的隐私预算估计，可以尝试阶列表。默认值：``None``。
+        - **noise_decay_mode** (Union[None, str]) - 训练时添加噪音的衰减模式，可以是 ``None``、``'Time'``、``'Step'``、``'Exp'``。默认值：``'Time'``。
+        - **noise_decay_rate** (float) - 训练时噪音的衰变率。默认值：``6e-4``。
+        - **per_print_times** (int) - 计算和打印隐私预算的间隔步数。默认值：``50``。
+        - **dataset_sink_mode** (bool) - 如果为 ``True``，所有训练数据都将一次性传递到设备（Ascend）。如果为 ``False``，则训练数据将在每步训练后传递到设备。默认值：``False``。
 
     .. py:method:: max_epoch_suggest()
 
@@ -197,13 +197,13 @@ mindarmour.privacy.diff_privacy
     参数：
         - **num_samples** (int) - 训练数据集中的样本总数。
         - **batch_size** (int) - 训练时批处理中的样本数。
-        - **initial_noise_multiplier** (Union[float, int]) - 高斯噪声标准偏差除以norm_bound的比率，将用于计算隐私预算。默认值：1.5。
-        - **max_eps** (Union[float, int]) - DP训练的最大可接受epsilon预算，用于估计最大训练epoch。默认值：10.0。
-        - **target_delta** (Union[float, int]) - DP训练的目标delta预算。如果 `target_delta` 设置为δ，则隐私预算δ将在整个训练过程中是固定的。默认值：1e-3。
-        - **noise_decay_mode** (Union[None, str]) - 训练时添加噪音的衰减模式，可以是None、'Time'、'Step'、'Exp'。默认值：'Time'。
-        - **noise_decay_rate** (float) - 训练时噪音的衰变率。默认值：6e-4。
-        - **per_print_times** (int) - 计算和打印隐私预算的间隔步数。默认值：50。
-        - **dataset_sink_mode** (bool) - 如果为True，所有训练数据都将一次性传递到设备（Ascend）。如果为False，则训练数据将在每步训练后传递到设备。默认值：False。
+        - **initial_noise_multiplier** (Union[float, int]) - 高斯噪声标准偏差除以norm_bound的比率，将用于计算隐私预算。默认值：``1.5``。
+        - **max_eps** (Union[float, int]) - DP训练的最大可接受epsilon预算，用于估计最大训练epoch。默认值：``10.0``。
+        - **target_delta** (Union[float, int]) - DP训练的目标delta预算。如果 `target_delta` 设置为 ``δ``，则隐私预算 `δ` 将在整个训练过程中是固定的。默认值：``1e-3``。
+        - **noise_decay_mode** (Union[None, str]) - 训练时添加噪音的衰减模式，可以是 ``None``、``'Time'``、``'Step'``、``'Exp'``。默认值：``'Time'``。
+        - **noise_decay_rate** (float) - 训练时噪音的衰变率。默认值：``6e-4``。
+        - **per_print_times** (int) - 计算和打印隐私预算的间隔步数。默认值：``50``。
+        - **dataset_sink_mode** (bool) - 如果为 ``True``，所有训练数据都将一次性传递到设备（Ascend）。如果为 ``False``，则训练数据将在每步训练后传递到设备。默认值：``False``。
 
     .. py:method:: max_epoch_suggest()
 
@@ -224,14 +224,14 @@ mindarmour.privacy.diff_privacy
     优化器的工厂类。
 
     参数：
-        - **micro_batches** (int) - 从原始批次拆分的小批次中的样本数量。默认值：2。
+        - **micro_batches** (int) - 从原始批次拆分的小批次中的样本数量。默认值：``2``。
 
     返回：
         - **Optimizer** - 优化器类。
 
     .. py:method:: create(policy)
 
-        创建DP优化器。策略可以是'sgd'、'momentum'、'adam'。
+        创建DP优化器。策略可以是 ``'sgd'``、``'momentum'``、``'adam'``。
 
         参数：
             - **policy** (str) - 选择原始优化器类型。
@@ -241,7 +241,7 @@ mindarmour.privacy.diff_privacy
 
     .. py:method:: set_mechanisms(policy, *args, **kwargs)
 
-        获取噪音机制对象。策略可以是'Gaussian'或'AdaGaussian'。候选的args和kwargs可以在 `NoiseMechanismsFactory` 类中看到。
+        获取噪音机制对象。策略可以是 ``'Gaussian'`` 或 ``'AdaGaussian'``。候选的args和kwargs可以在 `NoiseMechanismsFactory` 类中看到。
 
         参数：
             - **policy** (str) - 选择机制类型。
@@ -255,14 +255,14 @@ mindarmour.privacy.diff_privacy
     详情请查看： `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_。
 
     参数：
-        - **micro_batches** (int) - 从原始批次拆分的小批次数。默认值：2。
-        - **norm_bound** (float) - 用于裁剪范围，如果设置为1，将返回原始数据。默认值：1.0。
-        - **noise_mech** (Mechanisms) - 用于生成不同类型的噪音。默认值：None。
-        - **clip_mech** (Mechanisms) - 用于更新自适应剪裁。默认值：None。
-        - **optimizer** (Cell) - 用于更新差分隐私训练过程中的模型权重值。默认值：nn.Momentum。
+        - **micro_batches** (int) - 从原始批次拆分的小批次数。默认值：``2``。
+        - **norm_bound** (float) - 用于裁剪范围，如果设置为 ``1.0``，将返回原始数据。默认值：``1.0``。
+        - **noise_mech** (Mechanisms) - 用于生成不同类型的噪音。默认值：``None``。
+        - **clip_mech** (Mechanisms) - 用于更新自适应剪裁。默认值：``None``。
+        - **optimizer** (Cell) - 用于更新差分隐私训练过程中的模型权重值。默认值：``nn.Momentum``。
 
     异常：
-        - **ValueError** - optimizer值为None。
-        - **ValueError** - optimizer不是DPOptimizer，且noise_mech为None。
-        - **ValueError** - optimizer是DPOptimizer，且noise_mech非None。
-        - **ValueError** - noise_mech或DPOptimizer的mech方法是自适应的，而clip_mech不是None。
+        - **ValueError** - `optimizer` 值为 ``None``。
+        - **ValueError** - `optimizer` 不是DPOptimizer，且 `noise_mech` 为 ``None``。
+        - **ValueError** - `optimizer` 是DPOptimizer，且 `noise_mech` 非 ``None``。
+        - **ValueError** - `noise_mech` 或DPOptimizer的mech方法是自适应的，而 `clip_mech` 不是 ``None``。

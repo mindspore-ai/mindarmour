@@ -42,17 +42,17 @@ class LBFGS(Attack):
 
     Args:
         network (Cell): The network of attacked model.
-        eps (float): Attack step size. Default: 1e-5.
-        bounds (tuple): Upper and lower bounds of data. Default: (0.0, 1.0)
-        is_targeted (bool): If True, targeted attack. If False, untargeted
-            attack. Default: True.
+        eps (float): Attack step size. Default: ``1e-5``.
+        bounds (tuple): Upper and lower bounds of data. Default: ``(0.0, 1.0)``.
+        is_targeted (bool): If ``True``, targeted attack. If ``False``, untargeted
+            attack. Default: ``True``.
         nb_iter (int): Number of iteration of lbfgs-optimizer, which should be
-            greater than zero. Default: 150.
+            greater than zero. Default: ``150``.
         search_iters (int): Number of changes in step size, which should be
-            greater than zero. Default: 30.
-        loss_fn (Functions): Loss function of substitute model. Default: None.
-        sparse (bool): If True, input labels are sparse-coded. If False,
-            input labels are onehot-coded. Default: False.
+            greater than zero. Default: ``30``.
+        loss_fn (Functions): Loss function of substitute model. Default: ``None``.
+        sparse (bool): If True, input labels are sparse-coded. If ``False``,
+            input labels are onehot-coded. Default: ``False``.
 
     Examples:
         >>> from mindarmour.adv_robustness.attacks import LBFGS

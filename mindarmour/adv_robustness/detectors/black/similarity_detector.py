@@ -63,14 +63,14 @@ class SimilarityDetector(Detector):
         trans_model (Model): A MindSpore model to encode input data into lower
             dimension vector.
         max_k_neighbor (int): The maximum number of the nearest neighbors.
-            Default: 1000.
-        chunk_size (int): Buffer size. Default: 1000.
-        max_buffer_size (int): Maximum buffer size. Default: 10000.
+            Default: ``1000``.
+        chunk_size (int): Buffer size. Default: ``1000``.
+        max_buffer_size (int): Maximum buffer size. Default: ``10000``.
         tuning (bool): Calculate the average distance for the nearest k
-            neighbours, if tuning is true, k=K. If False k=1,...,K.
-            Default: False.
+            neighbours, if `tuning` is ``True``, k=K. If ``False`` k=1,...,K.
+            Default: ``False``.
         fpr (float): False positive ratio on legitimate query sequences.
-            Default: 0.001
+            Default: ``0.001``.
 
     Examples:
         >>> from mindspore.ops.operations import Add

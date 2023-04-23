@@ -128,7 +128,7 @@ class SuppressModel(Model):
         Args:
             network (Cell): Definition of the network.
             loss_fn (Union[None, Cell]): Definition of the loss_fn. If None,
-                the `network` should have the loss inside. Default: None.
+                the `network` should have the loss inside. Default: ``None``.
             optimizer (Optimizer): Optimizer to update the Parameter.
             level (str): Supports [O0, O2]. Default: "O0".
                 - O0: Do not change.
@@ -212,7 +212,8 @@ class TrainOneStepCell(Cell):
     Args:
         network (Cell): The training network.
         optimizer (Cell): Optimizer for updating the weights.
-        sens (Number): The scaling number to be filled as the input of backpropagation. Default value is 1.0.
+        sens (Number): The scaling number to be filled as the input of backpropagation.
+            Default value is ``1.0``.
 
     Inputs:
         - **data** (Tensor) - Tensor of shape :math:`(N, \ldots)`.

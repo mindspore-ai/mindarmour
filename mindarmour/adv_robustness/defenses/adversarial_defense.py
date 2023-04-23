@@ -32,8 +32,8 @@ class AdversarialDefense(Defense):
 
     Args:
         network (Cell): A MindSpore network to be defensed.
-        loss_fn (Union[Loss, None]): Loss function. Default: None.
-        optimizer (Cell): Optimizer used to train the network. Default: None.
+        loss_fn (Union[Loss, None]): Loss function. Default: ``None``.
+        optimizer (Cell): Optimizer used to train the network. Default: ``None``.
 
     Examples:
         >>> from mindspore.nn.optim.momentum import Momentum
@@ -105,12 +105,12 @@ class AdversarialDefenseWithAttacks(AdversarialDefense):
     Args:
         network (Cell): A MindSpore network to be defensed.
         attacks (list[Attack]): List of attack method.
-        loss_fn (Union[Loss, None]): Loss function. Default: None.
-        optimizer (Cell): Optimizer used to train the network. Default: None.
+        loss_fn (Union[Loss, None]): Loss function. Default: ``None``.
+        optimizer (Cell): Optimizer used to train the network. Default: ``None``.
         bounds (tuple): Upper and lower bounds of data. In form of (clip_min,
-            clip_max). Default: (0.0, 1.0).
+            clip_max). Default: ``(0.0, 1.0)``.
         replace_ratio (float): Ratio of replacing original samples with
-            adversarial, which must be between 0 and 1. Default: 0.5.
+            adversarial, which must be between 0 and 1. Default:`` 0.5``.
 
     Raises:
         ValueError: If replace_ratio is not between 0 and 1.
@@ -204,12 +204,12 @@ class EnsembleAdversarialDefense(AdversarialDefenseWithAttacks):
     Args:
         network (Cell): A MindSpore network to be defensed.
         attacks (list[Attack]): List of attack method.
-        loss_fn (Union[Loss, None]): Loss function. Default: None.
-        optimizer (Cell): Optimizer used to train the network. Default: None.
+        loss_fn (Union[Loss, None]): Loss function. Default: ``None``.
+        optimizer (Cell): Optimizer used to train the network. Default: ``None``.
         bounds (tuple): Upper and lower bounds of data. In form of (clip_min,
-            clip_max). Default: (0.0, 1.0).
+            clip_max). Default: ``(0.0, 1.0)``.
         replace_ratio (float): Ratio of replacing original samples with
-            adversarial, which must be between 0 and 1. Default: 0.5.
+            adversarial, which must be between 0 and 1. Default: ``0.5``.
 
     Raises:
         ValueError: If replace_ratio is not between 0 and 1.

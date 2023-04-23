@@ -13,12 +13,12 @@ mindarmour.privacy.evaluation
 
     参数：
         - **model** (Model) - 目标模型。
-        - **n_jobs** (int) - 并行运行的任务数量。-1表示使用所有处理器，否则n_jobs的值必须为正整数。
+        - **n_jobs** (int) - 并行运行的任务数量。``-1`` 表示使用所有处理器，否则 `n_jobs` 的值必须为正整数。
 
     异常：
         - **TypeError** - 模型的类型不是 `mindspore.train.Model` 。
         - **TypeError** - `n_jobs` 的类型不是int。
-        - **ValueError** - `n_jobs` 的值既不是-1，也不是正整数。
+        - **ValueError** - `n_jobs` 的值既不是 ``-1``，也不是正整数。
 
     .. py:method:: eval(dataset_train, dataset_test, metrics)
 
@@ -28,7 +28,7 @@ mindarmour.privacy.evaluation
         参数：
             - **dataset_train** (mindspore.dataset) - 目标模型的训练数据集。
             - **dataset_test** (mindspore.dataset) - 目标模型的测试数据集。
-            - **metrics** (Union[list, tuple]) - 评估指标。指标的值必须在["precision", "accuracy", "recall"]中。默认值：["precision"]。
+            - **metrics** (Union[list, tuple]) - 评估指标。指标的值必须为 ``"precision"``、``"accuracy"`` 或 ``"recall"``。默认值：``"precision"``。
 
         返回：
             - **list** - 每个元素都包含攻击模型的评估指标。
@@ -48,7 +48,7 @@ mindarmour.privacy.evaluation
                       [{"method": "knn", "params": {"n_neighbors": [3, 5, 7]}},
                        {"method": "lr", "params": {"C": np.logspace(-4, 2, 10)}}]
 
-              - 支持的方法有knn、lr、mlp和rf，每个方法的参数必须在可变参数的范围内。参数实现的提示可在下面找到：
+              - 支持的方法有 ``knn``、``lr``、``mlp`` 和 ``rf``，每个方法的参数必须在可变参数的范围内。参数实现的提示可在下面找到：
 
                 - `KNN <https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html>`_
                 - `LR <https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html>`_
@@ -57,7 +57,7 @@ mindarmour.privacy.evaluation
 
         异常：
             - **KeyError** - `attack_config` 中的配置没有键{"method", "params"}。
-            - **NameError** - `attack_config` 中的方法（不区分大小写）不在["lr", "knn", "rf", "mlp"]中。
+            - **NameError** - `attack_config` 中的方法（不区分大小写）不为 ``"lr"``、``"knn"``、``"rf"`` 或 ``"mlp"``。
 
 .. py:class:: mindarmour.privacy.evaluation.ImageInversionAttack(network, input_shape, input_bound, loss_weights=(1, 0.2, 5))
 
@@ -69,7 +69,7 @@ mindarmour.privacy.evaluation
         - **network** (Cell) - 网络，用于推断图像的深层特征。
         - **input_shape** (tuple) - 单个网络输入的数据形状，应与给定网络一致。形状的格式应为 :math:`(channel, image\_width, image\_height)` 。
         - **input_bound** (Union[tuple, list]) - 原始图像的像素范围，应该像[minimum_pixel, maximum_pixel]或(minimum_pixel, maximum_pixel)。
-        - **loss_weights** (Union[list, tuple]) - InversionLoss中三个子损失的权重，可以调整以获得更好的结果。默认值：(1, 0.2, 5)。
+        - **loss_weights** (Union[list, tuple]) - InversionLoss中三个子损失的权重，可以调整以获得更好的结果。默认值：``(1, 0.2, 5)``。
 
     异常：
         - **TypeError** - 网络类型不是Cell。
@@ -83,13 +83,13 @@ mindarmour.privacy.evaluation
         参数：
             - **original_images** (numpy.ndarray) - 原始图像，其形状应为 :math:`(img\_num, channels, img\_width, img\_height)` 。
             - **inversion_images** (numpy.ndarray) - 还原图像，其形状应为 :math:`(img\_num, channels, img\_width, img\_height)` 。
-            - **labels** (numpy.ndarray) - 原始图像的ground truth标签。默认值：None。
-            - **new_network** (Cell) - 其结构包含self._network中所有网络，但加载了不同的模型文件。默认值：None。
+            - **labels** (numpy.ndarray) - 原始图像的ground truth标签。默认值：``None``。
+            - **new_network** (Cell) - 其结构包含self._network中所有网络，但加载了不同的模型文件。默认值：``None``。
 
         返回：
             - **float** - l2距离。
             - **float** - 平均ssim值。
-            - **Union[float, None]** - 平均置信度。如果 `labels` 或 `new_network` 为None，则该值为None。
+            - **Union[float, None]** - 平均置信度。如果 `labels` 或 `new_network` 为 ``None``，则该值为 ``None``。
 
     .. py:method:: generate(target_features, iters=100)
 
@@ -97,12 +97,12 @@ mindarmour.privacy.evaluation
 
         参数：
             - **target_features** (numpy.ndarray) - 原始图像的深度表示。 `target_features` 的第一个维度应该是img_num。需要注意的是，如果img_num等于1，则 `target_features` 的shape应该是 :math:`(1, dim2, dim3, ...)` 。
-            - **iters** (int) - 逆向攻击的迭代次数，应为正整数。默认值：100。
+            - **iters** (int) - 逆向攻击的迭代次数，应为正整数。默认值：``1.0``。
 
         返回：
             - **numpy.ndarray** - 重建图像，预计与原始图像相似。
 
         异常：
-            - **TypeError** - target_features的类型不是numpy.ndarray。
+            - **TypeError** - `target_features` 的类型不是numpy.ndarray。
             - **ValueError** - `iters` 的值都不是正整数.
 

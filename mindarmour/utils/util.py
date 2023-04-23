@@ -40,7 +40,7 @@ def jacobian_matrix(grad_wrap_net, inputs, num_classes):
         numpy.ndarray, the Jacobian matrix of inputs. (labels, batch_size, ...)
 
     Raises:
-        ValueError: If grad_wrap_net is not a instance of class `GradWrap`.
+        ValueError: If `grad_wrap_net` is not a instance of class `GradWrap`.
     """
     if not isinstance(grad_wrap_net, GradWrap):
         msg = 'grad_wrap_net be and instance of class `GradWrap`.'
@@ -70,7 +70,7 @@ def jacobian_matrix_for_detection(grad_wrap_net, inputs, num_boxes, num_classes)
         numpy.ndarray, the Jacobian matrix of inputs. (labels, batch_size, ...)
 
     Raises:
-        ValueError: If grad_wrap_net is not a instance of class `GradWrap`.
+        ValueError: If `grad_wrap_net` is not a instance of class `GradWrap`.
     """
     if not isinstance(grad_wrap_net, GradWrap):
         msg = 'grad_wrap_net be and instance of class `GradWrap`.'
@@ -310,8 +310,8 @@ def calculate_lp_distance(original_image, compared_image):
         - float, linf distances between two images.
 
     Raises:
-        TypeError: If type of original_image or type of compared_image is not numpy.ndarray.
-        ValueError: If the shape of original_image and compared_image are not the same.
+        TypeError: If type of `original_image` or type of `compared_image` is not numpy.ndarray.
+        ValueError: If the shape of `original_image` and `compared_image` are not the same.
     """
     check_numpy_param('original_image', original_image)
     check_numpy_param('compared_image', compared_image)

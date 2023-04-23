@@ -44,14 +44,14 @@ class RegionBasedDetector(Detector):
     Args:
         model (Model): Target model.
         number_points (int): The number of samples generate from the
-            hyper cube of original sample. Default: 10.
-        initial_radius (float): Initial radius of hyper cube. Default: 0.0.
-        max_radius (float): Maximum radius of hyper cube. Default: 1.0.
-        search_step (float): Incremental during search of radius. Default: 0.01.
+            hyper cube of original sample. Default: ``10``.
+        initial_radius (float): Initial radius of hyper cube. Default: ``0.0``.
+        max_radius (float): Maximum radius of hyper cube. Default: ``1.0``.
+        search_step (float): Incremental during search of radius. Default: ``0.01``.
         degrade_limit (float): Acceptable decrease of classification accuracy.
-            Default: 0.0.
-        sparse (bool): If True, input labels are sparse-encoded. If False,
-            input labels are one-hot-encoded. Default: False.
+            Default: ``0.0``.
+        sparse (bool): If ``True``, input labels are sparse-encoded. If ``False``,
+            input labels are one-hot-encoded. Default: ``False``.
 
     Examples:
         >>> from mindspore.ops.operations import Add

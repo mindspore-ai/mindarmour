@@ -39,11 +39,11 @@ class RadarMetric:
             Each set of values corresponds to one radar curve.
         labels (Union[tuple, list]): Legends of all radar curves.
         title (str): Title of the chart.
-        scale (str): Scalar to adjust axis ticks, such as 'hide', 'norm',
-            'sparse' or 'dense'. Default: 'hide'.
+        scale (str): Scalar to adjust axis ticks, such as ``'hide'``, ``'norm'``,
+            ``'sparse'`` or ``'dense'``. Default: ``'hide'``.
 
     Raises:
-        ValueError: If scale not in ['hide', 'norm', 'sparse', 'dense'].
+        ValueError: If `scale` is not ``'hide'``, ``'norm'``, ``'sparse'``, ``'dense'``.
 
     Examples:
         >>> from mindarmour.adv_robustness.evaluations import RadarMetric

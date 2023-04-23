@@ -32,8 +32,8 @@ class EnsembleDetector(Detector):
 
     Args:
         detectors (Union[tuple, list]): List of detector methods.
-        policy (str): Decision policy, could be 'vote', 'all' or 'any'.
-            Default: 'vote'
+        policy (str): Decision policy, could be ``'vote'``, ``'all'`` or ``'any'``.
+            Default: ``'vote'``.
     Examples:
         >>> from mindspore.ops.operations import Add
         >>> from mindspore import Model
@@ -80,7 +80,7 @@ class EnsembleDetector(Detector):
 
         Args:
             inputs (numpy.ndarray): Data to calculate the threshold.
-            labels (numpy.ndarray): Labels of data. Default: None.
+            labels (numpy.ndarray): Labels of data. Default: ``None``.
 
         Raises:
             NotImplementedError: This function is not available in ensemble.

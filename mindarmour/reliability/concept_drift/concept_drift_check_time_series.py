@@ -30,12 +30,11 @@ class ConceptDriftCheckTimeSeries:
         window_size(int): Size of a concept window, no less than 10. If given the input data,
             window_size belongs to [10, 1/3*len(input data)]. If the data is periodic, usually
             window_size equals 2-5 periods, such as, for monthly/weekly data, the data volume
-            of 30/7 days is a period. Default: 100.
-        rolling_window(int): Smoothing window size, belongs to [1, window_size]. Default:10.
-        step(int): The jump length of the sliding window, belongs to [1, window_size]. Default:10.
-        threshold_index(float): The threshold index, :math:`(-\infty, +\infty)`. Default: 1.5.
-        need_label(bool): False or True. If need_label=True, concept drift labels are needed.
-            Default: False.
+            of 30/7 days is a period. Default: ``100``.
+        rolling_window(int): Smoothing window size, belongs to [1, window_size]. Default: ``10``.
+        step(int): The jump length of the sliding window, belongs to [1, window_size]. Default: ``10``.
+        threshold_index(float): The threshold index, :math:`(-\infty, +\infty)`. Default: ``1.5``.
+        need_label(bool): If ``True``, concept drift labels are needed. Default: ``False``.
 
     Examples:
         >>> from mindarmour import ConceptDriftCheckTimeSeries

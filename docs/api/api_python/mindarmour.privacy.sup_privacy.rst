@@ -51,14 +51,14 @@ mindarmour.privacy.sup_privacy
         参数：
             - **networks** (Cell) - 要训练的神经网络模型。此网络参数应与SuppressModel()的'network'参数相同。
             - **mask_layers** (list) - 需要抑制的训练网络层的描述。
-            - **policy** (str) - 抑制隐私训练的训练策略。默认值："local_train"，表示本地训练。
-            - **end_epoch** (int) - 最后一次抑制操作对应的epoch序号，0<start_epoch<=end_epoch<=100。默认值：10。此end_epoch参数应与mindspore.train.model.train()的'epoch'参数相同。
-            - **batch_num** (int) - 一个epoch中批次的数量，应等于num_samples/batch_size。默认值：20。
-            - **start_epoch** (int) - 第一个抑制操作对应的epoch序号，0<start_epoch<=end_epoch<=100。默认值：3。
-            - **mask_times** (int) - 抑制操作的数量。默认值：1000。
-            - **lr** (Union[float, int]) - 学习率，在训练期间应保持不变。0<lr<=0.50. 默认值：0.05。此lr参数应与mindspore.nn.SGD()的'learning_rate'参数相同。
-            - **sparse_end** (float) - 要到达的稀疏性，0.0<=sparse_start<sparse_end<1.0。默认值：0.90。
-            - **sparse_start** (Union[float, int]) - 抑制操作启动时对应的稀疏性，0.0<=sparse_start<sparse_end<1.0。默认值：0.0。
+            - **policy** (str) - 抑制隐私训练的训练策略。默认值：``"local_train"``，表示本地训练。
+            - **end_epoch** (int) - 最后一次抑制操作对应的epoch序号，0<start_epoch<=end_epoch<=100。默认值：``10``。此参数应与 `mindspore.train.model.train()` 的 `epoch` 参数相同。
+            - **batch_num** (int) - 一个epoch中批次的数量，应等于num_samples/batch_size。默认值：``20``。
+            - **start_epoch** (int) - 第一个抑制操作对应的epoch序号，0<start_epoch<=end_epoch<=100。默认值：``3``。
+            - **mask_times** (int) - 抑制操作的数量。默认值：``1000``。
+            - **lr** (Union[float, int]) - 学习率，在训练期间应保持不变。0<lr<=0.50. 默认值：0.05。此lr参数应与 `mindspore.nn.SGD() 的 `learning_rate` 参数相同。
+            - **sparse_end** (float) - 要到达的稀疏性，0.0<=sparse_start<sparse_end<1.0。默认值：``0.90``。
+            - **sparse_start** (Union[float, int]) - 抑制操作启动时对应的稀疏性，0.0<=sparse_start<sparse_end<1.0。默认值：``0.0``。
 
         返回：
             - **SuppressCtrl** - 抑制隐私机制的类。
@@ -121,7 +121,7 @@ mindarmour.privacy.sup_privacy
         参数：
             - **networks** (Cell) - 训练网络。
             - **cur_step** (int) - 整个训练过程的当前epoch。
-            - **target_sparse** (float) - 要到达的稀疏性。默认值：0.0。
+            - **target_sparse** (float) - 要到达的稀疏性。默认值：``0.0``。
 
     .. py:method:: update_mask_layer(weight_array_flat, sparse_weight_thd, sparse_stop_pos, weight_abs_max, layer_index)
 
@@ -168,8 +168,8 @@ mindarmour.privacy.sup_privacy
                   if layer.name == "conv": ...
 
         - **grad_idx** (int) - 掩码层在梯度元组中的索引。可参考 `model.py <https://gitee.com/mindspore/mindarmour/blob/master/mindarmour/privacy/sup_privacy/train/model.py>`_ 中TrainOneStepCell的构造函数，在PYNATIVE_MODE模式下打印某些层的索引值。
-        - **is_add_noise** (bool) - 如果为True，则此层的权重可以添加噪声。如果为False，则此层的权重不能添加噪声。如果参数num大于100000，则　`is_add_noise` 无效。
-        - **is_lower_clip** (bool) - 如果为True，则此层的权重将被剪裁到大于下限值。如果为False，此层的权重不会被要求大于下限制。如果参数num大于100000，则is_lower_clip无效。
-        - **min_num** (int) - 未抑制的剩余权重数。如果min_num小于（参数总数量 *　`SupperssCtrl.sparse_end` ），则min_num无效。
-        - **upper_bound** (Union[float, int]) - 此层权重的最大abs值，默认值：1.20。如果参数num大于100000，则upper_bound无效。
+        - **is_add_noise** (bool) - 如果为 ``True``，则此层的权重可以添加噪声。如果为 ``False``，则此层的权重不能添加噪声。如果参数num大于100000，则　`is_add_noise` 无效。
+        - **is_lower_clip** (bool) - 如果为 ``True``，则此层的权重将被剪裁到大于下限值。如果为 ``False``，此层的权重不会被要求大于下限制。如果参数num大于100000，则 `is_lower_clip` 无效。
+        - **min_num** (int) - 未抑制的剩余权重数。如果 `min_num` 小于（参数总数量 *　`SupperssCtrl.sparse_end` ），则 `min_num` 无效。
+        - **upper_bound** (Union[float, int]) - 此层权重的最大abs值，默认值：``1.20``。如果参数num大于100000，则 `upper_bound` 无效。
 

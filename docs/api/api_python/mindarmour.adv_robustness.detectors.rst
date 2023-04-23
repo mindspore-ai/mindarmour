@@ -11,8 +11,8 @@ mindarmour.adv_robustness.detectors
 
     参数：
         - **auto_encoder** (Model) - 一个（训练过的）自动编码器，对输入图片进行重构。
-        - **false_positive_rate** (float) - 检测器的误报率。默认值：0.01。
-        - **bounds** (tuple) - (clip_min, clip_max)。默认值：(0.0, 1.0)。
+        - **false_positive_rate** (float) - 检测器的误报率。默认值：``0.01``。
+        - **bounds** (tuple) - (clip_min, clip_max)。默认值：``(0.0, 1.0)``。
 
     .. py:method:: detect(inputs)    
 
@@ -40,7 +40,7 @@ mindarmour.adv_robustness.detectors
 
         参数：
             - **inputs** (numpy.ndarray) - 输入样本。
-            - **labels** (numpy.ndarray) - 输入样本的标签。默认值：None。
+            - **labels** (numpy.ndarray) - 输入样本的标签。默认值：``None``。
 
         返回：
             - **float** - 区分对抗样本和良性样本的阈值。
@@ -71,9 +71,9 @@ mindarmour.adv_robustness.detectors
     参数：
         - **auto_encoder** (Model) - 编码器模型。
         - **model** (Model) - 目标模型。
-        - **option** (str) - 用于计算发散的方法。默认值：'jsd'。
-        - **t** (int) - 用于克服数值问题的温度。默认值：1。
-        - **bounds** (tuple) - 数据的上下界。以(clip_min, clip_max)的形式出现。默认值：(0.0, 1.0)。
+        - **option** (str) - 用于计算发散的方法。默认值：``'jsd'``。
+        - **t** (int) - 用于克服数值问题的温度。默认值：``1``。
+        - **bounds** (tuple) - 数据的上下界。以(clip_min, clip_max)的形式出现。默认值：``(0.0, 1.0)``。
 
     .. py:method:: detect_diff(inputs)    
 
@@ -98,12 +98,12 @@ mindarmour.adv_robustness.detectors
 
     参数：
         - **model** (Model) - 目标模型。
-        - **number_points** (int) - 从原始样本的超立方体生成的样本数。默认值：10。
-        - **initial_radius** (float) - 超立方体的初始半径。默认值：0.0。
-        - **max_radius** (float) - 超立方体的最大半径。默认值：1.0。
-        - **search_step** (float) - 半径搜索增量。默认值：0.01。
-        - **degrade_limit** (float) - 分类精度的可接受下降。默认值：0.0。
-        - **sparse** (bool) - 如果为True，则输入标签为稀疏编码。如果为False，则输入标签为onehot编码。默认值：False。
+        - **number_points** (int) - 从原始样本的超立方体生成的样本数。默认值：``10``。
+        - **initial_radius** (float) - 超立方体的初始半径。默认值：``0.0``。
+        - **max_radius** (float) - 超立方体的最大半径。默认值：``1.0``。
+        - **search_step** (float) - 半径搜索增量。默认值：``0.01``。
+        - **degrade_limit** (float) - 分类精度的可接受下降。默认值：``0.0``。
+        - **sparse** (bool) - 如果为 ``True``，则输入标签为稀疏编码。如果为 ``False``，则输入标签为onehot编码。默认值：``False``。
 
     .. py:method:: detect(inputs)    
 
@@ -131,7 +131,7 @@ mindarmour.adv_robustness.detectors
 
         参数：
             - **inputs** (numpy.ndarray) - 良性样本。
-            - **labels** (numpy.ndarray) - 输入样本的ground truth标签。默认值：None。
+            - **labels** (numpy.ndarray) - 输入样本的ground truth标签。默认值：``None``。
 
         返回：
             - **float** - 最佳半径。
@@ -160,10 +160,10 @@ mindarmour.adv_robustness.detectors
 
     参数：
         - **model** (Model) - 目标模型。
-        - **ksize** (int) - 平滑窗口大小。默认值：3。
-        - **is_local_smooth** (bool) - 如果为True，则触发局部平滑。如果为False，则无局部平滑。默认值：True。
-        - **metric** (str) - 距离方法。默认值：'l1'。
-        - **false_positive_ratio** (float) - 良性样本上的假正率。默认值：0.05。
+        - **ksize** (int) - 平滑窗口大小。默认值：``3``。
+        - **is_local_smooth** (bool) - 如果为 ``True``，则触发局部平滑。如果为 ``False``，则无局部平滑。默认值：``True``。
+        - **metric** (str) - 距离方法。默认值：``'l1'``。
+        - **false_positive_ratio** (float) - 良性样本上的假正率。默认值：``0.05``。
 
     .. py:method:: detect(inputs)    
 
@@ -191,7 +191,7 @@ mindarmour.adv_robustness.detectors
 
         参数：
             - **inputs** (numpy.ndarray) - 良性样本。
-            - **labels** (numpy.ndarray) - 默认None。
+            - **labels** (numpy.ndarray) - 默认 ``None``。
 
         返回：
             - **float** - 阈值，大于该距离的距离报告为正，即对抗性。
@@ -209,7 +209,7 @@ mindarmour.adv_robustness.detectors
 
     参数：
         - **detectors** (Union[tuple, list]) - 检测器方法列表。
-        - **policy** (str) - 决策策略，取值可为'vote'、'all'、'any'。默认值：'vote'
+        - **policy** (str) - 决策策略，取值可为 ``'vote'``、``'all'``、``'any'``。默认值：``'vote'``。
 
     .. py:method:: detect(inputs)    
 
@@ -240,7 +240,7 @@ mindarmour.adv_robustness.detectors
 
         参数：
             - **inputs** (numpy.ndarray) - 计算阈值的数据。
-            - **labels** (numpy.ndarray) - 数据的标签。默认值：None。
+            - **labels** (numpy.ndarray) - 数据的标签。默认值：``None``。
 
         异常：
             - **NotImplementedError** - 此函数在集成中不可用。
@@ -264,15 +264,15 @@ mindarmour.adv_robustness.detectors
 
     参数：
         - **trans_model** (Model) - 一个MindSpore模型，将输入数据编码为低维向量。
-        - **max_k_neighbor** (int) - 最近邻的最大数量。默认值：1000。
-        - **chunk_size** (int) - 缓冲区大小。默认值：1000。
-        - **max_buffer_size** (int) - 最大缓冲区大小。默认值：10000。
+        - **max_k_neighbor** (int) - 最近邻的最大数量。默认值：``1000``。
+        - **chunk_size** (int) - 缓冲区大小。默认值：``1000``。
+        - **max_buffer_size** (int) - 最大缓冲区大小。默认值：``10000``。
         - **tuning** (bool) - 计算k个最近邻的平均距离。
 
-          - 如果'tuning'为true，k= `max_k_neighbor` 。
-          - 如果为False，k=1,..., `max_k_neighbor` 。默认值：False。
+          - 如果'tuning'为 ``True``，k= `max_k_neighbor` 。
+          - 如果为 ``False``，k=1,..., `max_k_neighbor` 。默认值：``False``。
 
-        - **fpr** (float) - 合法查询序列上的误报率。默认值：0.001
+        - **fpr** (float) - 合法查询序列上的误报率。默认值：``0.001``。
 
     .. py:method:: clear_buffer()    
 

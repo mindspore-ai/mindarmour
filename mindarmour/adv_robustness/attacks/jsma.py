@@ -44,16 +44,16 @@ class JSMAAttack(Attack):
         network (Cell): Target model.
         num_classes (int): Number of labels of model output, which should be
             greater than zero.
-        box_min (float): Lower bound of input of the target model. Default: 0.
-        box_max (float): Upper bound of input of the target model. Default: 1.0.
+        box_min (float): Lower bound of input of the target model. Default: ``0``.
+        box_max (float): Upper bound of input of the target model. Default: ``1.0``.
         theta (float): Change ratio of one pixel (relative to
-               input data range). Default: 1.0.
-        max_iteration (int): Maximum round of iteration. Default: 1000.
-        max_count (int): Maximum times to change each pixel. Default: 3.
-        increase (bool): If True, increase perturbation. If False, decrease
-            perturbation. Default: True.
-        sparse (bool): If True, input labels are sparse-coded. If False,
-            input labels are onehot-coded. Default: True.
+               input data range). Default: ``1.0``.
+        max_iteration (int): Maximum round of iteration. Default: ``1000``.
+        max_count (int): Maximum times to change each pixel. Default: ``3``.
+        increase (bool): If ``True``, increase perturbation. If ``False``, decrease
+            perturbation. Default: ``True``.
+        sparse (bool): If ``True``, input labels are sparse-coded. If ``False``,
+            input labels are onehot-coded. Default: ``True``.
 
     Examples:
         >>> from mindarmour.adv_robustness.attacks import JSMAAttack

@@ -251,9 +251,9 @@ class Fuzzer:
             initial_seeds (list[list]): Initial seeds used to generate mutated samples. The format of initial seeds is
                 [[image_data, label], [...], ...] and the label must be one-hot.
             coverage (CoverageMetrics): Class of neuron coverage metrics.
-            evaluate (bool): return evaluate report or not. Default: True.
-            max_iters (int): Max number of select a seed to mutate. Default: 10000.
-            mutate_num_per_seed (int): The number of mutate times for a seed. Default: 20.
+            evaluate (bool): return evaluate report or not. Default: ``True``.
+            max_iters (int): Max number of select a seed to mutate. Default: ``10000``.
+            mutate_num_per_seed (int): The number of mutate times for a seed. Default: ``20``.
 
         Returns:
             - list, mutated samples in fuzz_testing.

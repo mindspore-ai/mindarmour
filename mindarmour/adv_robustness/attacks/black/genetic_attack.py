@@ -41,32 +41,33 @@ class GeneticAttack(Attack):
 
     Args:
         model (BlackModel): Target model.
-        model_type (str): The type of targeted model. 'classification' and 'detection' are supported now.
-            default: 'classification'.
-        targeted (bool): If True, turns on the targeted attack. If False,
+        model_type (str): The type of targeted model. ``'classification'`` and ``'detection'`` are supported now.
+            Default: ``'classification'``.
+        targeted (bool): If ``True``, turns on the targeted attack. If ``False``,
             turns on untargeted attack. It should be noted that only untargeted attack
-            is supported for model_type='detection', Default: True.
+            is supported for `model_type` is ``'detection'``, Default: ``True``.
         reserve_ratio (Union[int, float]): The percentage of objects that can be detected after attacks,
-            specifically for model_type='detection'. Reserve_ratio should be in the range of (0, 1). Default: 0.3.
+            specifically for `model_type` is ``'detection'``. Reserve_ratio should be in the range of (0, 1).
+            Default: 0.3.
         pop_size (int): The number of particles, which should be greater than
-            zero. Default: 6.
+            zero. Default: ``6``.
         mutation_rate (Union[int, float]): The probability of mutations, which should be in the range of (0, 1).
-            Default: 0.005.
+            Default: ``0.005``.
         per_bounds (Union[int, float]): Maximum L_inf distance.
         max_steps (int): The maximum round of iteration for each adversarial
-            example. Default: 1000.
-        step_size (Union[int, float]): Attack step size. Default: 0.2.
-        temp (Union[int, float]): Sampling temperature for selection. Default: 0.3.
+            example. Default: ``1000``.
+        step_size (Union[int, float]): Attack step size. Default: ``0.2``.
+        temp (Union[int, float]): Sampling temperature for selection. Default: ``0.3``.
             The greater the temp, the greater the differences between individuals'
             selecting probabilities.
         bounds (Union[tuple, list, None]): Upper and lower bounds of data. In form
-            of (clip_min, clip_max). Default: (0, 1.0).
-        adaptive (bool): If True, turns on dynamic scaling of mutation
-            parameters. If false, turns on static mutation parameters.
-            Default: False.
-        sparse (bool): If True, input labels are sparse-encoded. If False,
-            input labels are one-hot-encoded. Default: True.
-        c (Union[int, float]): Weight of perturbation loss. Default: 0.1.
+            of (clip_min, clip_max). Default:`` (0, 1.0)``.
+        adaptive (bool): If ``True``, turns on dynamic scaling of mutation
+            parameters. If ``false``, turns on static mutation parameters.
+            Default: ``False``.
+        sparse (bool): If ``True``, input labels are sparse-encoded. If ``False``,
+            input labels are one-hot-encoded. Default: ``True``.
+        c (Union[int, float]): Weight of perturbation loss. Default: ``0.1``.
 
     Examples:
         >>> import mindspore.ops.operations as M
@@ -145,8 +146,8 @@ class GeneticAttack(Attack):
 
         Args:
             cur_pop (numpy.ndarray): Samples before mutation.
-            step_noise (float): Noise range. Default: 0.01.
-            prob (float): Mutation probability. Default: 0.005.
+            step_noise (float): Noise range. Default: ``0.01``.
+            prob (float): Mutation probability. Default: ``0.005``.
 
         Returns:
             numpy.ndarray, samples after mutation operation in genetic_attack.
@@ -435,11 +436,11 @@ class GeneticAttack(Attack):
 
         Args:
             inputs (Union[numpy.ndarray, tuple]): Input samples. The format of inputs should be numpy.ndarray if
-                model_type='classification'. The format of inputs can be (input1, input2, ...) or only one array if
-                model_type='detection'.
+                `model_type` is ``'classification'``. The format of inputs can be (input1, input2, ...) or only
+                one array if `model_type` is ``'detection'``.
             labels (Union[numpy.ndarray, tuple]): Targeted labels or ground-truth labels. The format of labels should
-                be numpy.ndarray if model_type='classification'. The format of labels should be (gt_boxes, gt_labels)
-                if model_type='detection'.
+                be numpy.ndarray if `model_type` is ``'classification'``. The format of labels should be
+                (gt_boxes, gt_labels) if `model_type` is ``'detection'``.
 
         Returns:
             - numpy.ndarray, bool values for each attack result.

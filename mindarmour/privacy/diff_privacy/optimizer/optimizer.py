@@ -56,7 +56,8 @@ class DPOptimizerClassFactory:
     Factory class of Optimizer.
 
     Args:
-        micro_batches (int): The number of small batches split from an original batch. Default: 2.
+        micro_batches (int): The number of small batches split from an original batch.
+            Default: ``2``.
 
     Returns:
         Optimizer, Optimizer class.

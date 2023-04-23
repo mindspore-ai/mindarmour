@@ -48,18 +48,23 @@ class SuppressPrivacyFactory:
         """
         Args:
             networks (Cell): The training network.
-                This networks parameter should be same as 'network' parameter of SuppressModel().
+                This networks parameter should be same as `network` parameter of `SuppressModel()`.
             mask_layers (list): Description of the training network layers that need to be suppressed.
-            policy (str): Training policy for suppress privacy training. Default: "local_train", means local training.
-            end_epoch (int): The last epoch in suppress operations, 0<start_epoch<=end_epoch<=100. Default: 10.
-                This end_epoch parameter should be same as 'epoch' parameter of mindspore.train.model.train().
-            batch_num (int): The num of batches in an epoch, should be equal to num_samples/batch_size. Default: 20.
-            start_epoch (int): The first epoch in suppress operations, 0<start_epoch<=end_epoch<=100. Default: 3.
-            mask_times (int): The num of suppress operations. Default: 1000.
-            lr (Union[float, int]): Learning rate, should be unchanged during training. 0<lr<=0.50. Default: 0.05.
-                This lr parameter should be same as 'learning_rate' parameter of mindspore.nn.SGD().
-            sparse_end (float): The sparsity to reach, 0.0<=sparse_start<sparse_end<1.0. Default: 0.90.
-            sparse_start (Union[float, int]): The sparsity to start, 0.0<=sparse_start<sparse_end<1.0. Default: 0.0.
+            policy (str): Training policy for suppress privacy training. Default: ``"local_train"``,
+                means local training.
+            end_epoch (int): The last epoch in suppress operations, 0<start_epoch<=end_epoch<=100. Default: ``10``.
+                This end_epoch parameter should be same as `epoch` parameter of `mindspore.train.model.train()`.
+            batch_num (int): The num of batches in an epoch, should be equal to num_samples/batch_size.
+                Default: ``20``.
+            start_epoch (int): The first epoch in suppress operations, 0<start_epoch<=end_epoch<=100.
+                Default: ``3``.
+            mask_times (int): The num of suppress operations. Default: ``1000``.
+            lr (Union[float, int]): Learning rate, should be unchanged during training. 0<lr<=0.50.
+                Default: ``0.05``. This `lr` parameter should be same as `learning_rate` parameter of
+                `mindspore.nn.SGD()`.
+            sparse_end (float): The sparsity to reach, 0.0<=sparse_start<sparse_end<1.0. Default: ``0.90``.
+            sparse_start (Union[float, int]): The sparsity to start, 0.0<=sparse_start<sparse_end<1.0.
+                Default: ``0.0``.
 
         Returns:
             SuppressCtrl, class of Suppress Privavy Mechanism.
@@ -332,7 +337,7 @@ class SuppressCtrl(Cell):
         Args:
             networks (Cell): The training network.
             cur_step (int): Current epoch of the whole training process.
-            target_sparse(float): The sparsity to reach. Default: 0.0.
+            target_sparse(float): The sparsity to reach. Default: ``0.0``.
         """
         if self.sparse_end <= 0.0:
             return
@@ -777,14 +782,14 @@ class MaskLayerDes:
             grad layers in PYNATIVE_MODE.
         is_add_noise (bool): If True, the weight of this layer can add noise.
             If False, the weight of this layer can not add noise.
-            If parameter num is greater than 100000, is_add_noise has no effect.
+            If parameter num is greater than 100000, `is_add_noise` has no effect.
         is_lower_clip (bool): If True, the weights of this layer would be clipped to greater than an lower bound value.
             If False, the weights of this layer won't be clipped.
-            If parameter num is greater than 100000, is_lower_clip has no effect.
+            If parameter num is greater than 100000, `is_lower_clip` has no effect.
         min_num (int): The number of weights left that not be suppressed.
-            If min_num is smaller than (parameter num*SupperssCtrl.sparse_end), min_num has not effect.
-        upper_bound (Union[float, int]): max abs value of weight in this layer, default: 1.20.
-            If parameter num is greater than 100000, upper_bound has not effect.
+            If min_num is smaller than (parameter num*SupperssCtrl.sparse_end), `min_num` has not effect.
+        upper_bound (Union[float, int]): max abs value of weight in this layer, default: ``1.20``.
+            If parameter num is greater than 100000, `upper_bound` has not effect.
 
     Examples:
         >>> from mindarmour.privacy.sup_privacy import MaskLayerDes
@@ -809,13 +814,13 @@ class GradMaskInCell(Cell):
 
     Args:
         array (numpy.ndarray): The mask array.
-        is_add_noise (bool): If True, the weight of this layer can add noise.
-            If False, the weight of this layer can not add noise.
-        is_lower_clip (bool): If True, the weights of this layer would be clipped to greater than an lower bound value.
-            If False, the weights of this layer won't be clipped.
+        is_add_noise (bool): If ``True``, the weight of this layer can add noise.
+            If ``False``, the weight of this layer can not add noise.
+        is_lower_clip (bool): If ``True``, the weights of this layer would be clipped to greater than an
+            lower bound value. If ``False``, the weights of this layer won't be clipped.
         min_num (int): The number of weights left that not be suppressed.
-            If min_num is smaller than (parameter num*SupperssCtrl.sparse_end), min_num has no effect.
-        upper_bound ([float, int]): max abs value of weight in this layer, default: 1.20.
+            If `min_num` is smaller than (parameter num*SupperssCtrl.sparse_end), `min_num` has no effect.
+        upper_bound ([float, int]): max abs value of weight in this layer, default: ``1.20``.
     """
 
     def __init__(self, array, is_add_noise, is_lower_clip, min_num, upper_bound=1.20):

@@ -37,7 +37,7 @@ def _best_logits_of_other_class(logits, target_class, value=1):
     Args:
         logits (numpy.ndarray): Predict logits of samples.
         target_class (numpy.ndarray): Target labels.
-        value (float): Maximum value of output logits. Default: 1.
+        value (float): Maximum value of output logits. Default: ``1``.
 
     Returns:
         numpy.ndarray, the index of the largest logits exclude the target
@@ -69,32 +69,32 @@ class CarliniWagnerL2Attack(Attack):
         network (Cell): Target model.
         num_classes (int): Number of labels of model output, which should be
             greater than zero.
-        box_min (float): Lower bound of input of the target model. Default: 0.
-        box_max (float): Upper bound of input of the target model. Default: 1.0.
+        box_min (float): Lower bound of input of the target model. Default: ``0``.
+        box_max (float): Upper bound of input of the target model. Default: ``1.0``.
         bin_search_steps (int): The number of steps for the binary search
             used to find the optimal trade-off constant between distance
-            and confidence. Default: 5.
+            and confidence. Default: ``5``.
         max_iterations (int): The maximum number of iterations, which should be
-            greater than zero. Default: 1000.
+            greater than zero. Default: ``1000``.
         confidence (float): Confidence of the output of adversarial examples.
-            Default: 0.
+            Default: ``0``.
         learning_rate (float): The learning rate for the attack algorithm.
-            Default: 5e-3.
+            Default: ``5e-3``.
         initial_const (float): The initial trade-off constant to use to balance
             the relative importance of perturbation norm and confidence
-            difference. Default: 1e-2.
+            difference. Default: ``1e-2``.
         abort_early_check_ratio (float): Check loss progress every ratio of
-            all iteration. Default: 5e-2.
-        targeted (bool): If True, targeted attack. If False, untargeted attack.
-            Default: False.
-        fast (bool): If True, return the first found adversarial example.
-            If False, return the adversarial samples with smaller
-            perturbations. Default: True.
-        abort_early (bool): If True, Adam will be aborted if the loss hasn't
-            decreased for some time. If False, Adam will continue work until the
-            max iterations is arrived. Default: True.
-        sparse (bool): If True, input labels are sparse-coded. If False,
-            input labels are onehot-coded. Default: True.
+            all iteration. Default: ``5e-2``.
+        targeted (bool): If ``True``, targeted attack. If ``False``, untargeted attack.
+            Default: ``False``.
+        fast (bool): If ``True``, return the first found adversarial example.
+            If ``False``, return the adversarial samples with smaller
+            perturbations. Default: ``True``.
+        abort_early (bool): If ``True``, Adam will be aborted if the loss hasn't
+            decreased for some time. If ``False``, Adam will continue work until the
+            max iterations is arrived. Default: ``True``.
+        sparse (bool): If ``True``, input labels are sparse-coded. If ``False``,
+            input labels are onehot-coded. Default: ``True``.
 
     Examples:
         >>> import mindspore.ops.operations as P

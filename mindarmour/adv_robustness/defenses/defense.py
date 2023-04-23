@@ -62,14 +62,14 @@ class Defense:
             inputs (numpy.ndarray): Samples based on which adversarial
                 examples are generated.
             labels (numpy.ndarray): Labels of input samples.
-            batch_size (int): Number of samples in one batch. Default: 32.
-            epochs (int): Number of epochs. Default: 5.
+            batch_size (int): Number of samples in one batch. Default: ``32``.
+            epochs (int): Number of epochs. Default: ``5``.
 
         Returns:
             numpy.ndarray, loss of batch_defense operation.
 
         Raises:
-            ValueError: If batch_size is 0.
+            ValueError: If `batch_size` is 0.
         """
         inputs, labels = check_pair_numpy_param('inputs', inputs, 'labels',
                                                 labels)

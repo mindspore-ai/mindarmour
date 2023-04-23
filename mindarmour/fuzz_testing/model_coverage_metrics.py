@@ -46,8 +46,8 @@ class CoverageMetrics:
 
     Args:
         model (Model): The pre-trained model which waiting for testing.
-        incremental (bool): Metrics will be calculate in incremental way or not. Default: False.
-        batch_size (int):  The number of samples in a fuzz test batch. Default: 32.
+        incremental (bool): Metrics will be calculate in incremental way or not. Default: ``False``.
+        batch_size (int):  The number of samples in a fuzz test batch. Default: ``32``.
     """
 
     def __init__(self, model, incremental=False, batch_size=32):
@@ -150,9 +150,9 @@ class NeuronCoverage(CoverageMetrics):
 
     Args:
         model (Model): The pre-trained model which waiting for testing.
-        threshold (float): Threshold used to determined neurons is activated or not. Default: 0.1.
-        incremental (bool): Metrics will be calculate in incremental way or not. Default: False.
-        batch_size (int):  The number of samples in a fuzz test batch. Default: 32.
+        threshold (float): Threshold used to determined neurons is activated or not. Default: ``0.1``.
+        incremental (bool): Metrics will be calculate in incremental way or not. Default: ``False``.
+        batch_size (int):  The number of samples in a fuzz test batch. Default: ``32``.
 
     """
     def __init__(self, model, threshold=0.1, incremental=False, batch_size=32):
@@ -242,9 +242,10 @@ class TopKNeuronCoverage(CoverageMetrics):
 
     Args:
         model (Model): The pre-trained model which waiting for testing.
-        top_k (int): Neuron is activated when its output has the top k largest value in that hidden layers. Default: 3.
-        incremental (bool): Metrics will be calculate in incremental way or not. Default: False.
-        batch_size (int):  The number of samples in a fuzz test batch. Default: 32.
+        top_k (int): Neuron is activated when its output has the top k largest value in that hidden layers.
+            Default: ``3``.
+        incremental (bool): Metrics will be calculate in incremental way or not. Default: ``False``.
+        batch_size (int):  The number of samples in a fuzz test batch. Default: ``32``.
     """
     def __init__(self, model, top_k=3, incremental=False, batch_size=32):
         super(TopKNeuronCoverage, self).__init__(model, incremental=incremental, batch_size=batch_size)
@@ -334,8 +335,8 @@ class SuperNeuronActivateCoverage(CoverageMetrics):
     Args:
         model (Model): The pre-trained model which waiting for testing.
         train_dataset (numpy.ndarray): Training dataset used for determine the neurons' output boundaries.
-        incremental (bool): Metrics will be calculate in incremental way or not. Default: False.
-        batch_size (int):  The number of samples in a fuzz test batch. Default: 32.
+        incremental (bool): Metrics will be calculate in incremental way or not. Default: ``False``.
+        batch_size (int):  The number of samples in a fuzz test batch. Default: ``32``.
     """
     def __init__(self, model, train_dataset, incremental=False, batch_size=32):
         super(SuperNeuronActivateCoverage, self).__init__(model, incremental=incremental, batch_size=batch_size)
@@ -427,8 +428,8 @@ class NeuronBoundsCoverage(SuperNeuronActivateCoverage):
     Args:
         model (Model): The pre-trained model which waiting for testing.
         train_dataset (numpy.ndarray): Training dataset used for determine the neurons' output boundaries.
-        incremental (bool): Metrics will be calculate in incremental way or not. Default: False.
-        batch_size (int):  The number of samples in a fuzz test batch. Default: 32.
+        incremental (bool): Metrics will be calculate in incremental way or not. Default: ``False``.
+        batch_size (int):  The number of samples in a fuzz test batch. Default: ``32``.
     """
 
     def __init__(self, model, train_dataset, incremental=False, batch_size=32):
@@ -518,9 +519,9 @@ class KMultisectionNeuronCoverage(SuperNeuronActivateCoverage):
     Args:
         model (Model): The pre-trained model which waiting for testing.
         train_dataset (numpy.ndarray): Training dataset used for determine the neurons' output boundaries.
-        segmented_num (int): The number of segmented sections of neurons' output intervals. Default: 100.
-        incremental (bool): Metrics will be calculate in incremental way or not. Default: False.
-        batch_size (int):  The number of samples in a fuzz test batch. Default: 32.
+        segmented_num (int): The number of segmented sections of neurons' output intervals. Default: ``100``.
+        incremental (bool): Metrics will be calculate in incremental way or not. Default: ``False``.
+        batch_size (int):  The number of samples in a fuzz test batch. Default: ``32``.
     """
 
     def __init__(self, model, train_dataset, segmented_num=100, incremental=False, batch_size=32):

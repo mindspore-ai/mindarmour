@@ -41,27 +41,29 @@ class PSOAttack(Attack):
 
     Args:
         model (BlackModel): Target model.
-        step_size (Union[int, float]): Attack step size. Default: 0.5.
-        per_bounds (Union[int, float]): Relative variation range of perturbations. Default: 0.6.
-        c1 (Union[int, float]): Weight coefficient. Default: 2.
-        c2 (Union[int, float]): Weight coefficient. Default: 2.
-        c (Union[int, float]): Weight of perturbation loss. Default: 2.
+        step_size (Union[int, float]): Attack step size. Default: ``0.5``.
+        per_bounds (Union[int, float]): Relative variation range of perturbations. Default: ``0.6``.
+        c1 (Union[int, float]): Weight coefficient. Default: ``2``.
+        c2 (Union[int, float]): Weight coefficient. Default: ``2``.
+        c (Union[int, float]): Weight of perturbation loss. Default: ``2``.
         pop_size (int): The number of particles, which should be greater
-            than zero. Default: 6.
+            than zero. Default: ``6``.
         t_max (int): The maximum round of iteration for each adversarial example,
-            which should be greater than zero. Default: 1000.
-        pm (Union[int, float]): The probability of mutations, which should be in the range of (0, 1). Default: 0.5.
+            which should be greater than zero. Default: ``1000``.
+        pm (Union[int, float]): The probability of mutations, which should be in the range of (0, 1).
+            Default: ``0.5``.
         bounds (Union[list, tuple, None]): Upper and lower bounds of data. In form of (clip_min,
-            clip_max). Default: None.
-        targeted (bool): If True, turns on the targeted attack. If False,
+            clip_max). Default: ``None``.
+        targeted (bool): If ``True``, turns on the targeted attack. If ``False``,
             turns on untargeted attack. It should be noted that only untargeted attack
-            is supported for model_type='detection', Default: False.
-        sparse (bool): If True, input labels are sparse-encoded. If False,
-            input labels are one-hot-encoded. Default: True.
-        model_type (str): The type of targeted model. 'classification' and 'detection' are supported now.
-            default: 'classification'.
+            is supported for `model_type` is ``'detection'``, Default: ``False``.
+        sparse (bool): If ``True``, input labels are sparse-encoded. If ``False``,
+            input labels are one-hot-encoded. Default: ``True``.
+        model_type (str): The type of targeted model. ``'classification'`` and ``'detection'`` are supported now.
+            default: ``'classification'``.
         reserve_ratio (Union[int, float]): The percentage of objects that can be detected after attacks,
-            specifically for model_type='detection'. Reserve_ratio should be in the range of (0, 1). Default: 0.3.
+            specifically for `model_type` is ``'detection'``. Reserve_ratio should be in the range of (0, 1).
+            Default: ``0.3``.
 
     Examples:
         >>> import mindspore.nn as nn
@@ -488,11 +490,11 @@ class PSOAttack(Attack):
 
         Args:
             inputs (Union[numpy.ndarray, tuple]): Input samples. The format of inputs should be numpy.ndarray if
-                model_type='classification'. The format of inputs can be (input1, input2, ...) or only one array if
-                model_type='detection'.
+                `model_type` is ``'classification'``. The format of inputs can be (input1, input2, ...) or only
+                one array if `model_type` is ``'detection'``.
             labels (Union[numpy.ndarray, tuple]): Targeted labels or ground-truth labels. The format of labels should
-                be numpy.ndarray if model_type='classification'. The format of labels should be (gt_boxes, gt_labels)
-                if model_type='detection'.
+                be numpy.ndarray if `model_type` is ``'classification'``. The format of labels should be
+                (gt_boxes, gt_labels) if `model_type` is ``'detection'``.
 
         Returns:
             - numpy.ndarray, bool values for each attack result.

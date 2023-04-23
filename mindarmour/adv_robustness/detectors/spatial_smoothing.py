@@ -45,12 +45,12 @@ class SpatialSmoothing(Detector):
 
     Args:
         model (Model): Target model.
-        ksize (int): Smooth window size. Default: 3.
-        is_local_smooth (bool): If True, trigger local smooth. If False, none
-            local smooth. Default: True.
-        metric (str): Distance method. Default: 'l1'.
+        ksize (int): Smooth window size. Default: ``3``.
+        is_local_smooth (bool): If ``True``, trigger local smooth. If ``False``, none
+            local smooth. Default: ``True``.
+        metric (str): Distance method. Default: ``'l1'``.
         false_positive_ratio (float): False positive rate over
-            benign samples. Default: 0.05.
+            benign samples. Default: ``0.05``.
 
     Examples:
         >>> import mindspore.ops.operations as P
@@ -96,7 +96,7 @@ class SpatialSmoothing(Detector):
 
         Args:
             inputs (numpy.ndarray): Benign samples.
-            labels (numpy.ndarray): Default None.
+            labels (numpy.ndarray): Default ``None``.
 
         Returns:
             float, threshold, distance larger than which is reported

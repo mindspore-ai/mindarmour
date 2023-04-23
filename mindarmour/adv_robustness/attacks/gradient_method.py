@@ -38,13 +38,13 @@ class GradientMethod(Attack):
     Args:
         network (Cell): Target model.
         eps (float): Proportion of single-step adversarial perturbation generated
-            by the attack to data range. Default: 0.07.
+            by the attack to data range. Default: ``0.07``.
         alpha (float): Proportion of single-step random perturbation to data range.
-            Default: None.
+            Default: ``None``.
         bounds (tuple): Upper and lower bounds of data, indicating the data range.
-            In form of (clip_min, clip_max). Default: None.
+            In form of (clip_min, clip_max). Default: ``None``.
         loss_fn (Loss): Loss function for optimization. If None, the input network \
-            is already equipped with loss function. Default: None.
+            is already equipped with loss function. Default: ``None``.
     """
 
     def __init__(self, network, eps=0.07, alpha=None, bounds=None,
@@ -135,17 +135,17 @@ class FastGradientMethod(GradientMethod):
     Args:
         network (Cell): Target model.
         eps (float): Proportion of single-step adversarial perturbation generated
-            by the attack to data range. Default: 0.07.
+            by the attack to data range. Default: ``0.07``.
         alpha (Union[float, None]): Proportion of single-step random perturbation to data range.
-            Default: None.
+            Default: ``None``.
         bounds (tuple): Upper and lower bounds of data, indicating the data range.
-            In form of (clip_min, clip_max). Default: (0.0, 1.0).
+            In form of (clip_min, clip_max). Default: ``(0.0, 1.0)``.
         norm_level (Union[int, str, numpy.inf]): Order of the norm.
-            Possible values: np.inf, 1 or 2. Default: 2.
+            Possible values: ``np.inf``, ``1`` or ``2``. Default: ``2``.
         is_targeted (bool): If True, targeted attack. If False, untargeted
-            attack. Default: False.
-        loss_fn (Union[loss, None]): Loss function for optimization. If None, the input network \
-            is already equipped with loss function. Default: None.
+            attack. Default: ``False``.
+        loss_fn (Union[loss, None]): Loss function for optimization. If ``None``, the input network \
+            is already equipped with loss function. Default: ``None``.
 
     Examples:
         >>> from mindarmour.adv_robustness.attacks import FastGradientMethod
@@ -212,20 +212,20 @@ class RandomFastGradientMethod(FastGradientMethod):
     Args:
         network (Cell): Target model.
         eps (float): Proportion of single-step adversarial perturbation generated
-            by the attack to data range. Default: 0.07.
+            by the attack to data range. Default: ``0.07``.
         alpha (float): Proportion of single-step random perturbation to data range.
-            Default: 0.035.
+            Default: ``0.035``.
         bounds (tuple): Upper and lower bounds of data, indicating the data range.
-            In form of (clip_min, clip_max). Default: (0.0, 1.0).
+            In form of (clip_min, clip_max). Default: ``(0.0, 1.0)``.
         norm_level (Union[int, str, numpy.inf]): Order of the norm.
-            Possible values: np.inf, 1 or 2. Default: 2.
-        is_targeted (bool): If True, targeted attack. If False, untargeted
-            attack. Default: False.
-        loss_fn (Union[loss, None]): Loss function for optimization. If None, the input network \
-            is already equipped with loss function. Default: None.
+            Possible values: ``np.inf``, ``1`` or ``2``. Default: ``2``.
+        is_targeted (bool): If ``True``, targeted attack. If ``False``, untargeted
+            attack. Default: ``False``.
+        loss_fn (Union[loss, None]): Loss function for optimization. If ``None``, the input network \
+            is already equipped with loss function. Default: ``None``.
 
     Raises:
-        ValueError: eps is smaller than alpha!
+        ValueError: `eps` is smaller than `alpha`.
 
     Examples:
         >>> from mindarmour.adv_robustness.attacks import RandomFastGradientMethod
@@ -269,15 +269,15 @@ class FastGradientSignMethod(GradientMethod):
     Args:
         network (Cell): Target model.
         eps (float): Proportion of single-step adversarial perturbation generated
-            by the attack to data range. Default: 0.07.
+            by the attack to data range. Default: ``0.07``.
         alpha (Union[float, None]): Proportion of single-step random perturbation to data range.
-            Default: None.
+            Default: ``None``.
         bounds (tuple): Upper and lower bounds of data, indicating the data range.
-            In form of (clip_min, clip_max). Default: (0.0, 1.0).
-        is_targeted (bool): If True, targeted attack. If False, untargeted
-            attack. Default: False.
-        loss_fn (Union[Loss, None]): Loss function for optimization. If None, the input network \
-            is already equipped with loss function. Default: None.
+            In form of (clip_min, clip_max). Default: ``(0.0, 1.0)``.
+        is_targeted (bool): If True, targeted attack. If ``False``, untargeted
+            attack. Default: ``False``.
+        loss_fn (Union[Loss, None]): Loss function for optimization. If ``None``, the input network \
+            is already equipped with loss function. Default: ``None``.
 
     Examples:
         >>> from mindarmour.adv_robustness.attacks import FastGradientSignMethod
@@ -343,15 +343,15 @@ class RandomFastGradientSignMethod(FastGradientSignMethod):
     Args:
         network (Cell): Target model.
         eps (float): Proportion of single-step adversarial perturbation generated
-            by the attack to data range. Default: 0.07.
+            by the attack to data range. Default: ``0.07``.
         alpha (float): Proportion of single-step random perturbation to data range.
-            Default: 0.035.
+            Default: ``0.035``.
         bounds (tuple): Upper and lower bounds of data, indicating the data range.
-            In form of (clip_min, clip_max). Default: (0.0, 1.0).
-        is_targeted (bool): True: targeted attack. False: untargeted attack.
-            Default: False.
+            In form of (clip_min, clip_max). Default: ``(0.0, 1.0)``.
+        is_targeted (bool): ``True``: targeted attack. ``False``: untargeted attack.
+            Default: ``False``.
         loss_fn (Union[Loss, None]): Loss function for optimization. If None, the input network \
-            is already equipped with loss function. Default: None.
+            is already equipped with loss function. Default: ``None``.
 
     Raises:
         ValueError: eps is smaller than alpha!
@@ -396,13 +396,13 @@ class LeastLikelyClassMethod(FastGradientSignMethod):
     Args:
         network (Cell): Target model.
         eps (float): Proportion of single-step adversarial perturbation generated
-            by the attack to data range. Default: 0.07.
+            by the attack to data range. Default: ``0.07``.
         alpha (Union[float, None]): Proportion of single-step random perturbation to data range.
-            Default: None.
+            Default: ``None``.
         bounds (tuple): Upper and lower bounds of data, indicating the data range.
-            In form of (clip_min, clip_max). Default: (0.0, 1.0).
-        loss_fn (Union[Loss, None]): Loss function for optimization. If None, the input network \
-            is already equipped with loss function. Default: None.
+            In form of (clip_min, clip_max). Default: ``(0.0, 1.0)``.
+        loss_fn (Union[Loss, None]): Loss function for optimization. If ``None``, the input network \
+            is already equipped with loss function. Default: ``None``.
 
     Examples:
         >>> from mindarmour.adv_robustness.attacks import LeastLikelyClassMethod
@@ -444,13 +444,13 @@ class RandomLeastLikelyClassMethod(FastGradientSignMethod):
     Args:
         network (Cell): Target model.
         eps (float): Proportion of single-step adversarial perturbation generated
-            by the attack to data range. Default: 0.07.
+            by the attack to data range. Default: ``0.07``.
         alpha (float): Proportion of single-step random perturbation to data range.
-            Default: 0.035.
+            Default: ``0.035``.
         bounds (tuple): Upper and lower bounds of data, indicating the data range.
-            In form of (clip_min, clip_max). Default: (0.0, 1.0).
-        loss_fn (Union[Loss, None]): Loss function for optimization. If None, the input network \
-            is already equipped with loss function. Default: None.
+            In form of (clip_min, clip_max). Default: ``(0.0, 1.0)``.
+        loss_fn (Union[Loss, None]): Loss function for optimization. If ``None``, the input network \
+            is already equipped with loss function. Default: ``None``.
 
     Raises:
         ValueError: eps is smaller than alpha!

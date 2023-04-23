@@ -102,19 +102,20 @@ class DeepFool(Attack):
         network (Cell): Target model.
         num_classes (int): Number of labels of model output, which should be
             greater than zero.
-        model_type (str): Tye type of targeted model. 'classification' and 'detection' are supported now.
-            default: 'classification'.
+        model_type (str): Tye type of targeted model. ``'classification'`` and ``'detection'`` are supported now.
+            Default: ``'classification'``.
         reserve_ratio (Union[int, float]): The percentage of objects that can be detected after attaks,
-            specifically for model_type='detection'. Reserve_ratio should be in the range of (0, 1). Default: 0.3.
+            specifically for `model_type` is ``'detection'``. Reserve_ratio should be in the range of (0, 1).
+            Default: ``0.3``.
         max_iters (int): Max iterations, which should be
-            greater than zero. Default: 50.
-        overshoot (float): Overshoot parameter. Default: 0.02.
+            greater than zero. Default: ``50``.
+        overshoot (float): Overshoot parameter. Default: ``0.02``.
         norm_level (Union[int, str, numpy.inf]): Order of the vector norm. Possible values: np.inf
-            or 2. Default: 2.
+            or 2. Default: ``2``.
         bounds (Union[tuple, list]): Upper and lower bounds of data range. In form of (clip_min,
-            clip_max). Default: None.
-        sparse (bool): If True, input labels are sparse-coded. If False,
-            input labels are onehot-coded. Default: True.
+            clip_max). Default: ``None``.
+        sparse (bool): If ``True``, input labels are sparse-coded. If ``False``,
+            input labels are onehot-coded. Default: ``True``.
 
     Examples:
         >>> import mindspore.ops.operations as P
@@ -170,17 +171,17 @@ class DeepFool(Attack):
 
         Args:
             inputs (Union[numpy.ndarray, tuple]): Input samples. The format of inputs should be numpy.ndarray if
-                model_type='classification'. The format of inputs can be (input1, input2, ...) or only one array if
-                model_type='detection'.
+                `model_type` is ``'classification'``. The format of inputs can be (input1, input2, ...) or only
+                one array if `model_type` is ``'detection'``.
             labels (Union[numpy.ndarray, tuple]): Targeted labels or ground-truth labels. The format of labels should
-                be numpy.ndarray if model_type='classification'. The format of labels should be (gt_boxes, gt_labels)
-                if model_type='detection'.
+                be numpy.ndarray if `model_type` is ``'classification'``. The format of labels should be
+                (gt_boxes, gt_labels) if `model_type` is ``'detection'``.
 
         Returns:
             numpy.ndarray, adversarial examples.
 
         Raises:
-            NotImplementedError: If norm_level is not in [2, np.inf, '2', 'inf'].
+            NotImplementedError: If `norm_level` is not ``2``, ``np.inf``, ``'2'`` or ``'inf'``.
         """
 
         if self._model_type == 'detection':
