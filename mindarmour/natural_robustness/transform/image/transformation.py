@@ -27,14 +27,14 @@ TAG = 'Image Transformation'
 
 
 class Translate(_NaturalPerturb):
-    """
+    r"""
     Translate an image.
 
     Args:
-        x_bias (Union[int, float]): X-direction translation, x = x + x_bias*image_width. Suggested value range
-            in [-0.1, 0.1]. Default: 0.
-        y_bias (Union[int, float]): Y-direction translation,  y = y + y_bias*image_length. Suggested value range
-            in [-0.1, 0.1]. Default: 0.
+        x_bias (Union[int, float]): X-direction translation, :math:`x = x + x\_bias \times image\_width`.
+            Suggested value range in [-0.1, 0.1]. Default: 0.
+        y_bias (Union[int, float]): Y-direction translation, :math:`y = y + y\_bias \times image\_length`.
+            Suggested value range in [-0.1, 0.1]. Default: 0.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
             Default: False.
 
@@ -80,9 +80,11 @@ class Scale(_NaturalPerturb):
     Scale an image in the middle.
 
     Args:
-        factor_x (Union[float, int]): Rescale in X-direction, x=factor_x*x. Suggested value range in [0.5, 1] and
+        factor_x (Union[float, int]): Rescale in X-direction, :math:`x=factor_x \times x`.
+            Suggested value range in [0.5, 1] and
             abs(factor_y - factor_x) < 0.5. Default: 1.
-        factor_y (Union[float, int]): Rescale in Y-direction, y=factor_y*y. Suggested value range in [0.5, 1] and
+        factor_y (Union[float, int]): Rescale in Y-direction, :math:`y=factor_y \times y`.
+            Suggested value range in [0.5, 1] and
             abs(factor_y - factor_x) < 0.5. Default: 1.
         auto_param (bool): Auto selected parameters. Selected parameters will preserve semantics of image.
             Default: False.
@@ -127,7 +129,8 @@ class Scale(_NaturalPerturb):
 
 class Shear(_NaturalPerturb):
     """
-    Shear an image, the mapping between sheared image and origin image is (new_x, new_y) = (x+factor_x*y, factor_y*x+y).
+    Shear an image, the mapping between sheared image and origin image is
+    :math:`(new_x, new_y) = (x+factor_x \times y, factor_y \times x+y)`.
     Then the sheared image will be rescaled to fit original size.
 
     Args:

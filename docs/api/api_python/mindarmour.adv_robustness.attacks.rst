@@ -428,7 +428,7 @@ mindarmour.adv_robustness.attacks
           - 可取值为'geometric_progression'或'grid_search'。默认值：'geometric_progression'。
         - **num_iterations** (int) - 迭代次数。默认值：20。
         - **gamma** (float) - 用于设置二进制搜索阈值theta。默认值：1.0。
-          对于l2攻击，二进制搜索阈值 `theta` 为 :math:`gamma / d^{3/2}` 。对于linf攻击是 :math:`gamma/d^2` 。默认值：1.0。
+          对于l2攻击，二进制搜索阈值 `theta` 为 :math:`gamma / d^{3/2}` 。对于linf攻击是 :math:`gamma / d^2` 。默认值：1.0。
         - **constraint** (str) - 要优化距离的范数。可取值为'l2'或'linf'。默认值：'l2'。
         - **batch_size** (int) - 批次大小。默认值：32。
         - **clip_min** (float, optional) - 最小图像组件值。默认值：0。

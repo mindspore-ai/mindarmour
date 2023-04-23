@@ -54,7 +54,7 @@ MindArmour的可靠性方法。
         在数据序列中查找概念漂移位置。
 
         参数：
-            - **data** (numpy.ndarray) - 输入数据。数据的shape可以是(n,1)或(n,m)。
+            - **data** (numpy.ndarray) - 输入数据。数据的shape可以是 :math:`(n,1)` 或 :math:`(n,m)`。
               请注意，每列（m列）是一个数据序列。
 
         返回：
