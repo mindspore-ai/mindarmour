@@ -110,7 +110,7 @@ class AdversarialDefenseWithAttacks(AdversarialDefense):
         bounds (tuple): Upper and lower bounds of data. In form of (clip_min,
             clip_max). Default: ``(0.0, 1.0)``.
         replace_ratio (float): Ratio of replacing original samples with
-            adversarial, which must be between 0 and 1. Default:`` 0.5``.
+            adversarial, which must be between 0 and 1. Default: `` 0.5``.
 
     Raises:
         ValueError: If replace_ratio is not between 0 and 1.

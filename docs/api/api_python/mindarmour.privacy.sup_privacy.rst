@@ -51,7 +51,7 @@ mindarmour.privacy.sup_privacy
         参数：
             - **networks** (Cell) - 要训练的神经网络模型。此网络参数应与SuppressModel()的'network'参数相同。
             - **mask_layers** (list) - 需要抑制的训练网络层的描述。
-            - **policy** (str) - 抑制隐私训练的训练策略。默认值：``"local_train"``，表示本地训练。
+            - **policy** (str) - 抑制隐私训练的训练策略。默认值： ``"local_train"``，表示本地训练。
             - **end_epoch** (int) - 最后一次抑制操作对应的epoch序号，0<start_epoch<=end_epoch<=100。默认值：``10``。此参数应与 `mindspore.train.model.train()` 的 `epoch` 参数相同。
             - **batch_num** (int) - 一个epoch中批次的数量，应等于num_samples/batch_size。默认值：``20``。
             - **start_epoch** (int) - 第一个抑制操作对应的epoch序号，0<start_epoch<=end_epoch<=100。默认值：``3``。

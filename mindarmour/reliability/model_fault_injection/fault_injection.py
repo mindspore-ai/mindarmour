@@ -36,10 +36,11 @@ class FaultInjector:
 
     Args:
         model (Model): The model need to be evaluated.
-        fi_type (list): The type of the fault injection which include bitflips_random(flip randomly),
-            bitflips_designated(flip the key bit), random, zeros, nan, inf, anti_activation precision_loss etc.
-        fi_mode (list): The mode of fault injection. Fault inject on just single layer or all layers.
-        fi_size (list): The number of fault injection.It mean that how many values need to be injected.
+        fi_type (list): The type of the fault injection which include ``bitflips_random`` (flip randomly),
+            ``bitflips_designated`` (flip the key bit), ``random``, ``zeros``, ``nan``, ``inf``,
+            ``anti_activation``, ``precision_loss`` etc.
+        fi_mode (list): The mode of fault injection. Fault inject on just ``single layer`` or ``all layers``.
+        fi_size (list): The number of fault injection. It mean that how many values need to be injected.
 
     Examples:
         >>> from mindspore import Model

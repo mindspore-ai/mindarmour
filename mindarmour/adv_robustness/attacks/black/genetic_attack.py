@@ -48,7 +48,7 @@ class GeneticAttack(Attack):
             is supported for `model_type` is ``'detection'``, Default: ``True``.
         reserve_ratio (Union[int, float]): The percentage of objects that can be detected after attacks,
             specifically for `model_type` is ``'detection'``. Reserve_ratio should be in the range of (0, 1).
-            Default: 0.3.
+            Default: ``0.3``.
         pop_size (int): The number of particles, which should be greater than
             zero. Default: ``6``.
         mutation_rate (Union[int, float]): The probability of mutations, which should be in the range of (0, 1).
@@ -61,9 +61,9 @@ class GeneticAttack(Attack):
             The greater the temp, the greater the differences between individuals'
             selecting probabilities.
         bounds (Union[tuple, list, None]): Upper and lower bounds of data. In form
-            of (clip_min, clip_max). Default:`` (0, 1.0)``.
+            of (clip_min, clip_max). Default: ``(0, 1.0)``.
         adaptive (bool): If ``True``, turns on dynamic scaling of mutation
-            parameters. If ``false``, turns on static mutation parameters.
+            parameters. If ``False``, turns on static mutation parameters.
             Default: ``False``.
         sparse (bool): If ``True``, input labels are sparse-encoded. If ``False``,
             input labels are one-hot-encoded. Default: ``True``.
