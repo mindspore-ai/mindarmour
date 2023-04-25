@@ -7,12 +7,14 @@
 ### API Change
 
 * 增加与MindSpore的版本校验关系。
+* 新增人脸物理对抗样本攻击案例。
+* 升级相关软件包版本，Pillow>=9.3.0，scipy>=1.5.2，pytest>=5.4.3。
 
 ### 贡献
 
 感谢以下人员做出的贡献：
 
-Liu Zhidan, Zhang Shukun, Liu Liu, Tang Cong.
+Zhang Shukun, Liu Zhidan, Jin Xiulang, Liu Liu, Tang Cong, Yang Yuan, Li Hongcheng.
 
 欢迎以任何形式对项目提供贡献！
 
