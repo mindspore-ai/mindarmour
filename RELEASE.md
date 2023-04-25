@@ -5,12 +5,14 @@
 ### API Change
 
 * Add version check with MindSpore.
+* Add code for physical facial adversarial example attack.
+* Upgrade the related software packages, Pillow>=9.3.0，scipy>=1.5.2，pytest>=5.4.3.
 
 ### Contributors
 
 Thanks goes to these wonderful people:
 
-Liu Zhidan, Zhang Shukun, Liu Liu, Tang Cong.
+Zhang Shukun, Liu Zhidan, Jin Xiulang, Liu Liu, Tang Cong, Yang Yuan, Li Hongcheng.
 
 Contributions of any kind are welcome!
 
