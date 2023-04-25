@@ -29,7 +29,7 @@ from mindarmour.adv_robustness.attacks import ProjectedGradientDescent
 from mindarmour.adv_robustness.attacks import IterativeGradientMethod
 from mindarmour.adv_robustness.attacks import DiverseInputIterativeMethod
 from mindarmour.adv_robustness.attacks import MomentumDiverseInputIterativeMethod
-
+from mindarmour.adv_robustness.attacks import VarianceTuningMomentumIterativeMethod
 
 
 # for user
@@ -53,6 +53,31 @@ class Net(Cell):
             inputs (Tensor): Input data.
         """
         out = self._softmax(inputs)
+        return out
+
+
+class FlattenNet(Cell):
+    """
+    Construct the network of target model.
+
+    Examples:
+        >>> net = FlattenNet()
+    """
+
+    def __init__(self):
+        super(FlattenNet, self).__init__()
+        self._flatten = P.Flatten()
+        self._softmax = P.Softmax()
+
+    def construct(self, inputs):
+        """
+        Construct flatten network.
+
+        Args:
+            inputs (Tensor): Input data.
+        """
+        out = self._flatten(inputs)
+        out = self._softmax(out)
         return out
 
 
@@ -354,3 +379,31 @@ def test_error_cpu():
         assert attack.generate(input_np, label)
         del input_np, label
         gc.collect()
+
+
+@pytest.mark.level0
+@pytest.mark.platform_x86_cpu
+@pytest.mark.env_card
+@pytest.mark.component_mindarmour
+def test_variance_tuning_momentum_iterative_method_cpu():
+    """
+    Feature: Variance Tuning Momentum iterative method unit test for cpu
+    Description: Given multiple images, we want to make sure the adversarial examples
+                 generated are different from the images
+    Expectation: input_np != ms_adv_x
+    """
+    context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
+    input_np = np.asarray([[0.1, 0.2, 0.7]], np.float32)
+    label = np.asarray([2], np.int32)
+    label = np.eye(3)[label].astype(np.float32)
+
+    for i in range(5):
+        attack = VarianceTuningMomentumIterativeMethod(FlattenNet(), nb_iter=i + 1,
+                                                       loss_fn=SoftmaxCrossEntropyWithLogits(sparse=False))
+        ms_adv_x = attack.generate(input_np, label)
+        assert np.any(ms_adv_x != input_np), 'Variance Tuning Momentum iterative method: generate' \
+                                             ' value must not be equal to' \
+                                             ' original value.'
+    del input_np, label, ms_adv_x
+    gc.collect()
+    
