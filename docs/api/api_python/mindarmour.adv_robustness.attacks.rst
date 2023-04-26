@@ -571,7 +571,7 @@ mindarmour.adv_robustness.attacks
         - **targeted** (bool) - 如果为 ``True``，则为目标攻击。如果为 ``False``，则为无目标攻击。 `model_type` 为 ``'detection'`` 时仅支持无目标攻击，默认值：``False``。
         - **sparse** (bool) - 如果为 ``True``，则输入标签为稀疏编码。如果为 ``False``，则输入标签为one-hot编码。默认值：``True``。
         - **model_type** (str) - 目标模型的类型。现在支持 ``'classification'`` 和 ``'detection'``。默认值： ``'classification'``。
-        - **reserve_ratio** (Union[int, float]) - 攻击后可检测到的对象百分比，用于 `model_type`为 ``'detection'`` 模式的情况。保留比率应在(0, 1)的范围内。默认值：``0.3``。
+        - **reserve_ratio** (Union[int, float]) - 攻击后可检测到的对象百分比，用于 `model_type` 为 ``'detection'`` 模式的情况。保留比率应在(0, 1)的范围内。默认值：``0.3``。
 
     .. py:method:: generate(inputs, labels)
 

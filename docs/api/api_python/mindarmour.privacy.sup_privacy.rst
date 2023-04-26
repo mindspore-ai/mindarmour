@@ -56,7 +56,7 @@ mindarmour.privacy.sup_privacy
             - **batch_num** (int) - 一个epoch中批次的数量，应等于num_samples/batch_size。默认值：``20``。
             - **start_epoch** (int) - 第一个抑制操作对应的epoch序号，0<start_epoch<=end_epoch<=100。默认值：``3``。
             - **mask_times** (int) - 抑制操作的数量。默认值：``1000``。
-            - **lr** (Union[float, int]) - 学习率，在训练期间应保持不变。0<lr<=0.50. 默认值：0.05。此lr参数应与 `mindspore.nn.SGD() 的 `learning_rate` 参数相同。
+            - **lr** (Union[float, int]) - 学习率，在训练期间应保持不变。0<lr<=0.50. 默认值：0.05。此lr参数应与 `mindspore.nn.SGD()` 的 `learning_rate` 参数相同。
             - **sparse_end** (float) - 要到达的稀疏性，0.0<=sparse_start<sparse_end<1.0。默认值：``0.90``。
             - **sparse_start** (Union[float, int]) - 抑制操作启动时对应的稀疏性，0.0<=sparse_start<sparse_end<1.0。默认值：``0.0``。
 
