@@ -1,0 +1,6 @@
+numpy
+easydict
+librosa >= 0.8.1
+soundfile >= 0.12.1
+Levenshtein >= 0.20.9
+g2p-en >= 2.1.0
