@@ -11,7 +11,7 @@ MindArmour的可靠性方法。
 
     参数：
         - **model** (Model) - 需要评估模型。
-        - **fi_type** (list) - 故障注入的类型，包括 ``'bitflips_random'``（随机翻转）、``'bitflips_designated'``（翻转关键位）、``'random'``、``'zeros'``、``'nan'``、``'inf'``、``'anti_activation'``、``'precision_loss'`` 等。
+        - **fi_type** (list) - 故障注入的类型，包括 ``'bitflips_random'`` （随机翻转）、 ``'bitflips_designated'`` （翻转关键位）、 ``'random'``、 ``'zeros'``、 ``'nan'``、 ``'inf'``、 ``'anti_activation'``、 ``'precision_loss'`` 等。
         - **fi_mode** (list) - 故障注入的模式。可选值： ``'single_layer'``、 ``'all_layer'`` 。
         - **fi_size** (list) - 故障注入的次数，表示需要注入多少值。
 
