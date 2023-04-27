@@ -1,11 +1,12 @@
-# MindArmour Release Notes
+# MindSpore Armour Release Notes
 
-## MindArmour 2.0.0 Release Notes
+[查看中文](./RELEASE_CN.md)
 
-### API Change
+## MindSpore Armour 2.0.0 Release Notes
+
+### Major Features and Improvements
 
 * Add version check with MindSpore.
-* Add code for physical facial adversarial example attack.
 * Upgrade the related software packages, Pillow>=9.3.0，scipy>=1.5.2，pytest>=5.4.3.
 
 ### Contributors
