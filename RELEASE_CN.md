@@ -1,16 +1,15 @@
-# MindArmour Release Notes
+# MindSpore Armour Release Notes
 
 [View English](./RELEASE.md)
 
-## MindArmour 2.0.0 Release Notes
+## MindSpore Armour 2.0.0 Release Notes
 
-### API Change
+### 主要特性及增强
 
 * 增加与MindSpore的版本校验关系。
-* 新增人脸物理对抗样本攻击案例。
 * 升级相关软件包版本，Pillow>=9.3.0，scipy>=1.5.2，pytest>=5.4.3。
 
-### 贡献
+### 贡献者
 
 感谢以下人员做出的贡献：
 
