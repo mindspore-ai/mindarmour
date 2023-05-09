@@ -18,10 +18,12 @@ defenses.
 from .attack_evaluation import AttackEvaluate
 from .defense_evaluation import DefenseEvaluate
 from .visual_metrics import RadarMetric
+from .neuron_metrics import NeuronMetric
 from . import black
 from .black.defense_evaluation import BlackDefenseEvaluate
 
 __all__ = ['AttackEvaluate',
            'BlackDefenseEvaluate',
            'DefenseEvaluate',
-           'RadarMetric']
+           'RadarMetric',
+           'NeuronMetric']
