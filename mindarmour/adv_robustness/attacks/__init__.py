@@ -18,7 +18,8 @@ in making adversarial examples.
 from .gradient_method import FastGradientMethod, FastGradientSignMethod, RandomFastGradientMethod, \
     RandomFastGradientSignMethod, LeastLikelyClassMethod, RandomLeastLikelyClassMethod
 from .iterative_gradient_method import IterativeGradientMethod, BasicIterativeMethod, MomentumIterativeMethod, \
-    ProjectedGradientDescent, DiverseInputIterativeMethod, MomentumDiverseInputIterativeMethod
+    ProjectedGradientDescent, DiverseInputIterativeMethod, MomentumDiverseInputIterativeMethod, \
+    VarianceTuningMomentumIterativeMethod
 from .deep_fool import DeepFool
 from .jsma import JSMAAttack
 from .carlini_wagner import CarliniWagnerL2Attack
@@ -40,6 +41,7 @@ __all__ = ['FastGradientMethod',
            'IterativeGradientMethod',
            'BasicIterativeMethod',
            'MomentumIterativeMethod',
+           'VarianceTuningMomentumIterativeMethod',
            'ProjectedGradientDescent',
            'DiverseInputIterativeMethod',
            'MomentumDiverseInputIterativeMethod',
