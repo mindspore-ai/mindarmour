@@ -616,3 +616,69 @@ mindarmour.adv_robustness.attacks
             - **numpy.ndarray** - 每个攻击结果的布尔值。
             - **numpy.ndarray** - 生成的对抗样本。
             - **numpy.ndarray** - 每个样本的查询次数。
+
+.. py:class:: mindarmour.adv_robustness.attacks.VarianceTuningMomentumIterativeMethod(network, eps=0.3, eps_iter=0.1, bounds=(0.0, 1.0), is_targeted=False, nb_iter=5, decay_factor=1.0, nb_neighbor=5, neighbor_beta=3 / 2, norm_level='inf', loss_fn=None)
+    
+    VMI-FGSM算法是一种基于梯度的迭代式对抗攻击方法，通过引入方差调整机制，利用当前数据点在优化路径上的梯度方差来调整当前梯度，从而提高攻击的迁移性。
+    实验结果表明，在对抗训练模型上，相比于MI-FGSM算法，VMI-FGSM算法可以将攻击传递性提高超过25%。
+
+    参考文献： `X Wang, H Kun, "Enhancing the Transferability of Adversarial Attacks through Variance Tuning" in CVPR, 2021 <https://arxiv.org/abs/2103.15571>`_。
+
+    参数：
+        - **network** (Cell) - 目标模型。
+        - **eps** (float) - 攻击产生的对抗性扰动占数据范围的比例。默认值：``0.3``。
+        - **eps_iter** (float) - 攻击产生的单步对抗扰动占数据范围的比例。默认值：``0.1``。
+        - **bounds** (tuple) - 数据的上下界，表示数据范围。
+          以(数据最小值，数据最大值)的形式出现。默认值：``(0.0, 1.0)``。
+        - **is_targeted** (bool) - 如果为 ``True``，则为目标攻击。如果为 ``False``，则为无目标攻击。默认值：``False``。
+        - **nb_iter** (int) - 迭代次数。默认值：``5``。
+        - **decay_factor** (float) - 迭代中的衰变因子。默认值：``1.0``。
+        - **nb_neighbor** (int) - 攻击算法在数据样本领域内采样的样本数量。默认值：``5``。
+        - **neighbor_beta** (float) -  领域的半径上限。默认值: ``3/2``。
+        - **norm_level** (Union[int, str, numpy.inf]) - 范数类型。
+          可取值：``numpy.inf``、``1``、``2``、``'1'``、``'2'``、``'l1'``、``'l2'``、``'np.inf'``、``'inf'``、``'linf'``。默认值：``inf``。
+        - **loss_fn** (Union[Loss, None]) - 用于优化的损失函数。如果为 ``None``，则输入网络已配备损失函数。默认值：``None``。
+
+    .. py:method:: generate(inputs, labels)    
+
+        根据输入数据和原始/目标标签生成对抗样本。
+
+        参数：
+            - **inputs** (Union[numpy.ndarray, tuple]) - 良性输入样本，用于创建对抗样本。
+            - **labels** (Union[numpy.ndarray, tuple]) - 原始/目标标签。若每个输入有多个标签，将它包装在元组中。
+
+        返回：
+            - **numpy.ndarray** - 生成的对抗样本。
+
+.. py:class:: mindarmour.adv_robustness.attacks.VarianceTuningNesterovIterativeMethod(network, eps=8/255, eps_iter=2/255, bounds=(0.0, 1.0), is_targeted=False, nb_iter=10, decay_factor=1.0, nb_neighbor=5, neighbor_beta=3/2, norm_level='inf', loss_fn=None)
+    
+    VNI-FGSM算法是一种基于梯度的迭代式对抗攻击方法，与VMI-FGSM相比，VNI-FGSM在每次迭代时不仅使用当前梯度，还使用了之前所有迭代的平均梯度，
+    从而增加了攻击的稳定性和鲁棒性。实验结果表明可以将攻击迁移性提高超过30%，相比于VMI-FGSM算法，VNI-FGSM算法在对抗训练模型上具有更高的攻击成功率。
+
+    参考文献： `X Wang, H Kun, "Enhancing the Transferability of Adversarial Attacks through Variance Tuning" in CVPR, 2021 <https://arxiv.org/abs/2103.15571>`_。
+
+    参数：
+        - **network** (Cell) - 目标模型。
+        - **eps** (float) - 攻击产生的对抗性扰动最大占数据范围的比例。默认值： ``8/255`` 。
+        - **eps_iter** (float) - 攻击产生的单步对抗扰动占数据范围的比例。默认值：``2/255``。
+        - **bounds** (tuple) - 数据的上下界，表示数据范围。
+          以(数据最小值，数据最大值)的形式出现。默认值：``(0.0, 1.0)``。
+        - **is_targeted** (bool) - 如果为 ``True``，则为目标攻击。如果为 ``False``，则为无目标攻击。默认值：``False``。
+        - **nb_iter** (int) - 迭代次数。默认值：``10``。
+        - **decay_factor** (float) - 迭代中的衰变因子。默认值：``1.0``。
+        - **nb_neighbor** (int) - 攻击算法在数据样本领域内采样的样本数量。默认值：``5``。
+        - **neighbor_beta** (float) - 领域的半径上限。默认值: ``3/2``。
+        - **norm_level** (Union[int, str, numpy.inf]) - 范数类型。
+          可取值：``numpy.inf``、``1``、``2``、``'1'``、``'2'``、``'l1'``、``'l2'``、``'np.inf'``、``'inf'``、``'linf'``。默认值：``inf``。
+        - **loss_fn** (Union[Loss, None]) - 用于优化的损失函数。如果为 ``None``，则输入网络已配备损失函数。默认值：``None``。
+
+    .. py:method:: generate(inputs, labels)    
+
+        根据输入数据和原始/目标标签生成对抗样本。
+
+        参数：
+            - **inputs** (Union[numpy.ndarray, tuple]) - 良性输入样本，用于创建对抗样本。
+            - **labels** (Union[numpy.ndarray, tuple]) - 原始/目标标签。若每个输入有多个标签，将它包装在元组中。
+
+        返回：
+            - **numpy.ndarray** - 生成的对抗样本。
