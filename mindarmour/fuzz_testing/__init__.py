@@ -18,6 +18,7 @@ robustness of given model.
 from .fuzzing import Fuzzer
 from .model_coverage_metrics import CoverageMetrics, NeuronCoverage, TopKNeuronCoverage, NeuronBoundsCoverage, \
     SuperNeuronActivateCoverage, KMultisectionNeuronCoverage
+from .sensitivity_convergence_coverage import SensitivityConvergenceCoverage
 
 __all__ = ['Fuzzer',
            'CoverageMetrics',
@@ -25,4 +26,5 @@ __all__ = ['Fuzzer',
            'TopKNeuronCoverage',
            'NeuronBoundsCoverage',
            'SuperNeuronActivateCoverage',
-           'KMultisectionNeuronCoverage']
+           'KMultisectionNeuronCoverage',
+           'SensitivityConvergenceCoverage']
