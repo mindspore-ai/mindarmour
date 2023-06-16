@@ -19,7 +19,7 @@ from .gradient_method import FastGradientMethod, FastGradientSignMethod, RandomF
     RandomFastGradientSignMethod, LeastLikelyClassMethod, RandomLeastLikelyClassMethod
 from .iterative_gradient_method import IterativeGradientMethod, BasicIterativeMethod, MomentumIterativeMethod, \
     ProjectedGradientDescent, DiverseInputIterativeMethod, MomentumDiverseInputIterativeMethod, \
-    VarianceTuningMomentumIterativeMethod
+    VarianceTuningMomentumIterativeMethod, VarianceTuningNesterovIterativeMethod
 from .deep_fool import DeepFool
 from .jsma import JSMAAttack
 from .carlini_wagner import CarliniWagnerL2Attack
@@ -42,6 +42,7 @@ __all__ = ['FastGradientMethod',
            'BasicIterativeMethod',
            'MomentumIterativeMethod',
            'VarianceTuningMomentumIterativeMethod',
+           'VarianceTuningNesterovIterativeMethod',
            'ProjectedGradientDescent',
            'DiverseInputIterativeMethod',
            'MomentumDiverseInputIterativeMethod',
