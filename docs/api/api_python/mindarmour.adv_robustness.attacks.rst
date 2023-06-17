@@ -209,6 +209,36 @@ mindarmour.adv_robustness.attacks
         返回：
             - **numpy.ndarray** - 生成的对抗样本。
 
+.. py:class:: mindarmour.adv_robustness.attacks.AutoProjectedGradientDescent(network, eps=8 / 255, eps_iter=0.1, bounds=(0.0, 1.0), is_targeted=False, nb_iter=10, norm_level='inf', loss_fn=None, eot_iter=1, thr_decr=0.75)
+
+    自动投影梯度下降（AutoProjected Gradient Descent）攻击是基本迭代法的变体，也是PGD方法的升级版，在这种方法中，每次迭代之后，扰动被投影在指定半径的p范数球上（除了剪切对抗样本的值，使其位于允许的数据范围内），并引入了自适应步长和动量来加速收敛并提高攻击性能。这是Croce等人提出的用于对抗性训练的攻击。
+
+    参考文献：`Croce and Hein, "Reliable evaluation of adversarial robustness with an ensemble of \
+    diverse parameter-free attacks" in ICML, 2020 <https://arxiv.org/abs/2003.01690>`_。
+
+    参数：
+        - **network** (Cell) - 目标模型。
+        - **eps** (float) - 攻击产生的对抗性扰动占数据范围的比例。默认值：``8 / 255``。
+        - **eps_iter** (float) - 攻击产生的单步对抗扰动占数据范围的比例。默认值：``0.1``。
+        - **bounds** (tuple) - 数据的上下界，表示数据范围。以(数据最小值，数据最大值)的形式出现。默认值：``(0.0, 1.0)``。
+        - **is_targeted** (bool) - 如果为 ``True``，则为目标攻击。如果为 ``False``，则为无目标攻击。默认值：``False``。
+        - **nb_iter** (int) - 迭代次数。默认值：``10``。
+        - **norm_level** (Union[int, str, numpy.inf]) - 范数类型。可取值： ``inf`` 、 ``1`` 、 ``2`` 。默认值： ``inf`` 。
+        - **loss_fn** (Union[Loss, None]) - 用于优化的损失函数。如果为 ``None``，则输入网络已配备损失函数。默认值：``None``。
+        - **eot_iter** (int) - EOT的迭代次数。默认值: ``1``。
+        - **thr_decr** (float) - 步长更新的参数。默认值: ``0.75``。
+
+    .. py:method:: generate(inputs, labels)
+
+        根据输入样本和原始标签生成对抗样本。通过带有参数 `norm_level` 的投影方法归一化扰动。
+
+        参数：
+            - **inputs** (Union[numpy.ndarray, tuple]) - 良性输入样本，用于创建对抗样本。
+            - **labels** (Union[numpy.ndarray, tuple]) - 原始/目标标签。若每个输入有多个标签，将它包装在元组中。
+
+        返回：
+            numpy.ndarray，生成的对抗样本。
+
 .. py:class:: mindarmour.adv_robustness.attacks.DiverseInputIterativeMethod(network, eps=0.3, bounds=(0.0, 1.0), is_targeted=False, prob=0.5, loss_fn=None)
 
     多样性输入迭代法（Diverse Input Iterative Method）攻击遵循基本迭代法，并在每次迭代时对输入数据应用随机转换。对输入数据的这种转换可以提高对抗样本的可转移性。
