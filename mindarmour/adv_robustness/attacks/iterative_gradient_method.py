@@ -995,8 +995,8 @@ class VarianceTuningNesterovIterativeMethod(MomentumIterativeMethod):
         nb_neighbor (int): The number of sampled examples in the neighborhood.
         neighbor_beta (float): The upper bound of neighborhood. Default: ``3/2``.
         norm_level (Union[int, str, numpy.inf]): Order of the norm. Possible values:
-            ``numpy.inf``,``1``,``2``,``'1'``,``'2'``,``'l1'``,``'l2'``,``'np.inf'``,``'inf'`` or
-            ``'linf'``. Default: ``'inf'``.
+            ``numpy.inf`` , ``1``, ``2``, ``'1'``, ``'2'``, ``'l1'``, ``'l2'``, ``'np.inf'``,
+            ``'inf'`` or ``'linf'``. Default: ``'inf'``.
         loss_fn (Union[Loss, None]): Loss function for optimization. If ``None``, the input network
             is already equipped with loss function. Default: ``None``.
 
@@ -1035,7 +1035,7 @@ class VarianceTuningNesterovIterativeMethod(MomentumIterativeMethod):
         self._nb_neighbor = check_int_positive('nb_neighbor', nb_neighbor)
         self._neighbor_beta = check_value_positive('neighbor_beta', neighbor_beta)
 
-    def  generate(self, inputs, labels):
+    def generate(self, inputs, labels):
         """
         Generate adversarial examples based on input data and origin/target labels.
 
