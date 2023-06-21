@@ -68,9 +68,9 @@ def _mindspore_version_check():
                           "MindArmour, by following the instruction at https://www.mindspore.cn/install")
 
     ms_ma_version_match = {'1.7': ['1.7'],
-                           '1.8': ['1.7', '1.8', '1.9', '2.0'],
-                           '1.9': ['1.7', '1.8', '1.9', '2.0'],
-                           '2.0': ['1.7', '1.8', '1.9', '2.0']}
+                           '1.8': ['1.7', '1.8', '1.9', '2.0', '2.1'],
+                           '1.9': ['1.7', '1.8', '1.9', '2.0', '2.1'],
+                           '2.0': ['1.7', '1.8', '1.9', '2.0', '2.1']}
 
     ms_version = ms.__version__[:3]
     required_mindspore_verision = ms_ma_version_match.get(ma_version[:3])
