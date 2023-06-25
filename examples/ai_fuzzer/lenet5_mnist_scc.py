@@ -25,8 +25,8 @@ from mindspore.dataset import MnistDataset
 from mindspore.common.initializer import TruncatedNormal
 from mindspore.ops import operations as P
 from mindspore.ops import TensorSummary
-from fuzzing import SensitivityMaximizingFuzzer
-from sensitivity_convergence_coverage import SensitivityConvergenceCoverage
+from mindarmour.fuzz_testing.fuzzing import SensitivityMaximizingFuzzer
+from mindarmour.fuzz_testing.sensitivity_convergence_coverage import SensitivityConvergenceCoverage
 
 
 def datapipe(path):
@@ -102,6 +102,7 @@ mutate_config = [{'method': 'GaussianBlur',
 # make initial seeds
 test_dataset = datapipe('MNIST_Data/test')
 
+
 for data, label in test_dataset.create_tuple_iterator():
     initial_data = data
     initial_label = label
@@ -117,7 +118,10 @@ for img, label in zip(initial_data, initial_label):
     label_array = np.array([0 if i != label else 1 for i in range(10)])
     initial_seeds.append([np.array(img).astype(np.float32), label_array.astype(np.float32)])
 
-SCC = SensitivityConvergenceCoverage(model, batch_size=200)
+SCC = SensitivityConvergenceCoverage(model, batch_size=32)
+
+print("SCC.get_metrics(initial_data)", SCC.get_metrics(initial_data))
+
 model_fuzz_test = SensitivityMaximizingFuzzer(model)
 samples, gt_labels, preds, strategies, metrics = model_fuzz_test.fuzzing(
     mutate_config, initial_seeds, SCC, max_iters=10)

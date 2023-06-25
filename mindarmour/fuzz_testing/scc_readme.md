@@ -76,7 +76,17 @@ test_labels = np.concatenate(test_labels, axis=0)
 
 2. Coverage参数设置。
 
-Sensitivity Convergence Coverage包含两个user-specified参数：threshold t和敏感神经元数量 selected_neurons_num。
+Sensitivity Convergence Coverage包含Model, threshold, batch_size, selected_neurons_num和n_iter。
+
+Model：用户指定需要测试的模型。
+
+threshold：神经元覆盖阈值，当覆盖率大于threshold时神经元覆盖率测试完成。
+
+batch_size：测试过程中同时利用batch_size数量大小的输入计算Coverage。
+
+selected_neurons_num：测试神经元数量，数量越大，测试越准确，但时间开销也越大。
+
+n_iter：最大测试次数，避免模型长时间测试。
 
 以下是Coverage参数配置例子：
 

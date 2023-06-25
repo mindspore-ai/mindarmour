@@ -15,11 +15,14 @@
 Source code of SensitivityConvergenceCoverage class.
 """
 import numpy as np
+from tqdm import tqdm
 
+from mindspore import Tensor
 from mindspore.train.summary.summary_record import _get_summary_tensor_data
 from mindarmour.fuzz_testing import CoverageMetrics
 from mindarmour.utils._check_param import check_numpy_param
 from mindarmour.utils.logger import LogUtil
+
 
 
 LOGGER = LogUtil.get_instance()
@@ -34,10 +37,12 @@ class SensitivityConvergenceCoverage(CoverageMetrics):
 
     Args:
         model (Model): Model to be evaluated.
-        threshold (float): Threshold of sensitivity convergence coverage. Default: 0.001.
-        incremental (bool): Whether to use incremental mode. Default: False.
-        batch_size (int): Batch size. Default: 32.
-        selected_neurons_num (int): Number of neurons selected for sensitivity convergence coverage. Default: 10.
+        threshold (float): Threshold of sensitivity convergence coverage. Default: ``0.5``.
+        incremental (bool): Whether to use incremental mode. Default: ``False``.
+        batch_size (int): Batch size. Default: ``32``.
+        selected_neurons_num (int): Number of neurons selected for sensitivity convergence coverage. Default: ``100``.
+        n_iter (int): Number of iterations. Default: ``1000``.
+
     '''
 
     def __init__(self, model, threshold=0.5, incremental=False, batch_size=32, selected_neurons_num=100, n_iter=1000):
@@ -49,25 +54,6 @@ class SensitivityConvergenceCoverage(CoverageMetrics):
         self.selected_neurons_num = selected_neurons_num
         self.sensitive_neuron_idx = {}
         self.initial_samples = []
-
-    def get_sensitive_neruon_idx(self, dataset):
-        '''
-        Args:
-            dataset (numpy.ndarray): Dataset for evaluation.
-
-        Returns:
-            sensitive_neuron_idx(dict): The index of sensitive neurons.
-        '''
-
-        inputs = check_numpy_param('dataset', dataset)
-        self._model.predict(Tensor(inputs))
-        layer_out = _get_summary_tensor_data()
-        for layer, tensor in layer_out.items():
-            tensor = tensor.asnumpy().reshape(tensor.shape[0], -1)
-            clean, benign = tensor[:tensor.shape[0] // 2], tensor[tensor.shape[0] // 2:]
-            sensitivity = abs(clean-benign)
-            self.sensitive_neuron_idx[layer] = np.argsort(np.sum(sensitivity,
-                                                                 axis=0))[-min(self.selected_neurons_num, len(Helper)):]
 
     def get_metrics(self, dataset):
         '''
@@ -82,7 +68,7 @@ class SensitivityConvergenceCoverage(CoverageMetrics):
             >>> from mindspore.ops import operations as P
             >>> from mindspore.train import Model
             >>> from mindspore.ops import TensorSummary
-            >>> from mindarmour.fuzz_testing import NeuronCoverage
+            >>> from mindarmour.fuzz_testing import SensitivityConvergenceCoverage
             >>> class Net(nn.Cell):
             ...     def __init__(self):
             ...         super(Net, self).__init__()
@@ -114,22 +100,27 @@ class SensitivityConvergenceCoverage(CoverageMetrics):
             ...         x = self.fc3(x)
             ...         self.summary('fc3', x)
             ...         return x
-            >>> net = Net()
-            >>> model = Model(net)
             >>> batch_size = 32
             >>> num_classe = 10
+            >>> train_images = np.random.rand(32, 1, 32, 32).astype(np.float32)
             >>> test_images = np.random.rand(batch_size, 1, 32, 32).astype(np.float32)
-            >>> test_images_adv = mutation(test_images)
-            >>> test_set = np.concatenate((test_images, test_images_adv), axis=0)
-            >>> SCC = SensitivityConvergenceCoverage(model,batch_size = batch_size*2)
-            >>> SCC_metric = SCC.get_metrics(test_set)
+            >>> test_labels = np.random.randint(num_classe, size=batch_size).astype(np.int32)
+            >>> test_labels = (np.eye(num_classe)[test_labels]).astype(np.float32)
+            >>> initial_seeds = []
+            >>> # make initial seeds
+            >>> for img, label in zip(test_images, test_labels):
+            ...     initial_seeds.append([img, label])
+            >>> initial_seeds = initial_seeds[:batch_size]
+            >>> SCC = SensitivityConvergenceCoverage(model,batch_size = batch_size)
+            >>> metrics = SCC.get_metrics(test_images)
         '''
         inputs = check_numpy_param('dataset', dataset)
         if not self.sensitive_neuron_idx:
-            self.get_sensitive_neruon_idx(dataset)
+            self._get_sensitive_neruon_idx(dataset)
         self._model.predict(Tensor(inputs))
         layer_out = _get_summary_tensor_data()
-        for layer, tensor in layer_out.items():
+
+        for layer, tensor in tqdm(layer_out.items()):
             tensor = tensor.asnumpy().reshape(tensor.shape[0], -1)
             clean, benign = tensor[:tensor.shape[0] // 2], tensor[tensor.shape[0] // 2:]
             sensitivity = abs(clean-benign)
@@ -137,13 +128,30 @@ class SensitivityConvergenceCoverage(CoverageMetrics):
                 sensitivity = sensitivity[:, self.sensitive_neuron_idx[layer]]
             except KeyError:
                 raise RuntimeError('The layer {} is not in the sensitive_neuron_idx'.format(layer))
-            converged, size = self.scc(sensitivity, sensitivity.shape[1], self.threshold)
+            converged, size = self._scc(sensitivity, sensitivity.shape[1], self.threshold)
             self.total_converged += converged
             self.total_size += size
         scc_value = self.total_converged/self.total_size
         return scc_value
 
-    def scc(self, sensitivity_list, size, threshold=0):
+    def _get_sensitive_neruon_idx(self, dataset):
+        '''
+        Args:
+            dataset (numpy.ndarray): Dataset for evaluation.
+        '''
+
+        inputs = check_numpy_param('dataset', dataset)
+        self._model.predict(Tensor(inputs))
+        layer_out = _get_summary_tensor_data()
+        for layer, tensor in layer_out.items():
+            tensor = tensor.asnumpy().reshape(tensor.shape[0], -1)
+            clean, benign = tensor[:tensor.shape[0] // 2], tensor[tensor.shape[0] // 2:]
+            sensitivity = abs(clean-benign)
+            self.sensitive_neuron_idx[layer] = np.argsort(np.sum(sensitivity,
+                                                                 axis=0))[-min(self.selected_neurons_num,\
+                                                                len(np.sum(sensitivity, axis=0))):]
+
+    def _scc(self, sensitivity_list, size, threshold=0):
         '''
         Args:
             sensitivity_list(numpy.ndarray): The sensitivity of each neuron.
@@ -151,35 +159,35 @@ class SensitivityConvergenceCoverage(CoverageMetrics):
             threshold(float): The threshold of sensitivity convergence coverage.
 
         Returns:
-            converged(int): The number of neurons that have converged to the threshold.
-            size(int): The number of neurons.
+            int, The number of neurons that have converged to the threshold.
+            int, The number of neurons.
 
         '''
 
         converged = 0
         for i in range(sensitivity_list.shape[1]):
-            _, acceptance_rate = self.build_mh_chain(sensitivity_list[:, i],
-                                                     np.mean(sensitivity_list[:, i]), self.n_iter, self.log_prob)
+            _, acceptance_rate = self._build_mh_chain(sensitivity_list[:, i],
+                                                      np.mean(sensitivity_list[:, i]), self.n_iter, self._log_prob)
 
             if acceptance_rate > threshold:
                 converged += 1
 
         return converged, size
 
-    def proposal(self, x, stepsize):
+    def _proposal(self, x, stepsize):
         '''
         Args:
             x(numpy.ndarray): The input of the proposal function.
             stepsize(float): The stepsize of the proposal function.
 
         Returns:
-            x(numpy.ndarray): The output of the proposal function.
+            numpy.ndarray, The output of the proposal function.
         '''
         return np.random.uniform(low=x - 0.5 * stepsize,
                                  high=x + 0.5 * stepsize,
                                  size=x.shape)
 
-    def p_acc_mh(self, x_new, x_old, log_prob):
+    def _p_acc_mh(self, x_new, x_old, log_prob):
         '''
         Args:
             x_new(numpy.ndarray): The new state.
@@ -187,21 +195,21 @@ class SensitivityConvergenceCoverage(CoverageMetrics):
             log_prob(function): The log probability function.
 
         Returns:
-            float: The acceptance probability.
+            float, The acceptance probability.
         '''
         return min(1, np.exp(log_prob(x_new) - log_prob(x_old)))
 
-    def log_prob(self, x):
+    def _log_prob(self, x):
         '''
         Args:
             x(numpy.ndarray): The input of the log probability function.
 
         Returns:
-            float: The output of the log probability function.
+            float, The output of the log probability function.
         '''
         return -0.5 * np.sum(x ** 2)
 
-    def sample_mh(self, x_old, log_prob, stepsize):
+    def _sample_mh(self, x_old, log_prob, stepsize):
         '''
         here we determine whether we accept the new state or not:
         we draw a random number uniformly from [0,1] and compare
@@ -212,16 +220,16 @@ class SensitivityConvergenceCoverage(CoverageMetrics):
             stepsize(float): The stepsize of the proposal function.
 
         Returns:
-            accept(bool): Whether to accept the new state.
-            x_new(numpy.ndarray): The new state.
+            bool, Whether to accept the new state.
+            numpy.ndarray, if bool=True: return new state, else: return old state.
         '''
-        x_new = self.proposal(x_old, stepsize)
-        accept = np.random.random() < self.p_acc_mh(x_new, x_old, log_prob)
+        x_new = self._proposal(x_old, stepsize)
+        accept = np.random.random() < self._p_acc_mh(x_new, x_old, log_prob)
         if accept:
             return accept, x_new
         return accept, x_old
 
-    def build_mh_chain(self, init, stepsize, n_total, log_prob):
+    def _build_mh_chain(self, init, stepsize, n_total, log_prob):
         '''
         Args:
             init(numpy.ndarray): The initial state.
@@ -230,14 +238,14 @@ class SensitivityConvergenceCoverage(CoverageMetrics):
             log_prob(function): The log probability function.
 
         Returns:
-            chain(list): The chain of samples.
-            acceptance_rate(float): The acceptance rate of the chain.
+            list, The chain of samples.
+            float, The acceptance rate of the chain.
         '''
         n_accepted = 0
         chain = [init]
 
         for _ in range(n_total):
-            accept, state = self.sample_mh(chain[-1], log_prob, stepsize)
+            accept, state = self._sample_mh(chain[-1], log_prob, stepsize)
             chain.append(state)
             n_accepted += accept
         acceptance_rate = n_accepted / float(n_total)
