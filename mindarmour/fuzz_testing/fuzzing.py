@@ -512,7 +512,9 @@ class SensitivityMaximizingFuzzer(Fuzzer):
     Fuzzing test framework for deep neural networks.
 
     Reference: `https://huangd1999.github.io/Themis__Sensitivity\
-        _Testing_for_Deep_Learning_System.pdf`
+        _Testing_for_Deep_Learning_System.pdf\
+        <https://huangd1999.github.io/Themis__Sensitivity\
+        _Testing_for_Deep_Learning_System.pdf>`
 
     Args:
         target_model (Model): Target fuzz model.
@@ -522,8 +524,8 @@ class SensitivityMaximizingFuzzer(Fuzzer):
         >>> from mindspore.ops import operations as P
         >>> from mindspore.train import Model
         >>> from mindspore.ops import TensorSummary
-        >>> from mindarmour.fuzz_testing import Fuzzer
-        >>> from mindarmour.fuzz_testing import KMultisectionNeuronCoverage
+        >>> from mindarmour.fuzz_testing import Fuzzer, SensitivityMaximizingFuzzer
+        >>> from mindarmour.fuzz_testing import SensitivityConvergenceCoverage
         >>> class Net(nn.Cell):
         ...     def __init__(self):
         ...         super(Net, self).__init__()
@@ -573,7 +575,7 @@ class SensitivityMaximizingFuzzer(Fuzzer):
         ...                   'params': {'angle': [20, 90], 'auto_param': [False, True]}},
         ...                  {'method': 'FGSM',
         ...                   'params': {'eps': [0.3, 0.2, 0.4], 'alpha': [0.1], 'bounds': [(0, 1)]}}]
-        >>> batch_size = 8
+        >>> batch_size = 32
         >>> num_classe = 10
         >>> train_images = np.random.rand(32, 1, 32, 32).astype(np.float32)
         >>> test_images = np.random.rand(batch_size, 1, 32, 32).astype(np.float32)
@@ -583,9 +585,9 @@ class SensitivityMaximizingFuzzer(Fuzzer):
         >>> # make initial seeds
         >>> for img, label in zip(test_images, test_labels):
         ...     initial_seeds.append([img, label])
-        >>> initial_seeds = initial_seeds[:10]
+        >>> initial_seeds = initial_seeds[:batch_size]
         >>> SCC = SensitivityConvergenceCoverage(model,batch_size = batch_size)
-        >>> model_fuzz_test = Fuzzer(model)
+        >>> model_fuzz_test = SensitivityMaximizingFuzzer(model)
         >>> samples, gt_labels, preds, strategies, metrics = model_fuzz_test.fuzzing(mutate_config, initial_seeds,
         ...                                                                          SCC, max_iters=100)
     """
@@ -595,7 +597,7 @@ class SensitivityMaximizingFuzzer(Fuzzer):
         self._target_model = target_model
 
     def fuzzing(self, mutate_config, initial_seeds,
-                coverage, evaluate=True, max_iters=10, mutate_num_per_seed=20):
+                coverage, evaluate=True, max_iters=1000, mutate_num_per_seed=20):
         """
         Fuzzing tests for deep neural networks.
 
@@ -629,9 +631,9 @@ class SensitivityMaximizingFuzzer(Fuzzer):
             initial_seeds (list[list]): Initial seeds used to generate mutated samples. The format of initial seeds is
                 [[image_data, label], [...], ...] and the label must be one-hot.
             coverage (CoverageMetrics): Class of neuron coverage metrics.
-            evaluate (bool): return evaluate report or not. Default: True.
-            max_iters (int): Max number of select a seed to mutate. Default: 10000.
-            mutate_num_per_seed (int): The number of mutate times for a seed. Default: 20.
+            evaluate (bool): return evaluate report or not. Default: ``True``.
+            max_iters (int): Max number of select a seed to mutate. Default: ``1000``.
+            mutate_num_per_seed (int): The number of mutate times for a seed. Default: ``20``.
 
 
         Returns:
@@ -778,5 +780,5 @@ class SensitivityMaximizingFuzzer(Fuzzer):
             attack_success_rate = None
         metrics_report['Accuracy'] = acc
         metrics_report['Attack_success_rate'] = attack_success_rate
-        metrics_report['Coverage_metrics'] = coverage.get_metrics(np.concatenate((fuzz_samples), axis=0))
+        metrics_report['Coverage_metrics'] = coverage.get_metrics(fuzz_samples)
         return metrics_report

@@ -59,6 +59,65 @@ mindarmour.fuzz_testing
             - **ValueError** - 初始种子队列为空。
             - **ValueError** - `initial_seeds` 中的种子未包含两个元素。
 
+.. py:class:: mindarmour.fuzz_testing.SensitivityMaximizingFuzzer(target_model)
+
+    深度神经网络的模糊测试框架。
+
+    参考文献：`https://huangd1999.github.io/Themis__Sensitivity\
+        _Testing_for_Deep_Learning_System.pdf\
+        <https://huangd1999.github.io/Themis__Sensitivity\
+        _Testing_for_Deep_Learning_System.pdf>`_。
+
+    参数：
+        - **target_model** (Model) - 目标模糊模型。
+
+    .. py:method:: fuzzing(mutate_config, initial_seeds, coverage, evaluate=True, max_iters=1000, mutate_num_per_seed=20)
+
+        深度神经网络的模糊测试。
+
+        参数：
+            - **mutate_config** (list) - 变异方法配置。格式为：
+
+              .. code-block:: python
+
+                  mutate_config = [
+                      {'method': 'GaussianBlur',
+                       'params': {'ksize': [1, 2, 3, 5], 'auto_param': [True, False]}},
+                      {'method': 'UniformNoise',
+                       'params': {'factor': [0.1, 0.2, 0.3], 'auto_param': [False, True]}},
+                      {'method': 'GaussianNoise',
+                       'params': {'factor': [0.1, 0.2, 0.3], 'auto_param': [False, True]}},
+                      {'method': 'Contrast',
+                       'params': {'alpha': [0.5, 1, 1.5], 'beta': [-10, 0, 10], 'auto_param': [False, True]}},
+                      {'method': 'Rotate',
+                       'params': {'angle': [20, 90], 'auto_param': [False, True]}},
+                      {'method': 'FGSM',
+                       'params': {'eps': [0.3, 0.2, 0.4], 'alpha': [0.1], 'bounds': [(0, 1)]}}
+                      ...]
+
+              - 支持的方法在列表 `self._strategies` 中，每个方法的参数必须在可选参数的范围内。支持的方法分为两种类型：
+              - 首先，自然鲁棒性方法包括：'Translate'、'Scale'、'Shear'、'Rotate'、'Perspective'、'Curve'、'GaussianBlur'、'MotionBlur'、'GradientBlur'、'Contrast'、'GradientLuminance'、'UniformNoise'、'GaussianNoise'、'SaltAndPepperNoise'、'NaturalNoise'。
+              - 其次，对抗样本攻击方式包括：'FGSM'、'PGD'和'MDIM'。'FGSM'、'PGD'和'MDIM'分别是 FastGradientSignMethod、ProjectedGradientDent和MomentumDiverseInputIterativeMethod的缩写。 `mutate_config` 必须包含在['Contrast', 'GradientLuminance', 'GaussianBlur', 'MotionBlur', 'GradientBlur', 'UniformNoise', 'GaussianNoise', 'SaltAndPepperNoise', 'NaturalNoise']中的方法。
+
+              - 第一类方法的参数设置方式可以在'mindarmour/natural_robustness/transform/image'中看到。第二类方法参数配置参考 `self._attack_param_checklists` 。
+            - **initial_seeds** (list[list]) - 用于生成变异样本的初始种子队列。初始种子队列的格式为[[image_data, label], [...], ...]，且标签必须为one-hot。
+            - **coverage** (CoverageMetrics) - 神经元覆盖率指标类。
+            - **evaluate** (bool) - 是否返回评估报告。默认值：``True``。
+            - **max_iters** (int) - 选择要变异的种子的最大数量。默认值：``1000``。
+            - **mutate_num_per_seed** (int) - 每个种子的最大变异次数。默认值：``20``。
+
+        返回：
+            - **list** - 模糊测试生成的变异样本。
+            - **list** - 变异样本的ground truth标签。
+            - **list** - 预测结果。
+            - **list** - 变异策略。
+            - **dict** - Fuzzer的指标报告。
+
+        异常：
+            - **ValueError** - 参数 `coverage` 必须是CoverageMetrics的子类。
+            - **ValueError** - 初始种子队列为空。
+            - **ValueError** - `initial_seeds` 中的种子未包含两个元素。
+
 .. py:class:: mindarmour.fuzz_testing.CoverageMetrics(model, incremental=False, batch_size=32)
 
     计算覆盖指标的神经元覆盖类的抽象基类。
@@ -184,3 +243,25 @@ mindarmour.fuzz_testing
 
         返回：
             - **float** - 'k-multisection neuron coverage'的指标。
+
+.. py:class:: mindarmour.fuzz_testing.SensitivityConvergenceCoverage(model, threshold=0.5, incremental=False, batch_size=32, selected_neurons_num=100, n_iter=1000)
+
+    获取神经元收敛覆盖率的指标。SCC度量神经元输出变化值收敛为正态分布的比例。
+
+    参数：
+        - **model** (Model) - 等待测试的预训练模型。
+        - **threshold** (float) - 神经元收敛阈值。默认值：``0.5``。
+        - **incremental** (bool) - 指标将以增量方式计算。默认值：``False``。
+        - **batch_size** (int) - 模糊测试批次中的样本数。默认值：``32``。
+        - **selected_neurons_num** (int) - 模糊测试时所选取的神经元数量。默认值：``100``。
+        - **n_iter** (int) - 模糊测试时最大测试次数。默认值：``1000``。
+
+    .. py:method:: get_metrics(dataset)
+
+        获取'neuron convergence coverage'的指标。
+
+        参数：
+            - **dataset** (numpy.ndarray) - 用于计算覆盖指标的数据集。
+
+        返回：
+            - **float** - 'neuron convergence coverage'的指标。
