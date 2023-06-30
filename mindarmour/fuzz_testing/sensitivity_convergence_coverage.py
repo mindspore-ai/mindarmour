@@ -57,11 +57,14 @@ class SensitivityConvergenceCoverage(CoverageMetrics):
 
     def get_metrics(self, dataset):
         '''
+        Obtain indicators of neuron convergence coverage.
+        SCC measures the proportion of neuron output changes converging to Normal distribution.
+
         Args:
             dataset (numpy.ndarray): Dataset for evaluation.
 
         Returns:
-            SCC_value(float): the proportion of neurons that have converged to the threshold.
+            SCC_value(float), the proportion of neurons that have converged to the threshold.
 
         Examples:
             >>> from mindspore.common.initializer import TruncatedNormal
@@ -159,8 +162,8 @@ class SensitivityConvergenceCoverage(CoverageMetrics):
             threshold(float): The threshold of sensitivity convergence coverage.
 
         Returns:
-            int, The number of neurons that have converged to the threshold.
-            int, The number of neurons.
+            - int, The number of neurons that have converged to the threshold.
+            - int, The number of neurons.
 
         '''
 
@@ -213,15 +216,16 @@ class SensitivityConvergenceCoverage(CoverageMetrics):
         '''
         here we determine whether we accept the new state or not:
         we draw a random number uniformly from [0,1] and compare
-        it with the acceptance probability
+        it with the acceptance probability.
+
         Args:
             x_old(numpy.ndarray): The old state.
             log_prob(function): The log probability function.
             stepsize(float): The stepsize of the proposal function.
 
         Returns:
-            bool, Whether to accept the new state.
-            numpy.ndarray, if bool=True: return new state, else: return old state.
+            - bool, Whether to accept the new state.
+            - numpy.ndarray, if bool=True: return new state, else: return old state.
         '''
         x_new = self._proposal(x_old, stepsize)
         accept = np.random.random() < self._p_acc_mh(x_new, x_old, log_prob)
@@ -238,8 +242,8 @@ class SensitivityConvergenceCoverage(CoverageMetrics):
             log_prob(function): The log probability function.
 
         Returns:
-            list, The chain of samples.
-            float, The acceptance rate of the chain.
+            - list, The chain of samples.
+            - float, The acceptance rate of the chain.
         '''
         n_accepted = 0
         chain = [init]

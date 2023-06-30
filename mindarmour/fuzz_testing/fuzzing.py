@@ -511,10 +511,9 @@ class SensitivityMaximizingFuzzer(Fuzzer):
     """
     Fuzzing test framework for deep neural networks.
 
-    Reference: `https://huangd1999.github.io/Themis__Sensitivity\
-        _Testing_for_Deep_Learning_System.pdf\
-        <https://huangd1999.github.io/Themis__Sensitivity\
-        _Testing_for_Deep_Learning_System.pdf>`
+    Reference:
+        `Themis_Sensitivity_Testing_for_Deep_Learning_System
+        <https://huangd1999.github.io/Themis__Sensitivity_Testing_for_Deep_Learning_System.pdf>`_
 
     Args:
         target_model (Model): Target fuzz model.

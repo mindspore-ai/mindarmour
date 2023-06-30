@@ -63,10 +63,8 @@ mindarmour.fuzz_testing
 
     深度神经网络的模糊测试框架。
 
-    参考文献：`https://huangd1999.github.io/Themis__Sensitivity\
-        _Testing_for_Deep_Learning_System.pdf\
-        <https://huangd1999.github.io/Themis__Sensitivity\
-        _Testing_for_Deep_Learning_System.pdf>`_。
+    参考文献：
+        `Themis_Sensitivity_Testing_for_Deep_Learning_System <https://huangd1999.github.io/Themis__Sensitivity_Testing_for_Deep_Learning_System.pdf>`_。
 
     参数：
         - **target_model** (Model) - 目标模糊模型。
@@ -100,18 +98,19 @@ mindarmour.fuzz_testing
               - 其次，对抗样本攻击方式包括：'FGSM'、'PGD'和'MDIM'。'FGSM'、'PGD'和'MDIM'分别是 FastGradientSignMethod、ProjectedGradientDent和MomentumDiverseInputIterativeMethod的缩写。 `mutate_config` 必须包含在['Contrast', 'GradientLuminance', 'GaussianBlur', 'MotionBlur', 'GradientBlur', 'UniformNoise', 'GaussianNoise', 'SaltAndPepperNoise', 'NaturalNoise']中的方法。
 
               - 第一类方法的参数设置方式可以在'mindarmour/natural_robustness/transform/image'中看到。第二类方法参数配置参考 `self._attack_param_checklists` 。
+
             - **initial_seeds** (list[list]) - 用于生成变异样本的初始种子队列。初始种子队列的格式为[[image_data, label], [...], ...]，且标签必须为one-hot。
             - **coverage** (CoverageMetrics) - 神经元覆盖率指标类。
-            - **evaluate** (bool) - 是否返回评估报告。默认值：``True``。
-            - **max_iters** (int) - 选择要变异的种子的最大数量。默认值：``1000``。
-            - **mutate_num_per_seed** (int) - 每个种子的最大变异次数。默认值：``20``。
+            - **evaluate** (bool) - 是否返回评估报告。默认值： ``True``。
+            - **max_iters** (int) - 选择要变异的种子的最大数量。默认值： ``1000``。
+            - **mutate_num_per_seed** (int) - 每个种子的最大变异次数。默认值： ``20``。
 
         返回：
-            - **list** - 模糊测试生成的变异样本。
-            - **list** - 变异样本的ground truth标签。
-            - **list** - 预测结果。
-            - **list** - 变异策略。
-            - **dict** - Fuzzer的指标报告。
+            - list，模糊测试生成的变异样本。
+            - list，变异样本的ground truth标签。
+            - list，预测结果。
+            - list，变异策略。
+            - dict，Fuzzer的指标报告。
 
         异常：
             - **ValueError** - 参数 `coverage` 必须是CoverageMetrics的子类。
@@ -250,11 +249,11 @@ mindarmour.fuzz_testing
 
     参数：
         - **model** (Model) - 等待测试的预训练模型。
-        - **threshold** (float) - 神经元收敛阈值。默认值：``0.5``。
-        - **incremental** (bool) - 指标将以增量方式计算。默认值：``False``。
-        - **batch_size** (int) - 模糊测试批次中的样本数。默认值：``32``。
-        - **selected_neurons_num** (int) - 模糊测试时所选取的神经元数量。默认值：``100``。
-        - **n_iter** (int) - 模糊测试时最大测试次数。默认值：``1000``。
+        - **threshold** (float) - 神经元收敛阈值。默认值： ``0.5``。
+        - **incremental** (bool) - 指标将以增量方式计算。默认值： ``False``。
+        - **batch_size** (int) - 模糊测试批次中的样本数。默认值： ``32``。
+        - **selected_neurons_num** (int) - 模糊测试时所选取的神经元数量。默认值： ``100``。
+        - **n_iter** (int) - 模糊测试时最大测试次数。默认值： ``1000``。
 
     .. py:method:: get_metrics(dataset)
 
