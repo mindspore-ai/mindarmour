@@ -34,7 +34,7 @@
 
 ### 脚本参数
 
-在`default_config.yaml`中可以同时配置训练参数、推理参数、鲁棒性评测参数。这里我们重点关注在评测过程中使用到的参数，以及需要用户配置的参数，其余参数说明参考[CNN-CTC教程](https://gitee.com/mindspore/models/tree/master/official/cv/cnnctc)。
+在`default_config.yaml`中可以同时配置训练参数、推理参数、鲁棒性评测参数。这里我们重点关注在评测过程中使用到的参数，以及需要用户配置的参数，其余参数说明参考[CNN-CTC教程](https://gitee.com/mindspore/models/tree/master/research/cv/cnnctc)。
 
 训练参数：
 
@@ -51,11 +51,11 @@
 
 ### 模型与数据
 
-数据处理与模型训练参考[CNN-CTC教程](https://gitee.com/mindspore/models/tree/master/official/cv/cnnctc)。评测任务需基于该教程获得预处理后的数据集和checkpoint模型文件。
+数据处理与模型训练参考[CNN-CTC教程](https://gitee.com/mindspore/models/tree/master/research/cv/cnnctc)。评测任务需基于该教程获得预处理后的数据集和checkpoint模型文件。
 
 #### 模型
 
-被评测的模型为基于MindSpore实现的OCR模型CNN-CTC，改模型主要针对场景文字识别（Scene Text Recognition）任务，用CNN模型提取特征，用CTC（Connectionist temporal classification）预测输出序列。具体说明和实现参考[CNN-CTC](https://gitee.com/mindspore/models/tree/master/official/cv/cnnctc)。
+被评测的模型为基于MindSpore实现的OCR模型CNN-CTC，改模型主要针对场景文字识别（Scene Text Recognition）任务，用CNN模型提取特征，用CTC（Connectionist temporal classification）预测输出序列。具体说明和实现参考[CNN-CTC](https://gitee.com/mindspore/models/tree/master/research/cv/cnnctc)。
 
 [论文](https://arxiv.org/abs/1904.01906)： J. Baek, G. Kim, J. Lee, S. Park, D. Han, S. Yun, S. J. Oh, and H. Lee, “What is wrong with scene text recognition model comparisons? dataset and model analysis,” ArXiv, vol. abs/1904.01906, 2019.
 

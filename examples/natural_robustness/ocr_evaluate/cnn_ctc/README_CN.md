@@ -415,7 +415,7 @@ bash run_infer_310.sh [MINDIR_PATH] [DATA_PATH] [DVPP] [DEVICE_ID]
 | 速度 | 1卡：300毫秒/步；8卡：310毫秒/步 |
 | 总时间 | 1卡：18小时；8卡：2.3小时 |
 | 参数(M) | 177 |
-| 脚本 | <https://gitee.com/mindspore/models/tree/master/official/cv/cnnctc> |
+| 脚本 | <https://gitee.com/mindspore/models/tree/master/research/cv/cnnctc> |
 
 ### 评估性能
 
