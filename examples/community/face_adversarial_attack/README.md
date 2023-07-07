@@ -49,7 +49,7 @@ def get_model():
 方法二:
 
 ```text
-利用MindSpore代码仓中的 <https://gitee.com/mindspore/models/blob/master/official/cv/FaceRecognition/eval.py> 的get_model函数加载模型
+利用MindSpore代码仓中的 <https://gitee.com/mindspore/models/blob/master/research/cv/FaceRecognition/eval.py> 的get_model函数加载模型
 ```
 
 ## 训练过程
