@@ -175,9 +175,14 @@ class MembershipInference:
         Args:
             dataset_train (mindspore.dataset): The training dataset for the target model.
             dataset_test (mindspore.dataset): The test set for the target model.
-            attack_config (Union[list, tuple]): Parameter setting for the attack model. The format is
-                [{"method": "knn", "params": {"n_neighbors": [3, 5, 7]}},
-                {"method": "lr", "params": {"C": np.logspace(-4, 2, 10)}}].
+            attack_config (Union[list, tuple]): Parameter setting for the attack model. The format is as follows:
+
+                .. code-block:: python
+
+                    attack_config =
+                        [{"method": "knn", "params": {"n_neighbors": [3, 5, 7]}},
+                         {"method": "lr", "params": {"C": np.logspace(-4, 2, 10)}}]
+
                 The support methods are knn, lr, mlp and rf, and the params of each method
                 must within the range of changeable parameters. Tips of params implement
                 can be found below:
