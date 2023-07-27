@@ -158,7 +158,7 @@ MindArmour是MindSpore的工具箱，用于增强模型可信，实现隐私保�
             - **mutate_config** (list) - 变异方法配置。格式为：
 
               .. code-block:: python
-   
+
                   mutate_config = 
                       [{'method': 'GaussianBlur',
                         'params': {'ksize': [1, 2, 3, 5], 'auto_param': [True, False]}},

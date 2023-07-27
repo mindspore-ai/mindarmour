@@ -223,20 +223,25 @@ class Fuzzer:
         Fuzzing tests for deep neural networks.
 
         Args:
-            mutate_config (list): Mutate configs. The format is
-                [{'method': 'GaussianBlur',
-                'params': {'ksize': [1, 2, 3, 5], 'auto_param': [True, False]}},
-                {'method': 'UniformNoise',
-                'params': {'factor': [0.1, 0.2, 0.3], 'auto_param': [False, True]}},
-                {'method': 'GaussianNoise',
-                'params': {'factor': [0.1, 0.2, 0.3], 'auto_param': [False, True]}},
-                {'method': 'Contrast',
-                'params': {'alpha': [0.5, 1, 1.5], 'beta': [-10, 0, 10], 'auto_param': [False, True]}},
-                {'method': 'Rotate',
-                'params': {'angle': [20, 90], 'auto_param': [False, True]}},
-                {'method': 'FGSM',
-                'params': {'eps': [0.3, 0.2, 0.4], 'alpha': [0.1], 'bounds': [(0, 1)]}}
-                ...].
+            mutate_config (list): Mutate configs. The format is as follows:
+
+                .. code-block:: python
+
+                  mutate_config = [
+                      {'method': 'GaussianBlur',
+                       'params': {'ksize': [1, 2, 3, 5], 'auto_param': [True, False]}},
+                      {'method': 'UniformNoise',
+                       'params': {'factor': [0.1, 0.2, 0.3], 'auto_param': [False, True]}},
+                      {'method': 'GaussianNoise',
+                       'params': {'factor': [0.1, 0.2, 0.3], 'auto_param': [False, True]}},
+                      {'method': 'Contrast',
+                       'params': {'alpha': [0.5, 1, 1.5], 'beta': [-10, 0, 10], 'auto_param': [False, True]}},
+                      {'method': 'Rotate',
+                       'params': {'angle': [20, 90], 'auto_param': [False, True]}},
+                      {'method': 'FGSM',
+                       'params': {'eps': [0.3, 0.2, 0.4], 'alpha': [0.1], 'bounds': [(0, 1)]}}
+                      ...]
+
                 The supported methods list is in `self._strategies`, and the params of each method must within the
                 range of optional parameters. Supported methods are grouped in two types: Firstly, natural robustness
                 methods include: 'Translate', 'Scale', 'Shear', 'Rotate', 'Perspective', 'Curve', 'GaussianBlur',
@@ -601,20 +606,25 @@ class SensitivityMaximizingFuzzer(Fuzzer):
         Fuzzing tests for deep neural networks.
 
         Args:
-            mutate_config (list): Mutate configs. The format is
-                [{'method': 'GaussianBlur',
-                'params': {'ksize': [1, 2, 3, 5], 'auto_param': [True, False]}},
-                {'method': 'UniformNoise',
-                'params': {'factor': [0.1, 0.2, 0.3], 'auto_param': [False, True]}},
-                {'method': 'GaussianNoise',
-                'params': {'factor': [0.1, 0.2, 0.3], 'auto_param': [False, True]}},
-                {'method': 'Contrast',
-                'params': {'alpha': [0.5, 1, 1.5], 'beta': [-10, 0, 10], 'auto_param': [False, True]}},
-                {'method': 'Rotate',
-                'params': {'angle': [20, 90], 'auto_param': [False, True]}},
-                {'method': 'FGSM',
-                'params': {'eps': [0.3, 0.2, 0.4], 'alpha': [0.1], 'bounds': [(0, 1)]}}]
-                ...].
+            mutate_config (list): Mutate configs. The format is as follows:
+
+                .. code-block:: python
+
+                  mutate_config = [
+                      {'method': 'GaussianBlur',
+                       'params': {'ksize': [1, 2, 3, 5], 'auto_param': [True, False]}},
+                      {'method': 'UniformNoise',
+                       'params': {'factor': [0.1, 0.2, 0.3], 'auto_param': [False, True]}},
+                      {'method': 'GaussianNoise',
+                       'params': {'factor': [0.1, 0.2, 0.3], 'auto_param': [False, True]}},
+                      {'method': 'Contrast',
+                       'params': {'alpha': [0.5, 1, 1.5], 'beta': [-10, 0, 10], 'auto_param': [False, True]}},
+                      {'method': 'Rotate',
+                       'params': {'angle': [20, 90], 'auto_param': [False, True]}},
+                      {'method': 'FGSM',
+                       'params': {'eps': [0.3, 0.2, 0.4], 'alpha': [0.1], 'bounds': [(0, 1)]}}
+                      ...]
+
                 The supported methods list is in `self._strategies`, and the params of each method must within the
                 range of optional parameters. Supported methods are grouped in two types: Firstly, natural robustness
                 methods include: 'Translate', 'Scale', 'Shear', 'Rotate', 'Perspective', 'Curve', 'GaussianBlur',
