@@ -282,7 +282,7 @@ class HopSkipJumpAttack(Attack):
             # approximate gradient.
             gradf = self._approximate_gradient(perturbed, num_evals,
                                                original_label, target_label,
-                                               delta, theta)
+                                               delta)
             if self._constraint == 'linf':
                 update = np.sign(gradf)
             else:
@@ -370,7 +370,7 @@ class HopSkipJumpAttack(Attack):
         return distance
 
     def _approximate_gradient(self, sample, num_evals, original_label,
-                              target_label, delta, theta):
+                              target_label, delta):
         """
         Gradient direction estimation.
         """
@@ -387,7 +387,7 @@ class HopSkipJumpAttack(Attack):
         # perturbed images
         perturbed = sample + delta*random_noise
         perturbed = _clip_image(perturbed, self._clip_min, self._clip_max)
-        random_noise = (perturbed - sample) / theta
+        random_noise = (perturbed - sample) / delta
 
         # Whether the perturbed images are on the desired side of the boundary.
         decisions = self._decision_function(perturbed, original_label,
