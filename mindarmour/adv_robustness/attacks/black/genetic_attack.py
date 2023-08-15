@@ -283,6 +283,7 @@ class GeneticAttack(Attack):
                                   self._bounds[0], self._bounds[1])
 
                 pop_preds = self._model.predict(cur_pop)
+                pop_preds = np.exp(pop_preds) / np.sum(np.exp(pop_preds), axis=1, keepdims=True)
                 query_times += cur_pop.shape[0]
                 all_preds = np.argmax(pop_preds, axis=1)
                 if self._targeted:
@@ -294,9 +295,9 @@ class GeneticAttack(Attack):
                 target_preds = pop_preds[:, label_i]
                 others_preds_sum = np.sum(pop_preds, axis=1) - target_preds
                 if self._targeted:
-                    fit_vals = target_preds - others_preds_sum
+                    fit_vals = np.log(target_preds + 1e-30) - np.log(others_preds_sum + 1e-30)
                 else:
-                    fit_vals = others_preds_sum - target_preds
+                    fit_vals = np.log(others_preds_sum + 1e-30) - np.log(target_preds + 1e-30)
 
                 if is_success:
                     LOGGER.debug(TAG, 'successfully find one adversarial sample '
