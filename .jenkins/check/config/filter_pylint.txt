@@ -47,3 +47,4 @@
 "mindarmour/examples/model_security/model_defenses/mnist_defense_nad.py"                            "missing-docstring"
 "mindarmour/examples/model_security/model_defenses/mnist_evaluation.py"                             "missing-docstring"
 "mindarmour/examples/model_security/model_defenses/mnist_similarity_detector.py"                    "missing-docstring"
+"mindarmour/examples/community/speech_adversarial_attack/src/deepspeech2.py"                        "invalid-name"
