@@ -155,6 +155,26 @@ mindarmour.adv_robustness.evaluations
         返回：
             - **float** - 值越低，防守就越成功。
 
+.. py:class:: mindarmour.adv_robustness.evaluations.NeuronMetric(model, inputs, adv_inputs, hook_names)
+
+    神经元敏感度，通过计算神经元在输入正常样本和对抗样本时的激活值变化，来衡量神经元的敏感度。
+
+    参数：
+        - **model** (mindspore.nn.Cell) - 待测量神经元敏感度的模型本身。
+        - **inputs** (mindspore.Tensor) - 所使用数据的原始样本。
+        - **adv_inputs** (mindspore.Tensor) - 所使用数据的对抗样本，需要和原始样本一一对应。
+        - **hook_names** (List[str]) - 所需要计算神经元敏感度的层的名字。
+
+    异常：
+        - **ValueError** - 模型中间层输出的shape维度数目小于等于1。
+
+    .. py:method:: neuron_sensitivity()
+
+        计算并返回神经元敏感度。
+
+        返回：
+            - **nsense** - 神经元敏感度的字典，包含每个层的名字和层的神经元对应的神经元敏感度。
+
 .. py:class:: mindarmour.adv_robustness.evaluations.RadarMetric(metrics_name, metrics_data, labels, title, scale='hide')
 
     雷达图，通过多个指标显示模型的鲁棒性。
