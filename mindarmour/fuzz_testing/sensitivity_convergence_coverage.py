@@ -15,7 +15,6 @@
 Source code of SensitivityConvergenceCoverage class.
 """
 import numpy as np
-from tqdm import tqdm
 
 from mindspore import Tensor
 from mindspore.train.summary.summary_record import _get_summary_tensor_data
@@ -123,7 +122,7 @@ class SensitivityConvergenceCoverage(CoverageMetrics):
         self._model.predict(Tensor(inputs))
         layer_out = _get_summary_tensor_data()
 
-        for layer, tensor in tqdm(layer_out.items()):
+        for layer, tensor in layer_out.items():
             tensor = tensor.asnumpy().reshape(tensor.shape[0], -1)
             clean, benign = tensor[:tensor.shape[0] // 2], tensor[tensor.shape[0] // 2:]
             sensitivity = abs(clean-benign)
