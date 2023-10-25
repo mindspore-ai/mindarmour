@@ -17,6 +17,7 @@ Model-Test Coverage Metrics.
 from abc import abstractmethod
 from collections import defaultdict
 import math
+import time
 import numpy as np
 
 from mindspore import Tensor
@@ -84,6 +85,7 @@ class CoverageMetrics:
             dict, return a activate_table.
         """
         self._model.predict(Tensor(data))
+        time.sleep(0.01)
         layer_out = _get_summary_tensor_data()
         if not layer_out:
             msg = 'User must use TensorSummary() operation to specify the middle layer of the model participating in ' \
@@ -113,6 +115,7 @@ class CoverageMetrics:
         for i in range(batches):
             inputs = train_dataset[i * self.batch_size: (i + 1) * self.batch_size]
             self._model.predict(Tensor(inputs))
+            time.sleep(0.01)
             layer_out = _get_summary_tensor_data()
             for layer, tensor in layer_out.items():
                 value = tensor.asnumpy()
@@ -224,6 +227,7 @@ class NeuronCoverage(CoverageMetrics):
         for i in range(batches):
             inputs = dataset[i * self.batch_size: (i + 1) * self.batch_size]
             self._model.predict(Tensor(inputs))
+            time.sleep(0.01)
             layer_out = _get_summary_tensor_data()
             for layer, tensor in layer_out.items():
                 value = tensor.asnumpy()
@@ -314,6 +318,7 @@ class TopKNeuronCoverage(CoverageMetrics):
         for i in range(batches):
             inputs = dataset[i * self.batch_size: (i + 1) * self.batch_size]
             self._model.predict(Tensor(inputs))
+            time.sleep(0.01)
             layer_out = _get_summary_tensor_data()
             for layer, tensor in layer_out.items():
                 value = tensor.asnumpy()
@@ -407,6 +412,7 @@ class SuperNeuronActivateCoverage(CoverageMetrics):
         for i in range(batches):
             inputs = dataset[i * self.batch_size: (i + 1) * self.batch_size]
             self._model.predict(Tensor(inputs))
+            time.sleep(0.01)
             layer_out = _get_summary_tensor_data()
             for layer, tensor in layer_out.items():
                 value = tensor.asnumpy()
@@ -499,6 +505,7 @@ class NeuronBoundsCoverage(SuperNeuronActivateCoverage):
         for i in range(batches):
             inputs = dataset[i * self.batch_size: (i + 1) * self.batch_size]
             self._model.predict(Tensor(inputs))
+            time.sleep(0.01)
             layer_out = _get_summary_tensor_data()
             for layer, tensor in layer_out.items():
                 value = tensor.asnumpy()
@@ -535,6 +542,7 @@ class KMultisectionNeuronCoverage(SuperNeuronActivateCoverage):
     def _init_k_multisection_table(self, data):
         """ Initial the activate table."""
         self._model.predict(Tensor(data))
+        time.sleep(0.01)
         layer_out = _get_summary_tensor_data()
         activate_section_table = defaultdict()
         for layer, value in layer_out.items():
@@ -606,6 +614,7 @@ class KMultisectionNeuronCoverage(SuperNeuronActivateCoverage):
         for i in range(batches):
             inputs = dataset[i * self.batch_size: (i + 1) * self.batch_size]
             self._model.predict(Tensor(inputs))
+            time.sleep(0.01)
             layer_out = _get_summary_tensor_data()
             for layer, tensor in layer_out.items():
                 value = tensor.asnumpy()
