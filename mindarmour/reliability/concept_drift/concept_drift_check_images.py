@@ -16,6 +16,7 @@ Out-of-Distribution detection module for images.
 """
 
 import heapq
+import time
 import numpy as np
 from sklearn.cluster import KMeans
 
@@ -55,6 +56,7 @@ class OodDetector:
             numpy.ndarray, the data feature extracted by a certain neural layer.
         """
         model.predict(Tensor(data))
+        time.sleep(0.01)
         layer_out = _get_summary_tensor_data()
         return layer_out[layer].asnumpy()
 

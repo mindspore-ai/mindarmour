@@ -14,6 +14,7 @@
 """
 Source code of SensitivityConvergenceCoverage class.
 """
+import time
 import numpy as np
 
 from mindspore import Tensor
@@ -120,6 +121,7 @@ class SensitivityConvergenceCoverage(CoverageMetrics):
         if not self.sensitive_neuron_idx:
             self._get_sensitive_neruon_idx(dataset)
         self._model.predict(Tensor(inputs))
+        time.sleep(0.01)
         layer_out = _get_summary_tensor_data()
 
         for layer, tensor in layer_out.items():
@@ -144,6 +146,7 @@ class SensitivityConvergenceCoverage(CoverageMetrics):
 
         inputs = check_numpy_param('dataset', dataset)
         self._model.predict(Tensor(inputs))
+        time.sleep(0.01)
         layer_out = _get_summary_tensor_data()
         for layer, tensor in layer_out.items():
             tensor = tensor.asnumpy().reshape(tensor.shape[0], -1)
