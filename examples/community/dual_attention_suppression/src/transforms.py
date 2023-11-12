@@ -493,12 +493,12 @@ def _data_aug(
 ):
     """Crop an image randomly with bounding box constraints.
 
-        This data augmentation is used in training of
-        Single Shot Multibox Detector [#]_. More details can be found in
-        data augmentation section of the original paper.
-        .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy,
-           Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
-           SSD: Single Shot MultiBox Detector. ECCV 2016."""
+    This data augmentation is used in training of
+    Single Shot Multibox Detector [#]_. More details can be found in
+    data augmentation section of the original paper.
+    .. [#] Wei Liu, Dragomir Anguelov, Dumitru Erhan, Christian Szegedy,
+       Scott Reed, Cheng-Yang Fu, Alexander C. Berg.
+       SSD: Single Shot MultiBox Detector. ECCV 2016."""
 
     if not isinstance(image, Image.Image):
         image = Image.fromarray(image)

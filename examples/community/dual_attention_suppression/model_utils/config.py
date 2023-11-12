@@ -43,8 +43,8 @@ class Config:
 
 
 def parse_cli_to_yaml(
-    parser, cfg, helper=None, choices=None, cfg_path="default_config.yaml"
-):
+        parser, cfg, helper=None, choices=None, cfg_path="default_config.yaml"
+    ):
     """
     Parse command line arguments to the configuration according to the default yaml.
 

@@ -150,88 +150,8 @@ class DetectionEngine:
         self.nms_thresh = config_detection.nms_thresh
         self.multi_label = config_detection.multi_label
         self.multi_label_thresh = config_detection.multi_label_thresh
-        self.coco_catIds = [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            13,
-            14,
-            15,
-            16,
-            17,
-            18,
-            19,
-            20,
-            21,
-            22,
-            23,
-            24,
-            25,
-            27,
-            28,
-            31,
-            32,
-            33,
-            34,
-            35,
-            36,
-            37,
-            38,
-            39,
-            40,
-            41,
-            42,
-            43,
-            44,
-            46,
-            47,
-            48,
-            49,
-            50,
-            51,
-            52,
-            53,
-            54,
-            55,
-            56,
-            57,
-            58,
-            59,
-            60,
-            61,
-            62,
-            63,
-            64,
-            65,
-            67,
-            70,
-            72,
-            73,
-            74,
-            75,
-            76,
-            77,
-            78,
-            79,
-            80,
-            81,
-            82,
-            84,
-            85,
-            86,
-            87,
-            88,
-            89,
-            90,
-        ]
+        self.coco_cat_ids = list(range(1, 91))
+
         with open("./car_dataset/annotation_labels.json", "r", encoding="utf-8") as f:
             content = json.load(f)
         self.content = content
@@ -436,7 +356,7 @@ class DetectionEngine:
                         hi = min(h[i], ori_h)
                         clsi = j
                         # transform catId to match coco
-                        coco_clsi = self.coco_catIds[clsi]
+                        coco_clsi = self.coco_cat_ids[clsi]
                         self.results[img_id][coco_clsi].append(
                             [x_lefti, y_lefti, wi, hi, confi]
                         )
@@ -464,7 +384,7 @@ class DetectionEngine:
                         wi = min(wi, ori_w)
                         hi = min(hi, ori_h)
                         # transform catId to match coco
-                        coco_clsi = self.coco_catIds[clsi]
+                        coco_clsi = self.coco_cat_ids[clsi]
                         self.results[img_id][coco_clsi].append(
                             [x_lefti, y_lefti, wi, hi, confi]
                         )

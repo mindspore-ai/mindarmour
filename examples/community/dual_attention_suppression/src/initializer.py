@@ -75,7 +75,7 @@ def calculate_gain(nonlinearity, param=None):
             negative_slope = param
         else:
             raise ValueError("negative_slope {} not a valid number".format(param))
-        return math.sqrt(2.0 / (1 + negative_slope ** 2))
+        return math.sqrt(2.0 / (1 + negative_slope**2))
 
     raise ValueError("Unsupported nonlinearity {}".format(nonlinearity))
 

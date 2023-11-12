@@ -32,17 +32,17 @@ from src.tiny import Tiny
 
 class YOLOv3Tiny(nn.Cell):
     """
-     YOLO Network.
+    YOLO Network.
 
-     Args:
-         backbone: Cell. Backbone Network.
+    Args:
+        backbone: Cell. Backbone Network.
 
-     Returns:
-         Tensor, output tensor.
+    Returns:
+        Tensor, output tensor.
 
-     Examples:
-         YOLOv3_Tiny(backbone)
-     """
+    Examples:
+        YOLOv3_Tiny(backbone)
+    """
 
     def __init__(self, backbone):
         super(YOLOv3Tiny, self).__init__()
@@ -68,19 +68,19 @@ class YOLOv3Tiny(nn.Cell):
 
 class DetectionBlock(nn.Cell):
     """
-     YOLO detection Network. It will finally output the detection result.
+    YOLO detection Network. It will finally output the detection result.
 
-     Args:
-         scale: Character.
-         config: Configuration.
-         is_training: Bool, Whether train or not, default True.
+    Args:
+        scale: Character.
+        config: Configuration.
+        is_training: Bool, Whether train or not, default True.
 
-     Returns:
-         Tuple, tuple of output tensor,(f1,f2,f3).
+    Returns:
+        Tuple, tuple of output tensor,(f1,f2,f3).
 
-     Examples:
-         DetectionBlock(scale='l',stride=32)
-     """
+    Examples:
+        DetectionBlock(scale='l',stride=32)
+    """
 
     def __init__(self, scale, config_db=config, is_training=True):
         super(DetectionBlock, self).__init__()

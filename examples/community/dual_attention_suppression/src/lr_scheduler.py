@@ -91,7 +91,7 @@ def warmup_cosine_annealing_lr(
     return np.array(lr_each_step).astype(np.float32)
 
 
-def warmup_cosine_annealing_lr_V2(
+def warmup_cosine_annealing_lr_v2(
     lr, steps_per_epoch, warmup_epochs, max_epoch, t_max, eta_min=0
 ):
     """Cosine annealing learning rate V2."""
@@ -101,9 +101,9 @@ def warmup_cosine_annealing_lr_V2(
     warmup_steps = int(warmup_epochs * steps_per_epoch)
 
     last_lr = 0
-    last_epoch_V1 = 0
+    last_epoch_v1 = 0
 
-    t_max_V2 = int(max_epoch * 1 / 3)
+    t_max_v2 = int(max_epoch * 1 / 3)
 
     lr_each_step = []
     for i in range(total_steps):
@@ -119,14 +119,14 @@ def warmup_cosine_annealing_lr_V2(
                     / 2
                 )
                 last_lr = lr
-                last_epoch_V1 = last_epoch
+                last_epoch_v1 = last_epoch
             else:
                 base_lr = last_lr
-                last_epoch = last_epoch - last_epoch_V1
+                last_epoch = last_epoch - last_epoch_v1
                 lr = (
                     eta_min
                     + (base_lr - eta_min)
-                    * (1.0 + math.cos(math.pi * last_epoch / t_max_V2))
+                    * (1.0 + math.cos(math.pi * last_epoch / t_max_v2))
                     / 2
                 )
 
@@ -193,7 +193,7 @@ def get_lr(args):
             args.eta_min,
         )
     elif args.lr_scheduler == "cosine_annealing_V2":
-        lr = warmup_cosine_annealing_lr_V2(
+        lr = warmup_cosine_annealing_lr_v2(
             args.lr,
             args.steps_per_epoch,
             args.warmup_epochs,

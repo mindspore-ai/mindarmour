@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ============================================================================
-
+"""main pipeline."""
 import os
 from PIL import Image
 import cv2
@@ -42,6 +42,7 @@ np.random.seed(2333)
 
 
 class GradCam(nn.Cell):
+    """Grad cam."""
     def __init__(self, model):
         super(GradCam, self).__init__()
 
@@ -68,9 +69,9 @@ class GradCam(nn.Cell):
             mean(weights[1][1], (2, 3)),
         )
 
-    def construct(self, input, in_shape):
+    def construct(self, model_input, in_shape):
 
-        fea1, fea2, weights1, weights2 = self.get_feature_and_weights(input, in_shape)
+        fea1, fea2, weights1, weights2 = self.get_feature_and_weights(model_input, in_shape)
 
         cam1 = (weights1.expand_dims(-1).expand_dims(-1) * fea1).squeeze().sum(0)
         cam2 = (weights2.expand_dims(-1).expand_dims(-1) * fea2).squeeze().sum(0)
@@ -81,20 +82,20 @@ class GradCam(nn.Cell):
         return [cam1, cam2]
 
 
-class Visual_CAM:
+class VisualCAM:
+    """Show grad cam image."""
     def __init__(self, model):
         self.grad_cam = GradCam(model=model)
         self.log_dir = "./"
 
     def __call__(self, img, img_shape):
         raw_img = img.asnumpy()[0].transpose((1, 2, 0))
-        input = img
-        cam_map = self.grad_cam(input, img_shape)
-        self.show_cam_on_image(raw_img, cam_map[0], id=0)
-        self.show_cam_on_image(raw_img, cam_map[1], id=1)
+        cam_map = self.grad_cam(img, img_shape)
+        self.show_cam_on_image(raw_img, cam_map[0], img_id=0)
+        self.show_cam_on_image(raw_img, cam_map[1], img_id=1)
 
-    def show_cam_on_image(self, img, map, id=0):
-        mask_np = map.asnumpy()
+    def show_cam_on_image(self, img, cam_map, img_id=0):
+        mask_np = cam_map.asnumpy()
 
         heatmap = cv2.applyColorMap(np.uint8(255 * mask_np), cv2.COLORMAP_JET)[
             :, :, ::-1
@@ -104,10 +105,10 @@ class Visual_CAM:
         cam_m = np.float32(img) + heatmap
         cam_m = cam_m / np.max(cam_m)
         Image.fromarray(np.uint8(255 * cam_m)).save(
-            os.path.join(self.log_dir, "test_cam_%d.jpg" % id)
+            os.path.join(self.log_dir, "test_cam_%d.jpg" % img_id)
         )
         Image.fromarray(np.uint8(255 * heatmap)).save(
-            os.path.join(self.log_dir, "cam_%d.jpg" % id)
+            os.path.join(self.log_dir, "cam_%d.jpg" % img_id)
         )
 
 

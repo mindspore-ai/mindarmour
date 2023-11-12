@@ -168,7 +168,7 @@ class COCOYoloDataset:
             for bbox, label in zip(bboxes, labels):
                 tmp = []
                 # convert to [x_min y_min x_max y_max]
-                bbox = self._convetTopDown(bbox)
+                bbox = self.convet_top_down(bbox)
                 tmp.extend(bbox)
                 tmp.append(int(label))
                 # tmp [x_min y_min x_max y_max, label]
@@ -233,7 +233,7 @@ class COCOYoloDataset:
         for bbox, label in zip(bboxes, labels):
             tmp = []
             # convert to [x_min y_min x_max y_max]
-            bbox = self._convetTopDown(bbox)
+            bbox = self.convet_top_down(bbox)
             tmp.extend(bbox)
             tmp.append(int(label))
             # tmp [x_min y_min x_max y_max, label]
@@ -244,7 +244,7 @@ class COCOYoloDataset:
     def __len__(self):
         return len(self.img_ids)
 
-    def _convetTopDown(self, bbox):
+    def convet_top_down(self, bbox):
         """convert top down"""
         x_min = bbox[0]
         y_min = bbox[1]

@@ -63,8 +63,8 @@ def sync_data(from_path, to_path):
 
     # Each server contains 8 devices as most.
     if get_device_id() % min(get_device_num(), 8) == 0 and not os.path.exists(
-        sync_lock
-    ):
+            sync_lock
+        ):
         print("from path: ", from_path)
         print("to path: ", to_path)
         mox.file.copy_parallel(from_path, to_path)
