@@ -131,7 +131,7 @@ def init_patch_square(patch_size):
 
 
 def patch_transform(pattern, data_shape, input_patch_shape):
-    """Transfrom adversarial patch for different samples."""
+    """Transform adversarial patch for different samples."""
     # get dummy image
     x = np.zeros(data_shape)
     # get shape
