@@ -230,7 +230,7 @@ class YOLOLossBlock(nn.Cell):
         self.giou = Giou()
         self.coord_scale = config.coord_scale
 
-    def construct(self, prediction, pred_xy, pred_wh, y_true, gt_box, input_shape):
+    def construct(self, prediction, pred_xy, pred_wh, y_true, gt_box):
         """
         prediction : origin output from yolo
         pred_xy: (sigmoid(xy)+grid)/grid_size
@@ -241,7 +241,6 @@ class YOLOLossBlock(nn.Cell):
         object_mask = y_true[:, :, :, :, 4:5]
         class_probs = y_true[:, :, :, :, 5:]
         true_boxes = y_true[:, :, :, :, :4]
-        test = input_shape
 
         pred_boxes = self.concat((pred_xy, pred_wh))
 
@@ -350,8 +349,8 @@ class YOLOWithLossCell(nn.Cell):
         input_shape = F.shape(x)[2:4]
         input_shape = F.cast(self.tenser_to_array(input_shape), ms.float32)
         yolo_out = self.yolo_network(x, input_shape)
-        loss_l = self.loss_big(*yolo_out[0], y_true_0, gt_0, input_shape)
-        loss_s = self.loss_small(*yolo_out[1], y_true_1, gt_1, input_shape)
+        loss_l = self.loss_big(*yolo_out[0], y_true_0, gt_0)
+        loss_s = self.loss_small(*yolo_out[1], y_true_1, gt_1)
         return loss_l * self.large_scale + loss_s
 
 
