@@ -241,6 +241,7 @@ class YOLOLossBlock(nn.Cell):
         object_mask = y_true[:, :, :, :, 4:5]
         class_probs = y_true[:, :, :, :, 5:]
         true_boxes = y_true[:, :, :, :, :4]
+        test = input_shape
 
         pred_boxes = self.concat((pred_xy, pred_wh))
 
@@ -369,9 +370,9 @@ class TrainingWrapper(nn.Cell):
         self.grad_reducer = None
         self.parallel_mode = context.get_auto_parallel_context("parallel_mode")
         if self.parallel_mode in [
-            ParallelMode.DATA_PARALLEL,
-            ParallelMode.HYBRID_PARALLEL,
-        ]:
+                ParallelMode.DATA_PARALLEL,
+                ParallelMode.HYBRID_PARALLEL,
+            ]:
             self.reducer_flag = True
         if self.reducer_flag:
             mean = context.get_auto_parallel_context("gradients_mean")

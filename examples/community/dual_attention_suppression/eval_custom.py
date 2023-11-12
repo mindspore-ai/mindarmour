@@ -26,7 +26,6 @@ import mindspore as ms
 from mindspore import Tensor
 from mindspore import context
 from mindspore import dtype as mstype
-from mindspore.context import ParallelMode
 from mindspore.dataset import GeneratorDataset
 import mindspore.dataset.vision as vision
 from model_utils.config import config
@@ -251,11 +250,11 @@ class DetectionEngine:
         try:
             self.file_path = self.save_prefix + "/predict" + t + ".json"
             with os.fdopen(
-                os.open(
-                    "testfile.txt", flags=os.O_WRONLY, modes=stat.S_IWUSR, mode=0o777
-                ),
-                "w",
-            ) as f:
+                    os.open(
+                        "testfile.txt", flags=os.O_WRONLY, modes=stat.S_IWUSR, mode=0o777
+                    ),
+                    "w",
+                ) as f:
                 json.dump(self.det_boxes, f)
         except IOError as e:
             raise RuntimeError(
@@ -373,8 +372,8 @@ class DetectionEngine:
                     confidence = cls_emb[flag] * conf
 
                     for x_lefti, y_lefti, wi, hi, confi, clsi in zip(
-                        x_top_left, y_top_left, w, h, confidence, cls_argmax
-                    ):
+                            x_top_left, y_top_left, w, h, confidence, cls_argmax
+                        ):
                         if confi < self.eval_ignore_threshold:
                             continue
                         if img_id not in self.results:
@@ -404,8 +403,8 @@ def modelarts_pre_process():
 
         s_time = time.time()
         if not os.path.exists(
-            os.path.join(save_dir, config.modelarts_dataset_unzip_name)
-        ):
+                os.path.join(save_dir, config.modelarts_dataset_unzip_name)
+            ):
             zip_isexist = zipfile.is_zipfile(zip_file)
             if zip_isexist:
                 fz = zipfile.ZipFile(zip_file, "r")
@@ -444,8 +443,8 @@ def modelarts_pre_process():
 
         # Each server contains 8 devices as most.
         if get_device_id() % min(get_device_num(), 8) == 0 and not os.path.exists(
-            sync_lock
-        ):
+                sync_lock
+            ):
             print("Zip file path: ", zip_file_1)
             print("Unzip file save dir: ", save_dir_1)
             unzip(zip_file_1, save_dir_1)
@@ -470,6 +469,7 @@ def modelarts_pre_process():
 
 
 def patch_transform(patch, data_shape, patch_shape):
+    """Transform adversarial patch."""
     # get dummy image
     x = np.zeros(data_shape)
     # get shape
@@ -508,6 +508,7 @@ def patch_transform(patch, data_shape, patch_shape):
 
 
 class Iterable:
+    """Iterable data."""
     def __init__(self, img_path):
         self.img_path = img_path
         self.imgs = os.listdir(img_path)
@@ -578,7 +579,7 @@ def run_test():
     input_shape = Tensor(tuple(config.test_img_shape), mstype.float32)
 
     config.logger.info("Start inference....")
-    for image_index, data in enumerate(dataset.create_dict_iterator()):
+    for data in dataset.create_dict_iterator():
         image = data["image"].asnumpy()
         image = Tensor(image)
         image_shape_ = input_shape

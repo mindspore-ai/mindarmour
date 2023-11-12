@@ -67,10 +67,10 @@ def calculate_gain(nonlinearity, param=None):
         if param is None:
             negative_slope = 0.01
         elif (
-            not isinstance(param, bool)
-            and isinstance(param, int)
-            or isinstance(param, float)
-        ):
+                not isinstance(param, bool)
+                and isinstance(param, int)
+                or isinstance(param, float)
+            ):
             # True/False are instances of int, hence check above
             negative_slope = param
         else:

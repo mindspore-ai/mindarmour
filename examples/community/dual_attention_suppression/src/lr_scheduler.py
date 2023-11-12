@@ -66,8 +66,8 @@ def step_lr(lr, epoch_size, steps_per_epoch, max_epoch, gamma=0.1):
 
 
 def warmup_cosine_annealing_lr(
-    lr, steps_per_epoch, warmup_epochs, max_epoch, t_max, eta_min=0
-):
+        lr, steps_per_epoch, warmup_epochs, max_epoch, t_max, eta_min=0
+    ):
     """Cosine annealing learning rate."""
     base_lr = lr
     warmup_init_lr = 0
@@ -92,8 +92,8 @@ def warmup_cosine_annealing_lr(
 
 
 def warmup_cosine_annealing_lr_v2(
-    lr, steps_per_epoch, warmup_epochs, max_epoch, t_max, eta_min=0
-):
+        lr, steps_per_epoch, warmup_epochs, max_epoch, t_max, eta_min=0
+    ):
     """Cosine annealing learning rate V2."""
     base_lr = lr
     warmup_init_lr = 0
@@ -135,8 +135,8 @@ def warmup_cosine_annealing_lr_v2(
 
 
 def warmup_cosine_annealing_lr_sample(
-    lr, steps_per_epoch, warmup_epochs, max_epoch, t_max, eta_min=0
-):
+        lr, steps_per_epoch, warmup_epochs, max_epoch, t_max, eta_min=0
+    ):
     """Warmup cosine annealing learning rate."""
     start_sample_epoch = 60
     step_sample = 2

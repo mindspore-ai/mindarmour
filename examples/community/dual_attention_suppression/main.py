@@ -70,7 +70,7 @@ class GradCam(nn.Cell):
         )
 
     def construct(self, model_input, in_shape):
-
+        """Calculate grad cam."""
         fea1, fea2, weights1, weights2 = self.get_feature_and_weights(model_input, in_shape)
 
         cam1 = (weights1.expand_dims(-1).expand_dims(-1) * fea1).squeeze().sum(0)
@@ -95,6 +95,7 @@ class VisualCAM:
         self.show_cam_on_image(raw_img, cam_map[1], img_id=1)
 
     def show_cam_on_image(self, img, cam_map, img_id=0):
+        """Show image grad cam."""
         mask_np = cam_map.asnumpy()
 
         heatmap = cv2.applyColorMap(np.uint8(255 * mask_np), cv2.COLORMAP_JET)[
@@ -129,18 +130,19 @@ def init_patch_square(patch_size):
     return patch_ini, patch_ini.shape
 
 
-def patch_transform(pattern, data_shape, patch_shape):
+def patch_transform(pattern, data_shape, input_patch_shape):
+    """Transfrom adversarial patch for different samples."""
     # get dummy image
     x = np.zeros(data_shape)
     # get shape
-    m_size = patch_shape[-1]
+    m_size = input_patch_shape[-1]
 
     for i in range(x.shape[0]):
 
         # random rotation
         rot = np.random.choice(4)
-        for j in range(pattern[i].shape[0]):
-            pattern[i][j] = np.rot90(pattern[i][j], rot)
+        for j_idx in range(pattern[i].shape[0]):
+            pattern[i][j_idx] = np.rot90(pattern[i][j_idx], rot)
         # random location
         random_x = np.random.choice(x.shape[-2])
         if random_x + m_size > x.shape[-2]:
@@ -153,13 +155,13 @@ def patch_transform(pattern, data_shape, patch_shape):
 
         # apply patch to dummy image
         x[i][0][
-            random_x : random_x + patch_shape[-1], random_y : random_y + patch_shape[-1]
+            random_x : random_x + input_patch_shape[-1], random_y : random_y + input_patch_shape[-1]
         ] = pattern[i][0]
         x[i][1][
-            random_x : random_x + patch_shape[-1], random_y : random_y + patch_shape[-1]
+            random_x : random_x + input_patch_shape[-1], random_y : random_y + input_patch_shape[-1]
         ] = pattern[i][1]
         x[i][2][
-            random_x : random_x + patch_shape[-1], random_y : random_y + patch_shape[-1]
+            random_x : random_x + input_patch_shape[-1], random_y : random_y + input_patch_shape[-1]
         ] = pattern[i][2]
 
     masks = np.copy(x)
@@ -197,10 +199,10 @@ def loss_sum(img, img_ori, m, canny):
     )
 
 
-def attack(x, model, adv_patch, mask, iters=25):
-
+def attack(x, adv_patch, input_mask, iters=25):
+    """Generate attack sample."""
     adv_x = x
-    adv_x = ms.ops.mul((1 - mask), adv_x) + ms.ops.mul(mask, adv_patch)
+    adv_x = ms.ops.mul((1 - input_mask), adv_x) + ms.ops.mul(input_mask, adv_patch)
     adv_x = ms.ops.clip_by_value(adv_x, 0, 1)
     adv_x_np = np.uint8(255 * adv_x.asnumpy()[0].transpose((1, 2, 0)))
     cv2.imwrite("adv_x.png", adv_x_np)
@@ -213,11 +215,11 @@ def attack(x, model, adv_patch, mask, iters=25):
     while True:
         count += 1
         grad_fn = ms.ops.value_and_grad(loss_sum)
-        loss, adv_grad = grad_fn(adv_x, adv_x_ori, mask, canny)
+        loss, adv_grad = grad_fn(adv_x, adv_x_ori, input_mask, canny)
         print("Loss:", loss)
 
         adv_patch = adv_patch - STEP_SIZE * adv_grad / adv_grad.max()
-        adv_x = ms.ops.mul((1 - mask), adv_x) + ms.ops.mul(mask, adv_patch)
+        adv_x = ms.ops.mul((1 - input_mask), adv_x) + ms.ops.mul(input_mask, adv_patch)
         adv_x = ms.ops.clip_by_value(adv_x, 0, 1)
 
         if count >= iters:
@@ -225,10 +227,11 @@ def attack(x, model, adv_patch, mask, iters=25):
 
         adv_x = ms.Parameter(Tensor(adv_x.asnumpy(), ms.float32), requires_grad=True)
 
-    return adv_x, mask, adv_patch
+    return adv_x, input_mask, adv_patch
 
 
 class Iterable:
+    """Iterable dataset."""
     def __init__(self, img_path):
         self.img_path = img_path
         self.imgs = os.listdir(img_path)
@@ -275,7 +278,7 @@ if __name__ == "__main__":
             patch, mask = patch_transform(patch, img_data[0].shape, patch_shape)
             patch, mask = Tensor(patch), Tensor(mask)
             x_adv, mask, patch = attack(
-                img_data[0], network, patch, mask, iters=ATTACK_ITERS
+                img_data[0], patch, mask, iters=ATTACK_ITERS
             )
             masked_patch = ms.ops.mul(mask, patch)
             patch_ori = masked_patch.asnumpy()

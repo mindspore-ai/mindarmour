@@ -132,15 +132,15 @@ def pil_image_reshape(interp):
 
 
 def _preprocess_true_boxes(
-    true_boxes,
-    anchors,
-    in_shape,
-    num_classes,
-    max_boxes,
-    label_smooth,
-    label_smooth_factor=0.1,
-    iou_threshold=0.213,
-):
+        true_boxes,
+        anchors,
+        in_shape,
+        num_classes,
+        max_boxes,
+        label_smooth,
+        label_smooth_factor=0.1,
+        iou_threshold=0.213,
+    ):
     """
     Introduction
     ------------
@@ -362,8 +362,8 @@ def _is_iou_satisfied_constraint(min_iou, max_iou, box, crop_box):
 
 
 def _choose_candidate_by_constraints(
-    max_trial, input_w, input_h, image_w, image_h, jitter, box, use_constraints
-):
+        max_trial, input_w, input_h, image_w, image_h, jitter, box, use_constraints
+    ):
     """Choose candidate by constraints."""
     if use_constraints:
         constraints = (
@@ -410,8 +410,8 @@ def _choose_candidate_by_constraints(
 
                 crop_box = np.array((0, 0, input_w, input_h))
                 if not _is_iou_satisfied_constraint(
-                    min_iou, max_iou, t_box, crop_box[np.newaxis]
-                ):
+                        min_iou, max_iou, t_box, crop_box[np.newaxis]
+                    ):
                     continue
                 else:
                     candidates.append((dx, dy, nw, nh))
@@ -421,17 +421,17 @@ def _choose_candidate_by_constraints(
 
 
 def _correct_bbox_by_candidates(
-    candidates,
-    input_w,
-    input_h,
-    image_w,
-    image_h,
-    flip,
-    box,
-    box_data,
-    allow_outside_center,
-    max_boxes,
-):
+        candidates,
+        input_w,
+        input_h,
+        image_w,
+        image_h,
+        flip,
+        box,
+        box_data,
+        allow_outside_center,
+        max_boxes,
+    ):
     """Calculate correct boxes."""
     while candidates:
         if len(candidates) > 1:
@@ -480,17 +480,17 @@ def _correct_bbox_by_candidates(
 
 
 def _data_aug(
-    image,
-    box,
-    jitter,
-    hue,
-    sat,
-    val,
-    image_input_size,
-    max_boxes,
-    max_trial=10,
-    device_num=1,
-):
+        image,
+        box,
+        jitter,
+        hue,
+        sat,
+        val,
+        image_input_size,
+        max_boxes,
+        max_trial=10,
+        device_num=1,
+    ):
     """Crop an image randomly with bounding box constraints.
 
     This data augmentation is used in training of
@@ -600,8 +600,8 @@ class MultiScaleTrans:
         self.label_smooth_factor = config.label_smooth_factor
 
     def generate_seed_list(
-        self, init_seed=1234, seed_num=int(1e6), seed_range=(1, 1000)
-    ):
+            self, init_seed=1234, seed_num=int(1e6), seed_range=(1, 1000)
+        ):
         """Generate seed list"""
         seed_list = []
         random.seed(init_seed)

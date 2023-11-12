@@ -64,14 +64,14 @@ class COCOYoloDataset:
     """YOLO Dataset for COCO."""
 
     def __init__(
-        self,
-        root,
-        ann_file,
-        input_size,
-        remove_images_without_annotations=True,
-        filter_crowd_anno=True,
-        is_training=True,
-    ):
+            self,
+            root,
+            ann_file,
+            input_size,
+            remove_images_without_annotations=True,
+            filter_crowd_anno=True,
+            is_training=True,
+        ):
         self.coco = COCO(ann_file)
         self.root = root
         self.img_ids = list(sorted(self.coco.imgs.keys()))
@@ -254,17 +254,17 @@ class COCOYoloDataset:
 
 
 def create_yolo_dataset(
-    image_dir,
-    anno_path,
-    batch_size,
-    max_epoch,
-    device_num,
-    rank,
-    num_parallel_workers=8,
-    config=None,
-    is_training=True,
-    shuffle=True,
-):
+        image_dir,
+        anno_path,
+        batch_size,
+        max_epoch,
+        device_num,
+        rank,
+        num_parallel_workers=8,
+        config=None,
+        is_training=True,
+        shuffle=True,
+    ):
     """Create dataset for YOLO."""
     cv2.setNumThreads(0)
     if config.is_distributed:

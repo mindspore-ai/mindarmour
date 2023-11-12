@@ -31,6 +31,7 @@ if not os.path.exists(save_dir):
 
 
 def convert(xml_list, json_file):
+    """Convert."""
     json_dict = {"images": [], "type": "instances", "annotations": [], "categories": []}
     categories = define_categories.copy()
     bnd_id = 1
@@ -84,8 +85,8 @@ def convert(xml_list, json_file):
         cat = {"supercategory": "none", "id": cid, "name": cate_name}
         json_dict["categories"].append(cat)
     with os.fdopen(
-        os.open(json_file, flags=os.O_WRONLY, modes=stat.S_IWUSR, mode=0o777), "w"
-    ) as json_fp:
+            os.open(json_file, flags=os.O_WRONLY, modes=stat.S_IWUSR, mode=0o777), "w"
+        ) as json_fp:
         json_str = json.dumps(json_dict)
         json_fp.write(json_str)
     print("------------create {} done--------------".format(json_file))
