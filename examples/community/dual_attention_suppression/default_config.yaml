@@ -8,7 +8,7 @@ checkpoint_url: ""
 data_path: "/cache/data"
 output_path: "/cache/train"
 load_path: "yolov3tiny_ascend_v190_coco2017_research_cv_mAP17.5_AP50acc36.0.ckpt"
-device_target: "CPU" # ['Ascend', 'GPU']
+device_target: "GPU" # ['Ascend', 'GPU']
 need_modelarts_dataset_unzip: True
 modelarts_dataset_unzip_name: "coco2017"
 
