@@ -14,25 +14,22 @@
 # ============================================================================
 """main pipeline."""
 import os
-from PIL import Image
+
 import cv2
 import numpy as np
-
 import mindspore as ms
-import mindspore.nn as nn
-from mindspore import load_checkpoint, load_param_into_net
-from mindspore import context
-from mindspore import Tensor
+from mindspore import Tensor, context
 from mindspore import dtype as mstype
-from mindspore.dataset import GeneratorDataset
-import mindspore.dataset.vision as vision
+from mindspore import load_checkpoint, load_param_into_net, nn
+from mindspore.dataset import GeneratorDataset, vision
+from PIL import Image
 
+from eval_custom import Iterable
 from src.yolo import YOLOv3
-
 
 context.set_context(mode=0, device_target="CPU", device_id=0)
 
-TRAIN_DATA_PATH = "./car_dataset/train/images"
+TRAIN_DATA_PATH = "./coco_val_2017/val2017"
 PATCH_SIZE = 100
 EPOCH = 2
 STEP_SIZE = 0.1
@@ -71,10 +68,13 @@ class GradCam(nn.Cell):
 
     def construct(self, model_input, in_shape):
         """Calculate grad cam."""
-        fea1, fea2, weights1, weights2 = self.get_feature_and_weights(model_input, in_shape)
+        fea1, fea2, weights1, weights2 = self.get_feature_and_weights(
+            model_input, in_shape)
 
-        cam1 = (weights1.expand_dims(-1).expand_dims(-1) * fea1).squeeze().sum(0)
-        cam2 = (weights2.expand_dims(-1).expand_dims(-1) * fea2).squeeze().sum(0)
+        cam1 = (weights1.expand_dims(-1).expand_dims(-1) *
+                fea1).squeeze().sum(0)
+        cam2 = (weights2.expand_dims(-1).expand_dims(-1) *
+                fea2).squeeze().sum(0)
 
         cam1 = cam1 * (cam1 > 0) / cam1.max()
         cam2 = cam2 * (cam2 > 0) / cam2.max()
@@ -98,33 +98,28 @@ class VisualCAM:
         """Show image grad cam."""
         mask_np = cam_map.asnumpy()
 
-        heatmap = cv2.applyColorMap(np.uint8(255 * mask_np), cv2.COLORMAP_JET)[
-            :, :, ::-1
-        ]
+        heatmap = cv2.applyColorMap(np.uint8(255 * mask_np),
+                                    cv2.COLORMAP_JET)[:, :, ::-1]
         heatmap = cv2.resize(heatmap, (img.shape[1], img.shape[0]))
         heatmap = np.float32(heatmap) / 255
         cam_m = np.float32(img) + heatmap
         cam_m = cam_m / np.max(cam_m)
         Image.fromarray(np.uint8(255 * cam_m)).save(
-            os.path.join(self.log_dir, "test_cam_%d.jpg" % img_id)
-        )
+            os.path.join(self.log_dir, "test_cam_%d.jpg" % img_id))
         Image.fromarray(np.uint8(255 * heatmap)).save(
-            os.path.join(self.log_dir, "cam_%d.jpg" % img_id)
-        )
+            os.path.join(self.log_dir, "cam_%d.jpg" % img_id))
 
 
 def submatrix(arr):
     x, y = np.nonzero(arr)
-    return arr[x.min() : x.max() + 1, y.min() : y.max() + 1]
+    return arr[x.min():x.max() + 1, y.min():y.max() + 1]
 
 
 def init_patch_square(patch_size):
     patch_ini = np.expand_dims(
         vision.ToTensor()(
-            Image.open("./patch_seed/cat.png")
-            .convert("RGB")
-            .resize((patch_size, patch_size))
-        ),
+            Image.open("./patch_seed/cat.png").convert("RGB").resize(
+                (patch_size, patch_size))),
         0,
     )
     return patch_ini, patch_ini.shape
@@ -154,15 +149,12 @@ def patch_transform(pattern, data_shape, input_patch_shape):
                 random_y = np.random.choice(x.shape[-1])
 
         # apply patch to dummy image
-        x[i][0][
-            random_x : random_x + input_patch_shape[-1], random_y : random_y + input_patch_shape[-1]
-        ] = pattern[i][0]
-        x[i][1][
-            random_x : random_x + input_patch_shape[-1], random_y : random_y + input_patch_shape[-1]
-        ] = pattern[i][1]
-        x[i][2][
-            random_x : random_x + input_patch_shape[-1], random_y : random_y + input_patch_shape[-1]
-        ] = pattern[i][2]
+        x[i][0][random_x:random_x + input_patch_shape[-1],
+                random_y:random_y + input_patch_shape[-1]] = pattern[i][0]
+        x[i][1][random_x:random_x + input_patch_shape[-1],
+                random_y:random_y + input_patch_shape[-1]] = pattern[i][1]
+        x[i][2][random_x:random_x + input_patch_shape[-1],
+                random_y:random_y + input_patch_shape[-1]] = pattern[i][2]
 
     masks = np.copy(x)
     masks[masks != 0] = 1.0
@@ -171,9 +163,10 @@ def patch_transform(pattern, data_shape, input_patch_shape):
 
 def loss_graph(img):
     cam1, cam2 = cam(img, input_shape)
-    loss = cam1.sum() / (
-        (cam1.shape[0] * cam1.shape[1]) - (cam1 > 0).sum()
-    ) + cam2.sum() / ((cam2.shape[0] * cam2.shape[1]) - (cam2 > 0).sum())
+    loss = cam1.sum() / ((cam1.shape[0] * cam1.shape[1]) -
+                         (cam1 > 0).sum()) + cam2.sum() / (
+                             (cam2.shape[0] * cam2.shape[1]) -
+                             (cam2 > 0).sum())
     return loss
 
 
@@ -185,31 +178,29 @@ def loss_smooth(img, matrix):
 
 
 def loss_content(img, img_ori, canny):
-    return (
-        0.9 * (canny * ms.ops.pow(img - img_ori, 2)).sum()
-        + 0.1 * ((1 - canny) * ms.ops.pow(img - img_ori, 2)).sum()
-    )
+    return (0.9 * (canny * ms.ops.pow(img - img_ori, 2)).sum() + 0.1 *
+            ((1 - canny) * ms.ops.pow(img - img_ori, 2)).sum())
 
 
 def loss_sum(img, img_ori, m, canny):
-    return (
-        loss_graph(img)
-        + 0.0001 * loss_smooth(img, m)
-        + 0.0001 * loss_content(img, img_ori, canny)
-    )
+    return (loss_graph(img) + 0.0001 * loss_smooth(img, m) +
+            0.0001 * loss_content(img, img_ori, canny))
 
 
 def attack(x, adv_patch, input_mask, iters=25):
     """Generate attack sample."""
     adv_x = x
-    adv_x = ms.ops.mul((1 - input_mask), adv_x) + ms.ops.mul(input_mask, adv_patch)
+    adv_x = ms.ops.mul(
+        (1 - input_mask), adv_x) + ms.ops.mul(input_mask, adv_patch)
     adv_x = ms.ops.clip_by_value(adv_x, 0, 1)
     adv_x_np = np.uint8(255 * adv_x.asnumpy()[0].transpose((1, 2, 0)))
     cv2.imwrite("adv_x.png", adv_x_np)
     canny = Tensor(cv2.Canny(adv_x_np, 128, 200)) >= 1
 
-    adv_x = ms.Parameter(Tensor(adv_x.asnumpy(), ms.float32), requires_grad=True)
-    adv_x_ori = ms.Parameter(Tensor(adv_x.asnumpy(), ms.float32), requires_grad=True)
+    adv_x = ms.Parameter(Tensor(adv_x.asnumpy(), ms.float32),
+                         requires_grad=True)
+    adv_x_ori = ms.Parameter(Tensor(adv_x.asnumpy(), ms.float32),
+                             requires_grad=True)
     count = 0
 
     while True:
@@ -219,36 +210,24 @@ def attack(x, adv_patch, input_mask, iters=25):
         print("Loss:", loss)
 
         adv_patch = adv_patch - STEP_SIZE * adv_grad / adv_grad.max()
-        adv_x = ms.ops.mul((1 - input_mask), adv_x) + ms.ops.mul(input_mask, adv_patch)
+        adv_x = ms.ops.mul(
+            (1 - input_mask), adv_x) + ms.ops.mul(input_mask, adv_patch)
         adv_x = ms.ops.clip_by_value(adv_x, 0, 1)
 
         if count >= iters:
             break
 
-        adv_x = ms.Parameter(Tensor(adv_x.asnumpy(), ms.float32), requires_grad=True)
+        adv_x = ms.Parameter(Tensor(adv_x.asnumpy(), ms.float32),
+                             requires_grad=True)
 
     return adv_x, input_mask, adv_patch
-
-
-class Iterable:
-    """Iterable dataset."""
-    def __init__(self, img_path):
-        self.img_path = img_path
-        self.imgs = os.listdir(img_path)
-
-    def __getitem__(self, index):
-        return vision.ToTensor()(
-            Image.open(os.path.join(self.img_path, self.imgs[index])).convert("RGB")
-        )
-
-    def __len__(self):
-        return len(self.imgs)
 
 
 if __name__ == "__main__":
 
     data = Iterable(TRAIN_DATA_PATH)
-    dataset = GeneratorDataset(source=data, column_names=["data"])
+    dataset = GeneratorDataset(
+        source=data, column_names=["image", "image_id", "image_shape"])
     dataset = dataset.batch(batch_size=1)
 
     network = YOLOv3(is_training=False)
@@ -272,14 +251,15 @@ if __name__ == "__main__":
     patch, patch_shape = init_patch_square(patch_size=PATCH_SIZE)
     for e in range(EPOCH):
         for idx, img_data in enumerate(dataset.create_tuple_iterator()):
-            input_shape = Tensor(
-                (img_data[0].shape[2], img_data[0].shape[3]), mstype.float32
-            )
-            patch, mask = patch_transform(patch, img_data[0].shape, patch_shape)
+            input_shape = Tensor((img_data[0].shape[2], img_data[0].shape[3]),
+                                 mstype.float32)
+            patch, mask = patch_transform(patch, img_data[0].shape,
+                                          patch_shape)
             patch, mask = Tensor(patch), Tensor(mask)
-            x_adv, mask, patch = attack(
-                img_data[0], patch, mask, iters=ATTACK_ITERS
-            )
+            x_adv, mask, patch = attack(img_data[0],
+                                        patch,
+                                        mask,
+                                        iters=ATTACK_ITERS)
             masked_patch = ms.ops.mul(mask, patch)
             patch_ori = masked_patch.asnumpy()
             new_patch = np.zeros(patch_shape)
@@ -287,5 +267,12 @@ if __name__ == "__main__":
                 for k in range(new_patch.shape[1]):
                     new_patch[j][k] = submatrix(patch_ori[j][k])
             patch = new_patch
+
+            if not idx % 10:
+                ms.ms_memory_recycle()
+
+            image = x_adv.asnumpy()
+            Image.fromarray(np.uint8(image[0].transpose(1, 2, 0) *
+                                     255)).save('adv_img.png')
 
     np.save("patch.npy", patch)

@@ -25,14 +25,14 @@ Dual Attention Suppression Attack (DAS) 是一种物理世界对抗样本生成�
 
 # 数据集
 
-使用了1000张基于CARLA仿真环境生成的车辆图像数据集，其中800张用于训练，200张用于测试。数据[下载](https://openi.pcl.ac.cn/Yzx835/dual_attention_suppression/datasets)后保存在car_dataset 文件夹中。
+使用COCO验证集作为训练和测试数据。[COCO数据集](https://cocodataset.org/)下载后保存在`coco_val_2017`文件夹中。
 目录结构如下：
 
 ```shell
 .
-├── annotation_labels.json  # 标注jsons
-├── train                   # 训练数据集
-└── test                    # 推理数据集
+├── coco_val_2017
+│   ├── annotations       # coco标注
+│   └── val2017           # coco2017验证集标注
 ```
 
 # 模型
@@ -169,7 +169,7 @@ Loss: 0.0473822300475272
 关键参数设置
 
 ```python
-TRAIN_DATA_PATH = './car_dataset/train/images'
+TRAIN_DATA_PATH = "./coco_val_2017/val2017"
 PATCH_SIZE = 100
 EPOCH = 2
 STEP_SIZE = 0.1
