@@ -81,9 +81,6 @@ class DetectionEngine:
         self.results = {}
         self.file_path = ''
         self.save_prefix = config_detection.outputs_dir
-        #self.ann_file = config_detection.ann_file
-        #self._coco = COCO(self.ann_file)
-        #self._img_ids = list(sorted(self._coco.imgs.keys()))
         self.det_boxes = []
         self.nms_thresh = config_detection.nms_thresh
         self.multi_label = config_detection.multi_label
@@ -433,7 +430,6 @@ def _reshape_data(image, image_size):
 
 def statistic_normalize_img(img, statistic_norm):
     """Statistic normalize images."""
-    # img: RGB
     if isinstance(img, Image.Image):
         img = np.array(img)
     img = img / 255.
@@ -515,16 +511,9 @@ class Iterable:
     def __getitem__(self, index):
         img = Image.open(os.path.join(self.img_path,
                                       self.imgs[index])).convert('RGB')
-        # img = vision.ToTensor()(vision.Normalize(mean=self.mean, std=self.std)(img))
-
         img, ori_image_shape = _reshape_data(img, image_size=(640, 640))
-
-        # print(img)
-
         img = vision.HWC2CHW()(img)
-
         img_id = int(self.imgs[index].split('.')[0])
-        # print(img.shape)
         return img, img_id, ori_image_shape
 
     def __len__(self):
@@ -537,8 +526,6 @@ def run_test():
     start_time = time.time()
 
     config.data_root = "./coco_val_2017/val2017"
-    #config.ann_file = os.path.join(config.data_dir, 'annotations/instances_val2017.json')
-
     device_id = 0
     context.set_context(mode=context.GRAPH_MODE,
                         device_target=config.device_target,
@@ -576,8 +563,6 @@ def run_test():
         exit(1)
 
     data_root = config.data_root
-    #ann_file = config.ann_file
-
     data = Iterable(data_root)
     dataset = GeneratorDataset(
         source=data, column_names=["image", "image_id", "image_shape"])
