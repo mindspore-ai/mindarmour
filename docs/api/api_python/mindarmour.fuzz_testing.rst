@@ -131,6 +131,7 @@ mindarmour.fuzz_testing
         - **batch_size** (int) - 模糊测试批次中的样本数。默认值：``32``。
     
     .. py:method:: get_metrics(dataset)
+        :abstractmethod:
 
         计算给定数据集的覆盖率指标。
 
