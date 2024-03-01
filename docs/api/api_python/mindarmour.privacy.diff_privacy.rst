@@ -82,6 +82,7 @@ mindarmour.privacy.diff_privacy
     详情请查看： `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_。
 
     .. py:method:: create(mech_name, norm_bound=1.0, initial_noise_multiplier=1.0, seed=0, noise_decay_rate=6e-6, decay_policy=None)
+        :abstractmethod:
 
         参数：
             - **mech_name** (str) - 噪声生成策略，可以是 ``'Gaussian'`` 或 ``'AdaGaussian'``。噪声在 ``'AdaGaussian'`` 机制下衰减，而在 ``'Gaussian'`` 机制下则恒定。
@@ -104,6 +105,7 @@ mindarmour.privacy.diff_privacy
     详情请查看： `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_。
 
     .. py:method:: create(mech_name, decay_policy='Linear', learning_rate=0.001, target_unclipped_quantile=0.9, fraction_stddev=0.01, seed=0)
+        :abstractmethod:
 
         参数：
             - **mech_name** (str) - 噪声裁剪生成策略，现支持 ``'Gaussian'``。
@@ -119,8 +121,6 @@ mindarmour.privacy.diff_privacy
         异常：
             - **NameError** - `mech_name` 必须为 ``'Gaussian'``。
 
-        
-
 .. py:class:: mindarmour.privacy.diff_privacy.PrivacyMonitorFactory
 
     DP训练隐私监视器的工厂类。
@@ -128,6 +128,7 @@ mindarmour.privacy.diff_privacy
     详情请查看： `教程 <https://mindspore.cn/mindarmour/docs/zh-CN/master/protect_user_privacy_with_differential_privacy.html#%E5%B7%AE%E5%88%86%E9%9A%90%E7%A7%81>`_。
 
     .. py:method:: create(policy, *args, **kwargs)
+        :abstractmethod:
 
         创建隐私预算监测类。
 

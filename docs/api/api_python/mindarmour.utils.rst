@@ -41,6 +41,7 @@ MindArmour的工具方法。
             - **args** (Any) - 辅助值。
 
     .. py:method:: get_instance()
+        :abstractmethod:
 
         获取类 `LogUtil` 的实例。
 

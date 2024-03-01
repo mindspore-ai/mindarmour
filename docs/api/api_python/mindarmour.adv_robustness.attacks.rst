@@ -115,6 +115,7 @@ mindarmour.adv_robustness.attacks
         - **loss_fn** (Union[Loss, None]) - 用于优化的损失函数。如果为 ``None``，则输入网络已配备损失函数。默认值：``None``。
 
     .. py:method:: generate(inputs, labels)
+        :abstractmethod:
 
         根据输入样本和原始/目标标签生成对抗样本。
 
