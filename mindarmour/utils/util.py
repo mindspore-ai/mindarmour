@@ -431,3 +431,69 @@ def compute_ssim(image1, image2):
     pad = (win_size - 1) // 2
     mean_ssim = _crop(s, pad).mean()
     return mean_ssim
+
+
+def compute_psnr(image_true, image_test, data_range=None):
+    """
+    Compute the peak signal to noise ratio (PSNR) for an image.
+
+    Args:
+        image_true : ndarray
+            Ground-truth image, same shape as im_test.
+        image_test : ndarray
+            Test image.
+        data_range : int, optional
+            The data range of the input image (distance between minimum and
+            maximum possible values).  By default, this is estimated from the
+            image data-type.
+
+    Returns
+        psnr : float
+            The PSNR metric.
+    References
+    ----------
+    .. [1] https://en.wikipedia.org/wiki/Peak_signal-to-noise_ratio
+
+    """
+    dtype_range = {
+        bool: (False, True),
+        np.bool_: (False, True),
+        float: (-1, 1),
+        np.float16: (-1, 1),
+        np.float32: (-1, 1),
+        np.float64: (-1, 1),
+    }
+    image1 = image_true.astype(np.float64)
+    image2 = image_test.astype(np.float64)
+    if not image1.shape == image2.shape:
+        msg = 'Input images must have the same dimensions, but got ' \
+              'image1.shape: {} and image2.shape: {}' \
+            .format(image1.shape, image2.shape)
+        LOGGER.error(TAG, msg)
+        raise ValueError(msg)
+
+    if data_range is None:
+        dmin, dmax = dtype_range.get(image1.dtype.type, [None, None])
+        if dmin is None or dmax is None:
+            msg = 'Input image dtype error, the type should in {} ' \
+                    .format(list(dtype_range.keys()))
+            LOGGER.error(TAG, msg)
+            raise ValueError(msg)
+
+        true_min, true_max = np.min(image1), np.max(image2)
+        if true_max > dmax or true_min < dmin:
+            msg = 'image_true has intensity values outside the range expected' \
+                   'for its data type. Please manually specify the data_range.'
+            LOGGER.error(TAG, msg)
+            raise ValueError(msg)
+
+        if true_min >= 0:
+            # most common case (255 for uint8, 1 for float)
+            data_range = dmax
+        else:
+            data_range = dmax - dmin
+
+    err = np.mean((image1 - image2)**2, dtype=np.float64)
+    if err != 0:
+        return 10 * np.log10((data_range**2) / err)
+    return float('inf')
