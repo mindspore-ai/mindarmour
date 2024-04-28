@@ -18,5 +18,5 @@ given model.
 
 from .membership_inference import MembershipInference
 from .inversion_attack import ImageInversionAttack
-
-__all__ = ['MembershipInference', 'ImageInversionAttack']
+from .model_inversion_attack import ModelInversionAttack
+__all__ = ['MembershipInference', 'ImageInversionAttack', 'ModelInversionAttack']
