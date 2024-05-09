@@ -30,6 +30,7 @@ from .privacy.sup_privacy.train.model import SuppressModel
 from .privacy.sup_privacy.mask_monitor.masker import SuppressMasker
 from .privacy.evaluation.inversion_attack import ImageInversionAttack
 from .privacy.evaluation.model_inversion_attack import ModelInversionAttack
+from .privacy.evaluation.shadow_model_attack import ShadowModelAttack
 from .reliability.concept_drift.concept_drift_check_time_series import ConceptDriftCheckTimeSeries
 
 __all__ = ['Attack',
@@ -44,6 +45,7 @@ __all__ = ['Attack',
            'SuppressMasker',
            'ImageInversionAttack',
            'ModelInversionAttack',
+           'ShadowModelAttack',
            'ConceptDriftCheckTimeSeries']
 
 
