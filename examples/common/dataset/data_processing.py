@@ -125,12 +125,14 @@ def create_dataset_imagenet(path, batch_size=32, repeat_size=20, status="train",
            'learning_rate': 0.002,
            'momentum': 0.9,
            'epoch_size': 30,
-           'batch_size': 32,
+           'batch_size': batch_size,
            'buffer_size': 1000,
            'image_height': 224,
            'image_width': 224,
            'save_checkpoint_steps': 1562,
-           'keep_checkpoint_max': 10}
+           'keep_checkpoint_max': 10,
+           'device': target,
+           'status': status}
     resize_op = CV.Resize((cfg['image_height'], cfg['image_width']))
     rescale_op = CV.Rescale(rescale, shift)
     normalize_op = CV.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
@@ -155,7 +157,7 @@ def create_dataset_imagenet(path, batch_size=32, repeat_size=20, status="train",
 
 def create_dataset_cifar(data_path, image_height, image_width, repeat_num=1, training=True):
     """
-    create data for next use such as training or infering
+    create data for next use such as training or inferring
     """
     cifar_ds = ds.Cifar10Dataset(data_path)
     resize_height = image_height  # 224
@@ -175,6 +177,36 @@ def create_dataset_cifar(data_path, image_height, image_width, repeat_num=1, tra
     if training:
         c_trans = [random_crop_op, random_horizontal_op]
     c_trans += [resize_op, rescale_op, normalize_op,
+                changeswap_op]
+    # apply map operations on images
+    cifar_ds = cifar_ds.map(operations=type_cast_op, input_columns="label")
+    cifar_ds = cifar_ds.map(operations=c_trans, input_columns="image")
+    # apply shuffle operations
+    cifar_ds = cifar_ds.shuffle(buffer_size=10)
+    # apply batch operations
+    cifar_ds = cifar_ds.batch(batch_size=batch_size, drop_remainder=True)
+    # apply repeat operations
+    cifar_ds = cifar_ds.repeat(repeat_num)
+    return cifar_ds
+
+
+def generate_dataset_cifar(data_path, batch_size, repeat_num=1):
+    """
+    create data for next use such as training or inferring
+    """
+    cifar_ds = ds.Cifar10Dataset(data_path)
+    resize_height = 32
+    resize_width = 32
+    rescale = 1.0 / 255.0
+    shift = 0.0
+    batch_size = batch_size
+    # define map operations
+    resize_op = CV.Resize((resize_height, resize_width))  # interpolation default BILINEAR
+    rescale_op = CV.Rescale(rescale, shift)
+    changeswap_op = CV.HWC2CHW()
+    type_cast_op = C.TypeCast(mstype.int32)
+    c_trans = []
+    c_trans += [resize_op, rescale_op,
                 changeswap_op]
     # apply map operations on images
     cifar_ds = cifar_ds.map(operations=type_cast_op, input_columns="label")
