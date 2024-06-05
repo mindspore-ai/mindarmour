@@ -1,0 +1,60 @@
+# global configuration
+half: 16
+cuda: 1
+log: vfl
+debug: False
+
+# trigger
+trigger_add: False
+# data configuration
+target_train_size: -1
+target_test_size: -1
+backdoor_train_size: 500
+backdoor_test_size: 2000
+train_label_size: 40
+#target_train_size: 2000
+#target_test_size: 2000
+#backdoor_train_size: 50
+#backdoor_test_size: 200
+#train_label_size: 40
+
+# save configuration
+save_model: 0
+save_data: 0
+
+# load configuration
+load_target: 0
+load_data: 0
+load_model: 0
+load_time: 0
+
+# global model configuration
+n_passive_party: 1
+target_batch_size: 32
+target_epochs: 100
+# passive party configuration
+passive_bottom_model: resnet
+passive_bottom_gamma: 0.1
+passive_bottom_wd: 0.0005
+passive_bottom_momentum: 0.9
+passive_bottom_lr: 0.1
+passive_bottom_stone: [50,85,100]
+# active party configuration
+# active bottom model configuration
+active_bottom_model: resnet
+active_bottom_gamma: 0.1
+active_bottom_wd: 0.0005
+active_bottom_momentum: 0.9
+active_bottom_lr: 0.1
+active_bottom_stone: [50,85,100]
+# active top model configuration
+active_top_trainable: 1
+active_top_model: fcn
+active_top_gamma: 0.1
+active_top_wd: 0.0005
+active_top_momentum: 0.9
+active_top_lr: 0.1
+active_top_stone: [50,85,100]
+
+# backdoor attack global configuration
+backdoor_label: 6
