@@ -38,6 +38,10 @@ TAG = 'ModelInversionAttack'
 def cifar_inversion_attack(net, inv_net, ckptpath):
     """
     Image inversion attack based on CNN and CAFIR10 dataset.
+    Args:
+        net(Cell): target model
+        inv_net(Cell): atk model for model inversion
+        ckptpath(str): ckpt file for target model
     """
     # upload trained network
 
