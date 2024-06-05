@@ -20,8 +20,7 @@ import mindspore as ms
 from mindspore import nn
 from mindspore import Tensor
 
-from mindarmour.utils._check_param import check_param_type, \
-    check_int_positive
+from mindarmour.utils._check_param import check_param_type, check_int_positive
 from mindarmour.utils.logger import LogUtil
 from mindarmour.utils.util import compute_ssim, compute_psnr
 
@@ -154,10 +153,10 @@ class ModelInversionAttack:
             decoder_model_output = self._invnet(orginal_model_output)
             decoder_model_output = decoder_model_output.clip(0, 1)
             for i in range(inputs.shape[0]):
-                img_1 = inputs[i].transpose(1, 2, 0).asnumpy()
-                img_2 = decoder_model_output[i].transpose(1, 2, 0).asnumpy()
-                ssim = compute_ssim(img_1, img_2)
-                psnr = compute_psnr(img_1, img_2)
+                original_image = inputs[i].transpose(1, 2, 0).asnumpy()
+                compared_image = decoder_model_output[i].transpose(1, 2, 0).asnumpy()
+                ssim = compute_ssim(original_image, compared_image)
+                psnr = compute_psnr(original_image, compared_image)
 
                 total_ssim += ssim
                 total_psnr += psnr
