@@ -41,9 +41,9 @@ class ShadowModelLoss(nn.Cell):
         self._network.set_train(False)
 
     def construct(self, inputs, targets):
-        edge_output = self._shadow_net(Tensor(inputs))
-        cloud_output = self._network.forward_from(edge_output, self._target_layer)
-        loss = self._loss_fn(cloud_output, targets)
+        mid_output = self._shadow_net(Tensor(inputs))
+        final_output = self._network.forward_from(mid_output, self._target_layer)
+        loss = self._loss_fn(final_output, targets)
         return loss
 
 
@@ -174,10 +174,10 @@ class ShadowModelAttack:
         loss_fn = nn.SoftmaxCrossEntropyWithLogits(reduction='mean')
         onehot_op = nn.OneHot(depth=num_classes)
         for inputs, targets in dataset.create_tuple_iterator():
-            edge_output = self._shadow_network(Tensor(inputs))
-            cloud_output = self._network.forward_from(edge_output, self._split_layer)
+            mid_output = self._shadow_network(Tensor(inputs))
+            final_output = self._network.forward_from(mid_output, self._split_layer)
             targets = onehot_op(targets)
-            total_loss += loss_fn(cloud_output, Tensor(targets))
+            total_loss += loss_fn(final_output, Tensor(targets))
             size += inputs.shape[0]
         if size != 0:
             avg_loss = total_loss / size
