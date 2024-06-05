@@ -37,6 +37,10 @@ TAG = 'ShadowModelAttack'
 def cifar_inversion_attack(net, shadow_net, ckptpath):
     """
     Image inversion attack based on CNN and CAFIR10 dataset.
+    Args:
+        net(Cell): target model
+        shadow_net(Cell): atk model for model inversion
+        ckptpath(str): ckpt file for target model
     """
     # upload trained network
     load_dict = load_checkpoint(ckptpath)
