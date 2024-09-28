@@ -2,6 +2,10 @@
 
 这里是基于mindnlp对论文["Universal and Transferable Adversarial Attacks on Aligned Language Models"](https://arxiv.org/abs/2307.15043)的复现，目前仅支持运行在GPU上的llama2系列模型。
 
+## 快速使用
+
+lightGCG支持对Mindnlp支持的模型进行攻击，使用案例详见`light_gcg_example.py`。
+
 ## 实验
 
 ### 实验环境
