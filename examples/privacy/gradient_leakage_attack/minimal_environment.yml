@@ -1,0 +1,8 @@
+dependencies:
+  - python==3.9.0
+  - mindspore==2.1.0
+  - cuda==11.6
+  - pip
+  - pip:
+      - hydra-core==1.2.0
+      - omegaconf==2.2.0
