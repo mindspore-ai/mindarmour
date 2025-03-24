@@ -22,7 +22,8 @@ import mindspore as ms
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 from mindspore import Tensor, context
 from mindarmour.privacy.evaluation.model_inversion_attack import ModelInversionAttack
-from mindarmour.privacy.evaluation.inversion_attack.inversion_net import CIFAR10CNNDecoderConv11
+# from mindarmour.privacy.evaluation.inversion_attack.inversion_net import CIFAR10CNNDecoderConv11
+from examples.privacy.inversion_attack.inversion_net import CIFAR10CNNDecoderConv11
 from mindarmour.utils.logger import LogUtil
 
 from examples.common.networks.cifar10cnn.cifar10cnn_net import CIFAR10CNN
@@ -49,17 +50,17 @@ def cifar_inversion_attack(net, inv_net, ckptpath):
     load_param_into_net(net, load_dict)
 
     # get original data and their inferred fearures
-    data_list = "../../common/dataset/CIFAR10/train"
-    ds = generate_dataset_cifar(data_list, 32, repeat_num=1)
-    data_list = "../..//common/dataset/CIFAR10/test"
-    ds_test = generate_dataset_cifar(data_list, 32, repeat_num=1)
+    data_list = "../../common/dataset/CIFAR10" #/train
+    ds = generate_dataset_cifar(data_list, 32, usage="train", repeat_num=1)
+    data_list = "../../common/dataset/CIFAR10" #/test
+    ds_test = generate_dataset_cifar(data_list, 32, usage="test", repeat_num=1)
     i = 0
     batch_num = 1
     sample_num = 10
     for data in ds_test.create_tuple_iterator(output_numpy=True):
         i += 1
         images = data[0].astype(np.float32)
-        target_features = net.getlayeroutput(Tensor(images), 'conv11')[:sample_num]
+        target_features = net.get_layer_output(Tensor(images), 'conv11')[:sample_num]
         if i >= batch_num:
             break
 
@@ -91,6 +92,6 @@ def cifar_inversion_attack(net, inv_net, ckptpath):
 
 if __name__ == '__main__':
     # device_target can be "CPU", "GPU" or "Ascend"
-    context.set_context(mode=ms.PYNATIVE_MODE, device_target="GPU")
+    context.set_context(mode=ms.PYNATIVE_MODE, device_target="CPU")
     ckpt_path = '../../common/networks/cifar10cnn/trained_ckpt_file/checkpoint_cifar-10_1562.ckpt'
     cifar_inversion_attack(CIFAR10CNN(), CIFAR10CNNDecoderConv11(), ckpt_path)
