@@ -48,7 +48,7 @@ class ModelInversionLoss(nn.Cell):
         self._network.set_train(False)
 
     def construct(self, inputs):
-        orginal_model_output = self._network.getLayerOutput(inputs, self._target_layer)
+        orginal_model_output = self._network.get_layer_output(inputs, self._target_layer)
         decoder_model_output = self._invnet(orginal_model_output)
         loss = self._loss_fn(inputs, decoder_model_output)
         return loss
@@ -72,9 +72,9 @@ class ModelInversionAttack:
     """
     def __init__(self, network, inv_network, input_shape, ckpoint_path=None, split_layer='conv1'):
         self._network = check_param_type('network', network, nn.Cell)
-        self._invnetwork = check_param_type('inv_network', inv_network, nn.Cell)
+        self._invnet = check_param_type('inv_network', inv_network, nn.Cell)
         self._split_layer = check_param_type('split_layer', split_layer, str)
-        self._ckpath = check_param_type('ckpoint_path', ckpoint_path, str)
+        self._ckpath = ckpoint_path  #check_param_type('ckpoint_path', ckpoint_path, str)
         self.check_inv_network(input_shape)
         if self._ckpath is None:
             self._ckpath = './trained_inv_ckpt_file'
@@ -85,8 +85,8 @@ class ModelInversionAttack:
     def check_inv_network(self, input_shape):
         input_shape = check_param_type('input_shape', input_shape, tuple)
         inputs = ms.numpy.ones((1,) + input_shape)
-        orginal_model_output = self._network.getLayerOutput(inputs, self._split_layer)
-        inv_model_output = self._invnetwork(orginal_model_output)
+        orginal_model_output = self._network.get_layer_output(inputs, self._split_layer)
+        inv_model_output = self._invnet(orginal_model_output)
         if inputs.shape != inv_model_output.shape:
             msg = "InvModel error, input shape is {}, but invmodel output shape is {}" \
                 .format(inputs.shape, inv_model_output.shape)
@@ -121,6 +121,8 @@ class ModelInversionAttack:
         optim = nn.Adam(self._invnet.trainable_params(), learning_rate=learningrate, eps=eps, use_amsgrad=apply_ams)
         net = ModelInversionLoss(self._network, self._invnet, net_loss, self._split_layer)
         net = nn.TrainOneStepCell(net, optim)
+        if not os.path.exists(self._ckpath):
+            os.makedirs(self._ckpath)
 
         for epoch in range(epochs):
             loss = 0
@@ -128,8 +130,7 @@ class ModelInversionAttack:
                 loss += net(Tensor(inputs)).asnumpy()
             LOGGER.info(TAG, "Epoch: {}, Loss: {}".format(epoch, loss))
             if epoch % 10 == 0:
-                ms.save_checkpoint(self._invnet, os.path.join(self._ckpath, '/invmodel_{}_{}.ckpt'
-                                                              .format(self._split_layer, epoch)))
+                ms.save_checkpoint(self._invnet, self._ckpath + '/invmodel_{}_{}.ckpt'.format(self._split_layer, epoch))
 
     def evaluate(self, dataset):
         """
@@ -149,7 +150,7 @@ class ModelInversionAttack:
         total_psnr = 0
         size = 0
         for inputs, _ in dataset.create_tuple_iterator():
-            orginal_model_output = self._network.getLayerOutput(Tensor(inputs), self._split_layer)
+            orginal_model_output = self._network.get_layer_output(Tensor(inputs), self._split_layer)
             decoder_model_output = self._invnet(orginal_model_output)
             decoder_model_output = decoder_model_output.clip(0, 1)
             for i in range(inputs.shape[0]):
