@@ -159,7 +159,8 @@ def create_dataset_cifar(data_path, image_height, image_width, repeat_num=1, tra
     """
     create data for next use such as training or inferring
     """
-    cifar_ds = ds.Cifar10Dataset(data_path)
+    usage = "train" if training else "test"
+    cifar_ds = ds.Cifar10Dataset(dataset_dir=data_path, usage=usage)
     resize_height = image_height  # 224
     resize_width = image_width  # 224
     rescale = 1.0 / 255.0
@@ -190,11 +191,11 @@ def create_dataset_cifar(data_path, image_height, image_width, repeat_num=1, tra
     return cifar_ds
 
 
-def generate_dataset_cifar(data_path, batch_size, repeat_num=1):
+def generate_dataset_cifar(data_path, batch_size, usage, repeat_num=1):
     """
     create data for next use such as training or inferring
     """
-    cifar_ds = ds.Cifar10Dataset(data_path)
+    cifar_ds = ds.Cifar10Dataset(data_path, usage=usage)
     resize_height = 32
     resize_width = 32
     rescale = 1.0 / 255.0
