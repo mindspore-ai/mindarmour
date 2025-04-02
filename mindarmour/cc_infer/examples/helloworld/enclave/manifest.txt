@@ -1,0 +1,8 @@
+gpd.ta.appID:                   318bf1bf-b5b2-460e-81b6-bbb4c25fd545
+gpd.ta.service_name:            icbc-face
+gpd.ta.singleInstance:          true
+gpd.ta.multiSession:            true
+gpd.ta.instanceKeepAlive:       false
+gpd.ta.dataSize:                802816
+gpd.ta.stackSize:               1792
+gpd.ta.mem_page_align:          true
