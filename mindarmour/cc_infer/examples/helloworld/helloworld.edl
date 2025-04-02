@@ -1,0 +1,27 @@
+/*
+ * Copyright (c) Huawei Technologies Co., Ltd. 2020. All rights reserved.
+ * secGear is licensed under the Mulan PSL v2.
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
+ * You may obtain a copy of Mulan PSL v2 at:
+ *     http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR
+ * PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ */
+
+enclave {
+    include "secgear_urts.h"
+    from "secgear_tstdc.edl" import *; 
+    from "secgear_tswitchless.edl" import *;
+    trusted {
+        public int get_string([out, size=32]char *buf);
+        public int enclave_model_build([in]char *model_buf, size_t model_size, [in, size=100]char* model_key, size_t key_size) transition_using_threads;
+        public int tee_model_get_inputs([in]char* data_buf, size_t key_size, [out]int* shape_vec) transition_using_threads;
+        public int tee_model_get_outputs([in]char* data_buf, size_t key_size, [out]int* shape_vec) transition_using_threads;
+        public int tee_model_predict( [in]char* model_key, size_t key_size, [in]char* data_buf, [in]int *shape_vec) transition_using_threads;
+        public int tee_model_dec_predict( [in]char* model_key, size_t key_size, [in]char* data_buf, size_t data_len, bool isPlaintxt, size_t session_id, [in]int *shape_vec) transition_using_threads;
+        public int tee_model_dec_predict_enc( size_t key_size, [in]char* data_buf, size_t data_len, bool inputPlaintxt, bool outputPlaintxt, size_t session_id) transition_using_threads;
+    };
+};
+
