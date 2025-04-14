@@ -38,7 +38,8 @@ def cifar_train(epoch_size, lr, momentum):
     Generate Dataset and Train
     """
     mnist_path = "../../dataset/CIFAR10"
-    ds = create_dataset_cifar(os.path.join(mnist_path, "train"), 32, 32, repeat_num=1)
+    # ds = create_dataset_cifar(os.path.join(mnist_path, "train"), 32, 32, repeat_num=1)
+    ds = create_dataset_cifar(mnist_path, 32, 32, repeat_num=1)
 
     network = CIFAR10CNN()
     net_loss = nn.SoftmaxCrossEntropyWithLogits(sparse=True, reduction="mean")
@@ -58,11 +59,11 @@ def cifar_train(epoch_size, lr, momentum):
     ckpt_file_name = "trained_ckpt_file/checkpoint_cifar-10_1562.ckpt"
     param_dict = load_checkpoint(ckpt_file_name)
     load_param_into_net(network, param_dict)
-    ds_eval = create_dataset_cifar(os.path.join(mnist_path, "test"), 32, 32, repeat_num=1)
+    ds_eval = create_dataset_cifar(mnist_path, 32, 32, repeat_num=1, training=False)
     acc = model.eval(ds_eval, dataset_sink_mode=False)
     LOGGER.info(TAG, "============== Accuracy: %s ==============", acc)
 
 
 if __name__ == '__main__':
-    context.set_context(mode=context.GRAPH_MODE, device_target="GPU")
+    context.set_context(mode=context.GRAPH_MODE, device_target="CPU")
     cifar_train(10, 0.01, 0.9)
