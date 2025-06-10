@@ -27,7 +27,9 @@
 
 ## What is MindArmour
 
-MindArmour focus on security and privacy of artificial intelligence. MindArmour can be used as a tool box for MindSpore users to enhance model security and trustworthiness and protect privacy data. MindArmour contains three module: Adversarial Robustness Module, Fuzz Testing Module, Privacy Protection and Evaluation Module.
+MindArmour focus on security and privacy of artificial intelligence. It is committed to enhancing the trustworthiness of models and protecting the privacy of training and inference data. The current version (v2.0) mainly includes three modules: Adversarial Robustness Module, Fuzz Testing Module, Privacy Protection and Evaluation Module.
+
+![mindarmour_roadmap](docs/roadmap_en.png)
 
 ### Adversarial Robustness Module
 
