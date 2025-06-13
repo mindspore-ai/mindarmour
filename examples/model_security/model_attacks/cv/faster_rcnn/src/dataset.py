@@ -23,7 +23,7 @@ from numpy import random
 import mmcv
 import mindspore.dataset as de
 import mindspore.dataset.vision.c_transforms as C
-import mindspore.dataset.transforms.c_transforms as CC
+import mindspore.dataset.transforms as CC
 import mindspore.common.dtype as mstype
 from mindspore.mindrecord import FileWriter
 from src.config import config

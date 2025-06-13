@@ -24,8 +24,8 @@ from mindspore.train.callback import LossMonitor
 from mindspore.nn.metrics import Accuracy
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 import mindspore.dataset as ds
-import mindspore.dataset.vision.c_transforms as CV
-import mindspore.dataset.transforms.c_transforms as C
+import mindspore.dataset.vision as CV
+import mindspore.dataset.transforms as C
 from mindspore.dataset.vision import Inter
 import mindspore.common.dtype as mstype
 

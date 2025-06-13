@@ -2,6 +2,21 @@
 
 [View English](./RELEASE.md)
 
+## MindSpore Armour 2.1.0 Release Notes
+
+### 主要特性及增强
+
+* 增加与MindSpore的版本校验关系。
+* 升级相关软件包版本，setuptools >= 78.1.1，numpy >= 1.20.0,<2.0.0。
+
+### 贡献者
+
+感谢以下人员做出的贡献：
+
+Yang Yuan, Han Zhibin, Liu Siming.
+
+欢迎以任何形式对项目提供贡献！
+
 ## MindSpore Armour 2.0.0 Release Notes
 
 ### 主要特性及增强

@@ -24,7 +24,7 @@ from setuptools import setup
 from setuptools.command.egg_info import egg_info
 from setuptools.command.build_py import build_py
 
-version = '2.0.0'
+version = '2.1.0'
 cur_dir = os.path.dirname(os.path.realpath(__file__))
 pkg_dir = os.path.join(cur_dir, 'build')
 
@@ -131,7 +131,7 @@ setup(
     },
     install_requires=[
         'scipy >= 1.5.4',
-        'numpy >= 1.17.0',
+        'numpy >= 1.20.0,<2.0.0',
         'matplotlib >= 3.2.1',
         'pillow >= 9.3.0',
         'scikit-learn >= 0.23.1',
