@@ -25,8 +25,8 @@ from mindspore.train.callback import CheckpointConfig
 from mindspore.train.callback import LossMonitor
 from mindspore.nn import Accuracy
 import mindspore.dataset as ds
-import mindspore.dataset.vision.c_transforms as CV
-import mindspore.dataset.transforms.c_transforms as C
+import mindspore.dataset.vision as CV
+import mindspore.dataset.transforms as C
 from mindspore.dataset.vision import Inter
 from mindarmour.privacy.diff_privacy import DPModel
 from mindarmour.privacy.diff_privacy import PrivacyMonitorFactory
