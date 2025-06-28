@@ -28,8 +28,6 @@ from MindsporeCode.common.constants import data_path
 # transform for BHI images
 normalize = vision.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5],is_hwc = True)
 transform = ms.dataset.transforms.Compose([
-    #vision.ToPIL(),
-    #vision.ToTensor(),
     normalize
 ])
 
@@ -98,19 +96,10 @@ def load_parties_data(data_dir, args):
     X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y,
                                                         test_size=0.2,
                                                         random_state=1)
-    # train 92242[1:36455,0:55787]
-    # test 23061[1:9114,0:13947]
 
-    # 0527添加
     n_train = args['target_train_size']
     n_test = args['target_test_size']
-    # if n_train != -1:
-    #     indices = get_random_indices(n_train, len(X))
-    #     X_train, y_train = X_train[indices], y_train[indices]
-    # if n_test != -1:
-    #     indices = get_random_indices(n_test, len(X))
-    #     X_test, y_test = X_test[indices], y_test[indices]
-    # 0627修改
+
     if n_train != -1:
         indices = get_random_indices(n_train, len(X_train))
         X_train, y_train = X_train[indices], y_train[indices]
@@ -120,7 +109,6 @@ def load_parties_data(data_dir, args):
 
     # randomly select samples of other classes from normal train dataset as backdoor samples to generate backdoor train dataset
     train_indices = np.where(y_train != args['backdoor_label'])[0]
-    # print(len(train_indices),args['backdoor_train_size'])
     backdoor_indices_train = np.random.choice(train_indices, args['backdoor_train_size'], replace=False)
     backdoor_y_train = copy.deepcopy(y_train)
     backdoor_y_train[backdoor_indices_train] = args['backdoor_label']
@@ -159,7 +147,6 @@ def generate_dataloader(args, data_list, batch_size, transform=None, shuffle=Tru
     :return: loader
     """
     X, y = data_list
-    # print("1",X.shape)
     MultiImageDatasetWithIndices = image_dataset_with_indices(MultiImageDataset)
     party_num = args['n_passive_party'] + 1
     ds = MultiImageDatasetWithIndices(X, ms.tensor(y,ms.int32),
@@ -233,6 +220,4 @@ def get_bhi_dataloader(args):
         villain_train_dl = None
 
     return train_dl, test_dl, backdoor_train_dl, backdoor_test_dl, g_r_train_dl, \
-        backdoor_indices, backdoor_target_indices, labeled_dl, unlabeled_dl, villain_train_dl        
-      #### train_dl, test_dl, backdoor_test_dl, backdoor_train_dl, g_r_train_dl, \
-  #     backdoor_indices, backdoor_target_indices, labeled_dl, unlabeled_dl, \, villain_train_dl
+        backdoor_indices, backdoor_target_indices, labeled_dl, unlabeled_dl, villain_train_dl

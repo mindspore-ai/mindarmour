@@ -68,13 +68,6 @@ class ImageDataset(object):
         self.trigger_add = trigger_add
         self.pixel_pattern = np.full((3, 32, 16), 0)
 
-        # pattern_mask: ms.Tensor = ms.tensor([
-        #     [1., 0., 1.],
-        #     [-10., 1., -10.],
-        #     [-10., -10., 0.],
-        #     [-10., 1., -10.],
-        #     [1., 0., 1.]
-        # ])
         pattern_mask: ms.Tensor = ms.tensor([
             [1., 0., 1.],
             [-10., 1., -10.],
@@ -95,20 +88,11 @@ class ImageDataset(object):
     def __getitem__(self, index):
         index = int(index)
         img, target = self.data[index], self.targets[index]  # 3,32,32
-        # print('img shape: ', img.shape)
-        # img = img.transpose(1, 2, 0)
-
-        # if type(img) is np.str_:
-        #     img = Image.open(img)
-        # else:
-        #     img = Image.fromarray(np.uint8(img.transpose(1, 2, 0)))
         img = img.transpose(1, 2, 0)
-        # print('img shape: ', img.shape)
-        # print('img type: ', type(img))
 
         if self.transform is not None:
             img = self.transform(img)
-            # print('data type: ', img.dtype)  float 32
+
         # split image into halves vertically for parties
         img_a, img_b = img[:, :, :self.half], img[:, :, self.half:]  # [3, 32, 16]
 
@@ -120,17 +104,13 @@ class ImageDataset(object):
         if self.trigger == 'pixel':
             if self.indice_map is not None and index in self.indice_map.keys():
                 source_indice = self.indice_map[index]
-                # source_indice = random.sample(self.source_indices, 1)[0]
+
                 source_img = self.data[source_indice]
-                # if type(img) is np.str_:
-                #     source_img = Image.open(source_img)
-                # else:
-                #     source_img = Image.fromarray(source_img)
+
                 source_img = source_img.transpose(1, 2, 0)
                 if self.transform is not None:
                     source_img = self.transform(source_img)
                 img_b = source_img[:, :, self.half:]
-                # old_imgb = img_b
 
         # add trigger if index is in backdoor indices
         if self.trigger == 'pixel':
@@ -139,13 +119,6 @@ class ImageDataset(object):
                     img_b = img_b + self.pixel_pattern
                 else:
                     img_b = add_pixel_pattern_backdoor(img_b, self.pattern_mask, self.location)
-
-        # img_a = Image.fromarray(np.uint8(img_a.transpose(1, 2, 0) *255))
-        # img_b = Image.fromarray(np.uint8(img_b.transpose(1, 2, 0) *255))
-
-        # if self.transform is not None:
-        #     img_a = self.transform(img_a)[0]
-        #     img_b = self.transform(img_b)[0]
 
         # 0-1
         return (img_a, img_b), target, old_imgb

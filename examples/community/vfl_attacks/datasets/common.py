@@ -99,7 +99,7 @@ def train_label_split(labels, train_label_size, num_classes, non_iid=None, backd
         logging.info('non iid label sum: {}, all: {}'.format(np.sum(n_list), n_list))
     np.random.shuffle(train_labeled_indices)
     np.random.shuffle(train_unlabeled_indices)
-    # logging.info('label_indices: {}'.format(train_labeled_indices))
+
     return train_labeled_indices, train_unlabeled_indices
 
 
@@ -130,7 +130,7 @@ def get_random_indices(target_length, all_length):
     """
     all_indices = np.arange(all_length)
     indices = np.random.choice(all_indices, target_length, replace=False)
-    # indices = np.arange(target_length)
+
     return indices
 
 
@@ -159,18 +159,6 @@ def get_labeled_loader(train_dataset, labeled_indices, unlabeled_indices, args):
     un_y_data = train_dataset[1][unlabeled_indices]
     unlabeled_dl = [un_X_data, un_y_data]
 
-    # from cifar_dataset import generate_dataloader
-    # generate_dataloader(args, (X_data, y_data), batch_size, train_transform, shuffle=True)
-
-    # labeled_dataset = train_dataset.take(labeled_indices)
-    # unlabeled_dataset = train_dataset.take(unlabeled_indices)
-
-    # labeled_dl = ms.dataset.GeneratorDataset(labeled_dataset,shuffle=True)
-    # labeled_dl = labeled_dl.batch(min(label_size, args['lr_ba_top_batch_size']),drop_remainder=True)
-    #
-    # unlabeled_dl = ms.dataset.GeneratorDataset(unlabeled_dataset, shuffle=True)
-    # unlabeled_dl = unlabeled_dl.batch(min(label_size, args['lr_ba_top_batch_size']), drop_remainder=True)
-
     return labeled_dl, unlabeled_dl
 
 
@@ -190,11 +178,7 @@ def add_pixel_pattern_backdoor(inputs, pattern_tensor, location):
     "A tensor of the `input.shape` filled with `mask_value` except backdoor."
 
 
-    # def make_pattern():
-    # nonlocal mask, pattern
     input_shape = inputs.shape
-    # full_image = ms.ops.zeros(input_shape)
-    # full_image = ms.dataset.transforms.Fill(mask_value)
     full_image = np.full(input_shape, mask_value, dtype=inputs.dtype)
 
     x_top = location[0]
@@ -280,7 +264,7 @@ def insert_word(s, word: Union[str, List[str]], times=1):
         else:
             # Otherwise just use the one word
             insert_word = word
-        # Random position FIXME: this should use numpy random but I (Paul)
+
         # kept it for reproducibility
         position = random.randint(0, len(words))
         # Insert

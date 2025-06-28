@@ -37,17 +37,12 @@ def accuracy(y_true, y_pred, dataset, num_classes=None, top_k=1, is_attack=False
     if top_k == 1:
         for pred in y_pred:
             temp = np.max(pred)
-            # temp_y_pred.append(pred.index(temp))
             temp_y_pred.append(np.where(pred == temp)[0][0])
-        # if is_attack:
-        #     for y in temp_y_pred:
-        #         if y != y_true[0]:
-        #             print(y)
+
         if dataset != 'bhi':
             acc = accuracy_score(y_true, temp_y_pred)
         else:
             if not is_attack:
-                # logging.info('f1 score')
                 acc = f1_score(y_true, temp_y_pred)
             else:
                 acc = accuracy_score(y_true, temp_y_pred)

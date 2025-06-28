@@ -26,13 +26,9 @@ def get_args(file, file_time):
 
     :return: configuration
     """
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument('--config', type=str)
-    # temp = parser.parse_args()
     yaml.warnings({'YAMLLoadWarning': False})
     f = open(file, 'r', encoding='utf-8')
     cfg = f.read()
-    # NEW fix
     args = yaml.load(cfg, Loader=yaml.SafeLoader)
     f.close()
     args['num_classes'] = get_num_classes(args['dataset'])
@@ -45,9 +41,6 @@ def get_args(file, file_time):
     # the configuration whether to print the execution time of federated training and LR-BA
     args['time'] = False
 
-    # now = datetime.datetime.now()
-    # time = now.strftime("%m-%d-%H-%M-%S")
-    # args['file_time'] = time
     time = file_time
     set_logging(args['log'], time)
     return args

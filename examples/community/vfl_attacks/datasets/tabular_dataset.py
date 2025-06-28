@@ -12,14 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ============================================================================
+"""
+define image dataset, only support two parties, used for CRITEO
+"""
 from typing import Any, Callable, Optional, Tuple
 import mindspore.dataset as ds
 import mindspore as ms
 import os
 from MindsporeCode.common.utils import FeatureTuple
-"""
-define image dataset, only support two parties, used for CRITEO
-"""
+
 
 def add_input_pattern_backdoor(data, trigger, location):
     data[location[0]:location[1]] = trigger
@@ -98,9 +99,7 @@ class TabularDataset(object):
                     img_b = add_input_pattern_backdoor(img_b, self.pattern_mask, self.location)
 
         return (img_a, img_b), target, old_imgb
-        # return {'party_data': [img_a, img_b]}, target, old_imgb
-        # return img_a, img_b, target, old_imgb
-        # return FeatureTuple(img_a, img_b), target, old_imgb
+
 
     def __len__(self) -> int:
         return len(self.data)

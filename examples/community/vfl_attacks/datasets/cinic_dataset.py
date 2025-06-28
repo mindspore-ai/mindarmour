@@ -38,7 +38,6 @@ normalize = vision.Normalize(mean=[0.47889522, 0.47227842, 0.43047404],
 
 transform = ms.dataset.transforms.Compose([
     vision.ToTensor(),
-    # normalize
 ])
 
 def get_labeled_data_with_2_party(data_dir, dtype="Train", num_samples=None):
@@ -54,7 +53,6 @@ def get_labeled_data_with_2_party(data_dir, dtype="Train", num_samples=None):
         entry = pickle.load(f, encoding='latin1')
         img_data = entry['data']
         targets = entry['labels']
-    # 0523待测试
     img_data = img_data.reshape(-1, 3, 32, 32)
     targets = np.array(targets)
     if num_samples is not None:
@@ -96,9 +94,6 @@ def load_two_party_data(data_dir, args):
                                          dtype='Train',
                                          num_samples=n_train)
     print("# load_train_data finished!!!", len(X_train), len(y_train))
-    # 0520
-    # X的数据格式原本是n 32 32 3，改为n 3 32 32
-    # X = np.transpose(X, (0, 3, 1, 2))
 
     # read test data from local file
     print("# load_test_data ing...")
@@ -107,19 +102,6 @@ def load_two_party_data(data_dir, args):
                                                    num_samples=n_test)
 
     print("# load_test_data finished!!!", len(X_train), len(y_train))
-    # # randomly select samples of other classes from normal train dataset as backdoor samples to generate backdoor train dataset
-    # train_indices = np.where(y_train != args['backdoor_label'])[0]
-    # backdoor_indices_train = np.random.choice(train_indices, args['backdoor_train_size'], replace=False)
-    # backdoor_y_train = copy.deepcopy(y_train)
-    # backdoor_y_train[backdoor_indices_train] = args['backdoor_label']
-    #
-    # # randomly select samples of other classes from normal test dataset to generate backdoor test dataset
-    # test_indices = np.where(y_test != args['backdoor_label'])[0]
-    # backdoor_indices_test = np.random.choice(test_indices, args['backdoor_test_size'], replace=False)
-    # backdoor_X_test, backdoor_y_test = X_test[backdoor_indices_test], \
-    #                                    y_test[backdoor_indices_test]
-    # backdoor_y_test_true = backdoor_y_test
-    # backdoor_y_test = np.full_like(backdoor_y_test, args['backdoor_label'])
 
     # randomly select samples of other classes from normal train dataset as backdoor samples to generate backdoor train dataset
     train_indices = np.where(y_train != args['backdoor_label'])[0]
@@ -150,7 +132,6 @@ def load_two_party_data(data_dir, args):
     backdoor_target_indices = get_target_indices(y_train, args['backdoor_label'], args['train_label_size'])
 
     # ours SR NEW
-    # print('SR-BA dataset prepare......')
     index = [i for i in range(len(X_train))]
     sr_X_train = []
     sr_y_train = []
@@ -188,19 +169,11 @@ def generate_dataloader(args, data_list, batch_size, transform=None, shuffle=Tru
     :return: loader
     """
     X, y = data_list
-    # 0519
-    # (2000, 32, 32, 3) (2000,)
 
     # get x, y, and index when loading data
     if args['n_passive_party'] > 1:
         MultiImageDatasetWithIndices = image_dataset_with_indices(MultiImageDataset)
         party_num = args['n_passive_party'] + 1
-        # ds = MultiImageDatasetWithIndices(X, ms.tensor(y),
-        #                                   transform=transform,
-        #                                   backdoor_indices=backdoor_indices,
-        #                                   party_num=party_num,
-        #                                   trigger=trigger, trigger_add=trigger_add, source_indices=source_indices,
-        #                                   adversary=args['adversary'])
         ds = MultiImageDatasetWithIndices(X, ms.tensor(y, ms.int32),
                                           transform=transform,
                                           backdoor_indices=backdoor_indices,
@@ -209,17 +182,12 @@ def generate_dataloader(args, data_list, batch_size, transform=None, shuffle=Tru
     else:
         ImageDatasetWithIndices = image_dataset_with_indices(ImageDataset)
         # split x into halves for parties when loading data, only support two parties
-        # ds = ImageDatasetWithIndices(X, ms.tensor(y),
-        #                              transform=transform,
-        #                              backdoor_indices=backdoor_indices,
-        #                              half=16, trigger=trigger, trigger_add=trigger_add, source_indices=source_indices)
         ds = ImageDatasetWithIndices(X, ms.tensor(y, ms.int32),
                                      transform=transform,
                                      backdoor_indices=backdoor_indices,
                                      half=16, trigger=trigger, trigger_add=trigger_add, source_indices=source_indices)
 
-    # dl = ms.dataset.GeneratorDataset(source=ds, shuffle=shuffle)
-    # 0518问题 不确定 column_names可能不对
+
     dl = ms.dataset.GeneratorDataset(source=ds, shuffle=shuffle, column_names=['image', 'target', 'old_imgb', 'indice'])
     dl = dl.batch(batch_size, drop_remainder=False)
     return dl
@@ -263,10 +231,6 @@ def get_cinic_dataloader(args):
                                            backdoor_indices=np.arange(args['backdoor_test_size']), trigger=args['trigger'], trigger_add=args['trigger_add'])
 
     # get loader of labeled and unlabeled normal train dataset, used by LR-BA
-    # labeled_dl, unlabeled_dl = get_labeled_loader(train_dataset=train_dl.dataset,
-    #                                               labeled_indices=train_labeled_indices,
-    #                                               unlabeled_indices=train_unlabeled_indices,
-    #                                               args=args)
     labeled_data, unlabeled_data = get_labeled_loader(train_dataset=(X_train, y_train),
                                                       labeled_indices=train_labeled_indices,
                                                       unlabeled_indices=train_unlabeled_indices,

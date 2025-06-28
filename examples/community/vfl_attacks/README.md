@@ -115,4 +115,4 @@ from methods.g_r.g_r_passive_party import GRPassiveModel
 该模块实现了Villain后门攻击，在VFL类的基础上定义了Villain后门攻击中的过程函数。
 
 ## 扩展
-本项目当前支持CIFAR-10、CIFAR100、BHI、criteo数据集，目前datasets文件夹中给出了响应数据集加载代码。如需自定义模型结构或数据集加载方式，请参考并修改datasets文件夹中的对应文件内容。
+本项目当前支持CIFAR-10、CIFAR100、BHI、criteo数据集，目前datasets文件夹中给出了相应数据集加载代码。如需自定义模型结构或数据集加载方式，请参考并修改datasets文件夹中的对应文件内容。

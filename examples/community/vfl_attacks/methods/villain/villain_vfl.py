@@ -57,15 +57,9 @@ class VILLAIN_VFL(VFL):
                 self.set_current_epoch(ep)
 
                 for batch_idx, (X, Y_batch, old_imgb, indices) in enumerate(self.train_loader):
-                    # X: B,K,3,32,16 tensor
-                    # import traceback
-                    # print("DEBUG: backdoor_label = ", self.args['backdoor_label'])
-                    # traceback.print_stack()
 
                     party_X_train_batch_dict = dict()
                     if self.args['n_passive_party'] < 2:
-                        # X = ops.transpose(X, (1, 0, 2, 3, 4))
-                        # 0627修改处理criteo
                         if self.args['dataset'] != 'criteo':
                             X = ops.transpose(X, (1, 0, 2, 3, 4))
                         else:
@@ -125,8 +119,6 @@ class VILLAIN_VFL(VFL):
                                 if Y_batch[i] == self.args['backdoor_label']:
                                     target_indices.append(i)
                             if self.args['n_passive_party'] < 2:
-                                # X = ops.transpose(X, (1, 0, 2, 3, 4))
-                                # 0627修改处理criteo
                                 if self.args['dataset'] != 'criteo':
                                     X = ops.transpose(X, (1, 0, 2, 3, 4))
                                 else:
@@ -149,12 +141,11 @@ class VILLAIN_VFL(VFL):
                         norms = 0
                         for target_feature in self.target_sample:
                             norms += ms.ops.norm(target_feature, 2)
-                        # 0621 epoch>5报错
-                        # std_norms = ms.ops.std(features, axis=0)
+
                         std_norms = self.safe_std(features, axis=0)
                         stride_pattern = [0] * len(features[0])
                         temp = []
-                        # print(self.args['m_dimension'] // 2)
+
                         for i in range(self.args['m_dimension'] // 2):
                             if i % 2 == 0:
                                 temp = temp + [-1, -1]

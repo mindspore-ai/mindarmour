@@ -62,24 +62,12 @@ class Backdoor(object):
         self.VFL_framework.train()
         if self.args['backdoor'] != 'lr_ba' and not self.args['load_time']:
             self.VFL_framework.write()
-        # inference phase attack
-        # if self.args['backdoor'] == 'lr_ba':
-        #     _,_,_, record_infer_train_acc, record_infer_test_acc = lr_ba_attack(self.VFL_framework, train_loader=self.init_vfl.train_loader,
-        #     test_loader=self.init_vfl.test_loader,
-        #     backdoor_train_loader=self.init_vfl.backdoor_train_loader,
-        #     backdoor_test_loader=self.init_vfl.backdoor_test_loader,
-        #     backdoor_indices=self.init_vfl.backdoor_indices,
-        #     labeled_loader=self.init_vfl.labeled_loader,
-        #     unlabeled_loader=self.init_vfl.unlabeled_loader)
         if not self.args['load_time']:
             self.VFL_framework.record_results = [self.VFL_framework.record_loss[-1], self.VFL_framework.train_acc, self.VFL_framework.test_acc, self.VFL_framework.backdoor_acc]
-            # logging.info('self.VFL_framework.record_loss[:6]: {}'.format(self.VFL_framework.record_loss[:6]))
             logging.info('self.VFL_framework.record_results: {}'.format(self.VFL_framework.record_results))
 
         # visualization image
         result = visualization_with_images(self.VFL_framework)
-        # print('result: {}'.format(result))
-        # 0524
         # if result is not None:
         if result[0] is not None:
             image_str, y_clean, y_backdoor = result
@@ -87,7 +75,6 @@ class Backdoor(object):
             with open(output_txt_path, "w") as txt_file:
                 txt_file.write(image_str)
             append_predictions_to_file(output_txt_path, y_clean, y_backdoor)
-        # 0627适配criteo只返回标签没有图片
         elif self.args['dataset'] == 'criteo':
             # for criteo dataset, we do not have image
             image_str, y_clean, y_backdoor = result
@@ -120,7 +107,6 @@ class Label_inference(object):
         self.VFL_framework.train()
         if 'model_completion' not in self.args['label_inference_attack']:
             self.VFL_framework.record_results = [self.VFL_framework.record_loss[-1], self.VFL_framework.train_acc, self.VFL_framework.test_acc, self.VFL_framework.inference_acc]
-            # logging.info('self.VFL_framework.record_loss[:6]: {}'.format(self.VFL_framework.record_loss[:6]))
             logging.info('self.VFL_framework.record_results: {}'.format(self.VFL_framework.record_results))
         if 'model_completion' in self.args['label_inference_attack']:
             record_infer_train_acc, record_infer_test_acc = passive_model_completion(self.args, self.init_vfl, self.VFL_framework)

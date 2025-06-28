@@ -24,7 +24,6 @@ from MindsporeCode.party.passive_party import VFLPassiveModel
 class GRPassiveModel(VFLPassiveModel):
 
     def __init__(self, bottom_model, amplify_ratio=1, id=None, args=None):
-        # VFLPassiveModel.__init__(self, bottom_model, id=id, args=args)
         super(GRPassiveModel, self).__init__(bottom_model, id=id, args=args)
         self.backdoor_indices = None
         self.target_grad = None
@@ -35,7 +34,6 @@ class GRPassiveModel(VFLPassiveModel):
         self.pair_set = dict()
         self.target_gradients = dict()
         self.backdoor_X = dict()
-        # super().__init__(bottom_model)
 
     def set_epoch(self, epoch):
         self.epoch = epoch

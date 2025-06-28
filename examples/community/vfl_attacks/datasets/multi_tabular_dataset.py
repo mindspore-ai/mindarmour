@@ -12,20 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ============================================================================
+"""
+define multiple image dataset, support multiple parties, used for Criteo
+"""
 from typing import Any, Callable, Optional, Tuple
 import mindspore.dataset as ds
 import mindspore as ms
 import os
-
-"""
-define multiple image dataset, support multiple parties, used for Criteo
-"""
-
-"""
-VisionDataset类的继承这里换为ds继承，具体的实现方式有些变化，感觉可能会有问题
-0625 改成object
-"""
-
 
 def add_input_pattern_backdoor(data, trigger, location):
     data[location[0]:location[1]] = trigger

@@ -43,8 +43,6 @@ class Direct_VFL(VFL):
                 for batch_idx, (X, Y_batch, old_imgb, indices) in enumerate(self.train_loader):
                     party_X_train_batch_dict = dict()
                     if self.args['n_passive_party'] < 2:
-                        # X = ops.transpose(X, (1, 0, 2, 3, 4))
-                        # 0627修改适配criteo
                         if self.args['dataset'] != 'criteo':
                             X = ops.transpose(X, (1, 0, 2, 3, 4))
                         else:
@@ -71,12 +69,9 @@ class Direct_VFL(VFL):
 
                             print("dataset: ", self.args['dataset'])
                             print("image shape: ", image.shape)
-                            # 0523临时修改
                             if self.args['dataset'] != 'bhi' and self.args['dataset'] != 'criteo':
-                                image = image.transpose(1, 2, 0) # 32,32,3
-                                # print("image shape(alt): ", image.shape)
+                                image = image.transpose(1, 2, 0)
 
-                            # image = Image.fromarray(image)
                             if self.args['dataset'] != 'criteo':
                                 if len(image.shape) == 4:
                                     image = Image.fromarray(image[0])
@@ -84,11 +79,6 @@ class Direct_VFL(VFL):
                                     image = Image.fromarray(image)
                             buffered = BytesIO()
 
-                            # 0627修改适配criteo
-                            # image.save(buffered, format="PNG")
-                            # image_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
-                            # with open(output_txt_path, "w") as txt_file:
-                            #     txt_file.write(image_str)
                             # criteo
                             if self.args["dataset"] != "criteo":
                                 image.save(buffered, format="PNG")
@@ -124,9 +114,3 @@ class Direct_VFL(VFL):
                     self.record_test_acc.append(self.test_acc)
                     self.record_loss.append(ave_loss)
                     self.record_attack_metric.append(self.inference_acc)
-                # draw fig and save it to output_logs
-                # file_path = OUTPUT_path
-                # plot_and_save(self.record_loss, 'loss', file_path + 'A_'+str(ep+1))
-                # plot_and_save(self.record_test_acc, 'test_acc', file_path + 'B_'+str(ep+1))
-                # if len(self.record_attack_metric) > 0:
-                #     plot_and_save(self.record_attack_metric, 'attack_metric', file_path + 'C_'+str(ep+1))

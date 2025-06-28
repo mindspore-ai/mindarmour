@@ -20,9 +20,6 @@ mindspore.set_context(mode=mindspore.GRAPH_MODE)
 
 def run_mindspore(input_args):
 
-    # print("当前工作目录:", os.getcwd())
-    # print("尝试加载配置文件路径:", os.path.abspath(input_args['config']))
-
     args = get_args(input_args['config'], input_args['file_time'])
     input_args['step_gamma'] = 0.1
 
@@ -37,8 +34,6 @@ def run_mindspore(input_args):
     args['passive_bottom_gamma'] = input_args['step_gamma']
     args['active_bottom_gamma'] = input_args['step_gamma']
     args['active_top_gamma'] = input_args['step_gamma']
-    # args['active_top_trainable'] = input_args['top_model']
-    # args['n_passive_party'] = input_args['n_party'] - 1
     args['aggregate'] = input_args['aggregate']
     args['cuda'] = input_args['cuda']
     args['file_time'] = input_args['file_time']
@@ -55,10 +50,7 @@ def run_mindspore(input_args):
     args['trigger_add'] = False
 
     if args['cuda']:
-        # mindspore.context.set_context(device_target="GPU")
         mindspore.context.set_context(device_target="GPU", device_id=0)
-        # from mindspore import Profiler
-        # profiler = Profiler(output_path="profiler_data")
     else:
         mindspore.context.set_context(device_target="CPU")
 
@@ -81,13 +73,6 @@ def run_mindspore(input_args):
         normal_train.define()
         normal_train.run()
     elif args['backdoor'] != 'no':
-        # if args['backdoor'] in ['lr_ba','villain']:
-        #     return
-        # if args['label_inference_attack'] == 'g_r':
-        #     args['model_type'] = 'Resnet'
-
-        # if args['backdoor'] == 'lr_ba':
-        #     return
         if args['label_inference_attack'] in ['g_r', 'villain']:
             args['model_type'] = 'Resnet'
 
@@ -101,8 +86,6 @@ def run_mindspore(input_args):
         args['amplify_ratio'] = 2
         args['m_dimension'] = 10
         args['epsilon'] = 0.4
-        # if args['label_inference_attack'] == 'g_r':
-        #     args['amplify_ratio'] = 1
         if args['backdoor'] == 'villain':
             args['trigger'] = 'feature'
             args['trigger_add'] = True
@@ -114,12 +97,9 @@ def run_mindspore(input_args):
         Backdoor_attack.define()
         Backdoor_attack.run()
     elif args['label_inference_attack'] != 'no':
-        # if args['label_inference_attack'] in ['passive_model_completion', 'active_model_completion']:
-        #     return
         if args['label_inference_attack'] == 'direct_attack':
             args['model_type'] = 'Resnet'
         Label_inference_attack = Label_inference(args)
         Label_inference_attack.define()
         Label_inference_attack.run()
 
-    # profiler.analyse()

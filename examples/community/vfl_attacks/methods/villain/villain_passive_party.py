@@ -37,8 +37,6 @@ class Villain_PassiveModel(VFLPassiveModel):
         self.backdoor_X = dict()
         self.args = args
 
-        # super().__init__(bottom_model, args=args)
-
         self.attack = False
         self.feature_pattern = None
         self.mask = None
@@ -88,7 +86,6 @@ class Villain_PassiveModel(VFLPassiveModel):
     def set_batch(self, X, indices):
         self.X = X
         self.indices = indices
-        # self.X.requires_grad = True
 
     def receive_gradients(self, gradients):
         gradients = gradients.copy()

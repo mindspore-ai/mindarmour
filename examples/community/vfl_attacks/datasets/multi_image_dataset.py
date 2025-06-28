@@ -34,7 +34,6 @@ class MultiImageDataset(object):
             source_indices=None,  # none_target for sr_ba
             adversary=1
     ) -> None:
-        #   ????
         if isinstance(root, (str, bytes)):
             root = os.path.expanduser(root)
         self.root = root
@@ -83,8 +82,6 @@ class MultiImageDataset(object):
     def __getitem__(self, index):
         index = int(index)
         img_groups, target = self.data[index], self.targets[index]  # img_groups[N_party,50,50,3]
-        # img_groups = img_groups.transpose(1,2,3,0)            #### ????? img_groups[50,50,3,N_party]
-        # print(img_groups.shape)
         if len(img_groups) == self.party_num:
             images_list = []
             old_image = 0
@@ -96,10 +93,7 @@ class MultiImageDataset(object):
                 # print("before",image.shape)
                 if self.transform is not None:
                     image = self.transform(image)
-                image = image.transpose(2,0,1)    ## ������ 3��50��50
-                # print("after",len(image),len(image[0]),len(image[0][0]))
-                # if self.target_transform is not None:
-                #     target = self.target_transform(target)
+                image = image.transpose(2,0,1)    ##
 
                 if img_id == self.attacker:
                     old_image = image    # 50,50,3
@@ -112,13 +106,7 @@ class MultiImageDataset(object):
                             source_img_groups = self.data[source_indice]
                             source_img_path = source_img_groups[self.attacker]
                             source_image = source_img_path
-                            # print(source_img_groups)
-                            # if type(image) is np.str_:
-                            #     source_image = Image.open(source_image)
-                            # else:
-                            #     source_image = Image.fromarray(np.uint8(source_image))
-                            # source_img_groups = source_img_groups.transpose(1, 2, 3, 0)        ###????
-                            
+
                             if self.transform is not None:
                                 source_image = self.transform(source_image)[0]  # 50,50,3
                                 source_image = source_image.transpose(2, 0, 1)
@@ -127,7 +115,6 @@ class MultiImageDataset(object):
                     # add pixel trigger
                     if self.trigger == 'pixel':
                         if self.backdoor_indices is not None and index in self.backdoor_indices:
-                            # print("yes2")
                             if not self.trigger_add:
                                 image = add_pixel_pattern_backdoor(image, self.pattern_mask,self.location)
                             else:
@@ -137,13 +124,10 @@ class MultiImageDataset(object):
                                 image = image + self.pixel_pattern
                 images_list.append(image)
         else:
-            # TODO fix it
-            # 3,32,32 for CIFAR or CINIC
             img, target = self.data[index], self.targets[index]
             if type(img) is np.str_:
                 img = Image.open(img)
             else:
-                # print(img.shape)
                 img = Image.fromarray(np.uint8(img.permute(1, 2, 0) *255))
             if self.transform is not None:
                 img = self.transform(img)[0]
@@ -178,8 +162,7 @@ class MultiImageDataset(object):
                         source_image = Image.open(source_image)
                     else:
                         source_image = Image.fromarray(np.uint8(source_image.transpose(1, 2, 0) * 255))     ### 
-                    # source_img_groups = source_img_groups.transpose(1, 2, 3, 0)        ###????
-                            
+
                     if self.transform is not None:
                         source_image = self.transform(source_image)
                                 
@@ -191,7 +174,6 @@ class MultiImageDataset(object):
                     if not self.trigger_add:
                         image = add_pixel_pattern_backdoor(image, self.pattern_mask,self.location)
                     else:
-                        # raise ValueError('not support additive trigger!')
                         if self.pixel_pattern is None:
                             self.pixel_pattern = ms.ops.full_like(image, 0)
                         image = image + self.pixel_pattern
@@ -201,10 +183,8 @@ class MultiImageDataset(object):
         if self.party_num < 3:
             images = tuple(image for image in images_list)  # 3,3,50,50
         else:
-            # images = ms.ops.stack(tuple(image for image in images_list), 0)  # 3,3,50,50
             images = tuple(image for image in images_list)  # 3,3,50,50
-        # TODO not numpyarray
-        # print("111",len(images),len(images[0]),len(images[0][0]),len(images[0][0][0]))
+
         return images, target, old_image
 
 

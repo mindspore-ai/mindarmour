@@ -64,24 +64,10 @@ def load_parties_data(data_dir, args):
     X, y = get_labeled_data(data_path=data_dir)
 
     # split normal dataset for train and test
-    # split normal dataset for train and test
     X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y,
                                                         test_size=0.2,
                                                         random_state=1)
-    # # train 80000
-    # # test 20000
-    # # randomly select samples of other classes from normal train dataset as backdoor samples to generate backdoor train dataset
-    # train_indices = np.where(y_train != args['backdoor_label'])[0]
-    # backdoor_indices_train = np.random.choice(train_indices, args['backdoor_train_size'], replace=False)
-    # backdoor_y_train = copy.deepcopy(y_train)
-    # backdoor_y_train[backdoor_indices_train] = args['backdoor_label']
-    #
-    # # randomly select samples of other classes from normal test dataset to generate backdoor test dataset
-    # test_indices = np.where(y_test != args['backdoor_label'])[0]
-    # backdoor_indices_test = np.random.choice(test_indices, args['backdoor_test_size'], replace=False)
-    # backdoor_X_test, backdoor_y_test = X_test[backdoor_indices_test], \
-    #     y_test[backdoor_indices_test]
-    # backdoor_y_test = np.full_like(backdoor_y_test, args['backdoor_label'])
+
     n_train = args['target_train_size']
     n_test = args['target_test_size']
     if n_train != -1:
@@ -143,16 +129,11 @@ def generate_dataloader(args, data_list, batch_size, transform=None, shuffle=Tru
     :return: loader
     """
     X, y = data_list
-    # print("generate_dataloader")
+
     if args['n_passive_party'] > 1:
         MultiImageDatasetWithIndices = image_dataset_with_indices(MultiTabularDataset)
         party_num = args['n_passive_party'] + 1
-        # ds = MultiImageDatasetWithIndices(X, ms.tensor(y),
-        #                                   transform=transform,
-        #                                   backdoor_indices=backdoor_indices,
-        #                                   party_num=party_num,
-        #                                   trigger=trigger, trigger_add=trigger_add, source_indices=source_indices,
-        #                                   adversary=args['adversary'])
+
         ds = MultiImageDatasetWithIndices(X, ms.Tensor(y, dtype=ms.int32),
                                           transform=transform,
                                           backdoor_indices=backdoor_indices,
@@ -162,19 +143,11 @@ def generate_dataloader(args, data_list, batch_size, transform=None, shuffle=Tru
     else:
         ImageDatasetWithIndices = image_dataset_with_indices(TabularDataset)
         # split x into halves for parties when loading data, only support two parties
-        # ds = ImageDatasetWithIndices(X, ms.tensor(y),
-        #                              backdoor_indices=backdoor_indices,
-        #                              half=2 ** 12, trigger=trigger, trigger_add=trigger_add,
-        #                              source_indices=source_indices)
-        # 0627修改
         ds = ImageDatasetWithIndices(X, ms.Tensor(y, dtype=ms.int32),
                                      backdoor_indices=backdoor_indices,
                                      half=2 ** 12, trigger=trigger, trigger_add=trigger_add,
                                      source_indices=source_indices)
 
-    # dl = ms.dataset.GeneratorDataset(dataset=ds, column_names=["features", "label", "old_input"], shuffle=shuffle)
-    # dl = ms.dataset.GeneratorDataset(dataset=ds, column_names=["images", "label", "old_image"], shuffle=shuffle)
-    # dl = ms.dataset.GeneratorDataset(source=ds, column_names=["features", "label", "old_input"], shuffle=shuffle)
     dl = ms.dataset.GeneratorDataset(source=ds, column_names=['image','target','old_imgb', 'indice'], shuffle=shuffle)
 
     dl = dl.batch(batch_size, drop_remainder=False)
@@ -197,10 +170,7 @@ def get_criteo_dataloader(args):
         (8) unlabeled_dl: loader of unlabeled samples in normal train dataset, used by LR-BA
     """
     party_num = args['n_passive_party'] + 1
-    # get dataset
-    # print("get_criteo_dataloader")
-    # result = load_parties_data(data_dir="../../data/Criteo/criteo.csv", args=args)
-    result = load_parties_data(data_dir="../../data/Criteo/criteo_debug.csv", args=args)
+    result = load_parties_data(data_dir="../../data/Criteo/criteo.csv", args=args)
     X_train, y_train, X_test, y_test, backdoor_y_train, backdoor_X_test, backdoor_y_test, \
         backdoor_indices, backdoor_target_indices, train_labeled_indices, train_unlabeled_indices = result
 
@@ -220,23 +190,15 @@ def get_criteo_dataloader(args):
                                            backdoor_indices=np.arange(args['backdoor_test_size']),
                                            trigger=args['trigger'], trigger_add=args['trigger_add'])
 
-    # 0627改，参照ms的cinic处理
-    # get loader of labeled and unlabeled normal train dataset, used by LR-BA
-    # labeled_dl, unlabeled_dl = get_labeled_loader(train_dataset=train_dl.dataset,
-    #                                               labeled_indices=train_labeled_indices,
-    #                                               unlabeled_indices=train_unlabeled_indices,
-    #                                               args=args)
     labeled_data, unlabeled_data = get_labeled_loader(train_dataset=(X_train, y_train),
                                                       labeled_indices=train_labeled_indices,
                                                       unlabeled_indices=train_unlabeled_indices,
                                                       args=args)
     labeled_dl = generate_dataloader(args, labeled_data,
                                      batch_size=min(len(train_labeled_indices), args['lr_ba_top_batch_size']),
-                                     # transform=transform,
                                      shuffle=True)
     unlabeled_dl = generate_dataloader(args, unlabeled_data,
                                        batch_size=min(len(train_labeled_indices), args['lr_ba_top_batch_size']),
-                                       # transform=transform,
                                        shuffle=True)
 
     # get loader of train dataset used by Gradient-Replacement, containing backdoor features and normal labels
