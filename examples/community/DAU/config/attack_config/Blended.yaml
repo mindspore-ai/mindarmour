@@ -1,0 +1,16 @@
+Blended:
+  # attack config
+  y_target: 0
+  poisoned_rate: 0.10
+  # trigger
+
+  pattern: 'datasets/triggers/hellokitty_32.png'
+  W: 32
+  H: 32
+  pieces: 16
+  mask_rate: 1.0
+  # asymmetric design:The trigger uses different transparency during the training phase and testing phase.
+  alpha: 0.2
+  train_schedule: null
+  work_dir: null
+  

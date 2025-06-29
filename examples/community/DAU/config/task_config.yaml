@@ -1,0 +1,149 @@
+---
+
+ResNet-18_CIFAR-10:
+  dataset: 
+    type: CIFAR-10
+    # /data2/zzq/CreatingSpace/BackdoorToolbox/datasets
+    dataset_root_dir: datasets/
+   
+  model: 
+    type: ResNet-18
+    num_classes: 10
+    batch_norm: False
+ 
+  # model: 
+  #   type: Decoupled
+  #   network_config:
+  #     # 'resnet18','resnet34','resnet50',;'resnet101'
+  #     backnone: resnet18
+  #     linearClassifier:
+  #       dim: 512
+  #       num_classes: 10
+  # SGD, Adam, AdamWeightDecay
+  optimizer: SGD
+  loss: 
+    type: CrossEntropyLoss
+  # cosine_annealing
+  lr_scheduler: cosine_annealing
+
+  schedule:
+    experiment: ResNet-18_CIFAR-10
+    seed: 333
+    deterministic: True
+
+    # related_device
+    device: GPU
+    # 0,1,2,3,4,5
+    CUDA_VISIBLE_DEVICES: 0,1,2,3,4,5
+    GPU_num: 1
+
+    # 100, 200
+    epochs: 50
+    # (128,0.1),  (256,0.1), (512,0.1),
+    batch_size: 128
+    num_workers: 4
+
+    # related_optimization
+    # 0.1, 0.01, 0.001
+    lr: 0.05
+    lr_scheduler_config: 
+      T_max: 200  # same as num_epochs
+    momentum: 0.9
+    #  0.0005, 0.001, 0.01, 0.1, 0.5, 1.0, 10.0
+    weight_decay: 0.0005
+    # [100, 150]
+    schedule: [10000, 1500000]
+    gamma: 0.1
+    clip_grad_norm: 0.5
+
+    # log
+    work_dir: null
+    log_iteration_interval: 10
+    test_iteration_interval: 5
+
+ResNet-18_GTSRB:
+  dataset: 
+    type: GTSRB
+    dataset_root_dir: datasets/
+  model: 
+    type: ResNet-18
+    num_classes: 43  
+  # SGD, Adam, AdamWeightDecay
+  optimizer: SGD
+  loss: 
+    type: CrossEntropyLoss
+  # lr_scheduler: cosine_annealing
+
+  schedule:
+    experiment: ResNet-18_GTSRB
+    # repeatability_setting
+    seed: 333
+    deterministic: True
+    # related_device
+    device: GPU
+    # 0,1,2,3,4,5
+    CUDA_VISIBLE_DEVICES: 0,1,2,3,4,5
+    GPU_num: 1
+    # related_tarin
+    pre_train_model: null
+
+    epochs: 10
+    batch_size: 128
+    num_workers: 8
+    # related_optimization
+    # 0.1, 0.01, 0.001
+    lr: 0.01
+    lr_scheduler_config: 
+      T_max: 20  # same as num_epochs
+    momentum: 0.9
+    weight_decay: 0.0001
+    schedule: [100, 150]
+    gamma: 0.1  
+    clip_grad_norm: 0.5
+    # log
+    work_dir: null
+    log_iteration_interval: 10
+    test_iteration_interval: 1
+
+VGG_GTSRB:
+  dataset: 
+    type: GTSRB
+    dataset_root_dir: datasets/
+  model: 
+    type: VGG
+    num: 19
+    batch_norm: True
+    num_classes: 43
+  # SGD, Adam, AdamWeightDecay
+  optimizer: AdamWeightDecay
+  loss: 
+    type: CrossEntropyLoss
+
+  schedule:
+    #{model}_{datasets}_{defense}_for_{attack} 
+    experiment: VGG19_GTSRB
+    # repeatability_setting
+    seed: 333
+    deterministic: True
+    # related_device
+    device: GPU
+    # 0,1,2,3,4,5
+    CUDA_VISIBLE_DEVICES: 0,1,2,3,4,5
+    GPU_num: 1
+    # related_tarin
+    #/data2/zzq/CreatingSpace/DAU/experiments/VGG19_GTSRB/No_attack/model/model_epoch_100.pth
+    pre_train_model: null
+    epochs: 100
+    batch_size: 128
+    num_workers: 2
+    # related_optimization
+    # 0.1, 0.01, 0.001
+    lr: 0.1
+    momentum: 0.9
+    weight_decay: 0.0001
+    gamma: 0.1  
+    clip_grad_norm: 0.5
+    # log
+    work_dir: work_dir
+    log_iteration_interval: 100
+    test_iteration_interval: 5

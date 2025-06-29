@@ -1,0 +1,93 @@
+DAU:
+  # defense config:
+  defense_strategy: DAU
+  init_filter:
+    split_ratio: 0.01
+    clean_split_ratio: 0.2
+    loss: LGALoss
+    # 0.5
+    # Ror waNet, gamma = 0, epochs = 20
+    # Ror Refool, gamma = 0, epochs = 20
+    gamma: 0.5
+    epochs: 20
+  
+  anti_learning:
+      pre_trian_model: null
+      anti_learning_model_dir: null
+      anti_learning_model_file: null
+      init_poison_data_pool: null
+      num_classes: null
+      anti_loss: oceloss
+      alpha: 1.0
+      # 99.0
+      beta: 1000
+      # 0.001, 0.0001
+      # (0.001, 124)
+      # (0.0001, 32,64)
+      lr: 0.01
+      batch_size: 512
+      gamma: 0.5
+      # 30 
+      epochs: 10
+         
+  filter:
+    num_classes: null
+    y_target: 0
+    poison_rate: 0.1
+    backdoor_model: null
+    #(0.01%, 0.1%, 0.5%, 1%, 5%, 10%, 20%, 30%, 40%, 50%, 60%,95%)
+    #25.3 23.0, 21.335, 20.53, 18.30, 16.70, 13.57, 10.07, 8.75, 7.36, 5.93, 0.857
+    pre_filter: False
+    pre_threshold: 16.70
+    sce:
+      alpha: 1.0
+      beta: 1.0
+      one_hot_min: 0.0000001
+    top_k: null
+    threshold: 20.53
+
+  unlearning:
+    epochs: 20
+    poison_data_pool: null
+    clean_data_pool: null
+    # nceloss(Negative cross entropy loss), cceloss(Oppositional cross-entropy loss)
+    # both : nceloss and cceloss
+    unlearning_loss: cceloss
+    alpha: 1.0
+    beta: 1.0
+    # gamma
+    tau: 0.2
+    batch_size: 128
+    lr: 0.0001
+    lr_decay: False
+    lr_scheduler_config:
+      T_max: 20 # same as num_epochs
+    gamma: 0.3 
+    schedule: [10,15]
+    
+
+  repair:
+    epochs: 50
+
+  # semi-supervised learning
+  ssl:
+    unlabeled_data_pool: null
+    labeled_data_pool: null
+    # 5
+    iter : 5
+    epochs : 10
+    # 10
+    f_pass: 5
+    #(0.70, 0.05)
+    tau_p: 0.50
+    kappa_p: 0.10
+    random_trans_compose_num: 3
+
+  latents:
+    layer: linear
+    # pre_train anti_learning, unlearning, repair
+    method: unlearning
+    
+  work_dir: null
+  schedule: null
+  

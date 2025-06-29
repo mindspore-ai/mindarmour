@@ -1,0 +1,15 @@
+Refool:
+  y_target: 0
+  poisoned_rate: 0.10
+  max_image_size: 560
+  ghost_rate: 0.49
+  alpha_b: -1.       
+  offset: (0, 0)
+  sigma: -1
+  ghost_alpha: -1.
+  reflection_candidates: null
+
+  train_schedule: null
+  work_dir: null
+
+  
