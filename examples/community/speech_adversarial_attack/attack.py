@@ -3,7 +3,6 @@ Speech attack
 """
 import json
 import datetime
-import random
 import numpy as np
 from g2p_en import G2p
 from tqdm import tqdm
@@ -96,7 +95,7 @@ def superpose(audio, noise):
     """
     audio_len = audio.shape[1]
     noise_len = noise.shape[1]
-    start = random.randint(0, noise_len)
+    start = np.random.randint(0, noise_len)
     while noise_len < audio_len:
         noise = np.concatenate((noise, noise), axis=1)
         noise_len = noise.shape[1]
