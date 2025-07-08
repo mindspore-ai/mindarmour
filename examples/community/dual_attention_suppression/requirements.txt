@@ -1,4 +1,0 @@
-pillow >= 9.3.0
-opencv-python >= 4.1.2.30
-pycocotools >= 2.0.5
-pyyaml >= 5.3.1
