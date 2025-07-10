@@ -1,10 +1,10 @@
 # 模型逆向攻击
 
-使用MindSpore框架和MindArmour工具包实现的CIFAR-10图像反演攻击的Python脚本。该脚本利用深度学习模型对CIFAR-10数据集中的图像进行反演攻击，以评估模型的隐私保护能力。构造原始模型相应的逆向模型进行训练，将原始模型输出作为逆向模型输入，原始模型输入作为逆向模型输出。
+使用MindSpore框架和MindArmour工具包实现的CIFAR-10图像反演攻击的Python脚本。该脚本利用深度学习模型对CIFAR-10数据集中的图像进行反演攻击，以评估模型的隐私保护能力。构造原始模型相应的逆向模型进行训练，将原始模型输出作为逆向模型输入，原始模型输入作为逆向模型输出。也可使用mindarmour-master\examples\privacy\inversion_attack目录下的cifar-black-box.py进行测试。
 
 ## 脚本说明
 
-### 1. 加载模型参数及数据集
+### 1. 加载模型参数及数据集（数据集由此网站下载http://www.cs.toronto.edu/~kriz/cifar.html      数据集共有60000张32*32的彩色图像，分为10个类别，每类有6000张图集一共有50000张训练图片和10000张评估图片。）
 
 ```python
 # 加载训练好的网络参数
@@ -14,10 +14,50 @@ load_param_into_net(net, load_dict)
 ds = generate_dataset_cifar(data_list, 32, repeat_num=1)
 ds_test = generate_dataset_cifar(data_list, 32, repeat_num=1)
 ```
+此处要求写明数据集路径，并定义参数，举例
+    # get original data and their inferred fearures
+    data_list = "../../common/dataset/CIFAR10" #/train
+    ds = generate_dataset_cifar(data_list, 32, usage="train", repeat_num=1)
+    data_list = "../../common/dataset/CIFAR10" #/test
+    ds_test = generate_dataset_cifar(data_list, 32, usage="test", repeat_num=1)
+### 1.1.
+定义逆向网络inv_net需满足：
+
+输入/输出匹配
+
+输入维度 = 原始模型在split_layer的特征维度（如conv11输出）
+
+输出维度 = 原始模型输入维度（如CIFAR-10为3×32×32）
+
+结构对称性
+
+原始模型卷积层 → 逆向网络转置卷积层
+
+原始模型池化层 → 逆向网络上采样层
+
+举例：
+class CIFAR10CNNDecoderConv11(nn.Cell):
+    def __init__(self):
+        super().__init__()
+        self.decoder = nn.SequentialCell([
+            # 输入: [batch, 64, 8, 8]
+            nn.Conv2dTranspose(64, 64, 4, stride=2, padding=1),  # 输出16×16
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.Conv2dTranspose(64, 32, 4, stride=2, padding=1),  # 输出32×32
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.Conv2d(32, 3, 3, padding=1),  # 输出3通道
+            nn.Sigmoid()  # 约束输出到[0,1]
+        ])
+    
+    def construct(self, x):
+        return self.decoder(x)
+
 
 ### 2. 运行攻击
 
-定义逆向网络`inv_net`，保证逆向网络输入与原始网络输出一致，逆向网络输出与原始网络输入一致。
+由用户自主定义逆向网络`inv_net`，保证逆向网络输入与原始网络输出一致，逆向网络输出与原始网络输入一致。
 
 ```python
 model_inversion_attack = ModelInversionAttack(net, inv_net, input_shape=(3, 32, 32), split_layer='conv11')
