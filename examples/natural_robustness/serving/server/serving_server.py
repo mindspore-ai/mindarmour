@@ -19,7 +19,7 @@ import sys
 from mindspore_serving import server
 
 
-def start():
+def start(address):
     """Start server."""
     servable_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
 
@@ -27,9 +27,14 @@ def start():
                                                  device_ids=(0, 1), num_parallel_workers=4)
     server.start_servables(servable_configs=servable_config)
 
-    server.start_grpc_server(address="0.0.0.0:5500", max_msg_mb_size=200)
-    # server.start_restful_server(address="0.0.0.0:5500")
+    server.start_grpc_server(address=address, max_msg_mb_size=200)
+    # server.start_restful_server(address=address)
 
 
 if __name__ == "__main__":
-    start()
+    if len(sys.argv) != 3:
+        print("Usage: python serving_server.py <ip> <port>")
+        sys.exit(1)
+    ip, port = sys.argv[1], sys.argv[2]
+    address = f"{ip}:{port}"
+    start(address)

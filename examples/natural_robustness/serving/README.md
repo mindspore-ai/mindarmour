@@ -89,7 +89,7 @@ serving
    ```python
    ···
 
-   def start():
+   def start(address):
        servable_dir = os.path.dirname(os.path.realpath(sys.argv[0]))
        # 服务配置
        servable_config = server.ServableStartConfig(servable_directory=servable_dir, servable_name="perturbation", device_ids=(0, 1), num_parallel_workers=4)
@@ -97,16 +97,16 @@ serving
        server.start_servables(servable_configs=servable_config)
 
        # 启动启动gRPC服务，用于客户端和服务端之间通信
-       server.start_grpc_server(address="0.0.0.0:5500", max_msg_mb_size=200)   # ip和最大的传输数据量，单位MB
+       server.start_grpc_server(address=address, max_msg_mb_size=200)   # ip和最大的传输数据量，单位MB
        # 启动启动Restful服务，用于客户端和服务端之间通信
-       server.start_restful_server(address="0.0.0.0:5500")
+       server.start_restful_server(address=address)
    ```
 
    gRPC传输性能更好，Restful更适合用于web服务，根据需要选择。
 
    执行命令`python serverong_server.py`启动服务。
 
-   当服务端打印日志`Serving RESTful server start success, listening on 0.0.0.0:5500`时，表示Serving RESTful服务启动成功，推理模型已成功加载。
+   当服务端打印日志`Serving RESTful server start success, listening on *.*.*.*:****`时，表示Serving RESTful服务启动成功，推理模型已成功加载。
 
 ### 客户端进行推理
 
@@ -143,12 +143,11 @@ serving
    ```python
    ···
 
-   def perturb(perturb_config):
+   def perturb(perturb_config, address):
        """invoke servable perturbation method natural_perturbation"""
 
        # 请求的服务端ip及端口、请求的服务名、请求的方法名
-       ip_addr = "0.0.0.0:8800"
-       client = Client(ip_addr, "perturbation", "natural_perturbation")
+       client = Client(address, "perturbation", "natural_perturbation")
 
        # 输入数据
        instances = []

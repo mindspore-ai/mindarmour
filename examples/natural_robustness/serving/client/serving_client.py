@@ -14,6 +14,7 @@
 # ============================================================================
 """The client of example add."""
 import os
+import sys
 import json
 from io import BytesIO
 
@@ -24,9 +25,9 @@ from mindspore_serving.client import Client
 from perturb_config import perturb_configs
 
 
-def perturb(perturb_config):
+def perturb(perturb_config, address):
     """Invoke servable perturbation method natural_perturbation"""
-    client = Client("0.0.0.0:5500", "perturbation", "natural_perturbation")
+    client = Client(address, "perturbation", "natural_perturbation")
     instances = []
     img_path = 'test_data/1.png'
     result_path = 'result/'
@@ -58,4 +59,9 @@ def perturb(perturb_config):
 
 
 if __name__ == '__main__':
-    perturb(perturb_configs)
+    if len(sys.argv) != 3:
+        print("Usage: python serving_client.py <ip> <port>")
+        sys.exit(1)
+    ip, port = sys.argv[1], sys.argv[2]
+    address = f"{ip}:{port}"
+    perturb(perturb_configs, address)
