@@ -44,4 +44,4 @@ You can download the pre-trained model checkpoint file [here](<https://www.minds
 ```
 python coco_attack_pgd.py --pre_trained [PRETRAINED_CHECKPOINT_FILE] 
 ```
-> Adversarial samples will be generated and saved as pickle file.
+> Adversarial samples will be generated.

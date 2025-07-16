@@ -14,7 +14,6 @@
 """PGD attack for faster rcnn"""
 import os
 import argparse
-import pickle
 
 from mindspore import context
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
@@ -130,6 +129,4 @@ if __name__ == '__main__':
             adv_id += 1
         if adv_id >= num_batches*config.test_batch_size:
             break
-
-    pickle.dump(adv_samples, open('adv_samples.pkl', 'wb'))
     print('Generate adversarial samples complete.')
