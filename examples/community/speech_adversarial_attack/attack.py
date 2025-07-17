@@ -389,7 +389,7 @@ def generate(
 
 
 if __name__ == "__main__":
-    test_dataset = np.load("source/100_test_audio_list.npy", allow_pickle=True)
+    test_dataset = np.load("source/100_test_audio_list.npy", allow_pickle=False)
 
     sr_and_cer(test_dataset, None)
     train_dataset = generate_data(10, 0.2)
