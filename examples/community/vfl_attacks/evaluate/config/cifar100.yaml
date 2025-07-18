@@ -1,0 +1,107 @@
+# global configuration
+dataset: cifar100
+half: 16
+cuda: 1
+log: vfl_cifar100
+debug: false
+
+# trigger
+trigger_add: True
+# data configuration
+target_train_size: -1
+target_test_size: -1
+backdoor_train_size: 50
+backdoor_test_size: 2000
+train_label_size: 400
+#target_train_size: 2000
+#target_test_size: 2000
+#backdoor_train_size: 50
+#backdoor_test_size: 20
+#train_label_size: 400
+
+# save configuration
+save_model: 1
+save_data: 0
+
+# load configuration
+load_target: 0
+load_data: 0
+load_model: 0
+load_time: 0
+
+# global model configuration
+n_passive_party: 1
+target_batch_size: 32
+target_epochs: 100
+# passive party configuration
+passive_bottom_model: resnet
+passive_bottom_gamma: 0.1
+passive_bottom_wd: 0.0005
+passive_bottom_momentum: 0.9
+passive_bottom_lr: 0.1
+passive_bottom_stone: [50,85]
+# active party configuration
+# active bottom model configuration
+active_bottom_model: resnet
+active_bottom_gamma: 0.1
+active_bottom_wd: 0.0005
+active_bottom_momentum: 0.9
+active_bottom_lr: 0.1
+active_bottom_stone: [50,85]
+# active top model configuration
+active_top_trainable: 1
+active_top_model: fcn
+active_top_gamma: 0.1
+active_top_wd: 0.0005
+active_top_momentum: 0.9
+active_top_lr: 0.1
+active_top_stone: [50,85]
+
+# defense configuration
+noisy_gradients: false
+noise_scale: 0.001
+
+gradient_compression: false
+gc_percent: 0.5
+
+# backdoor attack global configuration
+backdoor: villain
+backdoor_label: 6
+
+# configuration
+trigger: feature
+mal_optim: false
+
+# Gradient replacement configuration
+g_r_amplify_ratio: 10
+
+# LR-BA attack configuration
+lr_ba_alpha: 0.75
+lr_ba_active: false
+lr_ba_active_r_min: 1.0
+lr_ba_active_r_max: 5.0
+lr_ba_active_reset: 1.0
+lr_ba_top_lr: 0.002
+lr_ba_top_momentum: 0.9
+lr_ba_top_wd: 0.0001
+lr_ba_top_epochs: 25
+lr_ba_top_batch_size: 16
+lr_ba_top_train_iteration: 1024
+lr_ba_top_T: 0.8
+lr_ba_top_alpha: 0.75
+lr_ba_generate_lr: 0.005
+lr_ba_generate_epochs: 1024
+lr_ba_ema_decay: 0.999
+lr_ba_finetune_lr: 0.005
+lr_ba_finetune_epochs: 20
+
+lr_ba_top_margin: 0.7
+lr_ba_top_lambda_u: 1
+lr_ba_top_lambda_u_hinge: 0
+lr_ba_train_aug: false
+lr_ba_top_temp_change: 1000000
+lr_ba_top_co: false
+lr_ba_top_separate_mix: false
+lr_ba_top_mix_layers_set: [7, 9, 12]
+lr_ba_top_batch_size_u: 4
+
