@@ -24,10 +24,10 @@ prompts = [
 ]
 
 # Create a sampling params object.
-sampling_params = SamplingParams(temperature=0.0, top_p=0.95)
+sampling_params = SamplingParams(temperature=0.0, top_p=0.95, max_tokens=50)
 
 # Create a LLM
-llm = LLM(model="Qwen2.5-7B-Instruct-obf") # Path of the obfuscated weight files
+llm = LLM(model="Qwen2.5-7B-Instruct-obf", tensor_parallel_size=2) # Path of the obfuscated weight files
 # Generate texts from the prompts. The output is a list of RequestOutput objects
 # that contain the prompt, generated text, and other information.
 outputs = llm.generate(prompts, sampling_params)

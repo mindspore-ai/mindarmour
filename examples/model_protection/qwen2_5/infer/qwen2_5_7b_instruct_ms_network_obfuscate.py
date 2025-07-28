@@ -18,8 +18,10 @@ import mindspore.common.dtype as mstype
 from mindspore import Parameter, Tensor, mint, nn, ops
 from mindspore.ops import operations as P
 from mindspore.common.initializer import initializer
+
 from mindformers.experimental.infer.core.transformer import ParallelTransformer
 from vllm_mindspore.model_executor.models.mf_models.qwen2_weight_processor import Qwen2WeightProcessor
+
 
 _orig_init = ParallelTransformer.__init__
 
@@ -62,15 +64,15 @@ class VocabEmbedding(nn.Cell):
 def _patched_init(self, config, *args, **kwargs):
     _orig_init(self, config, *args, **kwargs)
     self.tok_embeddings = VocabEmbedding(
-        num_embeddings=config.vocab_size,
-        embedding_dim=config.hidden_size,
-        param_init_type=config.param_init_dtype,
-        param_init="normal",
-    )
+                num_embeddings=config.vocab_size,
+                embedding_dim=config.hidden_size,
+                param_init_type=config.param_init_dtype,
+                param_init="normal",
+        )
     self.p = Parameter(Tensor(np.arange(config.hidden_size), mstype.int32),
-                       name='p', parallel_optimizer=False)
+                        name='p', parallel_optimizer=False)
     self.p_inv = Parameter(Tensor(np.arange(config.hidden_size), mstype.int32),
-                           name='p_inv', parallel_optimizer=False)
+                        name='p_inv', parallel_optimizer=False)
     self.permute = ops.Gather().set_device('CPU')
     self.recover = ops.Gather().set_device('CPU')
 
@@ -78,8 +80,8 @@ ParallelTransformer.__init__ = _patched_init
 
 
 def _patched_construct(self, tokens: Tensor, batch_valid_length=None, batch_index=None, zactivate_len=None,
-                       block_tables=None, slot_mapping=None, prefix_keys_values=None, position_ids=None, attention_mask=None,
-                       q_seq_lens=None, key_cache=None, value_cache=None):
+                      block_tables=None, slot_mapping=None, prefix_keys_values=None, position_ids=None, attention_mask=None,
+                      q_seq_lens=None, key_cache=None, value_cache=None):
         """
         Forward of ParallelTransformer.
 
@@ -157,6 +159,13 @@ def _patched_infer_convert_outer_weight(self, src_hf_dir, hf_weight_map):
     self.parameter_dict[p_inv_ms_name] = ms.Parameter(ms.from_numpy(np_data).astype(ms.int32),
                                                       name=p_inv_ms_name,
                                                       requires_grad=False)
+    # Do not split_tp_group
+    embed_tokens_hf_name = "model.embed_tokens.weight"
+    embed_tokens_ms_name = self.convert_weight_name(embed_tokens_hf_name)
+    np_data, _ = self.get_safetensor_from_file(embed_tokens_hf_name, src_hf_dir, hf_weight_map)
+    self.parameter_dict[embed_tokens_ms_name] = ms.Parameter(ms.from_numpy(np_data).astype(ms.bfloat16),
+                                                            name=embed_tokens_ms_name,
+                                                            requires_grad=False)
 
 Qwen2WeightProcessor.infer_convert_outer_weight = _patched_infer_convert_outer_weight
 
