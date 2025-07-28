@@ -49,7 +49,7 @@ def gen_colums_permuate_list(hidden_size, num_heads=None, kv_num_heads=None, use
         kv_pi = None
     return pi, kv_pi
 
-def test_qwen2_obfuscate(src_path, saved_path, obf_config_path):
+def test_qwen2_5_weight_obfuscate(src_path, saved_path, obf_config_path):
     with open(obf_config_path, 'r') as f:
         obf_config = yaml.safe_load(f)
     obf = ModelObfuscator(obf_config, obfuscate_scale=100)
@@ -79,7 +79,7 @@ def test_qwen2_obfuscate(src_path, saved_path, obf_config_path):
 
 if __name__ == '__main__':
     if len(sys.argv) != 4:
-        print("Usage: python qwen2_obfuscate.py <src_model_path> <saved_model_path> <obf_config_path>")
+        print("Usage: python qwen2_5_7b_instruct_weight_obfuscate.py <src_model_path> <saved_model_path> <obf_config_path>")
         sys.exit(1)
     src_path, saved_path, obf_config_path = sys.argv[1], sys.argv[2], sys.argv[3]
-    test_qwen2_obfuscate(src_path, saved_path, obf_config_path)
+    test_qwen2_5_weight_obfuscate(src_path, saved_path, obf_config_path)

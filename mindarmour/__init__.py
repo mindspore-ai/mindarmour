@@ -32,7 +32,7 @@ from .privacy.evaluation.inversion_attack import ImageInversionAttack
 from .privacy.evaluation.model_inversion_attack import ModelInversionAttack
 from .privacy.evaluation.shadow_model_attack import ShadowModelAttack
 from .reliability.concept_drift.concept_drift_check_time_series import ConceptDriftCheckTimeSeries
-from .model_protection import obfuscate_weight_files
+from .model_protection import ModelObfuscator
 
 __all__ = ['Attack',
            'BlackModel',
