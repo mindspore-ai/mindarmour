@@ -49,7 +49,7 @@ def gen_colums_permuate_list(hidden_size, num_heads=None, kv_num_heads=None, use
         kv_pi = None
     return pi, kv_pi
 
-# not obfuscate embedding layer and put embedding layer in CPU
+# obfuscate embedding layer and put embedding layer in NPU
 def test_qwen2_5_weight_obfuscate(src_path, saved_path, obf_config_path):
     with open(obf_config_path, 'r') as f:
         obf_config = yaml.safe_load(f)
@@ -58,29 +58,28 @@ def test_qwen2_5_weight_obfuscate(src_path, saved_path, obf_config_path):
     num_heads = 28
     layers = 28
     num_key_value_heads = 4
+    vocab_size = 152064
+    emb_p, _ = gen_colums_permuate_list(vocab_size)
+    emb_p_inv = inv_permutation(emb_p)
     p, kv_p = gen_colums_permuate_list(hidden_size, num_heads, num_key_value_heads, True)
     p_inv = inv_permutation(p)
     kv_p_inv = inv_permutation(kv_p)
     alpha_k = np.random.randint(1, 100, size=[1, ]).astype(np.float16)
     alpha_q = 1 / alpha_k
 
-    obf_metadata = {"attn_pi": np.array(p), "attn_kv_pi" : np.array(kv_p), "attn_kv_pi_inv" : np.array(kv_p_inv), "attn_pi_inv" : np.array(p_inv), "alpha_q" : alpha_q, "alpha_k" : alpha_k}
+    obf_metadata = {"attn_pi": np.array(p), "attn_kv_pi" : np.array(kv_p), "attn_kv_pi_inv" : np.array(kv_p_inv), "attn_pi_inv" : np.array(p_inv), "alpha_q" : alpha_q, "alpha_k" : alpha_k, "emb_pi" :np.array(emb_p), "emb_pi_inv" : np.array(emb_p_inv)}
+
     obf.set_metadata(obf_metadata)
     metadata_mapping = {}
-    metadata_mapping['model.p'] = "attn_pi"
     metadata_mapping['model.p_inv'] = "attn_pi_inv"
-    # for i in range(layers):
-    #     metadata_mapping[f"model.layers.{i}.self_attn.p_inv"] = "attn_pi_inv"
-    #     metadata_mapping[f"model.layers.{i}.self_attn.p"] = "attn_pi"
-    #     metadata_mapping[f"model.layers.{i}.self_attn.kv_p"] = "attn_kv_pi"
-    #     metadata_mapping[f"model.layers.{i}.self_attn.kv_p_inv"] = "attn_kv_pi_inv"
+    metadata_mapping['model.emb_p_inv'] = "emb_pi_inv"
     obf.set_save_metadata_mapping(metadata_mapping)
     obf.obfuscate_weight_files(src_path, saved_path=saved_path)
 
 
 if __name__ == '__main__':
     if len(sys.argv) != 4:
-        print("Usage: python qwen2_5_7b_instruct_weight_obfuscate.py <src_model_path> <saved_model_path> <obf_config_path>")
+        print("Usage: python qwen2_5_7b_instruct_weight_obfuscate_emb.py <src_model_path> <saved_model_path> <obf_config_path>")
         sys.exit(1)
     src_path, saved_path, obf_config_path = sys.argv[1], sys.argv[2], sys.argv[3]
     test_qwen2_5_weight_obfuscate(src_path, saved_path, obf_config_path)
