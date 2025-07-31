@@ -70,9 +70,9 @@ def _patched_init(self, config, *args, **kwargs):
                 param_init="normal",
         )
     self.p = Parameter(Tensor(np.arange(config.hidden_size), mstype.int32),
-                        name='p', parallel_optimizer=False)
+                       name='p', parallel_optimizer=False)
     self.p_inv = Parameter(Tensor(np.arange(config.hidden_size), mstype.int32),
-                        name='p_inv', parallel_optimizer=False)
+                           name='p_inv', parallel_optimizer=False)
     self.permute = ops.Gather().set_device('CPU')
     self.recover = ops.Gather().set_device('CPU')
 
