@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import qwen2_5_7b_instruct_ms_network_obfuscate_emb # Add this line on the top of script.
-# import qwen2_5_7b_instruct_ms_network_obfuscate
+from network_patch import qwen2_5_7b_instruct_ms_network_obfuscate_emb # Add this line on the top of script.
+# from network_patch import qwen2_5_7b_instruct_ms_network_obfuscate
 import time
+import sys
 import vllm_mindspore
 from vllm import LLM, SamplingParams
 
@@ -25,7 +26,7 @@ prompts = [
    "Llama is"
 ]
 
-def test_qwen2_5_obfuscate_inference(model_path)
+def test_qwen2_5_obfuscate_inference(model_path):
     # Create a sampling params object.
     sampling_params = SamplingParams(temperature=0.0, top_p=0.95, max_tokens=50)
 
