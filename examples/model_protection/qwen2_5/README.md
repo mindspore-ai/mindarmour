@@ -1,6 +1,6 @@
 # Qwen2_5_7B_Instruct模型混淆
 
-提供Qwen2_5_7B_Instruct模型的混淆和推理脚本。用户传入模型文件的路径和推理数据，返回混淆后的模型和推理结果。
+提供Qwen2_5_7B_Instruct模型的混淆和推理脚本。用户分别传入模型文件的路径和推理数据，返回混淆后的模型和推理结果。
 
 ## 环境准备
 
@@ -81,5 +81,5 @@ qwen2_5
    在`qwen2_5_7b_instruct_obfuscate_inference.py`脚本中，通过一行代码实现qwen2_5模型结构修改：
 
    ```python
-   import qwen2_5_7b_instruct_ms_network_obfuscate_emb
+   from network_patch import qwen2_5_7b_instruct_ms_network_obfuscate_emb
    ```
