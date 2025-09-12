@@ -389,7 +389,10 @@ def generate(
 
 
 if __name__ == "__main__":
-    test_dataset = np.load("source/100_test_audio_list.npy", allow_pickle=False)
+    if len(sys.argv) != 2:
+        print("Usage: python attack.py <test_dataset_path>")
+        sys.exit(1)
+    test_dataset = np.load(sys.argv[1], allow_pickle=False)
 
     sr_and_cer(test_dataset, None)
     train_dataset = generate_data(10, 0.2)
