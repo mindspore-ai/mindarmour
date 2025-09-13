@@ -99,8 +99,8 @@ def mnist_inversion_attack(net):
     LOGGER.info(TAG, 'The average L2 distance between original images and inverted images is: {}'.format(avg_l2_dis))
     LOGGER.info(TAG, 'The average ssim value between original images and inverted images is: {}'.format(avg_ssim))
     LOGGER.info(TAG, 'The average prediction confidence on true labels of inverted images is: {}'.format(avg_confi))
-    LOGGER.info(TAG, 'True labels of original images are:      %s' % true_labels)
-    LOGGER.info(TAG, 'Predicted labels of inverted images are: %s' % pred_labels)
+    LOGGER.info(TAG, 'True labels of original images are:      %s', true_labels)
+    LOGGER.info(TAG, 'Predicted labels of inverted images are: %s', pred_labels)
 
     # plot 10 images
     plot_num = min(sample_num, 10)

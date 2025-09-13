@@ -37,7 +37,7 @@ class LogUtil:
     """
     _instance = None
     _logger = None
-    _extra_fmt = ' [%s] [%s] '
+    _extra_fmt = ' [{}] [{}] '
 
     def __init__(self):
         raise SyntaxError('can not instance, please use get_instance.')
@@ -109,7 +109,7 @@ class LogUtil:
 
     def debug(self, tag, msg, *args):
         """
-        Log '[tag] msg % args' with severity 'DEBUG'.
+        Log '[tag] msg' with severity 'DEBUG'.
 
         Args:
             tag (str): Logger tag.
@@ -118,11 +118,15 @@ class LogUtil:
         """
         caller_info = _find_caller()
         file_info = ':'.join([caller_info[0], str(caller_info[1])])
-        self._logger.debug(self._extra_fmt + msg, file_info, tag, *args)
+        formatted_msg = self._extra_fmt.format(file_info, tag) + str(msg)
+        if args:
+            self._logger.debug(formatted_msg, *args)
+        else:
+            self._logger.debug(formatted_msg)
 
     def info(self, tag, msg, *args):
         """
-        Log '[tag] msg % args' with severity 'INFO'.
+        Log '[tag] msg' with severity 'INFO'.
 
         Args:
             tag (str): Logger tag.
@@ -131,11 +135,15 @@ class LogUtil:
         """
         caller_info = _find_caller()
         file_info = ':'.join([caller_info[0], str(caller_info[1])])
-        self._logger.info(self._extra_fmt + msg, file_info, tag, *args)
+        formatted_msg = self._extra_fmt.format(file_info, tag) + str(msg)
+        if args:
+            self._logger.info(formatted_msg, *args)
+        else:
+            self._logger.info(formatted_msg)
 
     def warn(self, tag, msg, *args):
         """
-        Log '[tag] msg % args' with severity 'WARNING'.
+        Log '[tag] msg' with severity 'WARNING'.
 
         Args:
             tag (str): Logger tag.
@@ -144,11 +152,15 @@ class LogUtil:
         """
         caller_info = _find_caller()
         file_info = ':'.join([caller_info[0], str(caller_info[1])])
-        self._logger.warning(self._extra_fmt + msg, file_info, tag, *args)
+        formatted_msg = self._extra_fmt.format(file_info, tag) + str(msg)
+        if args:
+            self._logger.warning(formatted_msg, *args)
+        else:
+            self._logger.warning(formatted_msg)
 
     def error(self, tag, msg, *args):
         """
-        Log '[tag] msg % args' with severity 'ERROR'.
+        Log '[tag] msg' with severity 'ERROR'.
 
         Args:
             tag (str): Logger tag.
@@ -157,4 +169,8 @@ class LogUtil:
         """
         caller_info = _find_caller()
         file_info = ':'.join([caller_info[0], str(caller_info[1])])
-        self._logger.error(self._extra_fmt + msg, file_info, tag, *args)
+        formatted_msg = self._extra_fmt.format(file_info, tag) + str(msg)
+        if args:
+            self._logger.error(formatted_msg, *args)
+        else:
+            self._logger.error(formatted_msg)
