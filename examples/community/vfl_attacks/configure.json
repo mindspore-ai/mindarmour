@@ -1,0 +1,7 @@
+{
+    "rdr": {
+        "enable": true,
+        "mode": 1,
+        "path": "/path/to/rdr/dir"
+    }
+}
