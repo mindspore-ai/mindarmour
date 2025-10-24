@@ -248,6 +248,7 @@ class ModelObfuscator:
             save_metadata = config.get('save_metadata', False)
             metadata_op_name = config.get('metadata_op')
             layers = config.get('layers')  
+            experts = config.get('experts')
             
             if not layers:
                 if not obf_metadata.get(name):
@@ -257,12 +258,21 @@ class ModelObfuscator:
                         saved_metadata[name] = obf_tensor
             else:
                 for layer in layers:
-                    strTemplate = Template(name)
-                    obf_name = strTemplate.safe_substitute({"layer": str(layer)})
-                    obf_tensor = self._gen_obfuscate_tensor(config.get('shape'), config.get('type'))
-                    obf_metadata[obf_name] = obf_tensor
-                    if save_metadata:
-                        saved_metadata[name] = obf_tensor
+                    replacements = {"layer": str(layer)}
+                    if experts:
+                        for expert in experts:
+                            replacements["expert"] = str(expert)
+                            obf_name = Template(name).safe_substitute(replacements)
+                            obf_tensor = self._gen_obfuscate_tensor(config.get('shape'), config.get('type'))
+                            obf_metadata[obf_name] = obf_tensor
+                            if save_metadata:
+                                saved_metadata[name] = obf_tensor
+                    else:
+                        obf_name = Template(name).safe_substitute(replacements)
+                        obf_tensor = self._gen_obfuscate_tensor(config.get('shape'), config.get('type'))
+                        obf_metadata[obf_name] = obf_tensor
+                        if save_metadata:
+                            saved_metadata[name] = obf_tensor
         return obf_metadata, saved_metadata
     
     def set_metadata(self, new_metadata):
@@ -317,6 +327,8 @@ class ModelObfuscator:
                         obf_param = obf_param[p]
                     elif axis == 1:
                         obf_param = obf_param[:, p]
+                    elif axis == 2:
+                        obf_param = obf_param[:, :, p]
                     else:
                         raise ValueError('axis should be 0 or 1, but got {}'.format(axis))
                 elif op_name == 'matmul':
@@ -346,6 +358,7 @@ class ModelObfuscator:
                     raise TypeError('{} should be dict type, but got {}'.format(obf_target, type(obf_target)))
                 target = obf_target.get('target', None)
                 layers = obf_target.get('layers', [])
+                experts = obf_target.get('experts', [])
                 obf_ops = obf_target.get('weight_obf_ops', None)
                 if not target or not obf_ops:
                     raise KeyError("target or obf_ops is None.")
@@ -359,16 +372,29 @@ class ModelObfuscator:
                         LOGGER.info(TAG, "obfuscate weight: {} success.".format(item))
                         not_obfuscated_params.remove(item)
                 for layer in layers:
-                    strTemplate = Template(target)
-                    target_path = strTemplate.safe_substitute({"layer": str(layer)})
-                    if target_path == param_path:
-                        obf_param = _obfuscate_param(param, obf_metadata, obf_ops, layer)
-                        if obf_param is None:
-                            LOGGER.error(TAG, "obfuscate weight {} failed.".format(item))
-                            return False
-                        params[item] = obf_param
-                        LOGGER.info(TAG, "obfuscate weight: {} success.".format(item))
-                        not_obfuscated_params.remove(item)
+                    replacements = {"layer": str(layer)}
+                    if experts:
+                        for expert in experts:
+                            replacements["expert"] = str(expert)
+                            target_path = Template(target).safe_substitute(replacements)
+                            if target_path == param_path:
+                                obf_param = _obfuscate_param(param, obf_metadata, obf_ops, layer)
+                                if obf_param is None:
+                                    LOGGER.error(TAG, "obfuscate weight {} failed.".format(item))
+                                    return False
+                                params[item] = obf_param
+                                LOGGER.info(TAG, "obfuscate weight: {} success.".format(item))
+                                not_obfuscated_params.remove(item)
+                    else:
+                        target_path = Template(target).safe_substitute(replacements)
+                        if target_path == param_path:
+                            obf_param = _obfuscate_param(param, obf_metadata, obf_ops, layer)
+                            if obf_param is None:
+                                LOGGER.error(TAG, "obfuscate weight {} failed.".format(item))
+                                return False
+                            params[item] = obf_param
+                            LOGGER.info(TAG, "obfuscate weight: {} success.".format(item))
+                            not_obfuscated_params.remove(item)
         return True
 
     def _obfuscate_safetensor_files(self, src_path, saved_path='./'):
@@ -426,7 +452,7 @@ class ModelObfuscator:
         try:
             with safe_open(src_file, framework="np") as f:
                 for param_name in f.keys():
-                    #print(hf_param_name)
+                    # print(param_name)
                     params[param_name] = f.get_tensor(param_name)
                     index["weight_map"][param_name] = file_name
                     not_obfuscated_params.append(param_name)
@@ -448,3 +474,4 @@ class ModelObfuscator:
         save_file(params, obf_file_name)
         index["metadata"]["total_size"] += os.path.getsize(obf_file_name)
         return not_obfuscated_params
+    

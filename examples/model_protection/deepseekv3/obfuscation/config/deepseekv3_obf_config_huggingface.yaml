@@ -1,0 +1,320 @@
+obf_metadata_config:
+- name: rope_p
+  shape: [32, ]
+  type: rearrange
+  save_metadata: True
+- name: token_p
+  shape: [129280, ]
+  type: rearrange
+  save_metadata: True
+- name: token_p_inv
+  shape: [129280, ]
+  type: rearrange
+  save_metadata: False
+- name: emb_p
+  shape: [7168, ]
+  type: rearrange
+  save_metadata: False
+- name: emb_p_inv
+  shape: [7168, ]
+  type: rearrange
+  save_metadata: True
+- name: qa_p
+  shape: [1536, ]
+  type: rearrange
+  save_metadata: False
+- name: qa_p_inv
+  shape: [1536, ]
+  type: rearrange
+  save_metadata: False
+- name: qb_p
+  shape: [24576, ]
+  type: rearrange
+  save_metadata: False
+- name: kva_p
+  shape: [576, ]
+  type: rearrange
+  save_metadata: False
+- name: kva_p_nope
+  shape: [512, ]
+  type: rearrange
+  save_metadata: False
+- name: kva_p_nope_inv
+  shape: [512, ]
+  type: rearrange
+  save_metadata: False
+- name: kvb_p
+  shape: [32768, ]
+  type: rearrange
+  save_metadata: False
+- name: vb_p_inv
+  shape: [16384, ]
+  type: rearrange
+  save_metadata: False
+- name: o_p
+  shape: [7168, ]
+  type: rearrange
+  save_metadata: False
+- name: o_p_inv
+  shape: [7168, ]
+  type: rearrange
+  save_metadata: False
+- name: mlp_up_p
+  shape: [18432, ]
+  type: rearrange
+  save_metadata: False
+- name: mlp_up_p_inv
+  shape: [18432, ]
+  type: rearrange
+  save_metadata: False
+- name: mlp_down_p
+  shape: [7168, ]
+  type: rearrange
+  save_metadata: False
+- name: expert_up_p
+  shape: [2048, ]
+  type: rearrange
+  save_metadata: False
+- name: expert_up_p_inv
+  shape: [2048, ]
+  type: rearrange
+  save_metadata: False
+- name: expert_down_p
+  shape: [7168, ]
+  type: rearrange
+  save_metadata: False
+- name: shared_expert_up_p
+  shape: [2048, ]
+  type: rearrange
+  save_metadata: False
+- name: shared_expert_up_p_inv
+  shape: [2048, ]
+  type: rearrange
+  save_metadata: False
+- name: shared_expert_down_p
+  shape: [7168, ]
+  type: rearrange
+  save_metadata: False
+
+weight_obf_config:
+- target: model/embed_tokens/weight
+  weight_obf_ops:
+  - name: permuate
+    input_x: weight
+    input_y: token_p_inv
+    axis: 0
+  - name: permuate
+    input_x: weight
+    input_y: emb_p
+    axis: 1
+
+- target: model/layers/${layer}/self_attn/q_a_proj/weight
+  layers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+  weight_obf_ops:
+  - name: permuate
+    input_x: weight
+    input_y: emb_p
+    axis: 1
+  - name: permuate
+    input_x: weight
+    input_y: qa_p
+    axis: 0
+
+- target: model/layers/${layer}/self_attn/q_a_layernorm/weight
+  layers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+  weight_obf_ops:
+  - name: permuate
+    input_x: weight
+    input_y: qa_p
+    axis: 0
+
+- target: model/layers/${layer}/self_attn/q_b_proj/weight
+  layers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+  weight_obf_ops:
+  - name: permuate
+    input_x: weight
+    input_y: qa_p
+    axis: 1
+  - name: permuate
+    input_x: weight
+    input_y: qb_p
+    axis: 0
+
+- target: model/layers/${layer}/self_attn/kv_a_proj_with_mqa/weight
+  layers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+  weight_obf_ops:
+  - name: permuate
+    input_x: weight
+    input_y: emb_p
+    axis: 1
+  - name: permuate
+    input_x: weight
+    input_y: kva_p
+    axis: 0
+
+- target: model/layers/${layer}/self_attn/kv_a_layernorm/weight
+  layers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+  weight_obf_ops:
+  - name: permuate
+    input_x: weight
+    input_y: kva_p_nope
+    axis: 0
+
+- target: model/layers/${layer}/self_attn/kv_b_proj/weight
+  layers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+  weight_obf_ops:
+  - name: permuate
+    input_x: weight
+    input_y: kva_p_nope
+    axis: 1
+  - name: permuate
+    input_x: weight
+    input_y: kvb_p
+    axis: 0
+
+- target: model/layers/${layer}/self_attn/o_proj/weight
+  layers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+  weight_obf_ops:
+  - name: permuate
+    input_x: weight
+    input_y: vb_p
+    axis: 1
+  - name: permuate
+    input_x: weight
+    input_y: o_p
+    axis: 0
+
+- target: model/layers/${layer}/mlp/gate_proj/weight
+  layers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+  weight_obf_ops:
+  - name: permuate
+    input_x: weight
+    input_y: emb_p
+    axis: 1
+  - name: permuate
+    input_x: weight
+    input_y: mlp_up_p
+    axis: 0
+
+- target: model/layers/${layer}/mlp/up_proj/weight
+  layers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+  weight_obf_ops:
+  - name: permuate
+    input_x: weight
+    input_y: emb_p
+    axis: 1
+  - name: permuate
+    input_x: weight
+    input_y: mlp_up_p
+    axis: 0
+
+- target: model/layers/${layer}/mlp/down_proj/weight
+  layers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+  weight_obf_ops:
+  - name: permuate
+    input_x: weight
+    input_y: mlp_up_p
+    axis: 1
+  - name: permuate
+    input_x: weight
+    input_y: mlp_down_p
+    axis: 0
+
+- target: model/layers/${layer}/input_layernorm/weight
+  layers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+  weight_obf_ops:
+  - name: permuate
+    input_x: weight
+    input_y: emb_p
+    axis: 0  
+
+- target: model/layers/${layer}/post_attention_layernorm/weight
+  layers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+  weight_obf_ops:
+  - name: permuate
+    input_x: weight
+    input_y: emb_p
+    axis: 0  
+
+- target: model/layers/${layer}/mlp/gate/weight
+  layers: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+  weight_obf_ops:
+  - name: permuate
+    input_x: weight
+    input_y: emb_p
+    axis: 1  
+
+- target: model/layers/${layer}/mlp/shared_experts/gate_proj/weight
+  layers: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+  weight_obf_ops:
+  - name: permuate
+    input_x: weight
+    input_y: emb_p
+    axis: 1
+  - name: permuate
+    input_x: weight
+    input_y: shared_expert_up_p
+    axis: 0
+
+- target: model/layers/${layer}/mlp/shared_experts/up_proj/weight
+  layers: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+  weight_obf_ops:
+  - name: permuate
+    input_x: weight
+    input_y: emb_
+    axis: 1
+  - name: permuate
+    input_x: weight
+    input_y: shared_expert_up_p
+    axis: 0
+
+- target: model/layers/${layer}/mlp/shared_experts/down_proj/weight
+  layers: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+  weight_obf_ops:
+  - name: permuate
+    input_x: weight
+    input_y: shared_expert_up_p
+    axis: 1
+  - name: permuate
+    input_x: weight
+    input_y: shared_expert_down_p
+    axis: 0
+
+- target: model/layers/${layer}/mlp/experts/${expert}/gate_proj/weight
+  layers: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+  experts: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255]
+  weight_obf_ops:
+  - name: permuate
+    input_x: weight
+    input_y: emb_p
+    axis: 1
+  - name: permuate
+    input_x: weight
+    input_y: expert_up_p
+    axis: 0
+
+- target: model/layers/${layer}/mlp/experts/${expert}/up_proj/weight
+  layers: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+  experts: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255]
+  weight_obf_ops:
+  - name: permuate
+    input_x: weight
+    input_y: emb_p
+    axis: 1
+  - name: permuate
+    input_x: weight
+    input_y: expert_up_p
+    axis: 0
+
+- target: model/layers/${layer}/mlp/experts/${expert}/down_proj/weight
+  layers: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+  experts: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255]
+  weight_obf_ops:
+  - name: permuate
+    input_x: weight
+    input_y: expert_up_p
+    axis: 1
+  - name: permuate
+    input_x: weight
+    input_y: expert_down_p
+    axis: 0
