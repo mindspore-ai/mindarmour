@@ -1,0 +1,9 @@
+SIG:
+  y_target: 3
+  # 0.0025, 0.005, 0.0075, 0.01, 0.05, 0.1, 0.15, 0.20
+  poisoned_rate: 0.25
+  delta: 50
+  frequency: 6
+  
+  train_schedule: null
+  work_dir: null
