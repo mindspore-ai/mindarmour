@@ -74,7 +74,7 @@ The architecture is shown as follow：
 
 ### System Environment Information Confirmation
 
-- The hardware platform should be Ascend, GPU or CPU.
+- The hardware platform should be Huawei Ascend, GPU or CPU.
 - See our [MindSpore Installation Guide](https://www.mindspore.cn/install) to install MindSpore.  
     The versions of MindArmour and MindSpore must be consistent.
 - All other dependencies are included in [setup.py](https://gitee.com/mindspore/mindarmour/blob/master/setup.py).

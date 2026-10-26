@@ -71,7 +71,7 @@ Fuzz Testing模块的架构图如下：
 
 ### 确认系统环境信息
 
-- 硬件平台为Ascend、GPU或CPU。
+- 硬件平台为Huawei Ascend、GPU或CPU。
 - 参考[MindSpore安装指南](https://www.mindspore.cn/install)，完成MindSpore的安装。  
     MindArmour与MindSpore的版本需保持一致。
 - 其余依赖请参见[setup.py](https://gitee.com/mindspore/mindarmour/blob/master/setup.py)。
